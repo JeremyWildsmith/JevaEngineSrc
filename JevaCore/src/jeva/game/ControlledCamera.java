@@ -1,5 +1,7 @@
 package jeva.game;
 
+import com.sun.istack.internal.Nullable;
+
 import jeva.math.Vector2D;
 import jeva.math.Vector2F;
 import jeva.world.World;
@@ -11,10 +13,13 @@ public final class ControlledCamera implements IWorldCamera
 {
 
 	/** The m_world. */
-	private World m_world;
+	@Nullable private World m_world;
 
-	/** The m_look at tile. */
+	/** Tile Offset */
 	private Vector2F m_lookAtTile;
+	
+	/** Screen Offset */
+	private Vector2D m_lookAtScreen;
 
 	/**
 	 * Instantiates a new controlled camera.
@@ -22,6 +27,7 @@ public final class ControlledCamera implements IWorldCamera
 	public ControlledCamera()
 	{
 		m_lookAtTile = new Vector2F();
+		m_lookAtScreen = new Vector2D();
 	}
 
 	/**
@@ -43,7 +49,15 @@ public final class ControlledCamera implements IWorldCamera
 	 */
 	public void lookAt(Vector2F tileLocation)
 	{
-		m_lookAtTile = tileLocation;
+		if(m_world != null)
+		{
+			float fX = Math.min(Math.max(0, tileLocation.x), m_world.getWidth() - 1);
+			float fY = Math.min(Math.max(0, tileLocation.y), m_world.getHeight() - 1);
+			m_lookAtTile = new Vector2F(fX, fY);
+			
+			m_lookAtScreen = m_world.translateWorldToScreen(m_lookAtTile, getScale());
+		}else
+			m_lookAtTile = tileLocation;
 	}
 
 	/**
@@ -54,7 +68,7 @@ public final class ControlledCamera implements IWorldCamera
 	 */
 	public void move(Vector2F delta)
 	{
-		m_lookAtTile = m_lookAtTile.add(delta);
+		lookAt(m_lookAtTile.add(delta));
 	}
 
 	/*
@@ -65,14 +79,7 @@ public final class ControlledCamera implements IWorldCamera
 	@Override
 	public Vector2D getLookAt()
 	{
-		if (m_world == null)
-			return new Vector2D();
-
-		float fX = Math.min(Math.max(0, m_lookAtTile.x), m_world.getWidth() - 1);
-		float fY = Math.min(Math.max(0, m_lookAtTile.y), m_world.getHeight() - 1);
-		m_lookAtTile = new Vector2F(fX, fY);
-
-		return m_world.translateWorldToScreen(m_lookAtTile, getScale());
+		return m_lookAtScreen;
 	}
 
 	/*
@@ -84,6 +91,9 @@ public final class ControlledCamera implements IWorldCamera
 	public void attach(World world)
 	{
 		m_world = world;
+		
+		//Refresh target tile with current world
+		lookAt(m_lookAtTile);
 	}
 
 	/*

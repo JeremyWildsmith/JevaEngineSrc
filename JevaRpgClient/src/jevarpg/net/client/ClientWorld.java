@@ -40,12 +40,12 @@ public class ClientWorld extends NetWorld implements IClientShared
 		m_isWorldLoading = false;
 	}
 
-	public void addListener(IClientWorldObserver observer)
+	public void addObserver(IClientWorldObserver observer)
 	{
 		m_observers.add(observer);
 	}
 
-	public void removeListener(IClientWorldObserver observer)
+	public void removeObserver(IClientWorldObserver observer)
 	{
 		m_observers.remove(observer);
 	}

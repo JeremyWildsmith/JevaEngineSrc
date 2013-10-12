@@ -54,12 +54,12 @@ public class ClientCommunicator extends Communicator
 		m_observers.poll();
 	}
 
-	public void addListener(IClientCommunicatorObserver o)
+	public void addObserver(IClientCommunicatorObserver o)
 	{
 		m_observers.add(o);
 	}
 
-	public void removeListener(IClientCommunicatorObserver o)
+	public void removeObserver(IClientCommunicatorObserver o)
 	{
 		m_observers.remove(o);
 	}
@@ -75,7 +75,7 @@ public class ClientCommunicator extends Communicator
 		if (m_world != null)
 		{
 			m_observers.unservedWorld();
-			m_world.removeListener(m_worldObserver);
+			m_world.removeObserver(m_worldObserver);
 			m_world = null;
 		}
 	}
@@ -189,7 +189,7 @@ public class ClientCommunicator extends Communicator
 					ClientWorld world = (ClientWorld) entity;
 
 					m_world = world;
-					m_world.addListener(m_worldObserver);
+					m_world.addObserver(m_worldObserver);
 				}
 			} else if (entity instanceof ClientRpgCharacter)
 			{

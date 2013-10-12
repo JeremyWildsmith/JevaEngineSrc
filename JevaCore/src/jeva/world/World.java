@@ -345,7 +345,7 @@ public class World extends Variable implements IDisposable
 	 * @param o
 	 *            the o
 	 */
-	public void addListener(IWorldObserver o)
+	public void addObserver(IWorldObserver o)
 	{
 		m_observers.add(o);
 	}
@@ -356,7 +356,7 @@ public class World extends Variable implements IDisposable
 	 * @param o
 	 *            the o
 	 */
-	public void removeListener(IWorldObserver o)
+	public void removeObserver(IWorldObserver o)
 	{
 		m_observers.remove(o);
 	}

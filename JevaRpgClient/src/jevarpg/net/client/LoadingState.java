@@ -36,7 +36,7 @@ public class LoadingState implements IGameState
 
 	private void loadingCompleted(String playerEntityName, ClientUser user, World world)
 	{
-		m_context.getCommunicator().removeListener(m_handler);
+		m_context.getCommunicator().removeObserver(m_handler);
 		m_handler.dispose();
 
 		m_context.setState(new PlayingState(playerEntityName, user, world));
@@ -49,14 +49,14 @@ public class LoadingState implements IGameState
 
 		context.getWindowManager().addWindow(m_connectingWindow);
 
-		m_context.getCommunicator().addListener(m_handler);
+		m_context.getCommunicator().addObserver(m_handler);
 	}
 
 	@Override
 	public void leave()
 	{
 		m_context.getWindowManager().removeWindow(m_connectingWindow);
-		m_context.getCommunicator().removeListener(m_handler);
+		m_context.getCommunicator().removeObserver(m_handler);
 		m_handler.dispose();
 		m_context = null;
 	}
@@ -88,7 +88,7 @@ public class LoadingState implements IGameState
 		public void dispose()
 		{
 			if (m_user != null)
-				m_user.removeListener(this);
+				m_user.removeObserver(this);
 		}
 
 		@Override
@@ -107,7 +107,7 @@ public class LoadingState implements IGameState
 		public void servedUser(ClientUser user)
 		{
 			m_user = user;
-			user.addListener(this);
+			user.addObserver(this);
 
 			checkReady();
 		}
@@ -115,7 +115,7 @@ public class LoadingState implements IGameState
 		@Override
 		public void unservedUser()
 		{
-			m_user.removeListener(this);
+			m_user.removeObserver(this);
 			m_user = null;
 		}
 

@@ -89,7 +89,7 @@ public class PlayingState implements IGameState
 		m_context.getWindowManager().addWindow(m_hud);
 		m_context.getWindowManager().addWindow(m_chatMenu);
 
-		m_user.addListener(m_handler);
+		m_user.addObserver(m_handler);
 
 		m_context.setWorld(m_world);
 
@@ -103,7 +103,7 @@ public class PlayingState implements IGameState
 			playerAdded((RpgCharacter) characterVar);
 		}
 
-		m_world.addListener(m_handler);
+		m_world.addObserver(m_handler);
 	}
 
 	@Override
@@ -112,8 +112,8 @@ public class PlayingState implements IGameState
 		m_context.getWindowManager().removeWindow(m_hud);
 		m_context.getWindowManager().removeWindow(m_chatMenu);
 
-		m_user.removeListener(m_handler);
-		m_world.removeListener(m_handler);
+		m_user.removeObserver(m_handler);
+		m_world.removeObserver(m_handler);
 
 		m_context.setPlayer(null);
 		m_context.clearWorld();

@@ -31,12 +31,12 @@ public class ClientUser extends NetUser implements IClientShared
 		m_credentials = credentials;
 	}
 
-	public void addListener(IClientUserObserver o)
+	public void addObserver(IClientUserObserver o)
 	{
 		m_observers.add(o);
 	}
 
-	public void removeListener(IClientUserObserver o)
+	public void removeObserver(IClientUserObserver o)
 	{
 		m_observers.remove(o);
 	}
