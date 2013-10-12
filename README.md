@@ -36,6 +36,8 @@ http://www.youtube.com/watch?v=rWA8bajpVXg
 
 http://www.youtube.com/watch?v=eOQo7KmqtFM
 
+![alt tag](http://i.imgur.com/gEHj6K5.png)
+
 Due to some code refactoring, some of those videos will differ from the current version in the repository.
 
 
