@@ -41,19 +41,18 @@ public class ClientCommunicator extends Communicator
 	private WorldObserver m_worldObserver = new WorldObserver();
 
 	private Observers m_observers = new Observers();
+	
+	private EntityShareHandler m_shareHandler = new EntityShareHandler();
 
 	public ClientCommunicator()
 	{
 		registerClass(ClientRpgCharacter.class);
 		registerClass(ClientWorld.class);
 		registerClass(ClientUser.class);
+		
+		this.addObserver(m_shareHandler);
 	}
-
-	public void poll()
-	{
-		m_observers.poll();
-	}
-
+	
 	public void addObserver(IClientCommunicatorObserver o)
 	{
 		m_observers.add(o);
@@ -91,7 +90,8 @@ public class ClientCommunicator extends Communicator
 
 	public void update(int deltaTime)
 	{
-
+		poll();
+		
 		try
 		{
 			m_tickCount += deltaTime;
@@ -140,21 +140,21 @@ public class ClientCommunicator extends Communicator
 			return super.instantiatePair(entityClass);
 	}
 
-	@Override
-	protected void onEntityUnshared(SharedEntity entity)
+	private class EntityShareHandler implements ICommunicatorObserver
 	{
-		if (!(entity instanceof IClientShared))
-			disconnect("Server shared unrecognized entity.");
-		else
+		@Override
+		public void entityUnshared(SharedEntity entity)
 		{
-			m_sharedEntities.remove((IClientShared) entity);
+			if (!(entity instanceof IClientShared))
+				disconnect("Server shared unrecognized entity.");
+			else
+			{
+				m_sharedEntities.remove((IClientShared) entity);
 
-			if (entity instanceof ClientWorld)
-			{
-				unserveWorld();
-			} else if (entity instanceof ClientRpgCharacter)
-			{
-				synchronized (m_associatedEntities)
+				if (entity instanceof ClientWorld)
+				{
+					unserveWorld();
+				} else if (entity instanceof ClientRpgCharacter)
 				{
 					ClientRpgCharacter character = (ClientRpgCharacter) entity;
 
@@ -162,49 +162,47 @@ public class ClientCommunicator extends Communicator
 
 					if (character.isAssociated())
 						character.disassociate();
+				} else if (entity instanceof ClientRpgCharacter)
+				{
+					m_observers.unservedUser();
+					m_servedUser = null;
 				}
-			} else if (entity instanceof ClientRpgCharacter)
-			{
-				m_observers.unservedUser();
-				m_servedUser = null;
 			}
 		}
-	}
-
-	@Override
-	protected void onEntityShared(SharedEntity entity)
-	{
-		if (!(entity instanceof IClientShared))
-			disconnect("Server shared unrecognized entity.");
-		else
+		
+		@Override
+		public void entityShared(SharedEntity entity)
 		{
-			m_sharedEntities.add((IClientShared) entity);
-
-			if (entity instanceof ClientWorld)
+			if (!(entity instanceof IClientShared))
+				disconnect("Server shared unrecognized entity.");
+			else
 			{
-				if (m_world != null)
-					disconnect("Server shared world when world has already been initialized");
-				else
+				m_sharedEntities.add((IClientShared) entity);
+	
+				if (entity instanceof ClientWorld)
 				{
-					ClientWorld world = (ClientWorld) entity;
-
-					m_world = world;
-					m_world.addObserver(m_worldObserver);
-				}
-			} else if (entity instanceof ClientRpgCharacter)
-			{
-				synchronized (m_associatedEntities)
+					if (m_world != null)
+						disconnect("Server shared world when world has already been initialized");
+					else
+					{
+						ClientWorld world = (ClientWorld) entity;
+	
+						m_world = world;
+						m_world.addObserver(m_worldObserver);
+					}
+				} else if (entity instanceof ClientRpgCharacter)
 				{
 					ClientRpgCharacter character = (ClientRpgCharacter) entity;
 					m_associatedEntities.add(character);
-
+	
 					if (m_world.isReady())
 						character.associate(m_world.getWorld());
+					
+				} else if (entity instanceof ClientUser)
+				{
+					m_servedUser = (ClientUser) entity;
+					m_observers.servedUser((ClientUser) entity);
 				}
-			} else if (entity instanceof ClientUser)
-			{
-				m_servedUser = (ClientUser) entity;
-				m_observers.servedUser((ClientUser) entity);
 			}
 		}
 	}
@@ -214,11 +212,8 @@ public class ClientCommunicator extends Communicator
 		@Override
 		public void worldInitialized()
 		{
-			synchronized (m_associatedEntities)
-			{
-				for (IWorldAssociation e : m_associatedEntities)
-					e.associate(m_world.getWorld());
-			}
+			for (IWorldAssociation e : m_associatedEntities)
+				e.associate(m_world.getWorld());
 
 			m_observers.servedWorld(m_world.getWorld());
 		}
@@ -226,84 +221,33 @@ public class ClientCommunicator extends Communicator
 
 	private static class Observers extends StaticSet<IClientCommunicatorObserver>
 	{
-		private ArrayList<Runnable> m_events = new ArrayList<Runnable>();
-
-		public synchronized void poll()
+		public void servedWorld(final World world)
 		{
-			for (Runnable r : m_events)
-				r.run();
-
-			m_events.clear();
+			for (IClientCommunicatorObserver o : Observers.this)
+				o.servedWorld(world);
 		}
 
-		public synchronized void servedWorld(final World world)
+		public void unservedWorld()
 		{
-			m_events.add(new Runnable()
-			{
+			for (IClientCommunicatorObserver o : Observers.this)
+				o.unservedWorld();
 
-				@Override
-				public void run()
-				{
-					for (IClientCommunicatorObserver o : Observers.this)
-						o.servedWorld(world);
-				}
-			});
 		}
 
-		public synchronized void unservedWorld()
-		{
-			m_events.add(new Runnable()
-			{
+		public void servedUser(final ClientUser user) {
 
-				@Override
-				public void run()
-				{
-					for (IClientCommunicatorObserver o : Observers.this)
-						o.unservedWorld();
-				}
-			});
+			for (IClientCommunicatorObserver o : Observers.this)
+				o.servedUser(user);
 		}
 
-		public synchronized void servedUser(final ClientUser user)
-		{
-			m_events.add(new Runnable()
-			{
-
-				@Override
-				public void run()
-				{
-					for (IClientCommunicatorObserver o : Observers.this)
-						o.servedUser(user);
-				}
-			});
+		public void unservedUser() {
+			for (IClientCommunicatorObserver o : Observers.this)
+				o.unservedUser();
 		}
 
-		public synchronized void unservedUser()
-		{
-			m_events.add(new Runnable()
-			{
-
-				@Override
-				public void run()
-				{
-					for (IClientCommunicatorObserver o : Observers.this)
-						o.unservedUser();
-				}
-			});
-		}
-
-		public synchronized void disconnected(final String cause)
-		{
-			m_events.add(new Runnable()
-			{
-
-				@Override
-				public void run()
-				{
-					for (IClientCommunicatorObserver o : Observers.this)
-						o.disconnected(cause);
-				}
-			});
+		public void disconnected(final String cause) {
+			for (IClientCommunicatorObserver o : Observers.this)
+				o.disconnected(cause);
 		}
 	}
 

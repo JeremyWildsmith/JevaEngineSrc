@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import jeva.communication.SharedEntity.SharedField;
 import jeva.communication.Snapshot.FieldSnapshot;
 import jeva.communication.Snapshot.MessageSnapshot;
+import jeva.util.StaticSet;
 
 public abstract class Communicator
 {
@@ -25,6 +26,8 @@ public abstract class Communicator
 
 	private long m_nextId;
 
+	private Observers m_observers = new Observers();
+	
 	public Communicator()
 	{
 		m_registeredClasses = new HashMap<String, Class<?>>();
@@ -87,7 +90,7 @@ public abstract class Communicator
 	{
 		m_pairs.put(new EntityId(false, id), entity);
 	}
-
+	
 	protected final void createPair(long id, String className) throws ShareEntityException, PolicyViolationException, IOException
 	{
 		if (!m_registeredClasses.containsKey(className))
@@ -108,7 +111,7 @@ public abstract class Communicator
 
 		entity.addListener(this);
 
-		onEntityShared(entity);
+		m_observers.entityShared(entity);
 	}
 
 	protected SharedEntity instantiatePair(Class<?> entityClass) throws ShareEntityException
@@ -139,7 +142,7 @@ public abstract class Communicator
 
 		SharedEntity entity = m_pairs.remove(id);
 		entity.removeListener(this);
-		onEntityUnshared(entity);
+		m_observers.entityUnshared(entity);
 	}
 
 	final void snapshotField(SharedEntity networkEntity, SharedField<?> field, Object value)
@@ -210,7 +213,7 @@ public abstract class Communicator
 		m_remote.remoteQueryPair(id.getId(), shared.name());
 
 		networkEntity.addListener(this);
-		onEntityShared(networkEntity);
+		m_observers.entityShared(networkEntity);
 	}
 
 	public final boolean unshareEntity(SharedEntity networkEntity) throws IOException
@@ -229,7 +232,7 @@ public abstract class Communicator
 		{
 			SharedEntity garbageEntity = m_pairs.get(id);
 
-			onEntityUnshared(m_pairs.get(id));
+			m_observers.entityUnshared(m_pairs.get(id));
 
 			garbageEntity.removeListener(this);
 			m_pairs.remove(id);
@@ -284,7 +287,7 @@ public abstract class Communicator
 				// we must iterate through pairs assuming that the collection
 				// may change
 				// every time we remove a listener.
-				onEntityUnshared(next.getValue());
+				m_observers.entityUnshared(next.getValue());
 				next.getValue().removeListener(this);
 				m_pairs.remove(next.getKey());
 			} catch (IOException e)
@@ -333,12 +336,62 @@ public abstract class Communicator
 		routeSnapshot(snapshot);
 	}
 
+	public void addObserver(ICommunicatorObserver o)
+	{
+		m_observers.add(o);
+	}
+	
+	public void removeObserver(ICommunicatorObserver o)
+	{
+		m_observers.remove(o);
+	}
+	
+	public void poll()
+	{
+		m_observers.poll();
+	}
+	
 	protected abstract boolean isServer();
 
-	protected abstract void onEntityShared(SharedEntity entity);
-
-	protected abstract void onEntityUnshared(SharedEntity entity);
-
+	private static class Observers extends StaticSet<ICommunicatorObserver>
+	{
+		private ArrayList<Runnable> m_events = new ArrayList<Runnable>();
+		
+		private synchronized void poll()
+		{
+			for(Runnable r : m_events)
+				r.run();
+			
+			m_events.clear();
+		}
+		
+		public synchronized void entityShared(final SharedEntity e)
+		{
+			m_events.add(new Runnable(){
+				@Override
+				public void run() {
+					for(ICommunicatorObserver o : Observers.this)
+						o.entityShared(e);
+				}});
+		}
+		
+		public synchronized void entityUnshared(final SharedEntity e)
+		{
+			m_events.add(new Runnable(){
+				@Override
+				public void run() {
+					for(ICommunicatorObserver o : Observers.this)
+						o.entityUnshared(e);
+				}});
+		}
+	}
+	
+	public interface ICommunicatorObserver
+	{
+		void entityShared(SharedEntity e);
+		void entityUnshared(SharedEntity e);
+	}
+	
 	public abstract static class RemoteCommunicator
 	{
 		private Communicator m_listener;

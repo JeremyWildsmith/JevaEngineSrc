@@ -5,7 +5,6 @@ import java.io.IOException;
 import com.sun.istack.internal.Nullable;
 
 import jeva.communication.Communicator;
-import jeva.communication.SharedEntity;
 import jeva.communication.SnapshotSynchronizationException;
 
 public class ServerCommunicator extends Communicator
@@ -60,15 +59,5 @@ public class ServerCommunicator extends Communicator
 	protected boolean isServer()
 	{
 		return true;
-	}
-
-	@Override
-	protected void onEntityShared(SharedEntity entity)
-	{
-	}
-
-	@Override
-	protected void onEntityUnshared(SharedEntity entity)
-	{
 	}
 }
