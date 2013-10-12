@@ -36,3 +36,16 @@ http://www.youtube.com/watch?v=rWA8bajpVXg
 http://www.youtube.com/watch?v=eOQo7KmqtFM
 
 Due to some code refactoring, some of those videos will differ from the current version in the repository.
+
+
+How to Contribute
+=================
+
+- You can contact the project administrator (Jeremy. Allen. Wildsmith) at JeremyWildsmith@yahoo.ca
+
+How to Compile
+=================
+
+- Uses Eclipse Project Files
+- Check out solution, add the individual projects into a single work-space. They should compile fine.
+
