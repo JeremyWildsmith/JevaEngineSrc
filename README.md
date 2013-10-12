@@ -15,6 +15,7 @@ lot of ground ot cover here. If you'd like to participate, please contact me at 
 
 Features
 ========
+- Pure Java Implementation. No native dependencies, maximizing cross-platform ability.
 - Fully Scriptable. Scriptable scenes, events & NPCs (Scripts are written in JavaScript)
 - Centralized Server Networking Implementation for Online RPG Games. Entity scripts, world triggers etc work seamlessly off and on server.
 - UI Is entirely skinnable and customizable - Jeva Core provides a solid infastructure for most general UI components.
