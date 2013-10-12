@@ -1,0 +1,8 @@
+sprites/0:particle/heal/heal.jsf;
+particleCount:10000;
+particleLife:5000;
+accleration/x:-25;
+accleration/y:-25;
+velocity/x:0;
+velocity/y:-10;
+variation:0.2;

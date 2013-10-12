@@ -1,0 +1,5 @@
+name:Health Pack;
+script:item/healthpack.js;
+sprite:item/healthpack.jsf;
+itemType:0;
+description:A shiny white health-pack.%0A%0AAdds 100 Health.;

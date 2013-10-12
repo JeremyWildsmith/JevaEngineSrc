@@ -1,0 +1,10 @@
+/query/0:%28%220%22%2C%22-1%22%29;
+/query/0/answer/0:%28%221%22%2C%22-1%22%2C%22-1%22%29;
+/query/1:%28%222%22%2C%22-1%22%29;
+/query/1/answer/0:%28%223%22%2C%22-1%22%2C%220%22%29;
+/query/1/answer/1:%28%224%22%2C%22-1%22%2C%22-1%22%29;
+/text/0:I+probably+shouldn%27t+leave+until+I+finish+looking+around+here+more+closely.;
+/text/1:Okay;
+/text/2:Am+I+done+looking+around+here%3F;
+/text/3:Yes;
+/text/4:No;

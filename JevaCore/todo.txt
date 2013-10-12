@@ -1,0 +1,117 @@
+- protected final void pairDestroyed(long remoteId) throws PolicyViolationException, IOException
+	never used?
+
+- No modifier to member functions you only want to be accessed by the package, and not the subclass
+
+- Get inventoryMenu etc has to not be exposed via ClientGame, should be stuck inside of PlayingState
+
+- Move Dialogue code to JevaRpg
+
+- Scripts control entity right-click actions & handlers
+
+- Reduce threading complexity introduced via JevaCommunication's Communicator
+ - by wrapping (command pattern) and queuing calls to onEntityShared, onEntityUnshared
+ 	- Then invoke those queued calls synchronously with a call to synchronize()
+ 		- Before you dispatched queued snapshots.
+
+- Character Avatars in dialogue
+
+--- Planned Features --
+
+- Scriptable & Data-Driven UI
+
+- Command pattern for map editor, to undo redo etc...
+
+- Observer Pattern for game options
+
+--- Security Flaws ---
+- Clients can mutate unowned subjects via dialogue.
+	- invokeDialogEvent should be private.
+		- Servers should be the ones to invoke dialog
+
+- Clients can literally invoke dialog wherever they want.
+
+- Clients can attack players on same team if client-side data is altered to put them on opposite teams.
+
+--- Distribution notes ---
+
+- Targeting too recent of a JRE, most potential players lag behind
+
+--- Bugs HI-MEDIUM ---
+
+- Zombies can see through min obstruction walls?
+
+--- BUGS MEDIUM ---
+
+- PlayAudoTask doesn't block
+
+--- Noticed Implementation Flaws ---
+
+- The way client overrides inventory is messy, find alternative.
+	- Proper decorator, implement decorator pattern
+		- Implement an IInventory interface and compose\wrap character inventory
+		
+- use NetMessageInvalid should be used throughout server\client to capture errors and issue disconnection.
+
+- World shouldn't expose camera details, that is the cameras job. I.e, getWorldMatrix(or w\e it is)
+
+- Large map files
+	- Takes too long to parse text form of variable store, find a more optimal (binary) form to store them as.
+
+-Script throws a mix for CoreScriptException and ScriptException
+	- CoreScriptException is redundant
+		- Resolve when resolving all exceptions in jevaengine
+
+- Sort Game.World into proper packages.
+
+- Snapshots can contain redundant data. I.e, multiple movements
+	 - find more efficient way to managed this.
+
+- Snapshots can backlog with lots of redundant data.
+
+- Is cache in UI Style redundant?
+	- UI Subsystem needs some work..
+
+-- Goals ---
+
+- World Generation for demo (use generation library)
+
+- Include AntLion
+	http://opengameart.org/content/antlion
+
+- Make HOST & PORT taken from arguments via website's page
+	- or not, hide internally?
+		- Security>
+			- Pain in the ass for server redeployment
+			- Encrypt net traffic
+
+Game States
+	- Deserialize JSON from GJ API
+
+- Find way to bind lights and particles with entities via Entity abstract class's script bridge
+
+- Add world observer
+	- Synchronize world
+
+- Improve routing
+	- Reconstruct route if unable to take RouteNode && timeout elapses
+		- Maybe Get Route object to construct partial (full if not too time consuming) on request
+
+	- Add cost based node-finding (It is a TODO in jevaengine core)
+		- TEMP_FIX: Removed trafficing grading (not properly adjusted for cost...) in SearchNode.getCostToReachNode()
+
+- Profile audio cache
+
+statistics menu, leveling
+	- Delta text that floats off from top of character and fades.
+
+- Add projectiles to core
+
+- Allow scripted entities to precache
+
+- Implement event sequencer entity
+
+- Implement prefabs like blood effect spattered on tile.
+
+- Implement World depth (Z) so tiles can have different heights...
+

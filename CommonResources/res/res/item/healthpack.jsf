@@ -1,0 +1,7 @@
+source:item/graphic/icons.png;
+scale:1.0;
+
+animation/idle/0:102,7,16,14;
+
+anchor/idle/0:8,7;
+delay/idle/0:1000;

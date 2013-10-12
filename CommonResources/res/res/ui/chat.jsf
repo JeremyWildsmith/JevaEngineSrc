@@ -1,0 +1,7 @@
+source:ui/chat.png;
+scale:1.0;
+
+animation/idle/0:0,0,432,180;
+
+anchor/idle/0:0,0;
+delay/idle/0:10000;

@@ -1,0 +1,3 @@
+dialog:dialog/tutorial.jdf;
+
+script:logic/tutorial.js;

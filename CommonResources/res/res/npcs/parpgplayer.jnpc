@@ -1,0 +1,24 @@
+name:Player;
+
+sprite:sprites/parpg/people/soldier.jsf;
+//Visibility factor (how well hidden is this object?)
+visibilityFactor:1.0;
+
+//View distance in tiles
+viewDistance:15;
+
+//Field of view, in radians
+fieldOfView:2.5;
+
+//Visual accuity 0->1, how this entity sees things
+visualAcuity:1.0;
+
+//Speed, in tiles/second
+speed:1.5;
+
+//Script file
+script:npcs/player.js;
+
+allegiance:2;
+
+inventorySize:15;

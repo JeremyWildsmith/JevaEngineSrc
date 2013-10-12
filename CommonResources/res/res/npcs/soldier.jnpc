@@ -1,0 +1,24 @@
+name:Soldier;
+
+sprite:sprites/parpg/people/soldier.jsf;
+
+visibilityFactor:1.0;
+
+//View distance in tiles
+viewDistance:15;
+
+//Field of view, in radians
+fieldOfView:2.5;
+
+//Visual accuity 0->1, how this entity sees things
+visualAcuity:1.0;
+
+//Speed, in tiles/second
+speed:0.8;
+
+//Script file
+script:npcs/villager.js;
+
+allegiance:2;
+
+inventorySize:15;

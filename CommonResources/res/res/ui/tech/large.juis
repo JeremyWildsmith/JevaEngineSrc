@@ -1,0 +1,15 @@
+frameFill:ui\tech\framefill.jsf;
+frameLeft:ui\tech\frameleft.jsf;
+frameRight:ui\tech\frameright.jsf;
+frameTop:ui\tech\frametop.jsf;
+frameBottom:ui\tech\framebottom.jsf;
+frameTopRight:ui\tech\frametopright.jsf;
+frameTopLeft:ui\tech\frametopleft.jsf;
+frameBottomRight:ui\tech\framebottomright.jsf;
+frameBottomLeft:ui\tech\framebottomleft.jsf;
+
+button:ui\tech\button.jsf;
+font:ui\tech\boxyboldfont.juif;
+
+audioButtonOver:ui\tech\audio\over.wav;
+audioButtonPress:ui\tech\audio\down.wav;

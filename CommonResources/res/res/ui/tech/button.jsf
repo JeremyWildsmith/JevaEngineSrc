@@ -1,0 +1,6 @@
+source:ui\tech\tech\frame.png;
+scale:1.0;
+animation/off/0:16,0,0,1;
+
+anchor/off/0:20,22;
+delay/off/0:1000;

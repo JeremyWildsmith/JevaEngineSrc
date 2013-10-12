@@ -1,0 +1,7 @@
+source:particle/charactermenu/charactermenu.png;
+scale:0.25;
+
+animation/idle/0:0,0,128,128;
+
+anchor/idle/0:64,64;
+delay/idle/0:1000;

@@ -1,0 +1,54 @@
+/*
+ * EVENTS
+ *
+ * 0 - Start quest, "Find out whats going on"
+ * 1 - 
+ *
+ * Entry points
+ *
+ * 0 - Path to picking up "Find out whats going on"
+ * 5  - Dialog if above quest is in progress
+ * 
+ */
+
+
+text/0:Hey Jeremy, did you hear that?;
+text/1:Nope;
+text/2:Yeah what the fuck was that?;
+text/3:This place is starting to creep me out, and with all those scientists down there I wonder what they're doing.;
+text/4:Scientists? Do you know why we're deployed here?;
+text/5:Nah, our captin hasn't said anything about it. I doubt he even knows. All I know is that they're directing some sort of experiment down there...;
+text/6:Curious... Speaking of our captin, he seems to be asleep.;
+text/7:Heh. Hey, tell me if you figure anything out, will yah?;
+text/8:Sure;
+text/9:You picked up a new quest "What Are We Doing?" You can access your quest log by right-clicking on your character and selecting Quests;
+text/10:Start Quest;
+text/11:Hey, did you discover anything new?;
+
+//Query takes argument list:
+//(text index, event id [optional])
+
+//Answer takes argument list:
+//(textIndex, nextNode[optional], event id[optional])
+//Next node can be omitted, if eventid does not redirect (or missing event argument) then ends dialog.
+
+//Entrypoint 0 - picking up "Find out whats going on"
+query/0:("0");
+query/0/answer/0:("1", "1");
+query/0/answer/1:("2", "1");
+
+	query/1:("3");
+	query/1/answer/0:("4", "2");
+
+	query/2:("5");
+	query/2/answer/0:("6", "3");
+
+	query/3:("7");
+	query/3/answer/0:("8", "4");
+
+	query/4:("9");
+	query/4/answer/0:("10", "-1", "0");
+
+//Entrypoint 5 - During What is going on?
+query/5:("11");
+query/5/answer/0:("1");

@@ -1,0 +1,57 @@
+Welcome To UnderGround Online
+
+For Latest News, Support & Feedback, Visit: reddit.com/r/jevaengine
+
+Game Masters or Staff will never ask for your password. Do not disclose any personal data to anyone including staff members. JevaEngine is not directly affiliated with GameJolt. 
+
+
+
+
+
+(Scroll Down For Credits)
+
+Credits:
+JevaEngine Team - Lead Programmer - Jeremy. A. W.
+    - JevaEngine Programmer
+
+OpenGameArt.org - cemkalyoncu
+    - BoxyBold UI Font
+
+OpenGameArt.org - NenadSimic
+    - UI select sound
+
+OpenGameArt.org - Sudocolon
+    - UI hover over sound
+
+OpenGameArt.org - Michel Baradari
+    - AutoRifle\Rifle Sound Effects
+
+OpenGameArt.org - AllergicRacoon
+    - UI select sound
+
+DeviantArt.com  - SteelRaven7
+    - Soldier Character Graphics
+
+OpenGameArt.org - leeor_net
+    - Character Menu Particle Effects
+
+OpenGameArt.org - johndh
+    - Blood Particle Effect
+    - Spider Character Graphics (Wciow for Model and Texture)
+
+OpenGameArt.org - AngryMeteor
+    - Item icons
+
+OpenGameArt.org - Clint Bellanger
+    - Dungeon Tile Graphics
+    - Zombie Character Graphics
+
+OpenGameArt.org - Clint Bellanger,Lamoot,Blender Foundation lattice, p0ss, OpenGameArt.org Bart K. Sindwiller
+    - Outside Tile Graphics
+
+PARPG Assets: - http://wiki.parpg.net/Gallery#RendersThanks To: 
+    - Java-Gaming.org
+    - OpenGameArt.org
+    - GameJolt.org
+    - The Flare Project
+    - PARPG

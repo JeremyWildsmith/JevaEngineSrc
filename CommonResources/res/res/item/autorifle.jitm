@@ -1,0 +1,5 @@
+name:Rifle;
+script:item/autorifle.js;
+sprite:item/autorifle.jsf;
+itemType:2;
+description:A finely crafted automatic rifle%0A%0ARange: 5 tiles%0AAttack Multiplier: 0.05;
