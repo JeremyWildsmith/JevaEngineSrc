@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/ProGuard/annotations.jar"/>
+	<classpathentry kind="lib" path="/Vorbis/jogg-0.0.7.jar"/>
+	<classpathentry kind="lib" path="/Vorbis/jorbis-0.0.15.jar"/>
+	<classpathentry kind="lib" path="/Vorbis/tritonus_share.jar"/>
+	<classpathentry kind="lib" path="/Vorbis/vorbisspi1.0.3.jar"/>
+	<classpathentry kind="lib" path="/RhinoJSEngine/js-14.jar"/>
+	<classpathentry kind="output" path="build/classes"/>
+</classpath>
