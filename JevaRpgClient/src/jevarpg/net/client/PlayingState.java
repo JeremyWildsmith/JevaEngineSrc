@@ -95,7 +95,7 @@ public class PlayingState implements IGameState
 
 		m_hud.setLocation(new Vector2D(20, 670));
 		m_hud.setMovable(false);
-		m_hud.setVisible(true);
+		m_hud.setVisible(false);
 	}
 
 	@Override

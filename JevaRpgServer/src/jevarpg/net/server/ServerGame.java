@@ -104,7 +104,7 @@ public class ServerGame extends RpgGame implements IDisposable
 		{
 			for (ServerWorld world : m_worlds)
 			{
-				if (world.getName().compareTo(formalName) == 0)
+				if (world.getName().equals(formalName))
 				{
 					return world;
 				}
@@ -486,22 +486,25 @@ public class ServerGame extends RpgGame implements IDisposable
 			{
 				m_isRemoteInitialized = true;
 
-				m_character = new ServerRpgCharacter(m_user.getUsername(), "PLAYER_" + m_user.getUsername().toLowerCase(), ServerGame.this, "npcs/player.jnpc");
-
+				m_character = new ServerRpgCharacter(m_user.getUsername(), 
+														"PLAYER_" + m_user.getUsername().toLowerCase(),
+														ServerGame.this, 
+														"npcs/player.jnpc");
+				
 				m_character.getCharacter().setLocation(new Vector2F(6, 6));
-
 				m_character.setOwner(m_communicator);
 
 				m_user.assignEntity(m_character.getCharacter().getName());
-
-				getServerWorld("map/outsideClosed.jmp").getWorld().addEntity(m_character.getControlledEntity());
+				
+				ServerWorld spawnWorld = getServerWorld("map/outsideClosed.jmp");
+				spawnWorld.getWorld().addEntity(m_character.getControlledEntity());
 
 				try
 				{
-					m_communicator.shareEntity(getServerWorld("map/outsideClosed.jmp"));
+					m_communicator.shareEntity(spawnWorld);
 				} catch (ShareEntityException | IOException e)
 				{
-					closeConnection(RemoteClient.this, "Error occured attemting to share with client: " + e.toString());
+					closeConnection(RemoteClient.this, "Error occured attempting to share with client: " + e.toString());
 				}
 
 			} else if (m_character != null && m_character.getCharacter().isDead())

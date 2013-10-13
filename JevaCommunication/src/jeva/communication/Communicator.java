@@ -121,7 +121,7 @@ public abstract class Communicator
 
 		pairEntity(id, entity);
 
-		entity.addListener(this);
+		entity.bindCommunicator(this);
 
 		m_observers.entityShared(entity);
 	}
@@ -153,7 +153,7 @@ public abstract class Communicator
 			throw new PolicyViolationException(pairClass.getCanonicalName(), shared.policy());
 
 		SharedEntity entity = m_pairs.remove(id);
-		entity.removeListener(this);
+		entity.unbindCommunicator(this);
 		m_observers.entityUnshared(entity);
 	}
 
@@ -224,7 +224,7 @@ public abstract class Communicator
 
 		m_remote.remoteQueryPair(id.getId(), shared.name());
 
-		networkEntity.addListener(this);
+		networkEntity.bindCommunicator(this);
 		m_observers.entityShared(networkEntity);
 	}
 
@@ -246,7 +246,7 @@ public abstract class Communicator
 
 			m_observers.entityUnshared(m_pairs.get(id));
 
-			garbageEntity.removeListener(this);
+			garbageEntity.unbindCommunicator(this);
 			m_pairs.remove(id);
 
 			if (m_remote == null)
@@ -300,7 +300,7 @@ public abstract class Communicator
 				// may change
 				// every time we remove a listener.
 				m_observers.entityUnshared(next.getValue());
-				next.getValue().removeListener(this);
+				next.getValue().unbindCommunicator(this);
 				m_pairs.remove(next.getKey());
 			} catch (IOException e)
 			{

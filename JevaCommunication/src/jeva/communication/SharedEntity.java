@@ -30,7 +30,7 @@ public abstract class SharedEntity
 
 	private ArrayList<MessageSynchronizationQuery> m_messageQueue;
 
-	private StaticSet<Communicator> m_listeners;
+	private StaticSet<Communicator> m_boundCommunicators;
 
 	private SharedEntity m_parent;
 
@@ -42,25 +42,25 @@ public abstract class SharedEntity
 
 		m_messageQueue = new ArrayList<MessageSynchronizationQuery>();
 
-		m_listeners = new StaticSet<Communicator>();
+		m_boundCommunicators = new StaticSet<Communicator>();
 	}
 
-	protected void addListener(Communicator listener) throws IOException, ShareEntityException, PolicyViolationException
+	void bindCommunicator(Communicator listener) throws IOException, ShareEntityException, PolicyViolationException
 	{
 		synchronized (m_children)
 		{
-			m_listeners.add(listener);
+			m_boundCommunicators.add(listener);
 
 			for (SharedEntity e : m_children)
 				listener.shareEntity(e);
 		}
 	}
 
-	protected void removeListener(Communicator listener) throws IOException
+	void unbindCommunicator(Communicator listener) throws IOException
 	{
 		synchronized (m_children)
 		{
-			m_listeners.remove(listener);
+			m_boundCommunicators.remove(listener);
 
 			for (SharedEntity e : m_children)
 				listener.unshareEntity(e);
@@ -165,7 +165,7 @@ public abstract class SharedEntity
 	{
 		prepareSharedFields();
 
-		for (Communicator listener : m_listeners)
+		for (Communicator listener : m_boundCommunicators)
 		{
 			for (SharedField<?> entry : m_sharedFields)
 			{
@@ -189,11 +189,12 @@ public abstract class SharedEntity
 			while (it.hasNext())
 			{
 				MessageSynchronizationQuery message = it.next();
-
+				
 				try
 				{
-					if (onMessageRecieved(message.getSender(), message.getMessage()))
+					if(onMessageRecieved(message.getSender(), message.getMessage()))
 						it.remove();
+					
 				} catch (InvalidMessageException e)
 				{
 					// If the message is invalid, remove it from the queue and
@@ -231,7 +232,7 @@ public abstract class SharedEntity
 
 			m_children.add(networkEntity);
 
-			for (Communicator listener : m_listeners)
+			for (Communicator listener : m_boundCommunicators)
 				listener.shareEntity(networkEntity);
 		}
 	}
@@ -245,19 +246,27 @@ public abstract class SharedEntity
 
 			networkEntity.m_parent = null;
 
-			for (Communicator listener : m_listeners)
+			for (Communicator listener : m_boundCommunicators)
 				listener.unshareEntity(networkEntity);
 		}
 	}
 
-	protected final void send(Communicator reciever, Object message)
+	/**
+	 * Sends a message to a specified remote communicator that is bound to
+	 * this shared entity. If the receiver is not bound to this communicator, nothing
+	 * is sent to the communicator.
+	 * @param reciever The communicator (that has been bound to this entity) to receive the message.
+	 * @param message The message to send to the communicator.
+	 */
+	protected final void send(Communicator receiver, Object message)
 	{
-		reciever.enqueueMessage(this, message);
+		if(m_boundCommunicators.contains(receiver))
+			receiver.enqueueMessage(this, message);
 	}
 
 	protected final void send(Object message)
 	{
-		for (Communicator listener : m_listeners)
+		for (Communicator listener : m_boundCommunicators)
 			listener.enqueueMessage(this, message);
 	}
 
