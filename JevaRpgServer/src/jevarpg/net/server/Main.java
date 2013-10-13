@@ -69,7 +69,7 @@ public class Main
 			throw new RuntimeException(ex);
 		}
 
-		Core.initializeCore(new ServerGame(), new StatelessResourceLibrary());
+		Core.initialize(new ServerGame(), new StatelessResourceLibrary());
 
 		Game game = Core.getService(Game.class);
 

@@ -46,9 +46,9 @@ public final class Core
 	 * @param game
 	 *            A reference to the main game to be used by the core.
 	 * @param resourceLibrary
-	 *            A reference to the resource library to be used byu the core.
+	 *            A reference to the resource library to be used by the core.
 	 */
-	public static <T extends Game, Y extends IResourceLibrary> void initializeCore(T game, Y resourceLibrary)
+	public static <T extends Game, Y extends IResourceLibrary> void initialize(T game, Y resourceLibrary)
 	{
 		if (m_existingServices != null)
 			throw new CoreInitializationException("Core has already been initialized. Cannot repeat initialization");

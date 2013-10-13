@@ -18,6 +18,7 @@ import jeva.Core;
 import jeva.IResourceLibrary;
 import jeva.config.Variable;
 import jeva.config.VariableStore;
+import jeva.game.FollowCamera;
 import jeva.graphics.ui.Button;
 import jeva.graphics.ui.UIStyle;
 import jeva.graphics.ui.Window;
@@ -41,7 +42,10 @@ public class PlayingState implements IGameState
 	private EventHandler m_handler = new EventHandler();
 
 	private World m_world;
+	
 	private ClientUser m_user;
+	
+	private FollowCamera m_camera = new FollowCamera();
 
 	@Nullable
 	private String m_playerEntityName;
@@ -91,7 +95,7 @@ public class PlayingState implements IGameState
 
 		m_hud.setLocation(new Vector2D(20, 670));
 		m_hud.setMovable(false);
-		m_hud.setVisible(false);
+		m_hud.setVisible(true);
 	}
 
 	@Override
@@ -104,6 +108,8 @@ public class PlayingState implements IGameState
 		m_user.addObserver(m_handler);
 
 		m_context.setWorld(m_world);
+		
+		m_context.setCamera(m_camera);
 
 		if (m_playerEntityName != null && m_world.variableExists(m_playerEntityName))
 		{
@@ -127,6 +133,8 @@ public class PlayingState implements IGameState
 		m_user.removeObserver(m_handler);
 		m_world.removeObserver(m_handler);
 
+		m_context.clearCamera();
+		
 		m_context.setPlayer(null);
 		m_context.clearWorld();
 
@@ -140,6 +148,7 @@ public class PlayingState implements IGameState
 
 	private void playerAdded(RpgCharacter player)
 	{
+		m_camera.setTarget(player.getName());
 		m_context.setPlayer(player);
 		m_hud.setVisible(true);
 	}
@@ -219,7 +228,7 @@ public class PlayingState implements IGameState
 		@Override
 		public void addedEntity(Entity e)
 		{
-			if (m_playerEntityName == null && e instanceof RpgCharacter && e.getName().equals(m_playerEntityName))
+			if (m_playerEntityName != null && e instanceof RpgCharacter && e.getName().equals(m_playerEntityName))
 				playerAdded((RpgCharacter) e);
 		}
 

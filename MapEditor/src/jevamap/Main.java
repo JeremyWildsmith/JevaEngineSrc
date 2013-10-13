@@ -66,7 +66,7 @@ public class Main
 			throw new RuntimeException(ex);
 		}
 
-		Core.initializeCore(new MapEditor(), new StatelessResourceLibrary());
+		Core.initialize(new MapEditor(), new StatelessResourceLibrary());
 
 		Game game = Core.getService(Game.class);
 

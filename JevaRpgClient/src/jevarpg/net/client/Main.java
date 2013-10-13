@@ -125,7 +125,7 @@ public class Main implements WindowListener, KeyListener
 			return;
 		}
 
-		Core.initializeCore(new ClientGame(), new StatelessResourceLibrary());
+		Core.initialize(new ClientGame(), new StatelessResourceLibrary());
 
 		Game game = Core.getService(Game.class);
 
