@@ -832,17 +832,14 @@ public class World extends Variable implements IDisposable
 		worldViewBounds.y -= WORLD_CULLING_EXCCESS;
 		worldViewBounds.width += WORLD_CULLING_EXCCESS * 2;
 		worldViewBounds.height += WORLD_CULLING_EXCCESS * 2;
-
-		if (m_layers.isEmpty())
-			return;
-
-		if (m_layers.isEmpty())
-			return;
-
-		setRenderQueueLayerDepth(0);
-		m_layers.get(0).enqueueRender(worldViewBounds);
-
-		setRenderQueueLayerDepth(1);
+		
+		for(int i = 0; i < m_layers.size(); i++)
+		{
+			setRenderQueueLayerDepth(i);
+			m_layers.get(i).enqueueRender(worldViewBounds);
+		}
+		
+		setRenderQueueLayerDepth(m_entityLayer);
 
 		for (Entity entity : m_entities)
 		{
@@ -850,14 +847,7 @@ public class World extends Variable implements IDisposable
 				((Actor) entity).enqueueRender();
 		}
 
-		// Render overlaying layers
-		int layer;
-		for (layer = 1; layer < m_layers.size(); layer++)
-		{
-			m_layers.get(layer).enqueueRender(worldViewBounds);
-		}
-
-		setRenderQueueLayerDepth(layer);
+		setRenderQueueLayerDepth(Float.MAX_VALUE);
 
 		if (m_worldLighting.getTargetWidth() != viewBounds.width || m_worldLighting.getTargetHeight() != viewBounds.height)
 			m_worldLighting.setTargetBounds(viewBounds.width, viewBounds.height);
