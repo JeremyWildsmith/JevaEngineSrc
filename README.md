@@ -4,20 +4,14 @@ JevaEngine - Java Isometric Game Engine
 Source Code Repository for JevaEngine - An Isoemtric Java Game Engine
 
 JevaEngine is currently under very early development, and the source code is still being
-conditioned for user contribution. In the near future, the following is hoped to be accomplished:
-
-* Sufficiently Flesh Out JavaDoc. Any contributions in this area would be greatly appreciated as there is a
-lot of ground ot cover here. If you'd like to participate, please contact me at jeremywildsmith@yahoo.ca
-
-* Add approriate licenese to the code to allow for proper and legal usage.
-
-* The code needs a little cleaning.
+conditioned for user contribution.
 
 Features
 ========
 - Pure Java Implementation. No native dependencies, maximizing cross-platform ability.
 - Fully Scriptable. Scriptable scenes, events & NPCs (Scripts are written in JavaScript)
 - Centralized Server Networking Implementation for Online RPG Games. Entity scripts, world triggers etc work seamlessly off and on server.
+- Networking is cleanly isolated from the engine, allowing for varios networking models to be implemented seamlessly.
 - UI Is entirely skinnable and customizable - Jeva Core provides a solid infastructure for most general UI components.
 - Basic particle engine (implemented primary for attack\heal\projectile effects so noting too fancy)
 - Entities can save states and reload states (essential for game saves). States are can be saved on an integrated back-end that works over GameJolt API for Achievements, Scoring and Cloud Saving
