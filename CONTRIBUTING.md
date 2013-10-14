@@ -1,1 +1,1 @@
-, <a href="http://www.clahub.com/agreements/JeremyWildsmith/JevaEngineSrc">sign the Contributor License Agreement</a>. 
+If you have not already done so, you must <a href="http://www.clahub.com/agreements/JeremyWildsmith/JevaEngineSrc">sign the Contributor License Agreement</a>. If you have not signed such agreements, your contributions will be rejected.
