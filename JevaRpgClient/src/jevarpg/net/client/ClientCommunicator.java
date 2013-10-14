@@ -172,7 +172,8 @@ public class ClientCommunicator extends Communicator
 
 					if (character.isAssociated())
 						character.disassociate();
-				} else if (entity instanceof ClientRpgCharacter)
+					
+				} else if (entity instanceof ClientUser)
 				{
 					m_observers.unservedUser();
 					m_servedUser = null;
