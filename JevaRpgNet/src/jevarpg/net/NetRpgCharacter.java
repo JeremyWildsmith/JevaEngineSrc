@@ -70,6 +70,12 @@ public abstract class NetRpgCharacter extends SharedEntity
 
 			m_lastMoveTask.setDestination(destination);
 		}
+		
+		void commandRouteTo(Vector2F destination)
+		{
+			cancelTasks();
+			addTask(createMoveToTask(destination.floor(), 0));
+		}
 
 		// Only accessible within this package
 		// Keep away from inherting classes etc...
@@ -240,14 +246,11 @@ public abstract class NetRpgCharacter extends SharedEntity
 			if (character.getLocation().difference(getLocation()).getLength() > 0.8F)
 				character.setLocation(getLocation());
 
-			if (isMoving())
+			if (!character.getLocation().equals(getDestination()))
 			{
-				if (!character.getLocation().equals(getDestination()))
+				if (isMoving())
 					controller.commandMoveTo(getDestination());
-
-			} else
-			{
-				if (!character.getLocation().equals(getLocation()))
+				else
 					controller.commandMoveTo(getLocation());
 			}
 		}
@@ -716,7 +719,7 @@ public abstract class NetRpgCharacter extends SharedEntity
 		@Override
 		public void visit(Communicator sender, ControlledRpgCharacter controller) throws InvalidMessageException
 		{
-			controller.commandMoveTo(m_destination);
+			controller.commandRouteTo(m_destination);
 		}
 
 		@Override
