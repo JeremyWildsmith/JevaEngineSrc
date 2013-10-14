@@ -45,6 +45,7 @@ How to Contribute
 =================
 
 - You can contact the project administrator (Jeremy. Allen. Wildsmith) at JeremyWildsmith@yahoo.ca
+- You must sign and agree to the following CLA: http://www.clahub.com/agreements/JeremyWildsmith/JevaEngineSrc
 
 How to Compile
 =================
