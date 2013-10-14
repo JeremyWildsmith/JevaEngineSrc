@@ -102,10 +102,12 @@ public class PlayingState implements IGameState
 	public void enter(ClientGame context)
 	{
 		m_context = context;
+		
 		m_context.getWindowManager().addWindow(m_hud);
 		m_context.getWindowManager().addWindow(m_chatMenu);
 
 		m_user.addObserver(m_handler);
+		context.getCommunicator().addObserver(m_handler);
 
 		m_context.setWorld(m_world);
 		
@@ -132,6 +134,7 @@ public class PlayingState implements IGameState
 
 		m_user.removeObserver(m_handler);
 		m_world.removeObserver(m_handler);
+		m_context.getCommunicator().removeObserver(m_handler);
 
 		m_context.clearCamera();
 		
@@ -189,7 +192,7 @@ public class PlayingState implements IGameState
 		@Override
 		public void unservedWorld()
 		{
-			m_context.setState(new LoadingState());
+			m_context.setState(new LoadingState(m_user, m_playerEntityName));
 		}
 
 		@Override

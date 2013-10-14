@@ -31,8 +31,8 @@ public class PolicyViolationException extends RuntimeException
 		super("Network Policy Violation instantiating class: " + networkEntity.getClass().getCanonicalName() + " policy is:" + policy.toString());
 	}
 
-	public PolicyViolationException(String blassName, SharePolicy policy)
+	public PolicyViolationException(String className, SharePolicy policy)
 	{
-		super("Network Policy Violation instantiating class: " + blassName + " policy is:" + policy.toString());
+		super("Network Policy Violation instantiating class: " + className + " policy is:" + policy.toString());
 	}
 }

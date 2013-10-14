@@ -35,7 +35,7 @@ public class LoadingState implements IGameState
 
 	private EventHandler m_handler = new EventHandler();
 
-	public LoadingState()
+	public LoadingState(@Nullable ClientUser user, @Nullable String playerEntity, @Nullable World world)
 	{
 		final UIStyle styleLarge = UIStyle.create(VariableStore.create(Core.getService(IResourceLibrary.class).openResourceStream("ui/tech/large.juis")));
 
@@ -44,6 +44,19 @@ public class LoadingState implements IGameState
 		m_connectingWindow.setRenderBackground(false);
 		m_connectingWindow.addControl(new Label("Loading - May take some time", Color.white));
 		m_connectingWindow.setLocation(new Vector2D(240, 370));
+	
+
+		m_handler = new EventHandler(user, playerEntity, world);
+	}
+	
+	public LoadingState(@Nullable ClientUser user, @Nullable String playerEntity)
+	{
+		this(user, playerEntity, null);
+	}
+	
+	public LoadingState()
+	{
+		this(null, null, null);
 	}
 
 	private void loadingCompleted(String playerEntityName, ClientUser user, World world)
@@ -62,6 +75,8 @@ public class LoadingState implements IGameState
 		context.getWindowManager().addWindow(m_connectingWindow);
 
 		m_context.getCommunicator().addObserver(m_handler);
+		
+		m_handler.checkReady();
 	}
 
 	@Override
@@ -83,12 +98,26 @@ public class LoadingState implements IGameState
 	{
 		@Nullable
 		private ClientUser m_user;
+		
 		@Nullable
 		private World m_world;
+		
 		@Nullable
 		private String m_playerEntity;
 
-		private void checkReady()
+		public EventHandler()
+		{
+			
+		}
+		
+		public EventHandler(@Nullable ClientUser user, @Nullable String playerEntity, @Nullable World world)
+		{
+			m_user = user;
+			m_world = world;
+			m_playerEntity = playerEntity;
+		}
+		
+		public void checkReady()
 		{
 			if (m_user != null && m_user.isAuthenticated() && m_world != null && m_playerEntity != null)
 			{

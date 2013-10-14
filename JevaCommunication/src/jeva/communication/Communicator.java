@@ -329,14 +329,14 @@ public abstract class Communicator
 		}
 	}
 
-	public void remoteQueryPair(long id, String blassName) throws IOException
+	public void remoteQueryPair(long id, String className) throws IOException
 	{
 		// The remote has requested I create a pair with the specified class
 		// name.
 		// I must in return provide an ID to reference the pair
 		try
 		{
-			createPair(id, blassName);
+			createPair(id, className);
 		} catch (PolicyViolationException | ShareEntityException e)
 		{
 			throw new IOException(e);
@@ -358,7 +358,7 @@ public abstract class Communicator
 		m_observers.remove(o);
 	}
 	
-	public void poll()
+	public final void poll()
 	{
 		m_observers.poll();
 	}
@@ -367,7 +367,7 @@ public abstract class Communicator
 
 	private static class Observers extends StaticSet<ICommunicatorObserver>
 	{
-		private ArrayList<Runnable> m_events = new ArrayList<Runnable>();
+		private StaticSet<Runnable> m_events = new StaticSet<Runnable>();
 		
 		private synchronized void poll()
 		{
@@ -434,9 +434,13 @@ public abstract class Communicator
 			return m_listener;
 		}
 
+		protected abstract void onBind();
+		
+		protected abstract void onUnbind();
+		
 		public abstract void remoteDestroyPair(long id) throws IOException;
 
-		public abstract void remoteQueryPair(long id, String blassName) throws IOException;
+		public abstract void remoteQueryPair(long id, String className) throws IOException;
 
 		public abstract void remoteSnapshot(Snapshot snapshot) throws IOException;
 	}

@@ -37,6 +37,7 @@ public class ClientCommunicator extends Communicator
 
 	private final Logger m_logger = LoggerFactory.getLogger(ClientCommunicator.class);
 
+	@Nullable
 	private ClientWorld m_world;
 
 	private int m_tickCount = 0;
@@ -93,17 +94,14 @@ public class ClientCommunicator extends Communicator
 
 	protected void disconnect(String cause)
 	{
-		unserveWorld();
-
+		unbind();
 		m_observers.disconnected(cause);
-
-		m_sharedEntities.clear();
 	}
 
 	public void update(int deltaTime)
 	{
 		poll();
-		
+
 		try
 		{
 			m_tickCount += deltaTime;
@@ -207,7 +205,7 @@ public class ClientCommunicator extends Communicator
 					ClientRpgCharacter character = (ClientRpgCharacter) entity;
 					m_associatedEntities.add(character);
 	
-					if (m_world.isReady())
+					if (m_world != null && m_world.isReady())
 						character.associate(m_world.getWorld());
 					
 				} else if (entity instanceof ClientUser)

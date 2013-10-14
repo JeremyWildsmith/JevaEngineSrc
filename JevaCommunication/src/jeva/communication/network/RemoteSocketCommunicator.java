@@ -48,6 +48,15 @@ public class RemoteSocketCommunicator extends RemoteCommunicator implements IDis
 		m_dataListener = new DataListener(remote.getInputStream());
 	}
 
+	@Override
+	protected void onBind() { }
+	
+	@Override
+	public void onUnbind()
+	{
+		disconnect();
+	}
+	
 	private void disconnect()
 	{
 		if (!m_isConnected)
@@ -87,7 +96,7 @@ public class RemoteSocketCommunicator extends RemoteCommunicator implements IDis
 	}
 
 	@Override
-	public synchronized void remoteQueryPair(long id, String blassName) throws IOException
+	public synchronized void remoteQueryPair(long id, String className) throws IOException
 	{
 		if (!m_isConnected)
 			return;
@@ -95,7 +104,7 @@ public class RemoteSocketCommunicator extends RemoteCommunicator implements IDis
 		try
 		{
 			m_out.write(DataTransmitType.QueryPair.getId());
-			m_kryo.writeObject(m_out, new QueryPair(id, blassName));
+			m_kryo.writeObject(m_out, new QueryPair(id, className));
 			m_out.flush();
 		} catch (KryoException e)
 		{

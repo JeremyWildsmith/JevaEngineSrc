@@ -12,7 +12,6 @@
  ******************************************************************************/
 package jevarpg.net.server;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -23,7 +22,6 @@ import com.sun.istack.internal.Nullable;
 import jeva.Core;
 import jeva.communication.Communicator;
 import jeva.communication.InvalidMessageException;
-import jeva.communication.ShareEntityException;
 import jeva.communication.SharePolicy;
 import jeva.communication.SharedClass;
 import jeva.communication.SharedEntity;
@@ -252,34 +250,12 @@ public class ServerRpgCharacter extends NetRpgCharacter implements IServerEntity
 		{
 			m_movementState = new Movement(ServerRpgCharacter.this.getCharacter().getLocation());
 			m_server.entityEnter(ServerRpgCharacter.this);
-
-			if (m_owningCommunicator != null)
-			{
-				try
-				{
-					m_owningCommunicator.shareEntity(m_server.getServerWorld(m_character.getWorld()));
-				} catch (ShareEntityException | IOException e)
-				{
-					((ServerCommunicator) m_owningCommunicator).disconnect("Error sharing character's owning world: " + e.toString());
-				}
-			}
 		}
 
 		@Override
 		public void leaveWorld()
 		{
 			m_server.entityLeave(ServerRpgCharacter.this);
-
-			if (m_owningCommunicator != null)
-			{
-				try
-				{
-					m_owningCommunicator.unshareEntity(m_server.getServerWorld(m_character.getWorld()));
-				} catch (IOException e)
-				{
-					((ServerCommunicator) m_owningCommunicator).disconnect("Error sharing character's owning world: " + e.toString());
-				}
-			}
 		}
 
 		@Override

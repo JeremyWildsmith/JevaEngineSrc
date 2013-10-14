@@ -1079,15 +1079,15 @@ public class World extends Variable implements IDisposable
 		/**
 		 * Creates the entity.
 		 * 
-		 * @param blassName
+		 * @param className
 		 *            the blass name
 		 * @param args
 		 *            the args
 		 * @return the entity bridge
 		 */
-		public EntityBridge<?> createEntity(String blassName, String... args)
+		public EntityBridge<?> createEntity(String className, String... args)
 		{
-			return createNamedEntity(null, blassName, args);
+			return createNamedEntity(null, className, args);
 		}
 
 		/**

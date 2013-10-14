@@ -32,10 +32,10 @@ public class EditorEntity
 
 	private HashMap<String, String> m_postInitAssignment;
 
-	public EditorEntity(String name, String blassName, String arguments)
+	public EditorEntity(String name, String className, String arguments)
 	{
 		m_name = name;
-		m_className = blassName;
+		m_className = className;
 		m_arguments = arguments;
 
 		m_postInitAssignment = new HashMap<String, String>();
@@ -52,9 +52,9 @@ public class EditorEntity
 		return m_name;
 	}
 
-	public void setClassName(String blassName)
+	public void setClassName(String className)
 	{
-		m_className = blassName;
+		m_className = className;
 	}
 
 	public String getClassName()

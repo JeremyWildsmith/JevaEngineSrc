@@ -43,6 +43,7 @@ import jeva.joystick.InputManager.InputMouseEvent;
 import jeva.math.Vector2D;
 import jeva.math.Vector2F;
 import jeva.util.StaticSet;
+import jeva.world.Entity.IEntityObserver;
 import jeva.world.World;
 import jevarpg.RpgCharacter;
 import jevarpg.RpgGame;
@@ -462,8 +463,10 @@ public class ServerGame extends RpgGame implements IDisposable
 		public void dispose()
 		{
 			if (m_character != null && m_character.getCharacter().isAssociated())
+			{
 				m_character.getCharacter().getWorld().removeEntity(m_character.getControlledEntity());
-
+				m_character.getCharacter().removeObserver(m_userHandler);
+			}
 			m_communicator.unbind();
 			m_remote.dispose();
 		}
@@ -491,21 +494,15 @@ public class ServerGame extends RpgGame implements IDisposable
 														ServerGame.this, 
 														"npcs/player.jnpc");
 				
+				m_character.getCharacter().addObserver(m_userHandler);
 				m_character.getCharacter().setLocation(new Vector2F(6, 6));
 				m_character.setOwner(m_communicator);
 
 				m_user.assignEntity(m_character.getCharacter().getName());
 				
 				ServerWorld spawnWorld = getServerWorld("map/outsideClosed.jmp");
+				
 				spawnWorld.getWorld().addEntity(m_character.getControlledEntity());
-
-				try
-				{
-					m_communicator.shareEntity(spawnWorld);
-				} catch (ShareEntityException | IOException e)
-				{
-					closeConnection(RemoteClient.this, "Error occured attempting to share with client: " + e.toString());
-				}
 
 			} else if (m_character != null && m_character.getCharacter().isDead())
 			{
@@ -544,7 +541,7 @@ public class ServerGame extends RpgGame implements IDisposable
 			return m_user;
 		}
 
-		private class UserHandler implements IUserHandler
+		private class UserHandler implements IUserHandler, IEntityObserver
 		{
 			@Override
 			public boolean loginUser(UserCredentials credentials)
@@ -582,6 +579,33 @@ public class ServerGame extends RpgGame implements IDisposable
 					}
 				}
 			}
+
+			@Override
+			public void enterWorld()
+			{
+				try
+				{
+					m_communicator.shareEntity(getServerWorld(m_character.getCharacter().getWorld()));
+				} catch (ShareEntityException | IOException e)
+				{
+					closeConnection(RemoteClient.this, "Error occured attempting to share with client: " + e.toString());
+				}
+			}
+
+			@Override
+			public void leaveWorld()
+			{
+				try
+				{
+					m_communicator.unshareEntity(getServerWorld(m_character.getCharacter().getWorld()));
+				} catch (IOException e)
+				{
+					closeConnection(RemoteClient.this, "Error occured attempting to share with client: " + e.toString());
+				}
+			}
+
+			@Override
+			public void taskBusyState(boolean isBusy) { }
 		}
 	}
 
