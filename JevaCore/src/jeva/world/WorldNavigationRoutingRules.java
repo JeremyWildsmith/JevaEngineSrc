@@ -21,21 +21,14 @@ import jeva.math.Vector2F;
 import jeva.world.Route.SearchNode;
 import jeva.world.TraverseRouteTask.IRouteTraveler;
 
-/**
- * The Class WorldNavigationRoutingRules.
- */
+
 public class WorldNavigationRoutingRules implements IRoutingRules
 {
 
 	/** The m_traveler. */
 	private IRouteTraveler m_traveler;
 
-	/**
-	 * Instantiates a new world navigation routing rules.
-	 * 
-	 * @param traveler
-	 *            the traveler
-	 */
+	
 	public WorldNavigationRoutingRules(IRouteTraveler traveler)
 	{
 		m_traveler = traveler;

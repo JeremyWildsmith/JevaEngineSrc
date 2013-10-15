@@ -28,12 +28,12 @@ import jeva.config.Variable;
 import jeva.config.VariableStore;
 import jeva.config.VariableValue;
 import jeva.world.Actor;
-import jeva.world.DialogicalEntity;
 import jeva.world.EffectMap;
+import jeva.world.Entity;
 import jeva.world.EntityInstantiationException;
 import jeva.world.RectangleSearchFilter;
 
-public class AreaTrigger extends DialogicalEntity
+public class AreaTrigger extends Entity
 {
     private static final int SCAN_INTERVAL = 400;
 
@@ -58,11 +58,6 @@ public class AreaTrigger extends DialogicalEntity
             throw new EntityInstantiationException("Illegal number of arguments");
 
         return VariableStore.create(Core.getService(IResourceLibrary.class).openResourceStream(arguments.get(0).getString()));
-    }
-
-    public static class AreaTriggerBridge<T extends AreaTrigger> extends DialogicalBridge<T>
-    {
-
     }
 
     @Override
@@ -122,6 +117,11 @@ public class AreaTrigger extends DialogicalEntity
     {
     }
 
+    public static class AreaTriggerBridge<T extends AreaTrigger> extends EntityBridge<T>
+    {
+
+    }
+    
     private class TriggerScript
     {
         private void onTrigger(boolean isOver, RpgCharacter character)
@@ -155,13 +155,9 @@ public class AreaTrigger extends DialogicalEntity
         }
 
         @Override
-        public void enterWorld()
-        {
-        }
+        public void enterWorld() { }
 
         @Override
-        public void taskBusyState(boolean isBusy)
-        {
-        }
+        public void taskBusyState(boolean isBusy) { }
     }
 }

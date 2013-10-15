@@ -14,9 +14,7 @@ package jeva.communication;
 
 public class SnapshotSynchronizationException extends Exception
 {
-	/**
-	 * 
-	 */
+	
 	private static final long serialVersionUID = 1L;
 
 	public SnapshotSynchronizationException(InvalidFieldIdException ex)

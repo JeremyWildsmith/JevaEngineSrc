@@ -19,7 +19,7 @@ import jeva.communication.SharedEntity;
 public abstract class NetUser extends SharedEntity
 {
 
-	protected static final int PING_TIMEOUT = 15000;
+	protected static final int PING_TIMEOUT = 150000000;
 	protected static final int PING_INTERVAL = 3000;
 
 	public static class UserCredentials

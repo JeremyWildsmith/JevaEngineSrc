@@ -50,7 +50,7 @@ public class AttackTask implements ITask
     @Override
     public void begin(Entity entity)
     {
-        m_queryCancel = false;
+    	m_queryCancel = false;
     }
 
     @Override
@@ -66,7 +66,13 @@ public class AttackTask implements ITask
     @Override
     public boolean doCycle(int deltaTime)
     {
-        if (m_queryCancel || m_attackee == null || m_attacker.getCharacter().isDead() || m_attackee.isDead() || !m_attacker.getCharacter().isAssociated() || !m_attackee.isAssociated() || m_attackee.getWorld() != m_attacker.getCharacter().getWorld())
+        if (m_queryCancel || 
+        		m_attackee == null || 
+        		m_attacker.getCharacter().isDead() || 
+        		m_attackee.isDead() || 
+        		!m_attacker.getCharacter().isAssociated() || 
+        		!m_attackee.isAssociated() || 
+        		m_attackee.getWorld() != m_attacker.getCharacter().getWorld())
         {
             return true;
         }

@@ -23,6 +23,7 @@ import jeva.config.VariableStore;
 import jeva.graphics.ui.Label;
 import jeva.graphics.ui.UIStyle;
 import jeva.graphics.ui.Window;
+import jeva.graphics.ui.IWindowManager;
 import jeva.math.Vector2D;
 import jeva.world.World;
 import jevarpg.net.client.ClientCommunicator.IClientCommunicatorObserver;
@@ -72,7 +73,7 @@ public class LoadingState implements IGameState
 	{
 		m_context = context;
 
-		context.getWindowManager().addWindow(m_connectingWindow);
+		Core.getService(IWindowManager.class).addWindow(m_connectingWindow);
 
 		m_context.getCommunicator().addObserver(m_handler);
 		
@@ -82,7 +83,7 @@ public class LoadingState implements IGameState
 	@Override
 	public void leave()
 	{
-		m_context.getWindowManager().removeWindow(m_connectingWindow);
+		Core.getService(IWindowManager.class).removeWindow(m_connectingWindow);
 		m_context.getCommunicator().removeObserver(m_handler);
 		m_handler.dispose();
 		m_context = null;

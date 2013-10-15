@@ -26,9 +26,7 @@ import javax.swing.SwingUtilities;
 import jeva.joystick.InputManager.InputMouseEvent.MouseButton;
 import jeva.math.Vector2D;
 
-/**
- * @author Jeremy. A. W
- */
+
 public class InputManager implements MouseMotionListener, MouseListener, KeyListener, MouseWheelListener
 {
 
@@ -38,20 +36,10 @@ public class InputManager implements MouseMotionListener, MouseListener, KeyList
 	/** The m_is dragging. */
 	private boolean m_isDragging = false;
 
-	/**
-	 * Instantiates a new input manager.
-	 */
-	protected InputManager()
-	{
-	}
+	
+	protected InputManager() { }
 
-	/**
-	 * Creates the.
-	 * 
-	 * @param target
-	 *            the target
-	 * @return the input manager
-	 */
+	
 	public static InputManager create(final Component target)
 	{
 		final InputManager manager = new InputManager();
@@ -76,12 +64,7 @@ public class InputManager implements MouseMotionListener, MouseListener, KeyList
 		return manager;
 	}
 
-	/**
-	 * Process.
-	 * 
-	 * @param callback
-	 *            the callback
-	 */
+	
 	public void process(IInputDeviceListener callback)
 	{
 		synchronized (m_events)
@@ -253,30 +236,19 @@ public class InputManager implements MouseMotionListener, MouseListener, KeyList
 		}
 	}
 
-	/**
-	 * The Interface IInputEvent.
-	 */
+	
 	private interface IInputEvent
 	{
 
-		/**
-		 * Relay.
-		 * 
-		 * @param handler
-		 *            the handler
-		 */
+		
 		void relay(IInputDeviceListener handler);
 	}
 
-	/**
-	 * The Class InputKeyEvent.
-	 */
+	
 	public static class InputKeyEvent implements IInputEvent
 	{
 
-		/**
-		 * The Enum EventType.
-		 */
+		
 		public enum EventType
 		{
 
@@ -300,16 +272,7 @@ public class InputManager implements MouseMotionListener, MouseListener, KeyList
 		/** The is consumed. */
 		public boolean isConsumed;
 
-		/**
-		 * Instantiates a new input key event.
-		 * 
-		 * @param _type
-		 *            the _type
-		 * @param _keyCode
-		 *            the _key code
-		 * @param _keyChar
-		 *            the _key char
-		 */
+		
 		protected InputKeyEvent(EventType _type, int _keyCode, char _keyChar)
 		{
 			isConsumed = false;
@@ -341,15 +304,11 @@ public class InputManager implements MouseMotionListener, MouseListener, KeyList
 		}
 	}
 
-	/**
-	 * The Class InputMouseEvent.
-	 */
+	
 	public static class InputMouseEvent implements IInputEvent
 	{
 
-		/**
-		 * The Enum EventType.
-		 */
+		
 		public enum EventType
 		{
 
@@ -369,9 +328,7 @@ public class InputManager implements MouseMotionListener, MouseListener, KeyList
 			MouseEntered,
 		}
 
-		/**
-		 * The Enum MouseButton.
-		 */
+		
 		public enum MouseButton
 		{
 
@@ -384,13 +341,7 @@ public class InputManager implements MouseMotionListener, MouseListener, KeyList
 			/** The Right. */
 			Right;
 
-			/**
-			 * From button.
-			 * 
-			 * @param button
-			 *            the button
-			 * @return the mouse button
-			 */
+			
 			public static MouseButton fromButton(int button)
 			{
 				switch (button)
@@ -434,12 +385,7 @@ public class InputManager implements MouseMotionListener, MouseListener, KeyList
 		/** The is dragging. */
 		public boolean isDragging;
 
-		/**
-		 * Instantiates a new input mouse event.
-		 * 
-		 * @param event
-		 *            the event
-		 */
+		
 		public InputMouseEvent(InputMouseEvent event)
 		{
 			type = event.type;
@@ -453,20 +399,7 @@ public class InputManager implements MouseMotionListener, MouseListener, KeyList
 			delta = new Vector2D(event.location.difference(lastLocation));
 		}
 
-		/**
-		 * Instantiates a new input mouse event.
-		 * 
-		 * @param _type
-		 *            the _type
-		 * @param _location
-		 *            the _location
-		 * @param _mouseButton
-		 *            the _mouse button
-		 * @param _mouseButtonState
-		 *            the _mouse button state
-		 * @param _isDragging
-		 *            the _is dragging
-		 */
+		
 		protected InputMouseEvent(EventType _type, Vector2D _location, MouseButton _mouseButton, boolean _mouseButtonState, boolean _isDragging)
 		{
 			type = _type;
@@ -482,22 +415,7 @@ public class InputManager implements MouseMotionListener, MouseListener, KeyList
 			lastLocation = _location;
 		}
 
-		/**
-		 * Instantiates a new input mouse event.
-		 * 
-		 * @param _type
-		 *            the _type
-		 * @param _location
-		 *            the _location
-		 * @param _mouseButton
-		 *            the _mouse button
-		 * @param _mouseButtonState
-		 *            the _mouse button state
-		 * @param _isDragging
-		 *            the _is dragging
-		 * @param _iDeltaMouseWheel
-		 *            the _i delta mouse wheel
-		 */
+		
 		protected InputMouseEvent(EventType _type, Vector2D _location, MouseButton _mouseButton, boolean _mouseButtonState, boolean _isDragging, int _iDeltaMouseWheel)
 		{
 			type = _type;

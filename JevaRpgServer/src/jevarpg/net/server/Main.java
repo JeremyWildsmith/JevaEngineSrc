@@ -31,10 +31,7 @@ import jeva.Core;
 import jeva.game.Game;
 import jevarpg.library.StatelessResourceLibrary;
 
-/**
- * 
- * @author Jeremy. A. W
- */
+
 
 @KeepApplication
 public class Main

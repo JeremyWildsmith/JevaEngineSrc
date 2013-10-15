@@ -17,11 +17,7 @@ import java.awt.Rectangle;
 
 import jeva.math.Vector2D;
 
-/**
- * The Class Text.
- * 
- * @author Jeremy. A. W
- */
+
 public final class Text implements IRenderable
 {
 	/** The m_anchor. */
@@ -36,18 +32,7 @@ public final class Text implements IRenderable
 	/** The m_f scale. */
 	private float m_fScale;
 
-	/**
-	 * Instantiates a new text.
-	 * 
-	 * @param text
-	 *            the text
-	 * @param anchor
-	 *            the anchor
-	 * @param font
-	 *            the font
-	 * @param fScale
-	 *            the f scale
-	 */
+	
 	public Text(String text, Vector2D anchor, Font font, float fScale)
 	{
 		m_text = text;
@@ -56,22 +41,13 @@ public final class Text implements IRenderable
 		m_fScale = fScale;
 	}
 
-	/**
-	 * Sets the text.
-	 * 
-	 * @param text
-	 *            the new text
-	 */
+	
 	public void setText(String text)
 	{
 		m_text = text;
 	}
 
-	/**
-	 * Gets the text.
-	 * 
-	 * @return the text
-	 */
+	
 	public String getText()
 	{
 		return m_text;

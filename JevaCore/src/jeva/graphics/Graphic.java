@@ -22,9 +22,7 @@ import javax.imageio.ImageIO;
 import jeva.Core;
 import jeva.IResourceLibrary;
 
-/**
- * The Class Graphic.
- */
+
 public final class Graphic
 {
 
@@ -34,26 +32,12 @@ public final class Graphic
 	/** The m_source image. */
 	private Image m_sourceImage;
 
-	/**
-	 * Instantiates a new graphic.
-	 * 
-	 * @param sourceImage
-	 *            the source image
-	 */
+	
 	private Graphic(Image sourceImage)
 	{
 		m_sourceImage = sourceImage;
 	}
 
-	/**
-	 * Creates the.
-	 * 
-	 * @param name
-	 *            the name
-	 * @return the graphic
-	 * @throws IOException
-	 *             Signals that an I/O exception has occurred.
-	 */
 	public static Graphic create(String name) throws IOException
 	{
 		String formal = name.replace("\\", "/").trim().toLowerCase();
@@ -75,11 +59,7 @@ public final class Graphic
 		}
 	}
 
-	/**
-	 * Gets the image.
-	 * 
-	 * @return the image
-	 */
+	
 	protected Image getImage()
 	{
 		return m_sourceImage;

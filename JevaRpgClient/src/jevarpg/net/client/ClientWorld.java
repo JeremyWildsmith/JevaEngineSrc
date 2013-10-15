@@ -25,11 +25,13 @@ import jeva.communication.SharedClass;
 import jeva.communication.SharedEntity;
 import jeva.config.VariableStore;
 import jeva.config.VariableValue;
+import jeva.math.Vector2F;
 import jeva.util.StaticSet;
-import jeva.world.DialogicalEntity;
-import jeva.world.DialogicalEntity.IDialogueObserver;
+import jeva.world.Actor;
+import jeva.world.Actor.IActorObserver;
 import jeva.world.Entity;
 import jeva.world.World;
+import jeva.world.WorldDirection;
 import jevarpg.library.RpgEntityLibrary;
 import jevarpg.net.NetWorld;
 
@@ -137,14 +139,14 @@ public class ClientWorld extends NetWorld implements IClientShared
 		{
 			Entity e = super.createEntity(entityName, instanceName, arguments);
 
-			if (e instanceof DialogicalEntity)
-				((DialogicalEntity) e).addObserver(new ClientEntityObserver(e));
+			if (e instanceof Actor)
+				((Actor) e).addObserver(new ClientEntityObserver(e));
 
 			return e;
 		}
 	}
 
-	private class ClientEntityObserver implements IDialogueObserver
+	private class ClientEntityObserver implements IActorObserver
 	{
 		private Entity m_entity;
 
@@ -152,27 +154,30 @@ public class ClientWorld extends NetWorld implements IClientShared
 		{
 			m_entity = entity;
 		}
-
-		@Override
-		public void enterWorld()
-		{
-		}
-
-		@Override
-		public void leaveWorld()
-		{
-		}
-
-		@Override
-		public void taskBusyState(boolean isBusy)
-		{
-		}
-
+		
 		@Override
 		public void onDialogEvent(Entity subject, int event)
 		{
 			send(new DialogEvent(m_entity.getName(), event, subject.getName()));
 		}
+		
+		@Override
+		public void enterWorld() { }
+
+		@Override
+		public void leaveWorld() { }
+
+		@Override
+		public void taskBusyState(boolean isBusy) { }
+
+		@Override
+		public void directionChanged(WorldDirection direction) { }
+
+		@Override
+		public void placement(Vector2F location) { }
+
+		@Override
+		public void moved(Vector2F delta) { }
 	}
 
 	private static class Observers extends StaticSet<IClientWorldObserver>

@@ -12,9 +12,7 @@
  ******************************************************************************/
 package jeva.math;
 
-/**
- * The Class Vector3F.
- */
+
 public class Vector3F implements Comparable<Vector3F>
 {
 
@@ -30,14 +28,7 @@ public class Vector3F implements Comparable<Vector3F>
 	/** The z. */
 	public float z;
 
-	/**
-	 * Instantiates a new vector3 f.
-	 * 
-	 * @param v
-	 *            the v
-	 * @param fZ
-	 *            the f z
-	 */
+	
 	public Vector3F(Vector2F v, float fZ)
 	{
 		x = v.x;
@@ -45,14 +36,7 @@ public class Vector3F implements Comparable<Vector3F>
 		z = fZ;
 	}
 
-	/**
-	 * Instantiates a new vector3 f.
-	 * 
-	 * @param v
-	 *            the v
-	 * @param fZ
-	 *            the f z
-	 */
+	
 	public Vector3F(Vector2D v, float fZ)
 	{
 		x = v.x;
@@ -60,16 +44,7 @@ public class Vector3F implements Comparable<Vector3F>
 		z = fZ;
 	}
 
-	/**
-	 * Instantiates a new vector3 f.
-	 * 
-	 * @param fX
-	 *            the f x
-	 * @param fY
-	 *            the f y
-	 * @param fZ
-	 *            the f z
-	 */
+	
 	public Vector3F(float fX, float fY, float fZ)
 	{
 		x = fX;
@@ -77,12 +52,7 @@ public class Vector3F implements Comparable<Vector3F>
 		z = fZ;
 	}
 
-	/**
-	 * Instantiates a new vector3 f.
-	 * 
-	 * @param v
-	 *            the v
-	 */
+	
 	public Vector3F(Vector2F v)
 	{
 		x = v.x;

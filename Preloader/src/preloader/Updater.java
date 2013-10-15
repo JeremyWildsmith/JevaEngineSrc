@@ -46,9 +46,7 @@ import javax.swing.JEditorPane;
 public class Updater extends JFrame
 {
 
-	/**
-	 * 
-	 */
+	
 	private static final long serialVersionUID = 1L;
 
 	private JPanel contentPane;
@@ -60,9 +58,7 @@ public class Updater extends JFrame
 	private JScrollPane scrollPane;
 	private JEditorPane dtrpnPreparingNews;
 
-	/**
-	 * Launch the application.
-	 */
+	
 	public static void main(String[] args)
 	{
 		EventQueue.invokeLater(new Runnable()
@@ -81,9 +77,7 @@ public class Updater extends JFrame
 		});
 	}
 
-	/**
-	 * Create the frame.
-	 */
+	
 	public Updater()
 	{
 

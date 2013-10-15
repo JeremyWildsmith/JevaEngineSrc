@@ -38,10 +38,7 @@ import jeva.Core;
 import jeva.game.Game;
 import jevarpg.library.StatelessResourceLibrary;
 
-/**
- * 
- * @author Jeremy. A. W
- */
+
 
 @KeepApplication
 public class Main implements WindowListener, KeyListener
@@ -163,14 +160,10 @@ public class Main implements WindowListener, KeyListener
 	}
 
 	@Override
-	public void windowActivated(WindowEvent arg0)
-	{
-	}
+	public void windowActivated(WindowEvent arg0) { }
 
 	@Override
-	public void windowClosed(WindowEvent arg0)
-	{
-	}
+	public void windowClosed(WindowEvent arg0) { }
 
 	@Override
 	public void windowClosing(WindowEvent arg0)
@@ -179,29 +172,19 @@ public class Main implements WindowListener, KeyListener
 	}
 
 	@Override
-	public void windowDeactivated(WindowEvent arg0)
-	{
-	}
+	public void windowDeactivated(WindowEvent arg0) { }
 
 	@Override
-	public void windowDeiconified(WindowEvent arg0)
-	{
-	}
+	public void windowDeiconified(WindowEvent arg0) { }
 
 	@Override
-	public void windowIconified(WindowEvent arg0)
-	{
-	}
+	public void windowIconified(WindowEvent arg0) { }
 
 	@Override
-	public void windowOpened(WindowEvent arg0)
-	{
-	}
+	public void windowOpened(WindowEvent arg0) { }
 
 	@Override
-	public void keyPressed(KeyEvent e)
-	{
-	}
+	public void keyPressed(KeyEvent e) { }
 
 	@Override
 	public void keyReleased(KeyEvent e)

@@ -32,10 +32,7 @@ import jeva.ResourceLibraryIOException;
 import jeva.StatelessEnvironmentException;
 import jeva.UnresolvedResourcePathException;
 
-/**
- * 
- * @author Administrator
- */
+
 public class ResourceLibrary implements jeva.IResourceLibrary
 {
 

@@ -37,12 +37,7 @@ public final class ColorMap
 	/** The m_height. */
 	private int m_height;
 
-	/**
-	 * Instantiates a new color map.
-	 * 
-	 * @param source
-	 *            the source
-	 */
+	
 	public ColorMap(InputStream source)
 	{
 		try
@@ -67,15 +62,7 @@ public final class ColorMap
 		m_pixelData = (int[]) m_pixelGrabber.getPixels();
 	}
 
-	/**
-	 * Gets the rgb color.
-	 * 
-	 * @param x
-	 *            the x
-	 * @param y
-	 *            the y
-	 * @return the rgb color
-	 */
+	
 	public int getRgbColor(int x, int y)
 	{
 		int colorIndex = x + (y * m_width);
@@ -84,21 +71,13 @@ public final class ColorMap
 		return colBuffer.getRGB();
 	}
 
-	/**
-	 * Gets the width.
-	 * 
-	 * @return the width
-	 */
+	
 	public int getWidth()
 	{
 		return m_width;
 	}
 
-	/**
-	 * Gets the height.
-	 * 
-	 * @return the height
-	 */
+	
 	public int getHeight()
 	{
 		return m_height;

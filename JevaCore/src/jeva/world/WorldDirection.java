@@ -19,11 +19,7 @@ package jeva.world;
 import jeva.math.Vector2D;
 import jeva.math.Vector2F;
 
-/**
- * The Enum WorldDirection.
- * 
- * @author Scott
- */
+
 public enum WorldDirection
 {
 
@@ -56,37 +52,20 @@ public enum WorldDirection
 	/** The m_is diagonal. */
 	private boolean m_isDiagonal;
 
-	/**
-	 * Instantiates a new world direction.
-	 * 
-	 * @param movementVector
-	 *            the movement vector
-	 * @param isDiagonal
-	 *            the is diagonal
-	 */
+	
 	WorldDirection(Vector2D movementVector, boolean isDiagonal)
 	{
 		m_movementVector = movementVector;
 		m_isDiagonal = isDiagonal;
 	}
 
-	/**
-	 * Checks if is diagonal.
-	 * 
-	 * @return true, if is diagonal
-	 */
+	
 	public boolean isDiagonal()
 	{
 		return m_isDiagonal;
 	}
 
-	/**
-	 * From vector.
-	 * 
-	 * @param vec
-	 *            the vec
-	 * @return the world direction
-	 */
+	
 	public static WorldDirection fromVector(Vector2F vec)
 	{
 		if (vec.isZero())
@@ -124,21 +103,13 @@ public enum WorldDirection
 		return WorldDirection.Zero;
 	}
 
-	/**
-	 * Gets the direction vector.
-	 * 
-	 * @return the direction vector
-	 */
+	
 	public Vector2D getDirectionVector()
 	{
 		return m_movementVector;
 	}
 
-	/**
-	 * Gets the angle.
-	 * 
-	 * @return the angle
-	 */
+	
 	public float getAngle()
 	{
 		switch (this)

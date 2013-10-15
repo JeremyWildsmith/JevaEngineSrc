@@ -17,12 +17,7 @@ import java.awt.Rectangle;
 import jeva.math.Matrix2X2;
 import jeva.math.Vector2F;
 
-/**
- * The Class TriangleSearchFilter.
- * 
- * @param <T>
- *            the generic type
- */
+
 public class TriangleSearchFilter<T> implements ISearchFilter<T>
 {
 
@@ -32,16 +27,7 @@ public class TriangleSearchFilter<T> implements ISearchFilter<T>
 	/** The m_vertice. */
 	private Vector2F[] m_vertice;
 
-	/**
-	 * Instantiates a new triangle search filter.
-	 * 
-	 * @param a
-	 *            the a
-	 * @param b
-	 *            the b
-	 * @param c
-	 *            the c
-	 */
+	
 	public TriangleSearchFilter(Vector2F a, Vector2F b, Vector2F c)
 	{
 

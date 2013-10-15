@@ -15,9 +15,7 @@ package jeva.communication;
 public class InvalidMessageException extends Exception
 {
 
-	/**
-	 * 
-	 */
+	
 	private static final long serialVersionUID = 1L;
 
 	private Communicator m_sender;

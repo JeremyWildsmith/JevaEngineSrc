@@ -12,9 +12,7 @@
  ******************************************************************************/
 package jeva.world;
 
-/**
- * The Class IdleTask.
- */
+
 public class IdleTask implements ITask
 {
 
@@ -24,12 +22,7 @@ public class IdleTask implements ITask
 	/** The m_idle time. */
 	private int m_idleTime;
 
-	/**
-	 * Instantiates a new idle task.
-	 * 
-	 * @param idleTime
-	 *            the idle time
-	 */
+	
 	public IdleTask(int idleTime)
 	{
 		m_idleLength = idleTime;

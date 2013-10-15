@@ -16,12 +16,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-/**
- * The Class StaticSet.
- * 
- * @param <T>
- *            the generic type
- */
+
 public class StaticSet<T> implements Iterable<T>
 {
 
@@ -31,9 +26,7 @@ public class StaticSet<T> implements Iterable<T>
 	/** The m_mutations. */
 	private ArrayList<Runnable> m_mutations = new ArrayList<Runnable>();
 
-	/**
-	 * Cleanup.
-	 */
+	
 	private void cleanup()
 	{
 		for (Runnable r : m_mutations)
@@ -42,12 +35,7 @@ public class StaticSet<T> implements Iterable<T>
 		m_mutations.clear();
 	}
 
-	/**
-	 * Adds the.
-	 * 
-	 * @param item
-	 *            the item
-	 */
+	
 	public final void add(final T item)
 	{
 		m_mutations.add(new Runnable()
@@ -61,14 +49,7 @@ public class StaticSet<T> implements Iterable<T>
 		});
 	}
 
-	/**
-	 * Adds the.
-	 * 
-	 * @param index
-	 *            the index
-	 * @param item
-	 *            the item
-	 */
+	
 	public final void add(final int index, final T item)
 	{
 		m_mutations.add(new Runnable()
@@ -82,12 +63,7 @@ public class StaticSet<T> implements Iterable<T>
 		});
 	}
 
-	/**
-	 * Removes the.
-	 * 
-	 * @param item
-	 *            the item
-	 */
+	
 	public final void remove(final T item)
 	{
 		m_mutations.add(new Runnable()
@@ -101,13 +77,7 @@ public class StaticSet<T> implements Iterable<T>
 		});
 	}
 
-	/**
-	 * Contains.
-	 * 
-	 * @param element
-	 *            the element
-	 * @return true, if successful
-	 */
+	
 	public final boolean contains(T element)
 	{
 		cleanup();
@@ -115,9 +85,7 @@ public class StaticSet<T> implements Iterable<T>
 		return m_set.contains(element);
 	}
 
-	/**
-	 * Clear.
-	 */
+	
 	public final void clear()
 	{
 		m_mutations.add(new Runnable()
@@ -131,13 +99,7 @@ public class StaticSet<T> implements Iterable<T>
 		});
 	}
 
-	/**
-	 * Gets the.
-	 * 
-	 * @param index
-	 *            the index
-	 * @return the t
-	 */
+	
 	public final T get(int index)
 	{
 		cleanup();
@@ -145,11 +107,7 @@ public class StaticSet<T> implements Iterable<T>
 		return m_set.get(index);
 	}
 
-	/**
-	 * Size.
-	 * 
-	 * @return the int
-	 */
+	
 	public final int size()
 	{
 		cleanup();
@@ -157,13 +115,7 @@ public class StaticSet<T> implements Iterable<T>
 		return m_set.size();
 	}
 
-	/**
-	 * To array.
-	 * 
-	 * @param buffer
-	 *            the buffer
-	 * @return the t[]
-	 */
+	
 	public final T[] toArray(T buffer[])
 	{
 		cleanup();
@@ -171,11 +123,7 @@ public class StaticSet<T> implements Iterable<T>
 		return m_set.toArray(buffer);
 	}
 
-	/**
-	 * Checks if is empty.
-	 * 
-	 * @return true, if is empty
-	 */
+	
 	public final boolean isEmpty()
 	{
 		cleanup();
@@ -194,18 +142,14 @@ public class StaticSet<T> implements Iterable<T>
 		return new StaticSetIterator();
 	}
 
-	/**
-	 * The Class StaticSetIterator.
-	 */
+	
 	public final class StaticSetIterator implements Iterator<T>
 	{
 
 		/** The m_index. */
 		int m_index = -1;
 
-		/**
-		 * Instantiates a new static set iterator.
-		 */
+		
 		private StaticSetIterator()
 		{
 			cleanup();

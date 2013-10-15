@@ -12,9 +12,7 @@
  ******************************************************************************/
 package jeva.graphics.ui;
 
-/**
- * The Class NoSuchWindowException.
- */
+
 public class NoSuchWindowException extends RuntimeException
 {
 

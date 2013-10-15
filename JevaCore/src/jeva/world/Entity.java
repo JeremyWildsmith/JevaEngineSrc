@@ -37,11 +37,7 @@ import jeva.config.Variable;
 import jeva.config.VariableStore;
 import jeva.util.StaticSet;
 
-/**
- * The Class Entity.
- * 
- * @author Jeremy. A. W
- */
+
 public abstract class Entity extends Variable implements IWorldAssociation
 {
 
@@ -81,37 +77,19 @@ public abstract class Entity extends Variable implements IWorldAssociation
 	 * Entity(List<VariableValue> initArgs);
 	 */
 
-	/**
-	 * Instantiates a new entity.
-	 */
+	
 	public Entity()
 	{
 		super("__UNNAMED_ENTITY" + m_unnamedCount.getAndIncrement());
 	}
 
-	/**
-	 * Instantiates a new entity.
-	 * 
-	 * @param name
-	 *            the name
-	 */
+	
 	public Entity(@Nullable String name)
 	{
 		super(name == null ? "__UNNAMED_ENTITY" + m_unnamedCount.getAndIncrement() : name);
 	}
 
-	/**
-	 * Instantiates a new entity.
-	 * 
-	 * @param <T>
-	 *            the generic type
-	 * @param name
-	 *            the name
-	 * @param root
-	 *            the root
-	 * @param entityContext
-	 *            the entity context
-	 */
+	
 	protected <T extends EntityBridge<?>> Entity(@Nullable String name, Variable root, T entityContext)
 	{
 		super(name == null ? "__UNNAMED_ENTITY" + m_unnamedCount.getAndIncrement() : name);
@@ -119,20 +97,7 @@ public abstract class Entity extends Variable implements IWorldAssociation
 		init(root, entityContext);
 	}
 
-	/**
-	 * Instantiates a new entity.
-	 * 
-	 * @param <T>
-	 *            the generic type
-	 * @param name
-	 *            the name
-	 * @param root
-	 *            the root
-	 * @param entityContext
-	 *            the entity context
-	 * @param direction
-	 *            the direction
-	 */
+	
 	protected <T extends EntityBridge<?>> Entity(@Nullable String name, Variable root, T entityContext, WorldDirection direction)
 	{
 		super(name == null ? "__UNNAMED_ENTITY" + m_unnamedCount.getAndIncrement() : name);
@@ -140,16 +105,7 @@ public abstract class Entity extends Variable implements IWorldAssociation
 		init(root, entityContext);
 	}
 
-	/**
-	 * Inits the.
-	 * 
-	 * @param <T>
-	 *            the generic type
-	 * @param root
-	 *            the root
-	 * @param entityContext
-	 *            the entity context
-	 */
+	
 	private <T extends EntityBridge<?>> void init(Variable root, T entityContext)
 	{
 		m_scriptVariables = root;
@@ -170,23 +126,13 @@ public abstract class Entity extends Variable implements IWorldAssociation
 			m_entityScript = new EntityScript();
 	}
 
-	/**
-	 * Adds the observer.
-	 * 
-	 * @param observer
-	 *            the observer
-	 */
+	
 	public void addObserver(IEntityObserver observer)
 	{
 		m_observers.add(observer);
 	}
 
-	/**
-	 * Removes the observer.
-	 * 
-	 * @param observer
-	 *            the observer
-	 */
+	
 	public void removeObserver(IEntityObserver observer)
 	{
 		m_observers.remove(observer);
@@ -235,66 +181,43 @@ public abstract class Entity extends Variable implements IWorldAssociation
 		m_parentWorld = null;
 	}
 
-	/**
-	 * Gets the entity variables.
-	 * 
-	 * @return the entity variables
-	 */
+	
 	protected final Variable getEntityVariables()
 	{
 		return m_scriptVariables;
 	}
 
-	/**
-	 * Gets the script bridge.
-	 * 
-	 * @return the script bridge
-	 */
+	
 	public final EntityBridge<?> getScriptBridge()
 	{
 		return m_bridge;
 	}
 
-	/**
-	 * Pause.
-	 */
+	
 	public final void pause()
 	{
 		m_isPaused = true;
 	}
 
-	/**
-	 * Resume.
-	 */
+	
 	public final void resume()
 	{
 		m_isPaused = false;
 	}
 
-	/**
-	 * Checks if is paused.
-	 * 
-	 * @return true, if is paused
-	 */
+	
 	public final boolean isPaused()
 	{
 		return m_isPaused;
 	}
 
-	/**
-	 * Adds the task.
-	 * 
-	 * @param task
-	 *            the task
-	 */
+	
 	protected final void addTask(ITask task)
 	{
 		m_pendingTasks.add(task);
 	}
 
-	/**
-	 * Cancel tasks.
-	 */
+	
 	protected final void cancelTasks()
 	{
 		for (ITask task : m_runningTasks)
@@ -303,12 +226,7 @@ public abstract class Entity extends Variable implements IWorldAssociation
 		m_pendingTasks.clear();
 	}
 
-	/**
-	 * Cancel task.
-	 * 
-	 * @param task
-	 *            the task
-	 */
+	
 	public void cancelTask(ITask task)
 	{
 		if (!m_runningTasks.contains(task))
@@ -317,23 +235,13 @@ public abstract class Entity extends Variable implements IWorldAssociation
 		task.cancel();
 	}
 
-	/**
-	 * Checks if is task active.
-	 * 
-	 * @param task
-	 *            the task
-	 * @return true, if is task active
-	 */
+	
 	protected final boolean isTaskActive(ITask task)
 	{
 		return m_runningTasks.contains(task);
 	}
 
-	/**
-	 * Checks if is task blocking.
-	 * 
-	 * @return true, if is task blocking
-	 */
+	
 	private boolean isTaskBlocking()
 	{
 		for (ITask task : m_runningTasks)
@@ -345,42 +253,25 @@ public abstract class Entity extends Variable implements IWorldAssociation
 		return false;
 	}
 
-	/**
-	 * Checks if is idle.
-	 * 
-	 * @return true, if is idle
-	 */
+	
 	public final boolean isIdle()
 	{
 		return m_runningTasks.isEmpty() && m_pendingTasks.isEmpty();
 	}
 
-	/**
-	 * Gets the world.
-	 * 
-	 * @return the world
-	 */
+	
 	public final World getWorld()
 	{
 		return m_parentWorld;
 	}
 
-	/**
-	 * Gets the script.
-	 * 
-	 * @return the script
-	 */
+	
 	public Script getScript()
 	{
 		return m_entityScript;
 	}
 
-	/**
-	 * Update.
-	 * 
-	 * @param deltaTime
-	 *            the delta time
-	 */
+	
 	public final void update(int deltaTime)
 	{
 		boolean oldIsIdle = isIdle();
@@ -440,84 +331,45 @@ public abstract class Entity extends Variable implements IWorldAssociation
 		}
 	}
 
-	/**
-	 * Blend effect map.
-	 * 
-	 * @param globalEffectMap
-	 *            the global effect map
-	 */
+	
 	public abstract void blendEffectMap(EffectMap globalEffectMap);
 
-	/**
-	 * Do logic.
-	 * 
-	 * @param deltaTime
-	 *            the delta time
-	 */
+	
 	public abstract void doLogic(int deltaTime);
 
-	/**
-	 * An asynchronous update interface for receiving notifications about
-	 * IEntity information as the IEntity is constructed.
-	 */
+	
 	public interface IEntityObserver
 	{
 
-		/**
-		 * This method is called when information about an IEntity which was
-		 * previously requested using an asynchronous interface becomes
-		 * available.
-		 */
+		
 		void enterWorld();
 
-		/**
-		 * This method is called when information about an IEntity which was
-		 * previously requested using an asynchronous interface becomes
-		 * available.
-		 */
+		
 		void leaveWorld();
 
-		/**
-		 * This method is called when information about an IEntity which was
-		 * previously requested using an asynchronous interface becomes
-		 * available.
-		 * 
-		 * @param isBusy
-		 *            the is busy
-		 */
+		
 		void taskBusyState(boolean isBusy);
 	}
 
-	/**
-	 * The Class Observers.
-	 */
+	
 	private class Observers extends StaticSet<IEntityObserver>
 	{
 
-		/**
-		 * Enter world.
-		 */
+		
 		public void enterWorld()
 		{
 			for (IEntityObserver observer : this)
 				observer.enterWorld();
 		}
 
-		/**
-		 * Leave world.
-		 */
+		
 		public void leaveWorld()
 		{
 			for (IEntityObserver observer : this)
 				observer.leaveWorld();
 		}
 
-		/**
-		 * Task busy state.
-		 * 
-		 * @param isBusy
-		 *            the is busy
-		 */
+		
 		public void taskBusyState(boolean isBusy)
 		{
 			for (IEntityObserver observer : this)
@@ -525,27 +377,16 @@ public abstract class Entity extends Variable implements IWorldAssociation
 		}
 	}
 
-	/**
-	 * The Class EntityScript.
-	 */
+	
 	private class EntityScript extends Script implements IEntityObserver
 	{
 
-		/**
-		 * Instantiates a new entity script.
-		 */
+		
 		public EntityScript()
 		{
 		}
 
-		/**
-		 * Instantiates a new entity script.
-		 * 
-		 * @param script
-		 *            the script
-		 * @param context
-		 *            the context
-		 */
+		
 		public EntityScript(String script, Object context)
 		{
 			setScript(script, context);
@@ -559,7 +400,7 @@ public abstract class Entity extends Variable implements IWorldAssociation
 		@Override
 		public void enterWorld()
 		{
-			if (isScriptReady())
+			if (isReady())
 			{
 				try
 				{
@@ -582,7 +423,7 @@ public abstract class Entity extends Variable implements IWorldAssociation
 		@Override
 		public void leaveWorld()
 		{
-			if (isScriptReady())
+			if (isReady())
 			{
 				try
 				{
@@ -605,7 +446,7 @@ public abstract class Entity extends Variable implements IWorldAssociation
 		@Override
 		public void taskBusyState(boolean isBusy)
 		{
-			if (isScriptReady())
+			if (isReady())
 			{
 				try
 				{
@@ -621,12 +462,7 @@ public abstract class Entity extends Variable implements IWorldAssociation
 		}
 	}
 
-	/**
-	 * The Class EntityBridge.
-	 * 
-	 * @param <T>
-	 *            the generic type
-	 */
+	
 	@KeepClassMemberNames
 	public static class EntityBridge<T extends Entity>
 	{
@@ -634,97 +470,62 @@ public abstract class Entity extends Variable implements IWorldAssociation
 		/** The m_me. */
 		private Entity m_me;
 
-		/**
-		 * Sets the me.
-		 * 
-		 * @param me
-		 *            the new me
-		 */
+		
 		protected void setMe(Entity me)
 		{
 			m_me = me;
 		}
 
-		/**
-		 * Gets the me.
-		 * 
-		 * @return the me
-		 */
+		
 		@SuppressWarnings("unchecked")
 		protected T getMe()
 		{
 			return (T) m_me;
 		}
 
-		/**
-		 * Gets the name.
-		 * 
-		 * @return the name
-		 */
+		
 		public String getName()
 		{
 			return getMe().getName();
 		}
 
-		/**
-		 * Cancel tasks.
-		 */
+		
 		public void cancelTasks()
 		{
 			getMe().cancelTasks();
 		}
 
-		/**
-		 * Pause.
-		 */
+		
 		public void pause()
 		{
 			getMe().pause();
 		}
 
-		/**
-		 * Resume.
-		 */
+		
 		public void resume()
 		{
 			getMe().resume();
 		}
 
-		/**
-		 * Play audio.
-		 * 
-		 * @param audioName
-		 *            the audio name
-		 */
+		
 		public void playAudio(String audioName)
 		{
 			getMe().addTask(new PlayAudioTask(new Audio(audioName), false));
 		}
 
-		/**
-		 * Checks if is idle.
-		 * 
-		 * @return true, if is idle
-		 */
+		
 		public boolean isIdle()
 		{
 			return getMe().isIdle();
 		}
 
-		/**
-		 * Idle.
-		 * 
-		 * @param length
-		 *            the length
-		 */
+		
 		public void idle(int length)
 		{
 			getMe().addTask(new IdleTask(length));
 		}
 
-		/**
-		 * Leave.
-		 */
+		
 		public void leave()
 		{
 			getMe().addTask(new SynchronousOneShotTask()
@@ -737,16 +538,7 @@ public abstract class Entity extends Variable implements IWorldAssociation
 			});
 		}
 
-		/**
-		 * Load state.
-		 * 
-		 * @param entity
-		 *            the entity
-		 * @param srcProperty
-		 *            the src property
-		 * @param parentName
-		 *            the parent name
-		 */
+		
 		private static void loadState(Entity entity, Variable srcProperty, String parentName)
 		{
 			if (!srcProperty.getValue().getString().isEmpty())
@@ -756,13 +548,7 @@ public abstract class Entity extends Variable implements IWorldAssociation
 				loadState(entity, var, (parentName.length() > 0 ? parentName + Variable.NAME_SPLIT : "") + var.getName());
 		}
 
-		/**
-		 * Load state.
-		 * 
-		 * @param state
-		 *            the state
-		 * @return true, if successful
-		 */
+		
 		public boolean loadState(String state)
 		{
 			try
@@ -781,13 +567,7 @@ public abstract class Entity extends Variable implements IWorldAssociation
 			}
 		}
 
-		/**
-		 * Store state.
-		 * 
-		 * @param state
-		 *            the state
-		 * @return true, if successful
-		 */
+		
 		public boolean storeState(String state)
 		{
 			try

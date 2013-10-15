@@ -22,6 +22,7 @@ import java.awt.Toolkit;
 import java.awt.image.BufferStrategy;
 import java.awt.image.VolatileImage;
 
+import jeva.Core;
 import jeva.IDisposable;
 import jeva.graphics.Sprite;
 import jeva.graphics.ui.*;
@@ -30,15 +31,9 @@ import jeva.joystick.InputManager.InputMouseEvent;
 import jeva.math.Vector2D;
 import jeva.world.World;
 
-/**
- * The Class Game.
- * 
- */
+
 public abstract class Game implements IInputDeviceListener, IDisposable
 {
-
-	/** The m_window manager. */
-	private WindowManager m_windowManager;
 
 	/** The m_input man. */
 	private InputManager m_inputMan;
@@ -73,23 +68,10 @@ public abstract class Game implements IInputDeviceListener, IDisposable
 	/** The m_render height. */
 	private int m_renderHeight;
 
-	/**
-	 * Instantiates a new game.
-	 */
-	public Game()
-	{
-	}
+	
+	public Game() { }
 
-	/**
-	 * Inits the.
-	 * 
-	 * @param target
-	 *            the target
-	 * @param resolutionX
-	 *            the resolution x
-	 * @param resolutionY
-	 *            the resolution y
-	 */
+	
 	public final void init(Frame target, int resolutionX, int resolutionY)
 	{
 		target.createBufferStrategy(2);
@@ -107,8 +89,6 @@ public abstract class Game implements IInputDeviceListener, IDisposable
 
 		m_inputMan = InputManager.create(target);
 
-		m_windowManager = new WindowManager();
-
 		startup();
 
 		m_cursor = getCursor();
@@ -125,32 +105,19 @@ public abstract class Game implements IInputDeviceListener, IDisposable
 			m_world.dispose();
 	}
 
-	/**
-	 * Gets the world offset.
-	 * 
-	 * @return the world offset
-	 */
+	
 	protected Vector2D getWorldOffset()
 	{
 		return new Vector2D(m_targetWidth / 2, m_targetHeight / 2).difference(getCamera().getLookAt());
 	}
 
-	/**
-	 * Gets the world scale.
-	 * 
-	 * @return the world scale
-	 */
+	
 	protected float getWorldScale()
 	{
 		return getCamera().getScale();
 	}
 
-	/**
-	 * Sets the world.
-	 * 
-	 * @param world
-	 *            the new world
-	 */
+	
 	public final void setWorld(World world)
 	{
 		m_world = world;
@@ -158,38 +125,20 @@ public abstract class Game implements IInputDeviceListener, IDisposable
 		onLoadedWorld();
 	}
 
-	/**
-	 * Clear world.
-	 */
+	
 	public final void clearWorld()
 	{
 		getCamera().dettach();
 		m_world = null;
 	}
 
-	/**
-	 * Gets the world.
-	 * 
-	 * @return the world
-	 */
+	
 	public final World getWorld()
 	{
 		return m_world;
 	}
 
-	/**
-	 * Gets the window manager.
-	 * 
-	 * @return the window manager
-	 */
-	public final WindowManager getWindowManager()
-	{
-		return m_windowManager;
-	}
-
-	/**
-	 * Render.
-	 */
+	
 	public final void render()
 	{
 		do
@@ -208,7 +157,7 @@ public abstract class Game implements IInputDeviceListener, IDisposable
 			if (m_world != null)
 				m_world.render(g, 1.0F, new Rectangle(getWorldOffset().x, getWorldOffset().y, m_targetWidth, m_targetHeight));
 
-			m_windowManager.render(g, 0, 0, 1.0F);
+			Core.getService(IWindowManager.class).render(g, 0, 0, 1.0F);
 
 			m_cursor.render(g, m_cursorLocation.x, m_cursorLocation.y, 1.0F);
 
@@ -225,17 +174,12 @@ public abstract class Game implements IInputDeviceListener, IDisposable
 		Toolkit.getDefaultToolkit().sync();
 	}
 
-	/**
-	 * Update.
-	 * 
-	 * @param deltaTime
-	 *            the delta time
-	 */
+	
 	public void update(int deltaTime)
 	{
 		m_inputMan.process(this);
 
-		m_windowManager.update(deltaTime);
+		Core.getService(IWindowManager.class).update(deltaTime);
 	}
 
 	// Control Input
@@ -250,8 +194,7 @@ public abstract class Game implements IInputDeviceListener, IDisposable
 	{
 		m_cursorLocation = new Vector2D(e.location);
 
-		if (m_windowManager != null)
-			m_windowManager.onMouseEvent(e);
+		Core.getService(IWindowManager.class).onMouseEvent(e);
 
 	}
 
@@ -264,8 +207,7 @@ public abstract class Game implements IInputDeviceListener, IDisposable
 	 */
 	public void mouseClicked(InputManager.InputMouseEvent e)
 	{
-		if (m_windowManager != null)
-			m_windowManager.onMouseEvent(e);
+		Core.getService(IWindowManager.class).onMouseEvent(e);
 
 		if (!e.isConsumed)
 		{
@@ -288,8 +230,7 @@ public abstract class Game implements IInputDeviceListener, IDisposable
 	@Override
 	public void keyUp(InputManager.InputKeyEvent e)
 	{
-		if (m_windowManager != null)
-			m_windowManager.onKeyEvent(e);
+		Core.getService(IWindowManager.class).onKeyEvent(e);
 	}
 
 	/*
@@ -302,8 +243,7 @@ public abstract class Game implements IInputDeviceListener, IDisposable
 	@Override
 	public void keyDown(InputManager.InputKeyEvent e)
 	{
-		if (m_windowManager != null)
-			m_windowManager.onKeyEvent(e);
+		Core.getService(IWindowManager.class).onKeyEvent(e);
 	}
 
 	/*
@@ -315,8 +255,7 @@ public abstract class Game implements IInputDeviceListener, IDisposable
 	 */
 	public void keyTyped(InputManager.InputKeyEvent e)
 	{
-		if (m_windowManager != null)
-			m_windowManager.onKeyEvent(e);
+		Core.getService(IWindowManager.class).onKeyEvent(e);
 	}
 
 	/*
@@ -328,8 +267,7 @@ public abstract class Game implements IInputDeviceListener, IDisposable
 	 */
 	public void mouseWheelMoved(InputManager.InputMouseEvent e)
 	{
-		if (m_windowManager != null)
-			m_windowManager.onMouseEvent(e);
+		Core.getService(IWindowManager.class).onMouseEvent(e);
 	}
 
 	/*
@@ -339,9 +277,7 @@ public abstract class Game implements IInputDeviceListener, IDisposable
 	 * jeva.joystick.IInputDeviceListener#mouseLeft(jeva.joystick.InputManager
 	 * .InputMouseEvent)
 	 */
-	public void mouseLeft(InputManager.InputMouseEvent e)
-	{
-	}
+	public void mouseLeft(InputManager.InputMouseEvent e) { }
 
 	/*
 	 * (non-Javadoc)
@@ -350,62 +286,27 @@ public abstract class Game implements IInputDeviceListener, IDisposable
 	 * jeva.joystick.IInputDeviceListener#mouseEntered(jeva.joystick.InputManager
 	 * .InputMouseEvent)
 	 */
-	public void mouseEntered(InputManager.InputMouseEvent e)
-	{
-	}
+	public void mouseEntered(InputManager.InputMouseEvent e) { }
 
-	/**
-	 * Gets the game style.
-	 * 
-	 * @return the game style
-	 */
+	
 	public abstract UIStyle getGameStyle();
 
-	/**
-	 * Gets the dialog.
-	 * 
-	 * @return the dialog
-	 */
-	public abstract DialogMenu getDialog();
 
-	/**
-	 * Gets the script bridge.
-	 * 
-	 * @return the script bridge
-	 */
+	
 	public abstract IGameScriptProvider getScriptBridge();
 
-	/**
-	 * Gets the camera.
-	 * 
-	 * @return the camera
-	 */
+	
 	protected abstract IWorldCamera getCamera();
 
-	/**
-	 * Startup.
-	 */
+	
 	protected abstract void startup();
 
-	/**
-	 * World selection.
-	 * 
-	 * @param e
-	 *            the e
-	 * @param location
-	 *            the location
-	 */
+	
 	protected abstract void worldSelection(InputMouseEvent e, Vector2D location);
 
-	/**
-	 * On loaded world.
-	 */
+	
 	protected abstract void onLoadedWorld();
 
-	/**
-	 * Gets the cursor.
-	 * 
-	 * @return the cursor
-	 */
+	
 	protected abstract Sprite getCursor();
 }

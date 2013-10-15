@@ -20,11 +20,7 @@ import java.util.ArrayList;
 
 import jeva.math.Vector2D;
 
-/**
- * The Class RouteNode.
- * 
- * @author Scott
- */
+
 public class RouteNode
 {
 
@@ -40,14 +36,7 @@ public class RouteNode
 	/** The m_parent. */
 	private World m_parent;
 
-	/**
-	 * Instantiates a new route node.
-	 * 
-	 * @param parent
-	 *            the parent
-	 * @param location
-	 *            the location
-	 */
+	
 	public RouteNode(World parent, Vector2D location)
 	{
 		m_owned = false;
@@ -58,21 +47,13 @@ public class RouteNode
 		m_parent = parent;
 	}
 
-	/**
-	 * Checks if is traversable.
-	 * 
-	 * @return true, if is traversable
-	 */
+	
 	public boolean isTraversable()
 	{
 		return m_parent.getTileEffects(m_location).isTraversable;
 	}
 
-	/**
-	 * Take.
-	 * 
-	 * @return true, if successful
-	 */
+	
 	public boolean take()
 	{
 		if (m_owned)
@@ -83,31 +64,19 @@ public class RouteNode
 		return true;
 	}
 
-	/**
-	 * Release.
-	 */
+	
 	public void release()
 	{
 		m_owned = false;
 	}
 
-	/**
-	 * Schedule.
-	 * 
-	 * @param route
-	 *            the route
-	 */
+	
 	public void schedule(Route route)
 	{
 		m_schedules.add(route);
 	}
 
-	/**
-	 * Unschedule.
-	 * 
-	 * @param route
-	 *            the route
-	 */
+	
 	public void unschedule(Route route)
 	{
 		if (m_schedules.contains(route))
@@ -116,13 +85,7 @@ public class RouteNode
 		}
 	}
 
-	/**
-	 * Gets the node traffic grade.
-	 * 
-	 * @param takenRoute
-	 *            the taken route
-	 * @return the node traffic grade
-	 */
+	
 	public float getNodeTrafficGrade(Route takenRoute)
 	{
 		/*
@@ -147,11 +110,7 @@ public class RouteNode
 		return 0.0F;
 	}
 
-	/**
-	 * Gets the location.
-	 * 
-	 * @return the location
-	 */
+	
 	public Vector2D getLocation()
 	{
 		return m_location;

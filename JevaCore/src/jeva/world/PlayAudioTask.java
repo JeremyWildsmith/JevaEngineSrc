@@ -14,9 +14,7 @@ package jeva.world;
 
 import jeva.audio.Audio;
 
-/**
- * The Class PlayAudioTask.
- */
+
 public class PlayAudioTask implements ITask
 {
 
@@ -26,14 +24,7 @@ public class PlayAudioTask implements ITask
 	/** The m_audio. */
 	private Audio m_audio;
 
-	/**
-	 * Instantiates a new play audio task.
-	 * 
-	 * @param audio
-	 *            the audio
-	 * @param block
-	 *            the block
-	 */
+	
 	public PlayAudioTask(Audio audio, boolean block)
 	{
 		m_isBlocking = block;

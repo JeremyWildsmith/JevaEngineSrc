@@ -12,9 +12,7 @@
  ******************************************************************************/
 package jeva.graphics;
 
-/**
- * The Enum AnimationState.
- */
+
 public enum AnimationState
 {
 

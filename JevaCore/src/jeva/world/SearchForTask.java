@@ -12,12 +12,7 @@
  ******************************************************************************/
 package jeva.world;
 
-/**
- * The Class SearchForTask.
- * 
- * @param <T>
- *            the generic type
- */
+
 public abstract class SearchForTask<T extends Entity> implements ITask
 {
 
@@ -39,14 +34,7 @@ public abstract class SearchForTask<T extends Entity> implements ITask
 	/** The m_search entity name. */
 	private String m_searchEntityName;
 
-	/**
-	 * Instantiates a new search for task.
-	 * 
-	 * @param searcher
-	 *            the searcher
-	 * @param seekingClass
-	 *            the seeking class
-	 */
+	
 	public SearchForTask(Actor searcher, Class<T> seekingClass)
 	{
 		m_searcher = searcher;
@@ -56,16 +44,7 @@ public abstract class SearchForTask<T extends Entity> implements ITask
 		m_searchEntityName = null;
 	}
 
-	/**
-	 * Instantiates a new search for task.
-	 * 
-	 * @param searcher
-	 *            the searcher
-	 * @param seekingClass
-	 *            the seeking class
-	 * @param name
-	 *            the name
-	 */
+	
 	public SearchForTask(Actor searcher, Class<T> seekingClass, String name)
 	{
 		m_searcher = searcher;
@@ -167,25 +146,13 @@ public abstract class SearchForTask<T extends Entity> implements ITask
 
 	}
 
-	/**
-	 * Found.
-	 * 
-	 * @param entity
-	 *            the entity
-	 * @return true, if successful
-	 */
+	
 	public abstract boolean found(T entity);
 
-	/**
-	 * Nothing found.
-	 */
+	
 	public abstract void nothingFound();
 
-	/**
-	 * Continue search.
-	 * 
-	 * @return true, if successful
-	 */
+	
 	public abstract boolean continueSearch();
 
 }

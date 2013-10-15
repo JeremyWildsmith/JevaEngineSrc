@@ -16,9 +16,7 @@ import jeva.math.Vector2F;
 
 import com.sun.istack.internal.Nullable;
 
-/**
- * The Class MovementTask.
- */
+
 public abstract class MovementTask implements ITask
 {
 	/** The m_traveler. */
@@ -30,12 +28,7 @@ public abstract class MovementTask implements ITask
 	/** The m_last destination. */
 	private Vector2F m_lastDestination = null;
 
-	/**
-	 * Instantiates a new movement task.
-	 * 
-	 * @param traveler
-	 *            the traveler
-	 */
+	
 	public MovementTask(ITraveler traveler)
 	{
 		m_queryCancel = false;
@@ -43,11 +36,7 @@ public abstract class MovementTask implements ITask
 		m_traveler = traveler;
 	}
 
-	/**
-	 * Gets the traveler.
-	 * 
-	 * @return the traveler
-	 */
+	
 	protected ITraveler getTraveler()
 	{
 		return m_traveler;
@@ -70,9 +59,7 @@ public abstract class MovementTask implements ITask
 	 * 
 	 * @see jeva.world.ITask#end()
 	 */
-	public void end()
-	{
-	}
+	public void end() { }
 
 	/*
 	 * (non-Javadoc)
@@ -168,73 +155,35 @@ public abstract class MovementTask implements ITask
 		return false;
 	}
 
-	/**
-	 * Blocking.
-	 */
+	
 	protected abstract void blocking();
 
-	/**
-	 * Gets the destination.
-	 * 
-	 * @return the destination
-	 */
+	
 	@Nullable
 	protected abstract Vector2F getDestination();
 
-	/**
-	 * At destination.
-	 * 
-	 * @return true, if successful
-	 */
+	
 	protected abstract boolean atDestination();
 
-	/**
-	 * Checks for next.
-	 * 
-	 * @return true, if successful
-	 */
+	
 	protected abstract boolean hasNext();
 
-	/**
-	 * The Interface ITraveler.
-	 */
+	
 	public interface ITraveler
 	{
-		/**
-		 * Update movement.
-		 * 
-		 * @param delta
-		 *            the delta
-		 */
+		
 		void updateMovement(Vector2F delta);
 
-		/**
-		 * Sets the destination.
-		 * 
-		 * @param target
-		 *            the new destination
-		 */
+		
 		void setDestination(Vector2F target);
 
-		/**
-		 * Gets the world.
-		 * 
-		 * @return the world
-		 */
+		
 		World getWorld();
 
-		/**
-		 * Gets the location.
-		 * 
-		 * @return the location
-		 */
+		
 		Vector2F getLocation();
 
-		/**
-		 * Gets the speed.
-		 * 
-		 * @return the speed
-		 */
+		
 		float getSpeed();
 	}
 }

@@ -48,11 +48,7 @@ import jeva.util.StaticSet;
 import jeva.world.EffectMap.TileEffects;
 import jeva.world.Entity.EntityBridge;
 
-/**
- * The Class World.
- * 
- * @author Jeremy. A. W
- */
+
 public class World extends Variable implements IDisposable
 {
 
@@ -126,24 +122,7 @@ public class World extends Variable implements IDisposable
 	/** The m_time since tick. */
 	private int m_timeSinceTick;
 
-	/**
-	 * Instantiates a new world.
-	 * 
-	 * @param library
-	 *            the library
-	 * @param width
-	 *            the width
-	 * @param height
-	 *            the height
-	 * @param tileWidth
-	 *            the tile width
-	 * @param tileHeight
-	 *            the tile height
-	 * @param entityLayer
-	 *            the entity layer
-	 * @param worldScript
-	 *            the world script
-	 */
+	
 	public World(IEntityLibrary library, int width, int height, int tileWidth, int tileHeight, int entityLayer, String worldScript)
 	{
 		m_entityLibrary = library;
@@ -182,37 +161,13 @@ public class World extends Variable implements IDisposable
 		m_worldScript.onEnter();
 	}
 
-	/**
-	 * Instantiates a new world.
-	 * 
-	 * @param library
-	 *            the library
-	 * @param width
-	 *            the width
-	 * @param height
-	 *            the height
-	 * @param tileWidth
-	 *            the tile width
-	 * @param tileHeight
-	 *            the tile height
-	 * @param entityLayerDepth
-	 *            the entity layer depth
-	 */
+	
 	public World(IEntityLibrary library, int width, int height, int tileWidth, int tileHeight, int entityLayerDepth)
 	{
 		this(library, width, height, tileWidth, tileHeight, entityLayerDepth, "");
 	}
 
-	/**
-	 * Inits the entity properties.
-	 * 
-	 * @param entity
-	 *            the entity
-	 * @param srcProperty
-	 *            the src property
-	 * @param parentName
-	 *            the parent name
-	 */
+	
 	private static void initEntityProperties(Entity entity, Variable srcProperty, String parentName)
 	{
 		if (!srcProperty.getValue().getString().isEmpty())
@@ -226,30 +181,13 @@ public class World extends Variable implements IDisposable
 		}
 	}
 
-	/**
-	 * Inits the entity properties.
-	 * 
-	 * @param entity
-	 *            the entity
-	 * @param srcProperty
-	 *            the src property
-	 */
+	
 	private static void initEntityProperties(Entity entity, Variable srcProperty)
 	{
 		initEntityProperties(entity, srcProperty, srcProperty.getName());
 	}
 
-	/**
-	 * Creates the.
-	 * 
-	 * @param library
-	 *            the library
-	 * @param source
-	 *            the source
-	 * @return the world
-	 * @throws ResourceLoadingException
-	 *             the resource loading exception
-	 */
+	
 	public static World create(IEntityLibrary library, Variable source) throws ResourceLoadingException
 	{
 		String worldScript = new String();
@@ -351,152 +289,85 @@ public class World extends Variable implements IDisposable
 		m_worldLighting.disassociate();
 	}
 
-	/**
-	 * Adds the listener.
-	 * 
-	 * @param o
-	 *            the o
-	 */
+	
 	public void addObserver(IWorldObserver o)
 	{
 		m_observers.add(o);
 	}
 
-	/**
-	 * Removes the listener.
-	 * 
-	 * @param o
-	 *            the o
-	 */
+	
 	public void removeObserver(IWorldObserver o)
 	{
 		m_observers.remove(o);
 	}
 
-	/**
-	 * Translate screen to world.
-	 * 
-	 * @param location
-	 *            the location
-	 * @param fScale
-	 *            the f scale
-	 * @return the vector2 d
-	 */
+	
 	public Vector2D translateScreenToWorld(Vector2D location, float fScale)
 	{
 		return m_worldToScreenMatrix.scale(fScale).inverse().dot(location).round();
 	}
 
-	/**
-	 * Translate world to screen.
-	 * 
-	 * @param location
-	 *            the location
-	 * @param fScale
-	 *            the f scale
-	 * @return the vector2 d
-	 */
+	
 	public Vector2D translateWorldToScreen(Vector2F location, float fScale)
 	{
 		return m_worldToScreenMatrix.scale(fScale).dot(location).round();
 	}
 
-	/**
-	 * Gets the perspective matrix.
-	 * 
-	 * @param fScale
-	 *            the f scale
-	 * @return the perspective matrix
-	 */
+	
 	public Matrix2X2 getPerspectiveMatrix(float fScale)
 	{
 		return m_worldToScreenMatrix.scale(fScale);
 	}
 
-	/**
-	 * Gets the entity layer.
-	 * 
-	 * @return the entity layer
-	 */
+	
 	public int getEntityLayer()
 	{
 		return m_entityLayer;
 	}
 
-	/**
-	 * Sets the entity layer.
-	 * 
-	 * @param layer
-	 *            the new entity layer
-	 */
+	
 	public void setEntityLayer(int layer)
 	{
 		m_entityLayer = layer;
 	}
 
-	/**
-	 * Gets the entity library.
-	 * 
-	 * @return the entity library
-	 */
+	
 	public IEntityLibrary getEntityLibrary()
 	{
 		return m_entityLibrary;
 	}
 
-	/**
-	 * Gets the lighting.
-	 * 
-	 * @return the lighting
-	 */
+	
 	public SceneLighting getLighting()
 	{
 		return m_worldLighting;
 	}
 
-	/**
-	 * Gets the width.
-	 * 
-	 * @return the width
-	 */
+	
 	public int getWidth()
 	{
 		return m_worldWidth;
 	}
 
-	/**
-	 * Gets the height.
-	 * 
-	 * @return the height
-	 */
+	
 	public int getHeight()
 	{
 		return m_worldHeight;
 	}
 
-	/**
-	 * Gets the tile width.
-	 * 
-	 * @return the tile width
-	 */
+	
 	public int getTileWidth()
 	{
 		return m_tileWidth;
 	}
 
-	/**
-	 * Gets the tile height.
-	 * 
-	 * @return the tile height
-	 */
+	
 	public int getTileHeight()
 	{
 		return m_tileHeight;
 	}
 
-	/**
-	 * Pause.
-	 */
+	
 	public void pause()
 	{
 		m_isPaused = true;
@@ -505,9 +376,7 @@ public class World extends Variable implements IDisposable
 			e.pause();
 	}
 
-	/**
-	 * Resume.
-	 */
+	
 	public void resume()
 	{
 		m_isPaused = false;
@@ -516,13 +385,7 @@ public class World extends Variable implements IDisposable
 			e.resume();
 	}
 
-	/**
-	 * Gets the route node.
-	 * 
-	 * @param location
-	 *            the location
-	 * @return the route node
-	 */
+	
 	public RouteNode getRouteNode(Vector2D location)
 	{
 		if (!m_routeNodes.containsKey(location))
@@ -531,13 +394,7 @@ public class World extends Variable implements IDisposable
 		return m_routeNodes.get(location);
 	}
 
-	/**
-	 * Gets the tile effects.
-	 * 
-	 * @param location
-	 *            the location
-	 * @return the tile effects
-	 */
+	
 	public TileEffects getTileEffects(Vector2D location)
 	{
 		TileEffects effects = new TileEffects();
@@ -550,13 +407,7 @@ public class World extends Variable implements IDisposable
 		return effects;
 	}
 
-	/**
-	 * Gets the tile effects.
-	 * 
-	 * @param filter
-	 *            the filter
-	 * @return the tile effects
-	 */
+	
 	public TileEffects[] getTileEffects(ISearchFilter<TileEffects> filter)
 	{
 		ArrayList<TileEffects> tileEffects = new ArrayList<TileEffects>();
@@ -579,23 +430,13 @@ public class World extends Variable implements IDisposable
 		return tileEffects.toArray(new TileEffects[tileEffects.size()]);
 	}
 
-	/**
-	 * Gets the entities.
-	 * 
-	 * @return the entities
-	 */
+	
 	public Entity[] getEntities()
 	{
 		return m_entities.toArray(new Entity[m_entities.size()]);
 	}
 
-	/**
-	 * Gets the actors.
-	 * 
-	 * @param filter
-	 *            the filter
-	 * @return the actors
-	 */
+	
 	public Actor[] getActors(ISearchFilter<Actor> filter)
 	{
 		ArrayList<Actor> found = new ArrayList<Actor>();
@@ -614,55 +455,31 @@ public class World extends Variable implements IDisposable
 		return found.toArray(new Actor[found.size()]);
 	}
 
-	/**
-	 * Gets the layers.
-	 * 
-	 * @return the layers
-	 */
+	
 	public WorldLayer[] getLayers()
 	{
 		return m_layers.toArray(new WorldLayer[m_layers.size()]);
 	}
 
-	/**
-	 * Adds the layer.
-	 * 
-	 * @param layer
-	 *            the layer
-	 */
+	
 	public void addLayer(WorldLayer layer)
 	{
 		m_layers.add(layer);
 	}
 
-	/**
-	 * Removes the layer.
-	 * 
-	 * @param worldLayer
-	 *            the world layer
-	 */
+	
 	public void removeLayer(WorldLayer worldLayer)
 	{
 		m_layers.remove(worldLayer);
 	}
 
-	/**
-	 * Adds the entity.
-	 * 
-	 * @param entity
-	 *            the entity
-	 */
+	
 	public void addEntity(Entity entity)
 	{
 		m_additionEntities.add(entity);
 	}
 
-	/**
-	 * Removes the entity.
-	 * 
-	 * @param entity
-	 *            the entity
-	 */
+	
 	public void removeEntity(Entity entity)
 	{
 		if (m_additionEntities.contains(entity))
@@ -675,32 +492,19 @@ public class World extends Variable implements IDisposable
 		}
 	}
 
-	/**
-	 * Gets the script bridge.
-	 * 
-	 * @return the script bridge
-	 */
+	
 	public WorldScriptContext getScriptBridge()
 	{
 		return new WorldScriptContext();
 	}
 
-	/**
-	 * Gets the map bounds.
-	 * 
-	 * @return the map bounds
-	 */
+	
 	public Rectangle getMapBounds()
 	{
 		return new Rectangle(0, 0, m_worldWidth, m_worldHeight);
 	}
 
-	/**
-	 * Update.
-	 * 
-	 * @param delta
-	 *            the delta
-	 */
+	
 	public void update(int delta)
 	{
 		m_worldTime.add(Calendar.MILLISECOND, (int) (delta * m_fTimeMultiplier));
@@ -750,18 +554,7 @@ public class World extends Variable implements IDisposable
 		}
 	}
 
-	/**
-	 * Render queue.
-	 * 
-	 * @param g
-	 *            the g
-	 * @param offsetX
-	 *            the offset x
-	 * @param offsetY
-	 *            the offset y
-	 * @param fScale
-	 *            the f scale
-	 */
+	
 	private void renderQueue(Graphics2D g, int offsetX, int offsetY, float fScale)
 	{
 		for (Map.Entry<Vector3F, ArrayList<IRenderable>> entry : m_renderQueue.entrySet())
@@ -778,14 +571,7 @@ public class World extends Variable implements IDisposable
 
 	}
 
-	/**
-	 * Enqueue render.
-	 * 
-	 * @param renderable
-	 *            the renderable
-	 * @param location
-	 *            the location
-	 */
+	
 	protected void enqueueRender(IRenderable renderable, Vector2F location)
 	{
 		Vector3F location3 = new Vector3F(location, m_fRenderQueueDepth);
@@ -798,27 +584,13 @@ public class World extends Variable implements IDisposable
 		m_renderQueue.get(location3).add(renderable);
 	}
 
-	/**
-	 * Sets the render queue layer depth.
-	 * 
-	 * @param fDepth
-	 *            the new render queue layer depth
-	 */
+	
 	private void setRenderQueueLayerDepth(float fDepth)
 	{
 		m_fRenderQueueDepth = fDepth;
 	}
 
-	/**
-	 * Render.
-	 * 
-	 * @param g
-	 *            the g
-	 * @param fScale
-	 *            the f scale
-	 * @param viewBounds
-	 *            the view bounds
-	 */
+	
 	public void render(Graphics2D g, float fScale, Rectangle viewBounds)
 	{
 		Vector2D tlWorldBounds = translateScreenToWorld(new Vector2D(-viewBounds.x, -viewBounds.y), fScale);
@@ -883,41 +655,30 @@ public class World extends Variable implements IDisposable
 		return child;
 	}
 
-	/**
-	 * The Class WorldScriptManager.
-	 */
+	
 	private class WorldScriptManager
 	{
 
 		/** The m_world script. */
 		private Script m_worldScript;
 
-		/**
-		 * Instantiates a new world script manager.
-		 * 
-		 * @param script
-		 *            the script
-		 */
+		
 		public WorldScriptManager(String script)
 		{
 			m_worldScript = new Script();
 			m_worldScript.setScript(script, new WorldScriptContext());
 		}
 
-		/**
-		 * Instantiates a new world script manager.
-		 */
+		
 		public WorldScriptManager()
 		{
 			m_worldScript = new Script();
 		}
 
-		/**
-		 * On enter.
-		 */
+		
 		public void onEnter()
 		{
-			if (!m_worldScript.isScriptReady())
+			if (!m_worldScript.isReady())
 				return;
 
 			try
@@ -931,12 +692,10 @@ public class World extends Variable implements IDisposable
 			}
 		}
 
-		/**
-		 * On leave.
-		 */
+		
 		public void onLeave()
 		{
-			if (!m_worldScript.isScriptReady())
+			if (!m_worldScript.isReady())
 				return;
 
 			try
@@ -950,12 +709,10 @@ public class World extends Variable implements IDisposable
 			}
 		}
 
-		/**
-		 * On tick.
-		 */
+		
 		public void onTick()
 		{
-			if (!m_worldScript.isScriptReady())
+			if (!m_worldScript.isReady())
 				return;
 
 			try
@@ -970,30 +727,18 @@ public class World extends Variable implements IDisposable
 		}
 	}
 
-	/**
-	 * The Class Observers.
-	 */
+	
 	private static class Observers extends StaticSet<IWorldObserver>
 	{
 
-		/**
-		 * Added entity.
-		 * 
-		 * @param e
-		 *            the e
-		 */
+		
 		public void addedEntity(Entity e)
 		{
 			for (IWorldObserver o : this)
 				o.addedEntity(e);
 		}
 
-		/**
-		 * Removed entity.
-		 * 
-		 * @param e
-		 *            the e
-		 */
+		
 		public void removedEntity(Entity e)
 		{
 			for (IWorldObserver o : this)
@@ -1001,52 +746,23 @@ public class World extends Variable implements IDisposable
 		}
 	}
 
-	/**
-	 * An asynchronous update interface for receiving notifications about IWorld
-	 * information as the IWorld is constructed.
-	 */
+	
 	public interface IWorldObserver
 	{
 
-		/**
-		 * This method is called when information about an IWorld which was
-		 * previously requested using an asynchronous interface becomes
-		 * available.
-		 * 
-		 * @param e
-		 *            the e
-		 */
+		
 		void addedEntity(Entity e);
 
-		/**
-		 * This method is called when information about an IWorld which was
-		 * previously requested using an asynchronous interface becomes
-		 * available.
-		 * 
-		 * @param e
-		 *            the e
-		 */
+		
 		void removedEntity(Entity e);
 	}
 
-	/**
-	 * The Class WorldScriptContext.
-	 */
+	
 	@KeepClassMemberNames
 	public class WorldScriptContext
 	{
 
-		/**
-		 * Creates the named entity.
-		 * 
-		 * @param name
-		 *            the name
-		 * @param className
-		 *            the class name
-		 * @param args
-		 *            the args
-		 * @return the entity bridge
-		 */
+		
 		public EntityBridge<?> createNamedEntity(String name, String className, String... args)
 		{
 			ArrayList<VariableValue> argVars = new ArrayList<VariableValue>();
@@ -1066,27 +782,13 @@ public class World extends Variable implements IDisposable
 			return entity.getScriptBridge();
 		}
 
-		/**
-		 * Creates the entity.
-		 * 
-		 * @param className
-		 *            the blass name
-		 * @param args
-		 *            the args
-		 * @return the entity bridge
-		 */
+		
 		public EntityBridge<?> createEntity(String className, String... args)
 		{
 			return createNamedEntity(null, className, args);
 		}
 
-		/**
-		 * Gets the entity.
-		 * 
-		 * @param name
-		 *            the name
-		 * @return the entity
-		 */
+		
 		public EntityBridge<?> getEntity(String name)
 		{
 			if (variableExists(name))
@@ -1095,172 +797,97 @@ public class World extends Variable implements IDisposable
 			return null;
 		}
 
-		/**
-		 * Adds the entity.
-		 * 
-		 * @param entity
-		 *            the entity
-		 */
+		
 		public void addEntity(EntityBridge<Entity> entity)
 		{
 			World.this.addEntity(entity.getMe());
 		}
 
-		/**
-		 * Gets the month.
-		 * 
-		 * @return the month
-		 */
+		
 		public int getMonth()
 		{
 			return m_worldTime.get(Calendar.DAY_OF_MONTH);
 		}
 
-		/**
-		 * Gets the day.
-		 * 
-		 * @return the day
-		 */
+		
 		public int getDay()
 		{
 			return m_worldTime.get(Calendar.DAY_OF_MONTH);
 		}
 
-		/**
-		 * Gets the hour.
-		 * 
-		 * @return the hour
-		 */
+		
 		public int getHour()
 		{
 			return m_worldTime.get(Calendar.HOUR_OF_DAY);
 		}
 
-		/**
-		 * Gets the minute.
-		 * 
-		 * @return the minute
-		 */
+		
 		public int getMinute()
 		{
 			return m_worldTime.get(Calendar.MINUTE);
 		}
 
-		/**
-		 * Gets the second.
-		 * 
-		 * @return the second
-		 */
+		
 		public int getSecond()
 		{
 			return m_worldTime.get(Calendar.SECOND);
 		}
 
-		/**
-		 * Sets the year.
-		 * 
-		 * @param year
-		 *            the new year
-		 */
+		
 		public void setYear(int year)
 		{
 			m_worldTime.set(Calendar.YEAR, year);
 		}
 
-		/**
-		 * Sets the month.
-		 * 
-		 * @param month
-		 *            the new month
-		 */
+		
 		public void setMonth(int month)
 		{
 			m_worldTime.set(Calendar.DAY_OF_MONTH, month);
 		}
 
-		/**
-		 * Sets the hour.
-		 * 
-		 * @param hour
-		 *            the new hour
-		 */
+		
 		public void setHour(int hour)
 		{
 			m_worldTime.set(Calendar.HOUR_OF_DAY, hour);
 		}
 
-		/**
-		 * Sets the day.
-		 * 
-		 * @param day
-		 *            the new day
-		 */
+		
 		public void setDay(int day)
 		{
 			m_worldTime.set(Calendar.DAY_OF_MONTH, day);
 		}
 
-		/**
-		 * Sets the minute.
-		 * 
-		 * @param minute
-		 *            the new minute
-		 */
+		
 		public void setMinute(int minute)
 		{
 			m_worldTime.set(Calendar.MINUTE, minute);
 		}
 
-		/**
-		 * Sets the second.
-		 * 
-		 * @param second
-		 *            the new second
-		 */
+		
 		public void setSecond(int second)
 		{
 			m_worldTime.set(Calendar.SECOND, second);
 		}
 
-		/**
-		 * Sets the time multiplier.
-		 * 
-		 * @param fMultiplier
-		 *            the new time multiplier
-		 */
+		
 		public void setTimeMultiplier(float fMultiplier)
 		{
 			m_fTimeMultiplier = fMultiplier;
 		}
 
-		/**
-		 * Sets the ambient light.
-		 * 
-		 * @param r
-		 *            the r
-		 * @param g
-		 *            the g
-		 * @param b
-		 *            the b
-		 * @param a
-		 *            the a
-		 */
+		
 		public void setAmbientLight(int r, int g, int b, int a)
 		{
 			World.this.m_worldLighting.setAmbientLight(new Color((int) Math.min(255, Math.max(0, r)), (int) Math.min(255, Math.max(0, g)), (int) Math.min(255, Math.max(0, b)), (int) Math.min(255, Math.max(0, a))));
 		}
 
-		/**
-		 * Pause.
-		 */
+		
 		public void pause()
 		{
 			World.this.pause();
 		}
 
-		/**
-		 * Resume.
-		 */
+		
 		public void resume()
 		{
 			World.this.resume();

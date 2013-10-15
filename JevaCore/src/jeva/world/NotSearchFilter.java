@@ -16,12 +16,7 @@ import java.awt.Rectangle;
 
 import jeva.math.Vector2F;
 
-/**
- * The Class NotSearchFilter.
- * 
- * @param <T>
- *            the generic type
- */
+
 public class NotSearchFilter<T> implements ISearchFilter<T>
 {
 

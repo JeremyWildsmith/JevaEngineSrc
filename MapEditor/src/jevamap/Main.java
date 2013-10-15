@@ -30,10 +30,7 @@ import jeva.Core;
 import jeva.game.Game;
 import jevarpg.library.StatelessResourceLibrary;
 
-/**
- * 
- * @author Jeremy. A. W
- */
+
 public class Main
 {
 	private static final int WINX = 1024;

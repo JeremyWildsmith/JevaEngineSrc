@@ -12,9 +12,7 @@
  ******************************************************************************/
 package jeva.world;
 
-/**
- * The Class SynchronousOneShotTask.
- */
+
 public abstract class SynchronousOneShotTask implements ITask
 {
 
@@ -27,9 +25,7 @@ public abstract class SynchronousOneShotTask implements ITask
 	 * @see jeva.world.ITask#cancel()
 	 */
 	@Override
-	public void cancel()
-	{
-	}
+	public void cancel() { }
 
 	/*
 	 * (non-Javadoc)
@@ -48,9 +44,7 @@ public abstract class SynchronousOneShotTask implements ITask
 	 * @see jeva.world.ITask#end()
 	 */
 	@Override
-	public void end()
-	{
-	}
+	public void end() { }
 
 	/*
 	 * (non-Javadoc)
@@ -86,12 +80,7 @@ public abstract class SynchronousOneShotTask implements ITask
 		return false;
 	}
 
-	/**
-	 * Run.
-	 * 
-	 * @param world
-	 *            the world
-	 */
+	
 	public abstract void run(Entity world);
 
 }

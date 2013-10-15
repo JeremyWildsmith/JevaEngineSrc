@@ -17,38 +17,20 @@ import java.util.Map;
 
 import proguard.annotation.KeepClassMemberNames;
 import jeva.game.Game;
+import jeva.graphics.ui.BasicWindowManager;
+import jeva.graphics.ui.IWindowManager;
 
-/**
- * The Core module provides access to the engine's services and provides the
- * engine's core script bridge. Such services include the main resource library.
- * The Core must be initialized before the engine is used.
- */
+
 public final class Core
 {
 	/** A map of registered services to their respective instance. */
 	private static HashMap<Class<?>, Object> m_existingServices;
 
-	/**
-	 * Internal constructor, not exposed by utility class.
-	 */
-	private Core()
-	{
-	}
+	
+	private Core() { }
 
-	/**
-	 * Initializes core so that it can be used by the engine. Provides engine
-	 * with a game instance to work with and a resource library.
-	 * 
-	 * @param <T>
-	 *            The type of the Game instance to be used
-	 * @param <Y>
-	 *            The type of the Resource Library instance to be used
-	 * @param game
-	 *            A reference to the main game to be used by the core.
-	 * @param resourceLibrary
-	 *            A reference to the resource library to be used by the core.
-	 */
-	public static <T extends Game, Y extends IResourceLibrary> void initialize(T game, Y resourceLibrary)
+	
+	public static <T extends Game, Y extends IResourceLibrary, X extends IWindowManager> void initialize(T game, Y resourceLibrary, X windowManager)
 	{
 		if (m_existingServices != null)
 			throw new CoreInitializationException("Core has already been initialized. Cannot repeat initialization");
@@ -57,17 +39,15 @@ public final class Core
 
 		m_existingServices.put(resourceLibrary.getClass(), resourceLibrary);
 		m_existingServices.put(game.getClass(), game);
+		m_existingServices.put(windowManager.getClass(), windowManager);
+	}
+	
+	public static <T extends Game, Y extends IResourceLibrary> void initialize(T game, Y resourceLibrary)
+	{
+		initialize(game, resourceLibrary, new BasicWindowManager());
 	}
 
-	/**
-	 * Gets the instances corresponding to the specified service type.
-	 * 
-	 * @param <T>
-	 *            The type of the service to be acquired.
-	 * @param typeClass
-	 *            The respective Class to the given type.
-	 * @return An instance of the corresponding service.
-	 */
+	
 	@SuppressWarnings("unchecked")
 	public static <T> T getService(Class<T> typeClass)
 	{
@@ -83,11 +63,7 @@ public final class Core
 		throw new CoreInitializationException("Specified class has not been initialized");
 	}
 
-	/**
-	 * Gets the core's script bridge.
-	 * 
-	 * @return Returns the core's script bridge.
-	 */
+	
 	public static ICoreScriptBridge getScriptBridge()
 	{
 		return new ICoreScriptBridge()
@@ -99,18 +75,11 @@ public final class Core
 		};
 	}
 
-	/**
-	 * The interface provided by the core script bridge.
-	 */
+	
 	@KeepClassMemberNames
 	public interface ICoreScriptBridge
 	{
-		/**
-		 * Prints a debug message to the configured output stream.
-		 * 
-		 * @param debugMessage
-		 *            The message to be written to the debug output stream.
-		 */
+		
 		void debugPrint(String debugMessage);
 	}
 

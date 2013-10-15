@@ -1,4 +1,4 @@
-name:Spider;
+name:Zombie;
 
 //Sprite to use for npc
 sprite:sprites/zombie.jsf;

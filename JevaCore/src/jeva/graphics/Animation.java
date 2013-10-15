@@ -32,12 +32,7 @@ public final class Animation
 	/** The m_state. */
 	private AnimationState m_state;
 
-	/**
-	 * Instantiates a new animation.
-	 * 
-	 * @param src
-	 *            the src
-	 */
+	
 	public Animation(Animation src)
 	{
 		m_curIndex = 0;
@@ -46,9 +41,7 @@ public final class Animation
 		m_state = AnimationState.Stop;
 	}
 
-	/**
-	 * Instantiates a new animation.
-	 */
+	
 	public Animation()
 	{
 		m_curIndex = 0;
@@ -57,12 +50,7 @@ public final class Animation
 		m_state = AnimationState.Stop;
 	}
 
-	/**
-	 * Instantiates a new animation.
-	 * 
-	 * @param frames
-	 *            the frames
-	 */
+	
 	public Animation(Frame... frames)
 	{
 		m_elapsedTime = 0;
@@ -72,42 +60,25 @@ public final class Animation
 		m_frames.addAll(Arrays.asList(frames));
 	}
 
-	/**
-	 * Reset.
-	 */
+	
 	public void reset()
 	{
 		m_curIndex = 0;
 	}
 
-	/**
-	 * Adds the frame.
-	 * 
-	 * @param frame
-	 *            the frame
-	 */
+	
 	public void addFrame(Frame frame)
 	{
 		m_frames.add(frame);
 	}
 
-	/**
-	 * Sets the state.
-	 * 
-	 * @param state
-	 *            the new state
-	 */
+	
 	public void setState(AnimationState state)
 	{
 		m_state = state;
 	}
 
-	/**
-	 * Update.
-	 * 
-	 * @param deltaTime
-	 *            the delta time
-	 */
+	
 	public void update(int deltaTime)
 	{
 		m_elapsedTime += deltaTime;
@@ -140,11 +111,7 @@ public final class Animation
 		}
 	}
 
-	/**
-	 * Gets the current frame.
-	 * 
-	 * @return the current frame
-	 */
+	
 	public Frame getCurrentFrame()
 	{
 		if (m_curIndex >= m_frames.size())

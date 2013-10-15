@@ -32,25 +32,14 @@ public class Label extends Control
 	/** The m_color. */
 	private Color m_color;
 
-	/**
-	 * Instantiates a new label.
-	 * 
-	 * @param text
-	 *            the text
-	 * @param color
-	 *            the color
-	 */
+	
 	public Label(String text, Color color)
 	{
 		m_color = color;
 		m_text = text;
 	}
 
-	/**
-	 * Gets the text.
-	 * 
-	 * @return the text
-	 */
+	
 	public String getText()
 	{
 		return m_text;
@@ -76,23 +65,13 @@ public class Label extends Control
 		return new Rectangle(0, 0, width, font.getHeight());
 	}
 
-	/**
-	 * Sets the color.
-	 * 
-	 * @param color
-	 *            the new color
-	 */
+	
 	public void setColor(Color color)
 	{
 		m_color = color;
 	}
 
-	/**
-	 * Sets the text.
-	 * 
-	 * @param text
-	 *            the new text
-	 */
+	
 	public void setText(String text)
 	{
 		m_text = text;
@@ -104,9 +83,7 @@ public class Label extends Control
 	 * @see jeva.graphics.ui.Control#onMouseEvent(jeva.joystick.InputManager.
 	 * InputMouseEvent)
 	 */
-	public void onMouseEvent(InputManager.InputMouseEvent mouseEvent)
-	{
-	}
+	public void onMouseEvent(InputManager.InputMouseEvent mouseEvent) { }
 
 	/*
 	 * (non-Javadoc)
@@ -115,9 +92,7 @@ public class Label extends Control
 	 * jeva.graphics.ui.Control#onKeyEvent(jeva.joystick.InputManager.InputKeyEvent
 	 * )
 	 */
-	public void onKeyEvent(InputManager.InputKeyEvent keyEvent)
-	{
-	}
+	public void onKeyEvent(InputManager.InputKeyEvent keyEvent) { }
 
 	/*
 	 * (non-Javadoc)

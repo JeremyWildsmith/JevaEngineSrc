@@ -19,6 +19,7 @@ import java.lang.ref.WeakReference;
 import jeva.Core;
 import jeva.IResourceLibrary;
 import jeva.config.VariableStore;
+import jeva.game.Game;
 import jeva.graphics.ParticleEmitter;
 import jeva.graphics.IRenderable;
 import jeva.graphics.ui.Button;
@@ -111,6 +112,11 @@ public class CharacterMenu extends Window
         m_target = new WeakReference<RpgCharacter>(null);
     }
 
+    public CharacterMenu()
+    {
+    	this(Core.getService(Game.class).getGameStyle());
+    }
+    
     public void showCharacter(RpgCharacter player)
     {
         this.setVisible(true);
@@ -174,8 +180,6 @@ public class CharacterMenu extends Window
         @Override
         public void onKeyEvent(InputKeyEvent keyEvent)
         {
-            // TODO Auto-generated method stub
-
         }
 
         @Override

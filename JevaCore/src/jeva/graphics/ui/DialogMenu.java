@@ -14,40 +14,27 @@ package jeva.graphics.ui;
 
 import java.awt.Color;
 
+import jeva.Core;
+import jeva.game.Game;
 import jeva.math.Vector2D;
 
-/**
- * The Class DialogMenu.
- */
+
 public class DialogMenu extends Window
 {
 
-	/**
-	 * Instantiates a new dialog menu.
-	 * 
-	 * @param style
-	 *            the style
-	 * @param width
-	 *            the width
-	 * @param height
-	 *            the height
-	 */
+	
 	public DialogMenu(UIStyle style, int width, int height)
 	{
 		super(style, width, height);
 		this.setVisible(false);
 	}
+	
+	public DialogMenu()
+	{
+		this(Core.getService(Game.class).getGameStyle(), 500, 200);
+	}
 
-	/**
-	 * Issue query.
-	 * 
-	 * @param query
-	 *            the query
-	 * @param options
-	 *            the options
-	 * @param responder
-	 *            the responder
-	 */
+	
 	public void issueQuery(String query, String[] options, final IDialogResponder responder)
 	{
 		this.clearControls();

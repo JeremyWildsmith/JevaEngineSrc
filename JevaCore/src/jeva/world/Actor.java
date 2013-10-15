@@ -19,14 +19,21 @@ import java.util.ArrayList;
 import javax.script.ScriptException;
 
 import proguard.annotation.KeepClassMemberNames;
+import sun.org.mozilla.javascript.internal.NativeArray;
 
 import com.sun.istack.internal.Nullable;
 
+import jeva.Core;
 import jeva.CoreScriptException;
+import jeva.IResourceLibrary;
+import jeva.config.BasicVariable;
 import jeva.config.ShallowVariable;
 import jeva.config.UnknownVariableException;
 import jeva.config.Variable;
+import jeva.config.VariableStore;
 import jeva.config.VariableValue;
+import jeva.game.DialogPath;
+import jeva.game.DialogPath.Query;
 import jeva.graphics.IRenderable;
 import jeva.math.Matrix2X2;
 import jeva.math.Vector2D;
@@ -34,10 +41,8 @@ import jeva.math.Vector2F;
 import jeva.util.StaticSet;
 import jeva.world.EffectMap.TileEffects;
 
-/**
- * The Class Actor.
- */
-public abstract class Actor extends DialogicalEntity
+
+public abstract class Actor extends Entity implements IInteractable
 {
 
 	/** The m_location. */
@@ -48,108 +53,96 @@ public abstract class Actor extends DialogicalEntity
 
 	/** The m_observers. */
 	private Observers m_observers = new Observers();
+	
+	private ActorScript m_script = new ActorScript();
 
-	/**
-	 * Instantiates a new actor.
-	 */
+	private boolean m_isInteractable;
+	
+	@Nullable
+	private DialogPath m_dialog;
+	
+	
 	protected Actor()
 	{
-		m_location = new Vector2F();
-		m_direction = WorldDirection.Zero;
+		this(null);
 	}
 
-	/**
-	 * Instantiates a new actor.
-	 * 
-	 * @param name
-	 *            the name
-	 */
+	
 	protected Actor(String name)
 	{
-		super(name);
-
-		m_location = new Vector2F();
-		m_direction = WorldDirection.Zero;
+		this(name, WorldDirection.Zero);
 	}
 
-	/**
-	 * Instantiates a new actor.
-	 * 
-	 * @param name
-	 *            the name
-	 * @param direction
-	 *            the direction
-	 */
+	
 	protected Actor(@Nullable String name, WorldDirection direction)
 	{
-		super(name);
-
-		m_location = new Vector2F();
+		this(name, new BasicVariable(), new ActorBridge<>());
 		m_direction = direction;
 	}
 
-	/**
-	 * Instantiates a new actor.
-	 * 
-	 * @param <Y>
-	 *            the generic type
-	 * @param <T>
-	 *            the generic type
-	 * @param name
-	 *            the name
-	 * @param root
-	 *            the root
-	 * @param entityContext
-	 *            the entity context
-	 */
+	
 	protected <Y extends Actor, T extends ActorBridge<Y>> Actor(@Nullable String name, Variable root, T entityContext)
 	{
 		super(name, root, entityContext);
 
 		m_location = new Vector2F();
 		m_direction = WorldDirection.Zero;
+		
+		Variable entityVar = getEntityVariables();
+		
+		if(entityVar.variableExists("isInteractable"))
+			m_isInteractable = entityVar.getVariable("isInteractable").getValue().getBoolean();
+		else
+			m_isInteractable = false;
+		
+		if (entityVar.variableExists("dialog"))
+			m_dialog = DialogPath.create(VariableStore.create(Core.getService(IResourceLibrary.class).openResourceStream(root.getVariable("dialog").getValue().getString())));
 	}
 
-	/**
-	 * Adds the observer.
-	 * 
-	 * @param observer
-	 *            the observer
-	 */
+	
 	public void addObserver(IActorObserver observer)
 	{
 		m_observers.add(observer);
 		super.addObserver(observer);
 	}
 
-	/**
-	 * Removes the observer.
-	 * 
-	 * @param observer
-	 *            the observer
-	 */
+	
 	public void removeObserver(IActorObserver observer)
 	{
 		m_observers.remove(observer);
 		super.removeObserver(observer);
 	}
+	
+	public final int invokeDialogEvent(@Nullable Entity subject, int event)
+	{
+		try
+		{
+			m_observers.onDialogEvent(subject, event);
 
-	/**
-	 * Gets the location.
-	 * 
-	 * @return the location
-	 */
+			Object oReturn = getScript().invokeScriptFunction("onDialogEvent", subject, event);
+
+			if (oReturn instanceof Double)
+				return ((Double) oReturn).intValue();
+			else if (oReturn instanceof Integer)
+				return ((Integer) oReturn).intValue();
+			else
+				return -1;
+		} catch (ScriptException e)
+		{
+			throw new CoreScriptException("Unable to invoke entity onDialogEvent routine." + e.getMessage());
+		} catch (NoSuchMethodException e)
+		{
+			return -1;
+		}
+	}
+	
+	
 	public final Vector2F getLocation()
 	{
 		return m_location;
 	}
 
-	/**
-	 * Sets the location.
-	 * 
-	 * @param location
-	 *            the new location
-	 */
+	
 	public final void setLocation(Vector2F location)
 	{
 		Vector2F oldLocation = m_location;
@@ -159,12 +152,7 @@ public abstract class Actor extends DialogicalEntity
 			m_observers.placement(location);
 	}
 
-	/**
-	 * Move.
-	 * 
-	 * @param delta
-	 *            the delta
-	 */
+	
 	public final void move(Vector2F delta)
 	{
 		m_location = m_location.add(delta);
@@ -172,22 +160,13 @@ public abstract class Actor extends DialogicalEntity
 		m_observers.moved(delta);
 	}
 
-	/**
-	 * Gets the direction.
-	 * 
-	 * @return the direction
-	 */
+	
 	public final WorldDirection getDirection()
 	{
 		return m_direction;
 	}
 
-	/**
-	 * Sets the direction.
-	 * 
-	 * @param direction
-	 *            the new direction
-	 */
+	
 	public final void setDirection(WorldDirection direction)
 	{
 		WorldDirection oldDirection = m_direction;
@@ -197,6 +176,89 @@ public abstract class Actor extends DialogicalEntity
 			m_observers.directionChanged(direction);
 	}
 
+	@Override
+	public String[] getCommands()
+	{
+		return m_script.getCommands();
+	}
+
+	@Override
+	public void doCommand(String command)
+	{
+		m_script.doCommand(command);
+	}
+	
+
+	public void blendEffectMap(EffectMap globalEffectMap)
+	{
+		if(m_isInteractable)
+		{
+			globalEffectMap.applyOverlayEffects(this.getLocation().round(),
+											 		new TileEffects(this));
+		}
+	}
+	
+	
+	public Entity[] getVisibleEntities()
+	{
+		Vector2F viewAt = new Vector2F(this.getDirection().getDirectionVector()).normalize().multiply(getViewDistance());
+		Vector2F viewSrcA = viewAt.rotate(-getFieldOfView() / 2.0F).add(this.getLocation());
+		Vector2F viewSrcB = viewAt.rotate(getFieldOfView() / 2.0F).add(this.getLocation());
+
+		Actor[] actorsInFov = getWorld().getActors(new TriangleSearchFilter<Actor>(this.getLocation(), viewSrcA, viewSrcB));
+
+		ArrayList<Entity> visibleEntities = new ArrayList<Entity>();
+
+		for (Actor e : actorsInFov)
+		{
+			if (e != this)
+			{
+				float fPathSight = TileEffects.merge(getWorld().getTileEffects(new TriangleSearchFilter<TileEffects>(this.getLocation(), e.getLocation(), e.getLocation()))).sightEffect;
+
+				if (getVisualAcuity() >= fPathSight)
+					visibleEntities.add(e);
+			}
+		}
+
+		return visibleEntities.toArray(new Entity[visibleEntities.size()]);
+
+	}
+
+	
+	protected final void enqueueRender()
+	{
+		if (!isAssociated())
+			throw new WorldAssociationException("Entity is not associated with world and can thus not be rendered.");
+
+		final IRenderable[] renderables = getGraphics();
+
+		if (renderables != null)
+		{
+			// Optimize for most common case
+			if (getTileWidth() == 1 && getTileHeight() == 1)
+			{
+				for (IRenderable renderable : renderables)
+					getWorld().enqueueRender(renderable, new Vector2F(m_location.x, m_location.y));
+			} else
+			{
+				// Start with 1, since we start with 0 on x. If they both
+				// started
+				// at 0, we would render 0,0 twice.
+				for (int y = 1; y < getTileHeight(); y++)
+				{
+					Vector2D location = new Vector2D(0, y);
+					getWorld().enqueueRender(new RenderTile(true, renderables, location), m_location.difference(location));
+				}
+
+				for (int x = 0; x < getTileWidth(); x++)
+				{
+					Vector2D location = new Vector2D(x, 0);
+					getWorld().enqueueRender(new RenderTile(false, renderables, location), m_location.difference(location));
+				}
+			}
+		}
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -232,162 +294,40 @@ public abstract class Actor extends DialogicalEntity
 		{ new ShallowVariable(this, "x", new VariableValue(m_location.x)), new ShallowVariable(this, "y", new VariableValue(m_location.y)) };
 	}
 
-	/**
-	 * Gets the visible entities.
-	 * 
-	 * @return the visible entities
-	 */
-	public Entity[] getVisibleEntities()
-	{
-		Vector2F viewAt = new Vector2F(this.getDirection().getDirectionVector()).normalize().multiply(getViewDistance());
-		Vector2F viewSrcA = viewAt.rotate(-getFieldOfView() / 2.0F).add(this.getLocation());
-		Vector2F viewSrcB = viewAt.rotate(getFieldOfView() / 2.0F).add(this.getLocation());
 
-		Actor[] actorsInFov = getWorld().getActors(new TriangleSearchFilter<Actor>(this.getLocation(), viewSrcA, viewSrcB));
-
-		ArrayList<Entity> visibleEntities = new ArrayList<Entity>();
-
-		for (Actor e : actorsInFov)
-		{
-			if (e != this)
-			{
-				float fPathSight = TileEffects.merge(getWorld().getTileEffects(new TriangleSearchFilter<TileEffects>(this.getLocation(), e.getLocation(), e.getLocation()))).sightEffect;
-
-				if (getVisualAcuity() >= fPathSight)
-					visibleEntities.add(e);
-			}
-		}
-
-		return visibleEntities.toArray(new Entity[visibleEntities.size()]);
-
-	}
-
-	/**
-	 * Enqueue render.
-	 */
-	protected final void enqueueRender()
-	{
-		if (!isAssociated())
-			throw new WorldAssociationException("Entity is not associated with world and can thus not be rendered.");
-
-		final IRenderable[] renderables = getGraphics();
-
-		if (renderables != null)
-		{
-			// Optimize for most common case
-			if (getTileWidth() == 1 && getTileHeight() == 1)
-			{
-				for (IRenderable renderable : renderables)
-					getWorld().enqueueRender(renderable, new Vector2F(m_location.x, m_location.y));
-			} else
-			{
-				// Start with 1, since we start with 0 on x. If they both
-				// started
-				// at 0, we would render 0,0 twice.
-				for (int y = 1; y < getTileHeight(); y++)
-				{
-					Vector2D location = new Vector2D(0, y);
-					getWorld().enqueueRender(new RenderTile(true, renderables, location), m_location.difference(location));
-				}
-
-				for (int x = 0; x < getTileWidth(); x++)
-				{
-					Vector2D location = new Vector2D(x, 0);
-					getWorld().enqueueRender(new RenderTile(false, renderables, location), m_location.difference(location));
-				}
-			}
-		}
-	}
-
-	/**
-	 * Gets the visibility factor.
-	 * 
-	 * @return the visibility factor
-	 */
+	
 	public abstract float getVisibilityFactor();
 
-	/**
-	 * Gets the view distance.
-	 * 
-	 * @return the view distance
-	 */
 	public abstract float getViewDistance();
 
-	/**
-	 * Gets the field of view.
-	 * 
-	 * @return the field of view
-	 */
 	public abstract float getFieldOfView();
 
-	/**
-	 * Gets the visual acuity.
-	 * 
-	 * @return the visual acuity
-	 */
+	
 	public abstract float getVisualAcuity();
 
-	/**
-	 * Gets the speed.
-	 * 
-	 * @return the speed
-	 */
+	
 	public abstract float getSpeed();
 
-	/**
-	 * Gets the tile width.
-	 * 
-	 * @return the tile width
-	 */
+	
 	public abstract int getTileWidth();
 
-	/**
-	 * Gets the tile height.
-	 * 
-	 * @return the tile height
-	 */
+	
 	public abstract int getTileHeight();
 
-	/**
-	 * Gets the allowed movements.
-	 * 
-	 * @return the allowed movements
-	 */
 	public abstract WorldDirection[] getAllowedMovements();
 
-	/**
-	 * Gets the graphics.
-	 * 
-	 * @return the graphics
-	 */
 	@Nullable
 	public abstract IRenderable[] getGraphics();
 
-	/**
-	 * The Class RenderTile.
-	 */
 	private final class RenderTile implements IRenderable
 	{
 
-		/** The m_location. */
 		private Vector2D m_location;
 
-		/** The m_renderables. */
 		private IRenderable[] m_renderables;
 
-		/** The m_is y axis. */
 		private boolean m_isYAxis;
 
-		/**
-		 * Instantiates a new render tile.
-		 * 
-		 * @param isYAxis
-		 *            the is y axis
-		 * @param renderables
-		 *            the renderables
-		 * @param location
-		 *            the location
-		 */
 		public RenderTile(boolean isYAxis, IRenderable[] renderables, Vector2D location)
 		{
 			m_isYAxis = isYAxis;
@@ -425,100 +365,108 @@ public abstract class Actor extends DialogicalEntity
 		}
 	}
 
-	/**
-	 * An asynchronous update interface for receiving notifications about IActor
-	 * information as the IActor is constructed.
-	 */
-	public interface IActorObserver extends IDialogueObserver
+	public interface IActorObserver extends IEntityObserver
 	{
 
-		/**
-		 * This method is called when information about an IActor which was
-		 * previously requested using an asynchronous interface becomes
-		 * available.
-		 * 
-		 * @param direction
-		 *            the direction
-		 */
 		void directionChanged(WorldDirection direction);
 
-		/**
-		 * This method is called when information about an IActor which was
-		 * previously requested using an asynchronous interface becomes
-		 * available.
-		 * 
-		 * @param location
-		 *            the location
-		 */
 		void placement(Vector2F location);
 
-		/**
-		 * This method is called when information about an IActor which was
-		 * previously requested using an asynchronous interface becomes
-		 * available.
-		 * 
-		 * @param delta
-		 *            the delta
-		 */
 		void moved(Vector2F delta);
+		
+		void onDialogEvent(Entity subject, int event);
 	}
 
-	/**
-	 * The Class Observers.
-	 */
+	
 	private static class Observers extends StaticSet<IActorObserver>
 	{
 
-		/**
-		 * Placement.
-		 * 
-		 * @param location
-		 *            the location
-		 */
+		
 		public void placement(Vector2F location)
 		{
 			for (IActorObserver observer : this)
 				observer.placement(location);
 		}
 
-		/**
-		 * Direction changed.
-		 * 
-		 * @param direction
-		 *            the direction
-		 */
+		
 		public void directionChanged(WorldDirection direction)
 		{
 			for (IActorObserver observer : this)
 				observer.directionChanged(direction);
 		}
 
-		/**
-		 * Moved.
-		 * 
-		 * @param delta
-		 *            the delta
-		 */
+		
 		public void moved(Vector2F delta)
 		{
 			for (IActorObserver observer : this)
 				observer.moved(delta);
 		}
+		
+
+		public void onDialogEvent(Entity subject, int event)
+		{
+			for (IActorObserver observer : this)
+				observer.onDialogEvent(subject, event);
+		}
 	}
 
-	/**
-	 * The Class ActorBridge.
-	 * 
-	 * @param <Y>
-	 *            the generic type
-	 */
+	private class ActorScript
+	{
+		public String[] getCommands()
+		{
+			if(!getScript().isReady())
+				return new String[0];
+			
+			try
+			{
+				NativeArray jsStringArray = (NativeArray)getScript().invokeScriptFunction("getCommands");
+				
+				String[] commands = new String[(int) jsStringArray.getLength()];
+				
+				for(int i = 0; i < jsStringArray.getLength(); i++)
+				{
+					Object element = jsStringArray.get(i);
+					
+					if(!(element instanceof String))
+						throw new CoreScriptException("Unexpected data returned on invoking getCommands for Actor Interactable entity.");
+
+					commands[i] = (String)element;
+				}
+				
+				return commands;
+				
+			} catch (NoSuchMethodException e)
+			{
+				return new String[0];
+			} catch (ScriptException e)
+			{
+				throw new CoreScriptException(e);
+			}
+		}
+		
+		public void doCommand(String command)
+		{
+			if(!getScript().isReady())
+				return;
+			
+			try
+			{
+				getScript().invokeScriptFunction("doCommand", command);
+			} catch (NoSuchMethodException e)
+			{
+			} catch (ScriptException e)
+			{
+				throw new CoreScriptException(e);
+			}
+		}
+	}
+	
+	
 	@KeepClassMemberNames
-	public static class ActorBridge<Y extends Actor> extends DialogicalBridge<Y>
+	public static class ActorBridge<Y extends Actor> extends EntityBridge<Y>
 	{
 
-		/**
-		 * The Class FoundDetails.
-		 */
+		
 		@KeepClassMemberNames
 		public static class FoundDetails
 		{
@@ -532,12 +480,7 @@ public abstract class Actor extends DialogicalEntity
 			/** The location. */
 			public Vector2D location;
 
-			/**
-			 * Instantiates a new found details.
-			 * 
-			 * @param foundEntity
-			 *            the found entity
-			 */
+			
 			public FoundDetails(Actor foundEntity)
 			{
 				name = foundEntity.getName();
@@ -546,55 +489,31 @@ public abstract class Actor extends DialogicalEntity
 			}
 		}
 
-		/**
-		 * Distance.
-		 * 
-		 * @param actor
-		 *            the actor
-		 * @return the float
-		 */
+		
 		public float distance(ActorBridge<?> actor)
 		{
 			return getMe().getLocation().difference(actor.getLocation()).getLength();
 		}
 
-		/**
-		 * Gets the location.
-		 * 
-		 * @return the location
-		 */
+		
 		public Vector2D getLocation()
 		{
 			return getMe().getLocation().round();
 		}
 
-		/**
-		 * Sets the location.
-		 * 
-		 * @param location
-		 *            the new location
-		 */
+		
 		public void setLocation(Vector2F location)
 		{
 			getMe().setLocation(location);
 		}
 
-		/**
-		 * Sets the location.
-		 * 
-		 * @param x
-		 *            the x
-		 * @param y
-		 *            the y
-		 */
+		
 		public void setLocation(float x, float y)
 		{
 			getMe().setLocation(new Vector2F(x, y));
 		}
 
-		/**
-		 * Look.
-		 */
+		
 		public void look()
 		{
 			getMe().addTask(new SearchForTask<Actor>(getMe(), Actor.class)
@@ -624,6 +543,39 @@ public abstract class Actor extends DialogicalEntity
 				public boolean continueSearch()
 				{
 					return false;
+				}
+			});
+		}
+		
+		public final void dialog(@Nullable final EntityBridge<Entity> subject, final int dialogId)
+		{
+			final DialogPath dialog = ((Actor)getMe()).m_dialog;
+
+			if (dialog == null)
+				throw new CoreScriptException("Entity attempting to initiate dialog without defining a dialog path.");
+
+			getMe().addTask(new DialogTask(subject.getMe())
+			{
+				@Override
+				public Query onEvent(Entity subject, int eventCode)
+				{
+					int dialogOverride = getMe().invokeDialogEvent(subject, eventCode);
+
+					if (dialogOverride >= 0)
+						return dialog.getQuery(dialogOverride);
+					else
+						return null;
+				}
+
+				@Override
+				public void onDialogEnd()
+				{
+				}
+
+				@Override
+				public Query getEntryDialog()
+				{
+					return dialog.getQuery(dialogId);
 				}
 			});
 		}

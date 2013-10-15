@@ -15,6 +15,8 @@ package jevarpg.ui;
 import java.awt.Graphics2D;
 import java.lang.ref.WeakReference;
 
+import jeva.Core;
+import jeva.game.Game;
 import jeva.graphics.ui.Button;
 import jeva.graphics.ui.Window;
 import jeva.graphics.ui.MenuStrip;
@@ -44,6 +46,11 @@ public class InventoryMenu extends Window
         m_accessor = new WeakReference<RpgCharacter>(null);
 
         m_menuStrip = new MenuStrip();
+    }
+    
+    public InventoryMenu()
+    {
+    	this(Core.getService(Game.class).getGameStyle());
     }
 
     public void accessInventory(IItemStore host, RpgCharacter accessor)

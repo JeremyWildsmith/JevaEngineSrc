@@ -26,11 +26,7 @@ import java.util.Map;
 import jeva.math.Vector2D;
 import jeva.math.Vector2F;
 
-/**
- * The Class EffectMap.
- * 
- * @author Scott
- */
+
 public class EffectMap
 {
 
@@ -40,33 +36,21 @@ public class EffectMap
 	/** The m_bounds. */
 	private Rectangle m_bounds;
 
-	/**
-	 * Instantiates a new effect map.
-	 */
+	
 	public EffectMap()
 	{
 		m_bounds = null;
 		m_tileEffects = new HashMap<Vector2D, TileEffects>();
 	}
 
-	/**
-	 * Instantiates a new effect map.
-	 * 
-	 * @param bounds
-	 *            the bounds
-	 */
+	
 	public EffectMap(Rectangle bounds)
 	{
 		m_bounds = bounds;
 		m_tileEffects = new HashMap<Vector2D, TileEffects>();
 	}
 
-	/**
-	 * Instantiates a new effect map.
-	 * 
-	 * @param map
-	 *            the map
-	 */
+	
 	public EffectMap(EffectMap map)
 	{
 		m_bounds = map.m_bounds;
@@ -76,21 +60,13 @@ public class EffectMap
 			applyOverlayEffects(effects.getKey(), effects.getValue());
 	}
 
-	/**
-	 * Clear.
-	 */
+	
 	public void clear()
 	{
 		m_tileEffects.clear();
 	}
 
-	/**
-	 * Gets the tile effects.
-	 * 
-	 * @param location
-	 *            the location
-	 * @return the tile effects
-	 */
+	
 	public final TileEffects getTileEffects(Vector2D location)
 	{
 		if (m_bounds != null && !m_bounds.contains(new Point(location.x, location.y)))
@@ -107,13 +83,7 @@ public class EffectMap
 		return m_tileEffects.get(location);
 	}
 
-	/**
-	 * Gets the tile effects.
-	 * 
-	 * @param filter
-	 *            the filter
-	 * @return the tile effects
-	 */
+	
 	public final TileEffects[] getTileEffects(ISearchFilter<TileEffects> filter)
 	{
 		ArrayList<TileEffects> tileEffects = new ArrayList<TileEffects>();
@@ -136,14 +106,7 @@ public class EffectMap
 		return tileEffects.toArray(new TileEffects[tileEffects.size()]);
 	}
 
-	/**
-	 * Apply overlay effects.
-	 * 
-	 * @param filter
-	 *            the filter
-	 * @param overlay
-	 *            the overlay
-	 */
+	
 	public final void applyOverlayEffects(ISearchFilter<TileEffects> filter, TileEffects overlay)
 	{
 		Rectangle searchBounds = filter.getSearchBounds();
@@ -168,14 +131,7 @@ public class EffectMap
 		}
 	}
 
-	/**
-	 * Apply overlay effects.
-	 * 
-	 * @param location
-	 *            the location
-	 * @param value
-	 *            the value
-	 */
+	
 	public final void applyOverlayEffects(Vector2D location, TileEffects value)
 	{
 		if (m_bounds != null && !m_bounds.contains(new Point(location.x, location.y)))
@@ -191,34 +147,20 @@ public class EffectMap
 		effect.location = location;
 	}
 
-	/**
-	 * Overlay.
-	 * 
-	 * @param overlay
-	 *            the overlay
-	 * @param offset
-	 *            the offset
-	 */
+	
 	public final void overlay(EffectMap overlay, Vector2D offset)
 	{
 		for (Map.Entry<Vector2D, TileEffects> effects : overlay.m_tileEffects.entrySet())
 			applyOverlayEffects(effects.getKey().add(offset), effects.getValue());
 	}
 
-	/**
-	 * Overlay.
-	 * 
-	 * @param overlay
-	 *            the overlay
-	 */
+	
 	public final void overlay(EffectMap overlay)
 	{
 		overlay(overlay, new Vector2D());
 	}
 
-	/**
-	 * The Class TileEffects.
-	 */
+	
 	public static class TileEffects
 	{
 
@@ -234,9 +176,7 @@ public class EffectMap
 		/** The location. */
 		public Vector2D location;
 
-		/**
-		 * Instantiates a new tile effects.
-		 */
+		
 		public TileEffects()
 		{
 			location = new Vector2D();
@@ -245,12 +185,7 @@ public class EffectMap
 			interactables = new ArrayList<IInteractable>();
 		}
 
-		/**
-		 * Instantiates a new tile effects.
-		 * 
-		 * @param _location
-		 *            the _location
-		 */
+		
 		public TileEffects(Vector2D _location)
 		{
 			location = _location;
@@ -259,12 +194,7 @@ public class EffectMap
 			interactables = new ArrayList<IInteractable>();
 		}
 
-		/**
-		 * Instantiates a new tile effects.
-		 * 
-		 * @param effects
-		 *            the effects
-		 */
+		
 		public TileEffects(TileEffects effects)
 		{
 			location = effects.location;
@@ -274,12 +204,7 @@ public class EffectMap
 			interactables = new ArrayList<IInteractable>(effects.interactables);
 		}
 
-		/**
-		 * Instantiates a new tile effects.
-		 * 
-		 * @param _isTraversable
-		 *            the _is traversable
-		 */
+		
 		public TileEffects(boolean _isTraversable)
 		{
 			location = new Vector2D();
@@ -288,12 +213,7 @@ public class EffectMap
 			interactables = new ArrayList<IInteractable>();
 		}
 
-		/**
-		 * Instantiates a new tile effects.
-		 * 
-		 * @param _sightEffect
-		 *            the _sight effect
-		 */
+		
 		public TileEffects(float _sightEffect)
 		{
 			location = new Vector2D();
@@ -302,12 +222,7 @@ public class EffectMap
 			interactables = new ArrayList<IInteractable>();
 		}
 
-		/**
-		 * Instantiates a new tile effects.
-		 * 
-		 * @param _interactables
-		 *            the _interactables
-		 */
+		
 		public TileEffects(IInteractable... _interactables)
 		{
 			location = new Vector2D();
@@ -315,13 +230,7 @@ public class EffectMap
 			interactables = new ArrayList<IInteractable>(Arrays.asList(_interactables));
 		}
 
-		/**
-		 * Merge.
-		 * 
-		 * @param tiles
-		 *            the tiles
-		 * @return the tile effects
-		 */
+		
 		public static TileEffects merge(TileEffects[] tiles)
 		{
 			TileEffects effect = new TileEffects();
@@ -332,13 +241,7 @@ public class EffectMap
 			return effect;
 		}
 
-		/**
-		 * Overlay.
-		 * 
-		 * @param overlay
-		 *            the overlay
-		 * @return the tile effects
-		 */
+		
 		public TileEffects overlay(TileEffects overlay)
 		{
 			isTraversable &= overlay.isTraversable;

@@ -15,29 +15,18 @@ package jeva.graphics.ui;
 import jeva.joystick.InputManager.InputKeyEvent;
 import jeva.math.Vector2D;
 
-/**
- * The Class MenuStrip.
- */
+
 public class MenuStrip extends Panel
 {
 
-	/**
-	 * Instantiates a new menu strip.
-	 */
+	
 	public MenuStrip()
 	{
 		super(200, 0);
 		this.setVisible(false);
 	}
 
-	/**
-	 * Sets the context.
-	 * 
-	 * @param commands
-	 *            the commands
-	 * @param listener
-	 *            the listener
-	 */
+	
 	public void setContext(final String[] commands, final IMenuStripListener listener)
 	{
 		this.clearControls();
@@ -77,25 +66,11 @@ public class MenuStrip extends Panel
 		this.setVisible(true);
 	}
 
-	/**
-	 * The listener interface for receiving IMenuStrip events. The class that is
-	 * interested in processing a IMenuStrip event implements this interface,
-	 * and the object created with that class is registered with a component
-	 * using the component's <code>addIMenuStripListener<code> method. When
-	 * the IMenuStrip event occurs, that object's appropriate
-	 * method is invoked.
-	 * 
-	 * @see IMenuStripEvent
-	 */
+	
 	public interface IMenuStripListener
 	{
 
-		/**
-		 * On command.
-		 * 
-		 * @param bommand
-		 *            the bommand
-		 */
+		
 		void onCommand(String bommand);
 	}
 
@@ -107,7 +82,5 @@ public class MenuStrip extends Panel
 	 * )
 	 */
 	@Override
-	public void onKeyEvent(InputKeyEvent keyEvent)
-	{
-	}
+	public void onKeyEvent(InputKeyEvent keyEvent) { }
 }

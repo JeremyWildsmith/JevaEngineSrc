@@ -21,9 +21,7 @@ import jeva.world.World;
 import jeva.world.Actor.IActorObserver;
 import jeva.world.WorldDirection;
 
-/**
- * The Class FollowCamera.
- */
+
 public final class FollowCamera implements IWorldCamera
 {
 
@@ -39,20 +37,13 @@ public final class FollowCamera implements IWorldCamera
 	/** The m_target location. */
 	private Vector2D m_targetLocation;
 
-	/**
-	 * Instantiates a new follow camera.
-	 */
+	
 	public FollowCamera()
 	{
 		m_targetEntity = null;
 	}
 
-	/**
-	 * Sets the target.
-	 * 
-	 * @param target
-	 *            the new target
-	 */
+	
 	public void setTarget(String target)
 	{
 		m_targetEntity = target;
@@ -119,10 +110,7 @@ public final class FollowCamera implements IWorldCamera
 		m_world = null;
 	}
 
-	/**
-	 * An asynchronous update interface for receiving notifications about Actor
-	 * information as the Actor is constructed.
-	 */
+	
 	private class ActorObserver implements IActorObserver
 	{
 		/*

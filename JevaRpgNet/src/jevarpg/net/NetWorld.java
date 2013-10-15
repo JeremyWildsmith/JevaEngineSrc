@@ -18,7 +18,7 @@ import jeva.communication.Communicator;
 import jeva.communication.InvalidMessageException;
 import jeva.communication.SharedEntity;
 import jeva.config.Variable;
-import jeva.world.DialogicalEntity;
+import jeva.world.Actor;
 import jeva.world.Entity;
 import jeva.world.World;
 
@@ -89,13 +89,13 @@ public abstract class NetWorld extends SharedEntity
 
 			Variable dialogEntity = world.getVariable(m_entityName);
 
-			if (!(dialogEntity instanceof DialogicalEntity))
+			if (!(dialogEntity instanceof Actor))
 				throw new InvalidMessageException(sender, this, "Entity cannot posses dialog.");
 
-			if (m_subjectName != null && (!world.variableExists(m_subjectName) || !(world.getVariable(m_subjectName) instanceof DialogicalEntity)))
+			if (m_subjectName != null && (!world.variableExists(m_subjectName) || !(world.getVariable(m_subjectName) instanceof Actor)))
 				throw new InvalidMessageException(sender, this, "Invalid subject name or type.");
 
-			((DialogicalEntity) dialogEntity).invokeDialogEvent(m_subjectName == null ? null : (Entity) world.getVariable(m_subjectName), m_eventCode);
+			((Actor) dialogEntity).invokeDialogEvent(m_subjectName == null ? null : (Entity) world.getVariable(m_subjectName), m_eventCode);
 		}
 
 		@Override

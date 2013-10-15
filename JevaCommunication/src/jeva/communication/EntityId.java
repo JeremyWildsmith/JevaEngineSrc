@@ -20,9 +20,7 @@ public class EntityId
 
 	@SuppressWarnings("unused")
 	// Used by Kryo
-	private EntityId()
-	{
-	}
+	private EntityId() { }
 
 	public EntityId(boolean isOwned, long objectId)
 	{

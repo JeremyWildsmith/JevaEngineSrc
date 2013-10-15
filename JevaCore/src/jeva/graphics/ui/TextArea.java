@@ -27,18 +27,14 @@ import jeva.joystick.InputManager.InputKeyEvent;
 import jeva.joystick.InputManager.InputMouseEvent;
 import jeva.joystick.InputManager.InputMouseEvent.EventType;
 
-/**
- * The Class TextArea.
- */
+
 public class TextArea extends Panel
 {
 
 	/** The Constant TYPE_LENGTH. */
 	private static final int TYPE_LENGTH = 25;
 
-	/**
-	 * The Enum DisplayEffect.
-	 */
+	
 	public enum DisplayEffect
 	{
 
@@ -72,18 +68,7 @@ public class TextArea extends Panel
 	/** The m_allow edit. */
 	private boolean m_allowEdit;
 
-	/**
-	 * Instantiates a new text area.
-	 * 
-	 * @param text
-	 *            the text
-	 * @param color
-	 *            the color
-	 * @param width
-	 *            the width
-	 * @param height
-	 *            the height
-	 */
+	
 	public TextArea(String text, Color color, int width, int height)
 	{
 		super(width, height);
@@ -94,37 +79,19 @@ public class TextArea extends Panel
 		m_displayEffect = DisplayEffect.None;
 	}
 
-	/**
-	 * Instantiates a new text area.
-	 * 
-	 * @param color
-	 *            the color
-	 * @param width
-	 *            the width
-	 * @param height
-	 *            the height
-	 */
+	
 	public TextArea(Color color, int width, int height)
 	{
 		this("", color, width, height);
 	}
 
-	/**
-	 * Gets the text.
-	 * 
-	 * @return the text
-	 */
+	
 	public String getText()
 	{
 		return m_text;
 	}
 
-	/**
-	 * Sets the effect.
-	 * 
-	 * @param effect
-	 *            the new effect
-	 */
+	
 	public void setEffect(DisplayEffect effect)
 	{
 		m_displayEffect = effect;
@@ -135,12 +102,7 @@ public class TextArea extends Panel
 			m_renderText = "";
 	}
 
-	/**
-	 * Sets the text.
-	 * 
-	 * @param text
-	 *            the new text
-	 */
+	
 	public void setText(String text)
 	{
 		m_text = text;
@@ -148,24 +110,14 @@ public class TextArea extends Panel
 		setEffect(m_displayEffect);
 	}
 
-	/**
-	 * Append text.
-	 * 
-	 * @param text
-	 *            the text
-	 */
+	
 	public void appendText(String text)
 	{
 		m_text = getText() + text;
 		setEffect(m_displayEffect);
 	}
 
-	/**
-	 * Sets the editable.
-	 * 
-	 * @param isEditable
-	 *            the new editable
-	 */
+	
 	public void setEditable(boolean isEditable)
 	{
 		m_allowEdit = isEditable;
@@ -234,9 +186,7 @@ public class TextArea extends Panel
 		}
 	}
 
-	/**
-	 * Scroll to end.
-	 */
+	
 	public void scrollToEnd()
 	{
 		m_fScroll = Float.MAX_VALUE;

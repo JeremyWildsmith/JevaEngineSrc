@@ -26,31 +26,20 @@ import jeva.math.Vector2D;
 import jeva.math.Vector2F;
 import jeva.world.EffectMap.TileEffects;
 
-/**
- * The Class WorldLayer.
- * 
- * @author Jeremy. A. W
- */
+
 public class WorldLayer implements IDisposable
 {
 
 	/** The m_sectors. */
 	private ArrayList<LayerSector> m_sectors;
 
-	/**
-	 * Instantiates a new world layer.
-	 */
+	
 	public WorldLayer()
 	{
 		m_sectors = new ArrayList<LayerSector>();
 	}
 
-	/**
-	 * Adds the static tile.
-	 * 
-	 * @param tile
-	 *            the tile
-	 */
+	
 	public void addStaticTile(Tile tile)
 	{
 		if (!m_sectors.contains(new LayerSectorCoordinate(tile.getLocation())))
@@ -61,12 +50,7 @@ public class WorldLayer implements IDisposable
 		m_sectors.get(sec).addStaticTile(tile);
 	}
 
-	/**
-	 * Adds the dynamic tile.
-	 * 
-	 * @param tile
-	 *            the tile
-	 */
+	
 	public void addDynamicTile(Tile tile)
 	{
 		if (!m_sectors.contains(tile.getLocation()))
@@ -77,13 +61,7 @@ public class WorldLayer implements IDisposable
 		m_sectors.get(sec).addDynamicTile(tile);
 	}
 
-	/**
-	 * Gets the tile effects.
-	 * 
-	 * @param location
-	 *            the location
-	 * @return the tile effects
-	 */
+	
 	public TileEffects getTileEffects(Vector2D location)
 	{
 		int index = m_sectors.indexOf(new LayerSectorCoordinate(location));
@@ -96,24 +74,14 @@ public class WorldLayer implements IDisposable
 		return sector.getTileEffects(location);
 	}
 
-	/**
-	 * Update.
-	 * 
-	 * @param delta
-	 *            the delta
-	 */
+	
 	public void update(int delta)
 	{
 		for (LayerSector sector : m_sectors)
 			sector.update(delta);
 	}
 
-	/**
-	 * Enqueue render.
-	 * 
-	 * @param renderBounds
-	 *            the render bounds
-	 */
+	
 	public void enqueueRender(Rectangle renderBounds)
 	{
 		HashSet<Integer> renderSectors = new HashSet<Integer>();
@@ -138,9 +106,7 @@ public class WorldLayer implements IDisposable
 		}
 	}
 
-	/**
-	 * The Class LayerSectorCoordinate.
-	 */
+	
 	private static class LayerSectorCoordinate
 	{
 
@@ -150,38 +116,21 @@ public class WorldLayer implements IDisposable
 		/** The y. */
 		int y;
 
-		/**
-		 * Instantiates a new layer sector coordinate.
-		 * 
-		 * @param _x
-		 *            the _x
-		 * @param _y
-		 *            the _y
-		 */
+		
 		public LayerSectorCoordinate(int _x, int _y)
 		{
 			x = _x;
 			y = _y;
 		}
 
-		/**
-		 * Instantiates a new layer sector coordinate.
-		 * 
-		 * @param location
-		 *            the location
-		 */
+		
 		public LayerSectorCoordinate(Vector2F location)
 		{
 			x = location.round().x;
 			y = location.round().y;
 		}
 
-		/**
-		 * Instantiates a new layer sector coordinate.
-		 * 
-		 * @param location
-		 *            the location
-		 */
+		
 		public LayerSectorCoordinate(Vector2D location)
 		{
 			x = location.x;
@@ -206,9 +155,7 @@ public class WorldLayer implements IDisposable
 		}
 	}
 
-	/**
-	 * The Class LayerSector.
-	 */
+	
 	private static class LayerSector implements IDisposable
 	{
 
@@ -233,12 +180,7 @@ public class WorldLayer implements IDisposable
 		/** The m_is dirty. */
 		private boolean m_isDirty;
 
-		/**
-		 * Instantiates a new layer sector.
-		 * 
-		 * @param containingLocation
-		 *            the containing location
-		 */
+		
 		public LayerSector(Vector2D containingLocation)
 		{
 			m_location = new Vector2D(containingLocation.x / SECTOR_DIMENSIONS, containingLocation.y / SECTOR_DIMENSIONS);
@@ -251,48 +193,27 @@ public class WorldLayer implements IDisposable
 			m_isDirty = false;
 		}
 
-		/**
-		 * Adds the dynamic tile.
-		 * 
-		 * @param tile
-		 *            the tile
-		 */
+		
 		public void addDynamicTile(Tile tile)
 		{
 			m_dynamicTiles.add(tile);
 			m_isDirty = true;
 		}
 
-		/**
-		 * Adds the static tile.
-		 * 
-		 * @param tile
-		 *            the tile
-		 */
+		
 		public void addStaticTile(Tile tile)
 		{
 			m_staticTiles.add(tile);
 			m_isDirty = true;
 		}
 
-		/**
-		 * Gets the tile effects.
-		 * 
-		 * @param location
-		 *            the location
-		 * @return the tile effects
-		 */
+		
 		public TileEffects getTileEffects(Vector2D location)
 		{
 			return m_staticEffectMap.getTileEffects(location).overlay(m_dynamicEffectMap.getTileEffects(location));
 		}
 
-		/**
-		 * Update.
-		 * 
-		 * @param deltaTime
-		 *            the delta time
-		 */
+		
 		public void update(int deltaTime)
 		{
 			m_dynamicEffectMap.clear();
@@ -314,12 +235,7 @@ public class WorldLayer implements IDisposable
 			}
 		}
 
-		/**
-		 * Enqueue render.
-		 * 
-		 * @param renderBounds
-		 *            the render bounds
-		 */
+		
 		public void enqueueRender(Rectangle renderBounds)
 		{
 			for (Tile t : m_staticTiles)

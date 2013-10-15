@@ -14,32 +14,23 @@ package jeva.graphics.ui;
 
 import java.awt.Graphics2D;
 
-import jeva.graphics.IRenderable;
 import jeva.joystick.InputManager;
 import jeva.joystick.InputManager.InputMouseEvent.EventType;
 import jeva.math.Vector2D;
 import jeva.util.StaticSet;
 
-public class WindowManager implements IRenderable
+public class BasicWindowManager implements IWindowManager
 {
 
-	/** The m_windows. */
 	StaticSet<Window> m_windows;
 
-	/**
-	 * Instantiates a new window manager.
-	 */
-	public WindowManager()
+
+	public BasicWindowManager()
 	{
 		m_windows = new StaticSet<Window>();
 	}
 
-	/**
-	 * Adds the window.
-	 * 
-	 * @param window
-	 *            the window
-	 */
+	@Override
 	public void addWindow(Window window)
 	{
 		if (m_windows.contains(window))
@@ -48,12 +39,7 @@ public class WindowManager implements IRenderable
 		m_windows.add(window);
 	}
 
-	/**
-	 * Removes the window.
-	 * 
-	 * @param window
-	 *            the window
-	 */
+	@Override
 	public void removeWindow(Window window)
 	{
 		if (!m_windows.contains(window))
@@ -62,20 +48,7 @@ public class WindowManager implements IRenderable
 		m_windows.remove(window);
 	}
 
-	/**
-	 * Clear.
-	 */
-	public void clear()
-	{
-		m_windows.clear();
-	}
-
-	/**
-	 * On mouse event.
-	 * 
-	 * @param mouseEvent
-	 *            the mouse event
-	 */
+	@Override
 	public void onMouseEvent(InputManager.InputMouseEvent mouseEvent)
 	{
 		Window moveToTop = null;
@@ -116,13 +89,7 @@ public class WindowManager implements IRenderable
 		}
 	}
 
-	/**
-	 * On key event.
-	 * 
-	 * @param keyEvent
-	 *            the key event
-	 * @return true, if successful
-	 */
+	@Override
 	public boolean onKeyEvent(InputManager.InputKeyEvent keyEvent)
 	{
 		for (int i = 0; i < m_windows.size(); i++)
@@ -151,12 +118,7 @@ public class WindowManager implements IRenderable
 		}
 	}
 
-	/**
-	 * Update.
-	 * 
-	 * @param deltaTime
-	 *            the delta time
-	 */
+	@Override
 	public void update(int deltaTime)
 	{
 		for (Window w : m_windows)

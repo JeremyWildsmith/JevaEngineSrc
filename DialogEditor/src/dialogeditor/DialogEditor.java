@@ -79,9 +79,7 @@ public class DialogEditor
 
 	private ArrayList<QueryNode> m_nodes = new ArrayList<QueryNode>();
 
-	/**
-	 * Launch the application.
-	 */
+	
 	public static void main(String[] args)
 	{
 		EventQueue.invokeLater(new Runnable()
@@ -100,9 +98,7 @@ public class DialogEditor
 		});
 	}
 
-	/**
-	 * Create the application.
-	 */
+	
 	public DialogEditor()
 	{
 		initialize();
@@ -365,9 +361,7 @@ public class DialogEditor
 			lstId.addItem(String.valueOf(i));
 	}
 
-	/**
-	 * Initialize the contents of the frame.
-	 */
+	
 	private void initialize()
 	{
 		frame = new JFrame();

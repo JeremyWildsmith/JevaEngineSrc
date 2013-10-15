@@ -32,9 +32,7 @@ import jeva.world.World;
 import jeva.world.WorldDirection;
 import jeva.world.TraverseRouteTask.IRouteTraveler;
 
-/**
- * The Class Character.
- */
+
 public abstract class Character extends Actor
 {
 
@@ -59,20 +57,7 @@ public abstract class Character extends Actor
 	/** The m_observers. */
 	private Observers m_observers = new Observers();
 
-	/**
-	 * Instantiates a new character.
-	 * 
-	 * @param <Y>
-	 *            the generic type
-	 * @param <T>
-	 *            the generic type
-	 * @param name
-	 *            the name
-	 * @param root
-	 *            the root
-	 * @param entityContext
-	 *            the entity context
-	 */
+	
 	public <Y extends Character, T extends CharacterBridge<Y>> Character(@Nullable String name, Variable root, T entityContext)
 	{
 		super(name, root, entityContext);
@@ -80,9 +65,7 @@ public abstract class Character extends Actor
 		init();
 	}
 
-	/**
-	 * Inits the.
-	 */
+	
 	private void init()
 	{
 		Variable entityVar = getEntityVariables();
@@ -105,22 +88,13 @@ public abstract class Character extends Actor
 		m_fSpeed = entityVar.getVariable("speed").getValue().getFloat();
 	}
 
-	/**
-	 * Gets the animator.
-	 * 
-	 * @return the animator
-	 */
+	
 	protected CharacterAnimator getAnimator()
 	{
 		return m_animator;
 	}
 
-	/**
-	 * Adds the observer.
-	 * 
-	 * @param observer
-	 *            the observer
-	 */
+	
 	public final void addObserver(ICharacterObserver observer)
 	{
 		m_observers.add(observer);
@@ -128,53 +102,26 @@ public abstract class Character extends Actor
 		super.addObserver(observer);
 	}
 
-	/**
-	 * Removes the observer.
-	 * 
-	 * @param observer
-	 *            the observer
-	 */
+	
 	public final void removeObserver(ICharacterObserver observer)
 	{
 		m_observers.remove(observer);
 		super.removeObserver(observer);
 	}
 
-	/**
-	 * Creates the move task.
-	 * 
-	 * @param dest
-	 *            the dest
-	 * @param fRadius
-	 *            the f radius
-	 * @return the traverse route task
-	 */
+	
 	private TraverseRouteTask createMoveTask(final Vector2D dest, final float fRadius)
 	{
 		return new TraverseRouteTask(new CharacterRouteTraveler(), dest, fRadius);
 	}
 
-	/**
-	 * Creates the move to task.
-	 * 
-	 * @param dest
-	 *            the dest
-	 * @param fRadius
-	 *            the f radius
-	 * @return the i task
-	 */
+	
 	protected final ITask createMoveToTask(Vector2D dest, float fRadius)
 	{
 		return createMoveTask(dest, fRadius);
 	}
 
-	/**
-	 * Creates the wonder task.
-	 * 
-	 * @param fRadius
-	 *            the f radius
-	 * @return the i task
-	 */
+	
 	protected final ITask createWonderTask(float fRadius)
 	{
 		return createMoveTask(null, fRadius);
@@ -294,15 +241,11 @@ public abstract class Character extends Actor
 		return 1;
 	}
 
-	/**
-	 * The Class CharacterRouteTraveler.
-	 */
+	
 	protected final class CharacterRouteTraveler implements IRouteTraveler
 	{
 
-		/**
-		 * Instantiates a new character route traveler.
-		 */
+		
 		public CharacterRouteTraveler()
 		{
 
@@ -389,9 +332,7 @@ public abstract class Character extends Actor
 		}
 	}
 
-	/**
-	 * The Class CharacterAnimator.
-	 */
+	
 	protected class CharacterAnimator
 	{
 
@@ -407,40 +348,26 @@ public abstract class Character extends Actor
 		/** The m_override animator. */
 		private CharacterAnimator m_overrideAnimator;
 
-		/**
-		 * Instantiates a new character animator.
-		 * 
-		 * @param animator
-		 *            the animator
-		 */
+		
 		public CharacterAnimator(CharacterAnimator animator)
 		{
 			m_overrideAnimator = animator;
 		}
 
-		/**
-		 * Update.
-		 * 
-		 * @param deltaTime
-		 *            the delta time
-		 */
+		
 		public final void update(int deltaTime)
 		{
 			if (m_sprite != null)
 				m_sprite.update(deltaTime);
 		}
 
-		/**
-		 * Instantiates a new character animator.
-		 */
+		
 		private CharacterAnimator()
 		{
 			m_state = AnimationState.Play;
 		}
 
-		/**
-		 * Update sprite.
-		 */
+		
 		private void updateSprite()
 		{
 			if (m_overrideAnimator == null)
@@ -451,14 +378,7 @@ public abstract class Character extends Actor
 				m_overrideAnimator.updateSprite();
 		}
 
-		/**
-		 * Sets the animation.
-		 * 
-		 * @param animation
-		 *            the animation
-		 * @param playOnce
-		 *            the play once
-		 */
+		
 		protected final void setAnimation(String animation, boolean playOnce)
 		{
 			if (m_overrideAnimator == null)
@@ -475,46 +395,24 @@ public abstract class Character extends Actor
 				m_overrideAnimator.setAnimation(animation, playOnce);
 		}
 
-		/**
-		 * Sets the animation.
-		 * 
-		 * @param animation
-		 *            the new animation
-		 */
+		
 		protected final void setAnimation(String animation)
 		{
 			setAnimation(animation, false);
 		}
 	}
 
-	/**
-	 * An asynchronous update interface for receiving notifications about
-	 * ICharacter information as the ICharacter is constructed.
-	 */
+	
 	public interface ICharacterObserver extends IActorObserver
 	{
-		/**
-		 * This method is called when information about an ICharacter which was
-		 * previously requested using an asynchronous interface becomes
-		 * available.
-		 * 
-		 * @param target
-		 *            the target
-		 */
+		
 		void movingTowards(@Nullable Vector2F target);
 	}
 
-	/**
-	 * The Class Observers.
-	 */
+	
 	private static class Observers extends StaticSet<ICharacterObserver>
 	{
-		/**
-		 * Moving towards.
-		 * 
-		 * @param target
-		 *            the target
-		 */
+		
 		public void movingTowards(@Nullable Vector2F target)
 		{
 			for (ICharacterObserver observer : this)
@@ -522,53 +420,23 @@ public abstract class Character extends Actor
 		}
 	}
 
-	/**
-	 * The Class CharacterBridge.
-	 * 
-	 * @param <A>
-	 *            the generic type
-	 */
+	
 	@KeepClassMemberNames
 	public static class CharacterBridge<A extends Character> extends ActorBridge<A>
 	{
-		/**
-		 * Wonder.
-		 * 
-		 * @param fRadius
-		 *            the f radius
-		 */
+		
 		public final void wonder(float fRadius)
 		{
 			getMe().addTask(((Character) getMe()).createMoveTask(null, fRadius));
 		}
 
-		/**
-		 * Move to.
-		 * 
-		 * @param x
-		 *            the x
-		 * @param y
-		 *            the y
-		 * @param fRadius
-		 *            the f radius
-		 */
+		
 		public final void moveTo(int x, int y, float fRadius)
 		{
 			getMe().addTask(((Character) getMe()).createMoveTask(new Vector2D(x, y), fRadius));
 		}
 
-		/**
-		 * Move to.
-		 * 
-		 * @param x
-		 *            the x
-		 * @param y
-		 *            the y
-		 * @param fRadius
-		 *            the f radius
-		 * @param maxSteps
-		 *            the max steps
-		 */
+		
 		public final void moveTo(int x, int y, float fRadius, int maxSteps)
 		{
 			TraverseRouteTask moveTask = ((Character) getMe()).createMoveTask(new Vector2D(x, y), fRadius);

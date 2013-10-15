@@ -18,12 +18,7 @@ import java.awt.Shape;
 import jeva.math.Matrix2X2;
 import jeva.math.Vector2F;
 
-/**
- * The Class TransformShapeSearchFilter.
- * 
- * @param <T>
- *            the generic type
- */
+
 public class TransformShapeSearchFilter<T> implements ISearchFilter<T>
 {
 
@@ -33,14 +28,7 @@ public class TransformShapeSearchFilter<T> implements ISearchFilter<T>
 	/** The m_transform. */
 	private Matrix2X2 m_transform;
 
-	/**
-	 * Instantiates a new transform shape search filter.
-	 * 
-	 * @param transform
-	 *            the transform
-	 * @param shape
-	 *            the shape
-	 */
+	
 	public TransformShapeSearchFilter(Matrix2X2 transform, Shape shape)
 	{
 		m_transform = transform;

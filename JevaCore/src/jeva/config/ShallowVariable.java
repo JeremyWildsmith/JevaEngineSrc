@@ -18,9 +18,7 @@ package jeva.config;
 
 import java.util.ArrayList;
 
-/**
- * The Class ShallowVariable.
- */
+
 public class ShallowVariable extends Variable
 {
 	/** The m_children. */
@@ -29,16 +27,7 @@ public class ShallowVariable extends Variable
 	/** The m_value. */
 	private VariableValue m_value;
 
-	/**
-	 * Instantiates a new shallow variable.
-	 * 
-	 * @param parent
-	 *            the parent
-	 * @param name
-	 *            the name
-	 * @param value
-	 *            the value
-	 */
+	
 	public ShallowVariable(Variable parent, String name, VariableValue value)
 	{
 		super(parent, name);
@@ -69,12 +58,7 @@ public class ShallowVariable extends Variable
 		m_value = value;
 	}
 
-	/**
-	 * Adds the child.
-	 * 
-	 * @param child
-	 *            the child
-	 */
+	
 	protected final void addChild(Variable child)
 	{
 		m_children.add(child);

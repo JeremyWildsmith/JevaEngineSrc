@@ -23,11 +23,7 @@ import jeva.math.Vector2F;
 import jeva.world.EffectMap;
 import jeva.world.EffectMap.TileEffects;
 
-/**
- * The Class Tile.
- * 
- * @author Scott
- */
+
 public class Tile extends Actor
 {
 
@@ -43,24 +39,7 @@ public class Tile extends Actor
 	/** The m_enable splitting. */
 	private boolean m_enableSplitting;
 
-	/**
-	 * Instantiates a new tile.
-	 * 
-	 * @param name
-	 *            the name
-	 * @param sprite
-	 *            the sprite
-	 * @param direction
-	 *            the direction
-	 * @param defaultAnimation
-	 *            the default animation
-	 * @param isTraversable
-	 *            the is traversable
-	 * @param enableSplitting
-	 *            the enable splitting
-	 * @param fVisibilityObstruction
-	 *            the f visibility obstruction
-	 */
+	
 	public Tile(String name, Sprite sprite, WorldDirection direction, String defaultAnimation, boolean isTraversable, boolean enableSplitting, float fVisibilityObstruction)
 	{
 		super(name, direction);
@@ -74,25 +53,11 @@ public class Tile extends Actor
 		m_fVisiblityObstruction = fVisibilityObstruction;
 	}
 
-	/**
-	 * Instantiates a new tile.
-	 * 
-	 * @param sprite
-	 *            the sprite
-	 * @param direction
-	 *            the direction
-	 * @param defaultAnimation
-	 *            the default animation
-	 * @param isTraversable
-	 *            the is traversable
-	 * @param enableSplitting
-	 *            the enable splitting
-	 * @param fVisibilityObstruction
-	 *            the f visibility obstruction
-	 */
+	
 	public Tile(Sprite sprite, WorldDirection direction, String defaultAnimation, boolean isTraversable, boolean enableSplitting, float fVisibilityObstruction)
 	{
 		super(null, direction);
+		
 		m_sprite = sprite;
 		m_isTraversable = isTraversable;
 		m_enableSplitting = enableSplitting;
@@ -102,44 +67,25 @@ public class Tile extends Actor
 		m_fVisiblityObstruction = fVisibilityObstruction;
 	}
 
-	/**
-	 * Sets the visibility obstruction.
-	 * 
-	 * @param fObstruction
-	 *            the new visibility obstruction
-	 */
+	
 	protected void setVisibilityObstruction(float fObstruction)
 	{
 		m_fVisiblityObstruction = fObstruction;
 	}
 
-	/**
-	 * Gets the visibility obstruction.
-	 * 
-	 * @return the visibility obstruction
-	 */
+	
 	protected float getVisibilityObstruction()
 	{
 		return m_fVisiblityObstruction;
 	}
 
-	/**
-	 * Sets the animation.
-	 * 
-	 * @param animation
-	 *            the new animation
-	 */
+	
 	protected void setAnimation(String animation)
 	{
 		m_sprite.setAnimation(getDirection().toString() + animation, AnimationState.Play);
 	}
 
-	/**
-	 * Sets the sprite.
-	 * 
-	 * @param sprite
-	 *            the new sprite
-	 */
+	
 	protected void setSprite(Sprite sprite)
 	{
 		m_sprite = sprite;

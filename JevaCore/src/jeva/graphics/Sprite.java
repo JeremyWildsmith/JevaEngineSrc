@@ -24,9 +24,7 @@ import java.util.NoSuchElementException;
 import jeva.config.UnknownVariableException;
 import jeva.config.Variable;
 
-/**
- * The Class Sprite.
- */
+
 public final class Sprite implements IRenderable
 {
 
@@ -57,12 +55,7 @@ public final class Sprite implements IRenderable
 	/** The m_f natural scale. */
 	private float m_fNaturalScale;
 
-	/**
-	 * Instantiates a new sprite.
-	 * 
-	 * @param src
-	 *            the src
-	 */
+	
 	public Sprite(Sprite src)
 	{
 		m_srcImage = src.m_srcImage;
@@ -76,14 +69,7 @@ public final class Sprite implements IRenderable
 		}
 	}
 
-	/**
-	 * Instantiates a new sprite.
-	 * 
-	 * @param srcImage
-	 *            the src image
-	 * @param fNaturalScale
-	 *            the f natural scale
-	 */
+	
 	public Sprite(Graphic srcImage, float fNaturalScale)
 	{
 		m_srcImage = srcImage;
@@ -93,13 +79,7 @@ public final class Sprite implements IRenderable
 		m_fNaturalScale = fNaturalScale;
 	}
 
-	/**
-	 * Creates the.
-	 * 
-	 * @param root
-	 *            the root
-	 * @return the sprite
-	 */
+	
 	public static Sprite create(Variable root)
 	{
 		try
@@ -138,34 +118,19 @@ public final class Sprite implements IRenderable
 		}
 	}
 
-	/**
-	 * Gets the bounds.
-	 * 
-	 * @return the bounds
-	 */
+	
 	public Rectangle getBounds()
 	{
 		return m_currentAnimation.getCurrentFrame().getSourceRect();
 	}
 
-	/**
-	 * Gets the origin.
-	 * 
-	 * @return the origin
-	 */
+	
 	public Point getOrigin()
 	{
 		return m_currentAnimation.getCurrentFrame().getOrigin();
 	}
 
-	/**
-	 * Sets the animation.
-	 * 
-	 * @param animationName
-	 *            the animation name
-	 * @param state
-	 *            the state
-	 */
+	
 	public void setAnimation(String animationName, AnimationState state)
 	{
 		m_currentAnimation = m_animations.get(animationName);
@@ -177,25 +142,13 @@ public final class Sprite implements IRenderable
 		m_currentAnimation.setState(state);
 	}
 
-	/**
-	 * Adds the animation.
-	 * 
-	 * @param name
-	 *            the name
-	 * @param anim
-	 *            the anim
-	 */
+	
 	public void addAnimation(String name, Animation anim)
 	{
 		m_animations.put(name, anim);
 	}
 
-	/**
-	 * Update.
-	 * 
-	 * @param deltaTime
-	 *            the delta time
-	 */
+	
 	public void update(int deltaTime)
 	{
 		if (m_currentAnimation != null)

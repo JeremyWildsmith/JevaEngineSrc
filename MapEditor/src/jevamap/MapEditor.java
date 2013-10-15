@@ -432,7 +432,5 @@ public class MapEditor extends RpgGame implements IEditorPaneListener
 	}
 
 	@Override
-	public void mouseButtonStateChanged(InputMouseEvent e)
-	{
-	}
+	public void mouseButtonStateChanged(InputMouseEvent e) { }
 }

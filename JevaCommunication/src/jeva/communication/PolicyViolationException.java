@@ -16,9 +16,7 @@ import jeva.communication.SharedEntity.SharedField;
 
 public class PolicyViolationException extends RuntimeException
 {
-	/**
-	 * 
-	 */
+	
 	private static final long serialVersionUID = 1L;
 
 	public PolicyViolationException(SharedField<?> sharedField)

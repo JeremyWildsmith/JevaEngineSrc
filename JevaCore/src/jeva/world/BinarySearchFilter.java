@@ -17,18 +17,11 @@ import java.util.NoSuchElementException;
 
 import jeva.math.Vector2F;
 
-/**
- * The Class BinarySearchFilter.
- * 
- * @param <T>
- *            the generic type
- */
+
 public class BinarySearchFilter<T> implements ISearchFilter<T>
 {
 
-	/**
-	 * The Enum Operation.
-	 */
+	
 	enum Operation
 	{
 
@@ -53,16 +46,7 @@ public class BinarySearchFilter<T> implements ISearchFilter<T>
 	/** The m_filter b. */
 	private ISearchFilter<T> m_filterB;
 
-	/**
-	 * Instantiates a new binary search filter.
-	 * 
-	 * @param a
-	 *            the a
-	 * @param b
-	 *            the b
-	 * @param operation
-	 *            the operation
-	 */
+	
 	public BinarySearchFilter(ISearchFilter<T> a, ISearchFilter<T> b, Operation operation)
 	{
 		m_operation = operation;

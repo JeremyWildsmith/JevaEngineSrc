@@ -37,41 +37,26 @@ public abstract class Control implements IRenderable
 	/** The m_is visible. */
 	private boolean m_isVisible;
 
-	/**
-	 * Instantiates a new control.
-	 */
+	
 	public Control()
 	{
 		m_location = new Vector2D();
 		m_isVisible = true;
 	}
 
-	/**
-	 * Gets the location.
-	 * 
-	 * @return the location
-	 */
+	
 	public final Vector2D getLocation()
 	{
 		return m_location;
 	}
 
-	/**
-	 * Sets the location.
-	 * 
-	 * @param location
-	 *            the new location
-	 */
+	
 	public final void setLocation(Vector2D location)
 	{
 		m_location = location;
 	}
 
-	/**
-	 * Gets the absolute location.
-	 * 
-	 * @return the absolute location
-	 */
+	
 	public final Vector2D getAbsoluteLocation()
 	{
 		if (m_parent != null)
@@ -80,34 +65,20 @@ public abstract class Control implements IRenderable
 			return m_location;
 	}
 
-	/**
-	 * Gets the style.
-	 * 
-	 * @return the style
-	 */
+	
 	public final UIStyle getStyle()
 	{
 		return m_style;
 	}
 
-	/**
-	 * Sets the style.
-	 * 
-	 * @param style
-	 *            the new style
-	 */
+	
 	public final void setStyle(UIStyle style)
 	{
 		m_style = style;
 		onStyleChanged();
 	}
 
-	/**
-	 * Sets the parent.
-	 * 
-	 * @param parent
-	 *            the new parent
-	 */
+	
 	public final void setParent(Control parent)
 	{
 		m_parent = parent;
@@ -116,21 +87,13 @@ public abstract class Control implements IRenderable
 			setStyle(m_parent.getStyle());
 	}
 
-	/**
-	 * Gets the parent.
-	 * 
-	 * @return the parent
-	 */
+	
 	public final Control getParent()
 	{
 		return m_parent;
 	}
 
-	/**
-	 * Checks if is visible.
-	 * 
-	 * @return true, if is visible
-	 */
+	
 	public final boolean isVisible()
 	{
 		if (m_parent != null)
@@ -139,12 +102,7 @@ public abstract class Control implements IRenderable
 		return m_isVisible;
 	}
 
-	/**
-	 * Sets the visible.
-	 * 
-	 * @param isVisible
-	 *            the new visible
-	 */
+	
 	public final void setVisible(boolean isVisible)
 	{
 		if (m_parent != null && isVisible)
@@ -153,55 +111,24 @@ public abstract class Control implements IRenderable
 		m_isVisible = isVisible;
 	}
 
-	/**
-	 * On style changed.
-	 */
-	protected void onStyleChanged()
-	{
-	}
+	
+	protected void onStyleChanged() { }
 
-	/**
-	 * On enter.
-	 */
-	protected void onEnter()
-	{
-	}
+	
+	protected void onEnter() { }
 
-	/**
-	 * On leave.
-	 */
-	protected void onLeave()
-	{
-	}
+	
+	protected void onLeave() { }
 
-	/**
-	 * On mouse event.
-	 * 
-	 * @param mouseEvent
-	 *            the mouse event
-	 */
+	
 	public abstract void onMouseEvent(InputManager.InputMouseEvent mouseEvent);
 
-	/**
-	 * On key event.
-	 * 
-	 * @param keyEvent
-	 *            the key event
-	 */
+	
 	public abstract void onKeyEvent(InputManager.InputKeyEvent keyEvent);
 
-	/**
-	 * Gets the bounds.
-	 * 
-	 * @return the bounds
-	 */
+	
 	public abstract Rectangle getBounds();
 
-	/**
-	 * Update.
-	 * 
-	 * @param deltaTime
-	 *            the delta time
-	 */
+	
 	public abstract void update(int deltaTime);
 }

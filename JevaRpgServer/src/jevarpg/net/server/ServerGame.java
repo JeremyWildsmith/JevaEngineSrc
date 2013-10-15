@@ -38,6 +38,7 @@ import jeva.game.IGameScriptProvider;
 import jeva.game.IWorldCamera;
 import jeva.graphics.ui.CommandMenu;
 import jeva.graphics.ui.UIStyle;
+import jeva.graphics.ui.IWindowManager;
 import jeva.joystick.InputManager.InputKeyEvent;
 import jeva.joystick.InputManager.InputMouseEvent;
 import jeva.math.Vector2D;
@@ -76,7 +77,7 @@ public class ServerGame extends RpgGame implements IDisposable
 		m_commandMenu = new CommandMenu(styleSmall, 660, 125);
 		m_commandMenu.setLocation(new Vector2D(10, 10));
 
-		getWindowManager().addWindow(m_commandMenu);
+		Core.getService(IWindowManager.class).addWindow(m_commandMenu);
 
 		ServerSocket serverSocket;
 		try
@@ -175,9 +176,7 @@ public class ServerGame extends RpgGame implements IDisposable
 	}
 
 	@Override
-	protected void worldSelection(InputMouseEvent e, Vector2D location)
-	{
-	}
+	protected void worldSelection(InputMouseEvent e, Vector2D location) { }
 
 	@Override
 	protected IWorldCamera getCamera()
@@ -375,9 +374,7 @@ public class ServerGame extends RpgGame implements IDisposable
 	}
 
 	@Override
-	public void mouseButtonStateChanged(InputMouseEvent e)
-	{
-	}
+	public void mouseButtonStateChanged(InputMouseEvent e) { }
 
 	public class ServerGameScriptProvider extends RpgGameScriptProvider
 	{

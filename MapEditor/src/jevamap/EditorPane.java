@@ -118,9 +118,7 @@ public class EditorPane extends JFrame
 
 	private JCheckBox chckbxEnableSplitting;
 
-	/**
-	 * Create the frame.
-	 */
+	
 	public EditorPane(IEditorPaneListener editorListener)
 	{
 

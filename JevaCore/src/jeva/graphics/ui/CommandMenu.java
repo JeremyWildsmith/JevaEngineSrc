@@ -26,9 +26,7 @@ import jeva.joystick.InputManager.InputKeyEvent;
 import jeva.joystick.InputManager.InputKeyEvent.EventType;
 import jeva.math.Vector2D;
 
-/**
- * The Class CommandMenu.
- */
+
 public final class CommandMenu extends Window
 {
 
@@ -44,16 +42,7 @@ public final class CommandMenu extends Window
 	/** The m_is ctrl down. */
 	private boolean m_isCtrlDown = false;
 
-	/**
-	 * Instantiates a new command menu.
-	 * 
-	 * @param style
-	 *            the style
-	 * @param width
-	 *            the width
-	 * @param height
-	 *            the height
-	 */
+	
 	public CommandMenu(UIStyle style, int width, int height)
 	{
 		super(style, Math.max(100, width), Math.max(300, height));
@@ -132,40 +121,26 @@ public final class CommandMenu extends Window
 			super.onKeyEvent(e);
 	}
 
-	/**
-	 * The Class CommandMenuScriptContext.
-	 */
+	
 	@KeepName
 	@KeepClassMemberNames
 	public class CommandMenuScriptContext
 	{
 
-		/**
-		 * Echo.
-		 * 
-		 * @param s
-		 *            the s
-		 */
+		
 		public void echo(String s)
 		{
 			m_commandOutArea.appendText(s + "\n");
 		}
 
-		/**
-		 * Execute.
-		 * 
-		 * @param path
-		 *            the path
-		 */
+		
 		public void execute(String path)
 		{
 			m_script.setScript(Core.getService(IResourceLibrary.class).openResourceContents(path), new CommandMenuScriptContext());
 			m_commandIn.setText("");
 		}
 
-		/**
-		 * Clear.
-		 */
+		
 		public void clear()
 		{
 			m_commandOutArea.setText("");

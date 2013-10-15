@@ -16,9 +16,7 @@ import java.awt.geom.Area;
 
 import jeva.math.Vector2F;
 
-/**
- * The Class LightObstruction.
- */
+
 public class LightObstruction
 {
 
@@ -31,16 +29,7 @@ public class LightObstruction
 	/** The m_f visibility factor. */
 	private float m_fVisibilityFactor;
 
-	/**
-	 * Instantiates a new light obstruction.
-	 * 
-	 * @param area
-	 *            the area
-	 * @param direction
-	 *            the direction
-	 * @param fVisibilityFactor
-	 *            the f visibility factor
-	 */
+	
 	public LightObstruction(Area area, Vector2F direction, float fVisibilityFactor)
 	{
 		m_area = area;
@@ -48,31 +37,19 @@ public class LightObstruction
 		m_fVisibilityFactor = fVisibilityFactor;
 	}
 
-	/**
-	 * Gets the area.
-	 * 
-	 * @return the area
-	 */
+	
 	public Area getArea()
 	{
 		return m_area;
 	}
 
-	/**
-	 * Gets the direction.
-	 * 
-	 * @return the direction
-	 */
+	
 	public Vector2F getDirection()
 	{
 		return m_direction;
 	}
 
-	/**
-	 * Gets the visibility factor.
-	 * 
-	 * @return the visibility factor
-	 */
+	
 	public float getVisibilityFactor()
 	{
 		return m_fVisibilityFactor;

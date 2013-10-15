@@ -1,5 +1,5 @@
 name:Zombie;
-
+isInteractable:true;
 //Sprite to use for npc
 sprite:sprites/zombie.jsf;
 

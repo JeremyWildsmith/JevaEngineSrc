@@ -34,68 +34,40 @@ public abstract class Variable implements Iterable<Variable>
 	/** The m_parent. */
 	private Variable m_parent;
 
-	/**
-	 * Instantiates a new variable.
-	 */
+	
 	public Variable()
 	{
 		m_parent = null;
 		m_name = "";
 	}
 
-	/**
-	 * Instantiates a new variable.
-	 * 
-	 * @param name
-	 *            the name
-	 */
+	
 	public Variable(String name)
 	{
 		m_parent = null;
 		m_name = name;
 	}
 
-	/**
-	 * Instantiates a new variable.
-	 * 
-	 * @param parent
-	 *            the parent
-	 * @param name
-	 *            the name
-	 */
+	
 	public Variable(Variable parent, String name)
 	{
 		m_parent = parent;
 		m_name = name;
 	}
 
-	/**
-	 * Gets the name.
-	 * 
-	 * @return the name
-	 */
+	
 	public final String getName()
 	{
 		return m_name;
 	}
 
-	/**
-	 * Gets the full name.
-	 * 
-	 * @return the full name
-	 */
+	
 	public final String getFullName()
 	{
 		return (m_parent == null ? "" : m_parent.getFullName() + NAME_SPLIT) + m_name;
 	}
 
-	/**
-	 * Gets the child.
-	 * 
-	 * @param name
-	 *            the name
-	 * @return the child
-	 */
+	
 	protected final Variable getChild(String name)
 	{
 		for (Variable v : getChildren())
@@ -109,40 +81,19 @@ public abstract class Variable implements Iterable<Variable>
 		throw new UnknownVariableException(name);
 	}
 
-	/**
-	 * Gets the children.
-	 * 
-	 * @return the children
-	 */
+	
 	protected abstract Variable[] getChildren();
 
-	/**
-	 * Sets the child.
-	 * 
-	 * @param name
-	 *            the name
-	 * @param value
-	 *            the value
-	 * @return the variable
-	 */
+	
 	protected abstract Variable setChild(String name, VariableValue value);
 
-	/**
-	 * Gets the value.
-	 * 
-	 * @return the value
-	 */
+	
 	public VariableValue getValue()
 	{
 		throw new UnsupportedOperationException();
 	}
 
-	/**
-	 * Sets the value.
-	 * 
-	 * @param value
-	 *            the new value
-	 */
+	
 	public void setValue(VariableValue value)
 	{
 		if (m_parent == null)
@@ -153,25 +104,13 @@ public abstract class Variable implements Iterable<Variable>
 		m_parent.setChild(m_name, value);
 	}
 
-	/**
-	 * Creates the child.
-	 * 
-	 * @param name
-	 *            the name
-	 * @param value
-	 *            the value
-	 * @return the variable
-	 */
+	
 	protected Variable createChild(String name, VariableValue value)
 	{
 		throw new UnsupportedOperationException();
 	}
 
-	/**
-	 * Gets the variable array.
-	 * 
-	 * @return the variable array
-	 */
+	
 	public final Variable[] getVariableArray()
 	{
 		ArrayList<Variable> buffer = new ArrayList<Variable>();
@@ -191,13 +130,7 @@ public abstract class Variable implements Iterable<Variable>
 		return buffer.toArray(new Variable[buffer.size()]);
 	}
 
-	/**
-	 * Gets the variable.
-	 * 
-	 * @param name
-	 *            the name
-	 * @return the variable
-	 */
+	
 	public final Variable getVariable(String[] name)
 	{
 		Variable child = getChild(name[0]);
@@ -205,13 +138,7 @@ public abstract class Variable implements Iterable<Variable>
 		return (name.length == 1 ? child : child.getVariable(Arrays.copyOfRange(name, 1, name.length)));
 	}
 
-	/**
-	 * Gets the variable.
-	 * 
-	 * @param name
-	 *            the name
-	 * @return the variable
-	 */
+	
 	public final Variable getVariable(String name)
 	{
 		String[] names = name.split(Pattern.quote(NAME_SPLIT));
@@ -219,13 +146,7 @@ public abstract class Variable implements Iterable<Variable>
 		return getVariable((names[0].isEmpty() ? Arrays.copyOfRange(names, 1, names.length) : names));
 	}
 
-	/**
-	 * Variable exists.
-	 * 
-	 * @param name
-	 *            the name
-	 * @return true, if successful
-	 */
+	
 	public final boolean variableExists(String name)
 	{
 		for (Variable v : getChildren())
@@ -239,15 +160,7 @@ public abstract class Variable implements Iterable<Variable>
 		return false;
 	}
 
-	/**
-	 * Sets the variable.
-	 * 
-	 * @param name
-	 *            the name
-	 * @param value
-	 *            the value
-	 * @return the variable
-	 */
+	
 	public final Variable setVariable(String[] name, VariableValue value)
 	{
 		Variable var = (variableExists(name[0]) ? getChild(name[0]) : createChild(name[0], new VariableValue()));
@@ -263,15 +176,7 @@ public abstract class Variable implements Iterable<Variable>
 		return var;
 	}
 
-	/**
-	 * Sets the variable.
-	 * 
-	 * @param name
-	 *            the name
-	 * @param value
-	 *            the value
-	 * @return the variable
-	 */
+	
 	public final Variable setVariable(String name, VariableValue value)
 	{
 		String[] names = name.split(Pattern.quote(NAME_SPLIT));
@@ -289,16 +194,7 @@ public abstract class Variable implements Iterable<Variable>
 		return new VariableIterator();
 	}
 
-	/**
-	 * Serialize.
-	 * 
-	 * @param builder
-	 *            the builder
-	 * @param parentName
-	 *            the parent name
-	 * @param parent
-	 *            the parent
-	 */
+	
 	private static void serialize(StringBuilder builder, String parentName, Variable parent)
 	{
 		String fullName = (parentName.length() > 0 ? parentName + NAME_SPLIT : "") + parent.getName();
@@ -323,12 +219,7 @@ public abstract class Variable implements Iterable<Variable>
 		}
 	}
 
-	/**
-	 * Serialize.
-	 * 
-	 * @param out
-	 *            the out
-	 */
+	
 	public final void serialize(OutputStream out)
 	{
 		StringBuilder sb = new StringBuilder();
@@ -350,13 +241,7 @@ public abstract class Variable implements Iterable<Variable>
 		}
 	}
 
-	/**
-	 * Encode raw.
-	 * 
-	 * @param raw
-	 *            the raw
-	 * @return the string
-	 */
+	
 	private static String encodeRaw(String raw)
 	{
 		try
@@ -368,9 +253,7 @@ public abstract class Variable implements Iterable<Variable>
 		}
 	}
 
-	/**
-	 * The Class VariableIterator.
-	 */
+	
 	private class VariableIterator implements Iterator<Variable>
 	{
 

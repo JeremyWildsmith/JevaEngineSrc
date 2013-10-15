@@ -55,9 +55,7 @@ public final class ClientRpgCharacter extends NetRpgCharacter implements IWorldA
 
 	private World m_world;
 
-	public ClientRpgCharacter()
-	{
-	}
+	public ClientRpgCharacter() { }
 
 	@Override
 	public SharedEntity getSharedEntity()

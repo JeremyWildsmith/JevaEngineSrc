@@ -22,6 +22,7 @@ import jeva.game.FollowCamera;
 import jeva.graphics.ui.Button;
 import jeva.graphics.ui.UIStyle;
 import jeva.graphics.ui.Window;
+import jeva.graphics.ui.IWindowManager;
 import jeva.math.Vector2D;
 import jeva.world.Entity;
 import jeva.world.World;
@@ -30,6 +31,8 @@ import jevarpg.RpgCharacter;
 import jevarpg.net.client.ClientCommunicator.IClientCommunicatorObserver;
 import jevarpg.net.client.ClientUser.IClientUserObserver;
 import jevarpg.net.client.ui.ChatMenu;
+import jevarpg.ui.CharacterMenu;
+import jevarpg.ui.InventoryMenu;
 
 public class PlayingState implements IGameState
 {
@@ -47,6 +50,9 @@ public class PlayingState implements IGameState
 	
 	private FollowCamera m_camera = new FollowCamera();
 
+	private InventoryMenu m_inventoryMenu = new InventoryMenu();
+	private CharacterMenu m_characterMenu = new CharacterMenu();
+	
 	@Nullable
 	private String m_playerEntityName;
 
@@ -66,17 +72,16 @@ public class PlayingState implements IGameState
 			@Override
 			public void onButtonPress()
 			{
-				m_context.getInventoryMenu().accessInventory(m_context.getPlayer().getInventory(), m_context.getPlayer());
+				m_inventoryMenu.accessInventory(m_context.getPlayer().getInventory(), m_context.getPlayer());
 			}
 		}, new Vector2D(5, 10));
 
 		m_hud.addControl(new Button("Character")
 		{
-
 			@Override
 			public void onButtonPress()
 			{
-				m_context.getCharacterMenu().showCharacter(m_context.getPlayer());
+				m_characterMenu.showCharacter(m_context.getPlayer());
 			}
 		}, new Vector2D(5, 40));
 
@@ -101,10 +106,15 @@ public class PlayingState implements IGameState
 	@Override
 	public void enter(ClientGame context)
 	{
+		
 		m_context = context;
 		
-		m_context.getWindowManager().addWindow(m_hud);
-		m_context.getWindowManager().addWindow(m_chatMenu);
+		final IWindowManager windowManager = Core.getService(IWindowManager.class);
+		
+		windowManager.addWindow(m_hud);
+		windowManager.addWindow(m_chatMenu);
+		windowManager.addWindow(m_inventoryMenu);
+		windowManager.addWindow(m_characterMenu);
 
 		m_user.addObserver(m_handler);
 		context.getCommunicator().addObserver(m_handler);
@@ -129,9 +139,13 @@ public class PlayingState implements IGameState
 	@Override
 	public void leave()
 	{
-		m_context.getWindowManager().removeWindow(m_hud);
-		m_context.getWindowManager().removeWindow(m_chatMenu);
-
+		final IWindowManager windowManager = Core.getService(IWindowManager.class);
+		
+		windowManager.removeWindow(m_hud);
+		windowManager.removeWindow(m_chatMenu);
+		windowManager.removeWindow(m_inventoryMenu);
+		windowManager.removeWindow(m_characterMenu);
+		
 		m_user.removeObserver(m_handler);
 		m_world.removeObserver(m_handler);
 		m_context.getCommunicator().removeObserver(m_handler);
@@ -145,9 +159,7 @@ public class PlayingState implements IGameState
 	}
 
 	@Override
-	public void update(int deltaTime)
-	{
-	}
+	public void update(int deltaTime) { }
 
 	private void playerAdded(RpgCharacter player)
 	{

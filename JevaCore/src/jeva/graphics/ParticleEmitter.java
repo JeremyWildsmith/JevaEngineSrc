@@ -21,15 +21,11 @@ import jeva.config.VariableStore;
 import jeva.math.Vector2D;
 import jeva.math.Vector2F;
 
-/**
- * The Class ParticleEmitter.
- */
+
 public final class ParticleEmitter implements IRenderable
 {
 
-	/**
-	 * The Enum ParticleOffset.
-	 */
+	
 	private enum ParticleOffset
 	{
 		/** The Location x. */
@@ -52,12 +48,7 @@ public final class ParticleEmitter implements IRenderable
 		/** The offset. */
 		public int offset;
 
-		/**
-		 * Instantiates a new particle offset.
-		 * 
-		 * @param _offset
-		 *            the _offset
-		 */
+		
 		ParticleOffset(int _offset)
 		{
 			offset = _offset;
@@ -97,24 +88,7 @@ public final class ParticleEmitter implements IRenderable
 	/** The m_anchor. */
 	private Vector2D m_anchor;
 
-	/**
-	 * Instantiates a new particle emitter.
-	 * 
-	 * @param anchor
-	 *            the anchor
-	 * @param spriteMaps
-	 *            the sprite maps
-	 * @param acceleration
-	 *            the acceleration
-	 * @param velocity
-	 *            the velocity
-	 * @param particleCount
-	 *            the particle count
-	 * @param particleLife
-	 *            the particle life
-	 * @param fVariation
-	 *            the f variation
-	 */
+	
 	public ParticleEmitter(Vector2D anchor, Sprite[] spriteMaps, Vector2F acceleration, Vector2F velocity, int particleCount, int particleLife, float fVariation)
 	{
 		m_anchor = anchor;
@@ -131,15 +105,7 @@ public final class ParticleEmitter implements IRenderable
 		m_isEmitting = false;
 	}
 
-	/**
-	 * Creates the.
-	 * 
-	 * @param root
-	 *            the root
-	 * @param anchor
-	 *            the anchor
-	 * @return the particle emitter
-	 */
+	
 	public static ParticleEmitter create(Variable root, Vector2D anchor)
 	{
 		int particleCount = Math.max(10, root.getVariable("particleCount").getValue().getInt());
@@ -162,12 +128,7 @@ public final class ParticleEmitter implements IRenderable
 		return new ParticleEmitter(anchor, spriteMaps, acceleration, velocity, particleCount, particleLife, fVariation);
 	}
 
-	/**
-	 * Update.
-	 * 
-	 * @param deltaTime
-	 *            the delta time
-	 */
+	
 	public void update(int deltaTime)
 	{
 		for (int i = 0; i < m_particleCount; i++)
@@ -227,12 +188,7 @@ public final class ParticleEmitter implements IRenderable
 		}
 	}
 
-	/**
-	 * Sets the emit.
-	 * 
-	 * @param emit
-	 *            the new emit
-	 */
+	
 	public void setEmit(boolean emit)
 	{
 		m_isEmitting = emit;

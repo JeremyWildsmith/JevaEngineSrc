@@ -20,9 +20,7 @@ import jeva.config.Variable;
 import jeva.config.VariableStore;
 import jeva.config.VariableValue;
 
-/**
- * The Class DialogPath.
- */
+
 public final class DialogPath
 {
 
@@ -35,24 +33,13 @@ public final class DialogPath
 	/** The m_queries. */
 	private Query[] m_queries;
 
-	/**
-	 * Instantiates a new dialog path.
-	 * 
-	 * @param queryNodes
-	 *            the query nodes
-	 */
+	
 	public DialogPath(Query[] queryNodes)
 	{
 		m_queries = queryNodes;
 	}
 
-	/**
-	 * Creates the.
-	 * 
-	 * @param root
-	 *            the root
-	 * @return the dialog path
-	 */
+	
 	public static DialogPath create(Variable root)
 	{
 		Variable[] textTable = root.getVariable("text").getVariableArray();
@@ -136,14 +123,7 @@ public final class DialogPath
 		return new DialogPath(parentlessQueries.toArray(new Query[parentlessQueries.size()]));
 	}
 
-	/**
-	 * Adds the queries.
-	 * 
-	 * @param dest
-	 *            the dest
-	 * @param src
-	 *            the src
-	 */
+	
 	public void addQueries(ArrayList<Query> dest, Query src)
 	{
 		dest.add(src);
@@ -154,12 +134,7 @@ public final class DialogPath
 		}
 	}
 
-	/**
-	 * Serialize.
-	 * 
-	 * @param store
-	 *            the store
-	 */
+	
 	public void serialize(VariableStore store)
 	{
 		ArrayList<Query> queries = new ArrayList<Query>();
@@ -224,23 +199,13 @@ public final class DialogPath
 			store.setVariable("text/" + i, new VariableValue(textTable.get(i)));
 	}
 
-	/**
-	 * Gets the queries.
-	 * 
-	 * @return the queries
-	 */
+	
 	public Query[] getQueries()
 	{
 		return m_queries;
 	}
 
-	/**
-	 * Gets the query.
-	 * 
-	 * @param id
-	 *            the id
-	 * @return the query
-	 */
+	
 	public Query getQuery(int id)
 	{
 		for (Query q : m_queries)
@@ -252,9 +217,7 @@ public final class DialogPath
 		throw new NoSuchElementException();
 	}
 
-	/**
-	 * The Class Answer.
-	 */
+	
 	public static final class Answer
 	{
 
@@ -267,16 +230,7 @@ public final class DialogPath
 		/** The m_next query. */
 		private Query m_nextQuery;
 
-		/**
-		 * Instantiates a new answer.
-		 * 
-		 * @param answer
-		 *            the answer
-		 * @param eventCode
-		 *            the event code
-		 * @param nextQuery
-		 *            the next query
-		 */
+		
 		public Answer(String answer, int eventCode, Query nextQuery)
 		{
 			m_answer = answer;
@@ -284,31 +238,19 @@ public final class DialogPath
 			m_nextQuery = nextQuery;
 		}
 
-		/**
-		 * Gets the answer.
-		 * 
-		 * @return the answer
-		 */
+		
 		public String getAnswer()
 		{
 			return m_answer;
 		}
 
-		/**
-		 * Gets the event code.
-		 * 
-		 * @return the event code
-		 */
+		
 		public int getEventCode()
 		{
 			return m_eventCode;
 		}
 
-		/**
-		 * Gets the next query.
-		 * 
-		 * @return the next query
-		 */
+		
 		public Query getNextQuery()
 		{
 			return m_nextQuery;
@@ -331,9 +273,7 @@ public final class DialogPath
 		}
 	}
 
-	/**
-	 * The Class Query.
-	 */
+	
 	public static final class Query
 	{
 
@@ -349,16 +289,7 @@ public final class DialogPath
 		/** The m_id. */
 		private int m_id;
 
-		/**
-		 * Instantiates a new query.
-		 * 
-		 * @param id
-		 *            the id
-		 * @param query
-		 *            the query
-		 * @param eventCode
-		 *            the event code
-		 */
+		
 		public Query(int id, String query, int eventCode)
 		{
 			m_answers = new ArrayList<Answer>();
@@ -368,52 +299,31 @@ public final class DialogPath
 			m_id = id;
 		}
 
-		/**
-		 * Adds the answer.
-		 * 
-		 * @param answer
-		 *            the answer
-		 */
+		
 		public void addAnswer(Answer answer)
 		{
 			m_answers.add(answer);
 		}
 
-		/**
-		 * Gets the query.
-		 * 
-		 * @return the query
-		 */
+		
 		public String getQuery()
 		{
 			return m_query;
 		}
 
-		/**
-		 * Gets the event code.
-		 * 
-		 * @return the event code
-		 */
+		
 		public int getEventCode()
 		{
 			return m_eventCode;
 		}
 
-		/**
-		 * Gets the id.
-		 * 
-		 * @return the id
-		 */
+		
 		public int getId()
 		{
 			return m_id;
 		}
 
-		/**
-		 * Gets the answers.
-		 * 
-		 * @return the answers
-		 */
+		
 		public Answer[] getAnswers()
 		{
 			return m_answers.toArray(new Answer[m_answers.size()]);
@@ -436,9 +346,7 @@ public final class DialogPath
 		}
 	}
 
-	/**
-	 * The Class RawAnswer.
-	 */
+	
 	private static class RawAnswer
 	{
 
@@ -451,16 +359,7 @@ public final class DialogPath
 		/** The m_event code. */
 		private int m_eventCode;
 
-		/**
-		 * Instantiates a new raw answer.
-		 * 
-		 * @param answer
-		 *            the answer
-		 * @param nextNode
-		 *            the next node
-		 * @param eventCode
-		 *            the event code
-		 */
+		
 		public RawAnswer(String answer, int nextNode, int eventCode)
 		{
 			m_answer = answer;
@@ -468,40 +367,26 @@ public final class DialogPath
 			m_eventCode = eventCode;
 		}
 
-		/**
-		 * Gets the answer.
-		 * 
-		 * @return the answer
-		 */
+		
 		public String getAnswer()
 		{
 			return m_answer;
 		}
 
-		/**
-		 * Gets the next node.
-		 * 
-		 * @return the next node
-		 */
+		
 		public int getNextNode()
 		{
 			return m_nextNode;
 		}
 
-		/**
-		 * Gets the event code.
-		 * 
-		 * @return the event code
-		 */
+		
 		public int getEventCode()
 		{
 			return m_eventCode;
 		}
 	}
 
-	/**
-	 * The Class RawQuery.
-	 */
+	
 	private static class RawQuery
 	{
 		/** The m_query. */
@@ -513,16 +398,7 @@ public final class DialogPath
 		/** The m_answers. */
 		private RawAnswer[] m_answers;
 
-		/**
-		 * Instantiates a new raw query.
-		 * 
-		 * @param query
-		 *            the query
-		 * @param answers
-		 *            the answers
-		 * @param eventCode
-		 *            the event code
-		 */
+		
 		public RawQuery(String query, RawAnswer[] answers, int eventCode)
 		{
 			m_query = query;
@@ -530,31 +406,19 @@ public final class DialogPath
 			m_eventCode = eventCode;
 		}
 
-		/**
-		 * Gets the query.
-		 * 
-		 * @return the query
-		 */
+		
 		public String getQuery()
 		{
 			return m_query;
 		}
 
-		/**
-		 * Gets the event code.
-		 * 
-		 * @return the event code
-		 */
+		
 		public int getEventCode()
 		{
 			return m_eventCode;
 		}
 
-		/**
-		 * Gets the answers.
-		 * 
-		 * @return the answers
-		 */
+		
 		public RawAnswer[] getAnswers()
 		{
 			return m_answers;

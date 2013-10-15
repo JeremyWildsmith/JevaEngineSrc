@@ -25,9 +25,7 @@ import jeva.joystick.InputManager.InputMouseEvent;
 import jeva.joystick.InputManager.InputMouseEvent.EventType;
 import jeva.math.Vector2D;
 
-/**
- * The Class Panel.
- */
+
 public abstract class Panel extends Control
 {
 
@@ -82,16 +80,7 @@ public abstract class Panel extends Control
 	/** The m_adding controls. */
 	private ArrayList<Control> m_addingControls;
 
-	/**
-	 * Instantiates a new panel.
-	 * 
-	 * @param width
-	 *            the width
-	 * @param height
-	 *            the height
-	 * @param renderBackground
-	 *            the render background
-	 */
+	
 	public Panel(int width, int height, boolean renderBackground)
 	{
 		m_width = width;
@@ -103,38 +92,19 @@ public abstract class Panel extends Control
 		m_addingControls = new ArrayList<Control>();
 	}
 
-	/**
-	 * Instantiates a new panel.
-	 * 
-	 * @param width
-	 *            the width
-	 * @param height
-	 *            the height
-	 */
+	
 	public Panel(int width, int height)
 	{
 		this(width, height, true);
 	}
 
-	/**
-	 * Adds the control.
-	 * 
-	 * @param control
-	 *            the control
-	 */
+	
 	public void addControl(Control control)
 	{
 		addControl(control, null);
 	}
 
-	/**
-	 * Adds the control.
-	 * 
-	 * @param control
-	 *            the control
-	 * @param location
-	 *            the location
-	 */
+	
 	public void addControl(Control control, @Nullable Vector2D location)
 	{
 		if (!m_controls.contains(control))
@@ -155,12 +125,7 @@ public abstract class Panel extends Control
 		}
 	}
 
-	/**
-	 * Removes the control.
-	 * 
-	 * @param control
-	 *            the control
-	 */
+	
 	public void removeControl(Control control)
 	{
 		if (m_controls.contains(control))
@@ -170,9 +135,7 @@ public abstract class Panel extends Control
 		}
 	}
 
-	/**
-	 * Clear controls.
-	 */
+	
 	public void clearControls()
 	{
 		m_activeControl = null;
@@ -321,12 +284,7 @@ public abstract class Panel extends Control
 			control.update(deltaTime);
 	}
 
-	/**
-	 * Sets the render background.
-	 * 
-	 * @param renderBackground
-	 *            the new render background
-	 */
+	
 	public void setRenderBackground(boolean renderBackground)
 	{
 		m_renderBackground = renderBackground;
@@ -343,23 +301,13 @@ public abstract class Panel extends Control
 		return new Rectangle(0, 0, m_width, m_height);
 	}
 
-	/**
-	 * Sets the width.
-	 * 
-	 * @param width
-	 *            the new width
-	 */
+	
 	public void setWidth(int width)
 	{
 		m_width = width;
 	}
 
-	/**
-	 * Sets the height.
-	 * 
-	 * @param height
-	 *            the new height
-	 */
+	
 	public void setHeight(int height)
 	{
 		m_height = height;

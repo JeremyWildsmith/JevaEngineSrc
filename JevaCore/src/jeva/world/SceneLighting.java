@@ -29,9 +29,7 @@ import jeva.graphics.IRenderable;
 import jeva.math.Matrix2X2;
 import jeva.math.Vector2F;
 
-/**
- * The Class SceneLighting.
- */
+
 public class SceneLighting implements IWorldAssociation
 {
 
@@ -50,14 +48,7 @@ public class SceneLighting implements IWorldAssociation
 	/** The m_ambient light. */
 	private Color m_ambientLight;
 
-	/**
-	 * Instantiates a new scene lighting.
-	 * 
-	 * @param renderTargetWidth
-	 *            the render target width
-	 * @param renderTargetHeight
-	 *            the render target height
-	 */
+	
 	public SceneLighting(int renderTargetWidth, int renderTargetHeight)
 	{
 		m_lightSources = new ArrayList<ILight>();
@@ -66,9 +57,7 @@ public class SceneLighting implements IWorldAssociation
 		m_ambientLight = new Color(0, 0, 0, 0);
 	}
 
-	/**
-	 * Instantiates a new scene lighting.
-	 */
+	
 	public SceneLighting()
 	{
 		m_lightSources = new ArrayList<ILight>();
@@ -76,34 +65,19 @@ public class SceneLighting implements IWorldAssociation
 		m_ambientLight = new Color(0, 0, 0, 0);
 	}
 
-	/**
-	 * Sets the ambient light.
-	 * 
-	 * @param color
-	 *            the new ambient light
-	 */
+	
 	public void setAmbientLight(Color color)
 	{
 		m_ambientLight = color;
 	}
 
-	/**
-	 * Adds the light.
-	 * 
-	 * @param source
-	 *            the source
-	 */
+	
 	public void addLight(ILight source)
 	{
 		m_lightSources.add(source);
 	}
 
-	/**
-	 * Removes the light.
-	 * 
-	 * @param source
-	 *            the source
-	 */
+	
 	public void removeLight(ILight source)
 	{
 		m_lightSources.remove(source);
@@ -148,11 +122,7 @@ public class SceneLighting implements IWorldAssociation
 		m_parentWorld = null;
 	}
 
-	/**
-	 * Gets the world.
-	 * 
-	 * @return the world
-	 */
+	
 	private World getWorld()
 	{
 		if (m_parentWorld == null)
@@ -161,55 +131,25 @@ public class SceneLighting implements IWorldAssociation
 		return m_parentWorld;
 	}
 
-	/**
-	 * Sets the target bounds.
-	 * 
-	 * @param width
-	 *            the width
-	 * @param height
-	 *            the height
-	 */
+	
 	public void setTargetBounds(int width, int height)
 	{
 		m_renderTargetBounds = new Rectangle(0, 0, width, height);
 	}
 
-	/**
-	 * Gets the target height.
-	 * 
-	 * @return the target height
-	 */
+	
 	public int getTargetHeight()
 	{
 		return m_renderTargetBounds.getBounds().height;
 	}
 
-	/**
-	 * Gets the target width.
-	 * 
-	 * @return the target width
-	 */
+	
 	public int getTargetWidth()
 	{
 		return m_renderTargetBounds.getBounds().width;
 	}
 
-	/**
-	 * Enqueue render.
-	 * 
-	 * @param gc
-	 *            the gc
-	 * @param worldViewBounds
-	 *            the world view bounds
-	 * @param worldTranslationMatrix
-	 *            the world translation matrix
-	 * @param offsetX
-	 *            the offset x
-	 * @param offsetY
-	 *            the offset y
-	 * @param fScale
-	 *            the f scale
-	 */
+	
 	protected void enqueueRender(GraphicsConfiguration gc, Rectangle worldViewBounds, Matrix2X2 worldTranslationMatrix, int offsetX, int offsetY, float fScale)
 	{
 

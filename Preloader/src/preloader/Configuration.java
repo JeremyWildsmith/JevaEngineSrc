@@ -39,9 +39,7 @@ import java.awt.Font;
 public class Configuration extends JFrame
 {
 
-	/**
-	 * 
-	 */
+	
 	private static final long serialVersionUID = 1L;
 
 	private JPanel contentPane;
@@ -55,9 +53,7 @@ public class Configuration extends JFrame
 	private JSpinner m_maxHeap;
 	private JLabel lblDoNotChange;
 
-	/**
-	 * Launch the application.
-	 */
+	
 	public static void main(String[] args)
 	{
 		EventQueue.invokeLater(new Runnable()
@@ -76,9 +72,7 @@ public class Configuration extends JFrame
 		});
 	}
 
-	/**
-	 * Create the frame.
-	 */
+	
 	public Configuration()
 	{
 
@@ -104,9 +98,7 @@ public class Configuration extends JFrame
 		m_lstResolution = new JList<String>();
 		m_lstResolution.setModel(new AbstractListModel<String>()
 		{
-			/**
-			 * 
-			 */
+			
 			private static final long serialVersionUID = 1L;
 			String[] values = new String[]
 			{ "640x480", "800x600", "1024x768", "1280x800", "1280x1024" };

@@ -31,9 +31,7 @@ import jeva.game.ResourceLoadingException;
 
 import com.sun.istack.internal.Nullable;
 
-/**
- * The Class Font.
- */
+
 public final class Font
 {
 	/** The m_src image. */
@@ -48,18 +46,7 @@ public final class Font
 	/** The m_height. */
 	private int m_height;
 
-	/**
-	 * Instantiates a new font.
-	 * 
-	 * @param srcImage
-	 *            the src image
-	 * @param characterMap
-	 *            the character map
-	 * @param width
-	 *            the width
-	 * @param height
-	 *            the height
-	 */
+	
 	protected Font(Image srcImage, HashMap<Character, Rectangle> characterMap, int width, int height)
 	{
 		m_srcImage = srcImage;
@@ -69,15 +56,7 @@ public final class Font
 		m_height = height;
 	}
 
-	/**
-	 * Creates the.
-	 * 
-	 * @param root
-	 *            the root
-	 * @param color
-	 *            the color
-	 * @return the font
-	 */
+	
 	public static Font create(Variable root, Color color)
 	{
 		Variable source = root.getVariable("source");
@@ -107,15 +86,7 @@ public final class Font
 		}
 	}
 
-	/**
-	 * Filter image.
-	 * 
-	 * @param src
-	 *            the src
-	 * @param color
-	 *            the color
-	 * @return the image
-	 */
+	
 	private static Image filterImage(Image src, final Color color)
 	{
 		RGBImageFilter colorFilter = new RGBImageFilter()
@@ -140,43 +111,25 @@ public final class Font
 		return Toolkit.getDefaultToolkit().createImage(new FilteredImageSource(src.getSource(), colorFilter));
 	}
 
-	/**
-	 * Gets the source.
-	 * 
-	 * @return the source
-	 */
+	
 	public Image getSource()
 	{
 		return m_srcImage;
 	}
 
-	/**
-	 * Gets the height.
-	 * 
-	 * @return the height
-	 */
+	
 	public int getHeight()
 	{
 		return m_height;
 	}
 
-	/**
-	 * Gets the width.
-	 * 
-	 * @return the width
-	 */
+	
 	public int getWidth()
 	{
 		return m_width;
 	}
 
-	/**
-	 * Gets the char.
-	 * 
-	 * @param c
-	 *            the c
-	 * @return the char
-	 */
+	
 	@Nullable
 	public Rectangle getChar(char c)
 	{
@@ -186,25 +139,13 @@ public final class Font
 		return m_characterMap.get(c);
 	}
 
-	/**
-	 * Mapping exists.
-	 * 
-	 * @param keyChar
-	 *            the key char
-	 * @return true, if successful
-	 */
+	
 	public boolean mappingExists(char keyChar)
 	{
 		return getChar(keyChar) != null;
 	}
 
-	/**
-	 * Gets the string.
-	 * 
-	 * @param text
-	 *            the text
-	 * @return the string
-	 */
+	
 	public Rectangle[] getString(String text)
 	{
 		ArrayList<Rectangle> stringRects = new ArrayList<Rectangle>();

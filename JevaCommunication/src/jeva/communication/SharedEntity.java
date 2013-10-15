@@ -251,13 +251,7 @@ public abstract class SharedEntity
 		}
 	}
 
-	/**
-	 * Sends a message to a specified remote communicator that is bound to
-	 * this shared entity. If the receiver is not bound to this communicator, nothing
-	 * is sent to the communicator.
-	 * @param reciever The communicator (that has been bound to this entity) to receive the message.
-	 * @param message The message to send to the communicator.
-	 */
+	
 	protected final void send(Communicator receiver, Object message)
 	{
 		if(m_boundCommunicators.contains(receiver))

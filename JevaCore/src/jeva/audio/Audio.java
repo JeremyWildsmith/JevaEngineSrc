@@ -34,9 +34,7 @@ import jeva.Core;
 import jeva.IDisposable;
 import jeva.IResourceLibrary;
 
-/**
- * The Class Audio.
- */
+
 public final class Audio
 {
 
@@ -46,19 +44,13 @@ public final class Audio
 	/** A thread responsible for cleaning up dereferenced clips. */
 	private static final ClipCleanup m_cleanup = new ClipCleanup();
 
-	/**
-	 * The audio line listener assigned to this instance's clip to determine
-	 * when it is and is not is use.
-	 */
+	
 	private AudioLineListener m_lineListener = new AudioLineListener();
 
 	/** The name of this instance's corresponding audio resource. */
 	private String m_clipName;
 
-	/**
-	 * A reference to this Audio's working clip, assigned when it is using the
-	 * clip.
-	 */
+	
 	@Nullable
 	private Clip m_clip;
 
@@ -66,12 +58,7 @@ public final class Audio
 	@Nullable
 	private ClipCache m_clipOwner;
 
-	/**
-	 * Instantiates a new audio clip to play audio with.
-	 * 
-	 * @param name
-	 *            The name of the audio resource to initialize with.
-	 */
+	
 	public Audio(String name)
 	{
 		String formal = name.replace("\\", "/").trim().toLowerCase();
@@ -83,9 +70,7 @@ public final class Audio
 		m_clip = null;
 	}
 
-	/**
-	 * Cleans up the cache, searching empty caches and disposing of them.
-	 */
+	
 	private static void cleanupCache()
 	{
 		synchronized (m_clipCaches)
@@ -107,15 +92,7 @@ public final class Audio
 		}
 	}
 
-	/**
-	 * Loads a Clip instance initialized with the appropriate data from the
-	 * source resource specified when this instance was constructed. The clip is
-	 * lazily loaded if it does not exist in the clip cache. It is softly
-	 * referenced by the clip cache while not in use.
-	 * 
-	 * @return A clip instnace initialized with the appropriate audio specified
-	 *         by the audio source.
-	 */
+	
 	private synchronized Clip getClip()
 	{
 		if (m_clip != null)
@@ -147,10 +124,7 @@ public final class Audio
 		return m_clip;
 	}
 
-	/**
-	 * Frees the clip from this audio instance and returns it to its source
-	 * cache where it may be allocated for later use.
-	 */
+	
 	private synchronized void freeClip()
 	{
 		m_clip.removeLineListener(m_lineListener);
@@ -160,52 +134,34 @@ public final class Audio
 		m_clip = null;
 	}
 
-	/**
-	 * Precaches the audio clip. This method forces the clip to be loaded into
-	 * the cache even if it is not being used;
-	 */
+	
 	public void precache()
 	{
 		getClip();
 		freeClip();
 	}
 
-	/**
-	 * Begins the audio from the start and plays until it finishes.
-	 */
+	
 	public void play()
 	{
 		getClip().setFramePosition(0);
 		getClip().start();
 	}
 
-	/**
-	 * Stops playing the audio.
-	 */
+	
 	public void stop()
 	{
 		getClip().stop();
 	}
 
-	/**
-	 * Begins the audio from the start and continues to play in a loop.
-	 */
+	
 	public void repeat()
 	{
 		getClip().setFramePosition(0);
 		getClip().loop(Clip.LOOP_CONTINUOUSLY);
 	}
 
-	/**
-	 * The listener interface for receiving audioLine events. The class that is
-	 * interested in processing a audioLine event implements this interface, and
-	 * the object created with that class is registered with a component using
-	 * the component's <code>addAudioLineListener<code> method. When
-	 * the audioLine event occurs, that object's appropriate
-	 * method is invoked.
-	 * 
-	 * @see AudioLineEvent
-	 */
+	
 	private class AudioLineListener implements LineListener
 	{
 		/*
@@ -223,10 +179,7 @@ public final class Audio
 		}
 	}
 
-	/**
-	 * A class which contains cached clips and instantiates clips for one audio
-	 * resource. There is one ClipCache per every audio resource.
-	 */
+	
 	private static class ClipCache implements IDisposable
 	{
 		/** A list of all clips maintained by this cache. */
@@ -235,22 +188,13 @@ public final class Audio
 		/** A list of clips maintained by this cache which are also in use. */
 		private ArrayList<Clip> m_busyClips = new ArrayList<Clip>();
 
-		/**
-		 * A buffer containing the raw data of the stream in memory allowing new
-		 * clips to be promptly instantiated.
-		 */
+		
 		private ByteBufferAdapter m_clipStream;
 
 		/** The name\path of the clip resource. */
 		private String m_clipPath;
 
-		/**
-		 * Instantiates a new clip cache for the specified audio resource.
-		 * 
-		 * @param path
-		 *            The path\name of the audio resource for which to create
-		 *            this cache.
-		 */
+		
 		public ClipCache(String path)
 		{
 			m_clipPath = path;
@@ -276,12 +220,7 @@ public final class Audio
 			}
 		}
 
-		/**
-		 * Allocates a clip from this cache, if one is not available is is
-		 * created. The clip is also place in to a busy state.
-		 * 
-		 * @return A newly allocated clip from the cache.
-		 */
+		
 		public Clip getClip()
 		{
 			Clip clip = null;
@@ -336,22 +275,13 @@ public final class Audio
 			return clip;
 		}
 
-		/**
-		 * Frees a specified clip so that is may be used later. The Clip is no
-		 * longer considered busy after it has been freed.
-		 * 
-		 * @param clip
-		 *            the clip
-		 */
+		
 		public void freeClip(Clip clip)
 		{
 			m_busyClips.remove(clip);
 		}
 
-		/**
-		 * Locates garbage collected softly referenced clips in the clip cache
-		 * and removes from the list of clips maintained by the cache.
-		 */
+		
 		public void cleanupCache()
 		{
 			for (SoftReference<Clip> clip : m_clips)
@@ -361,44 +291,26 @@ public final class Audio
 			}
 		}
 
-		/**
-		 * Returns the name of the audio\resource this cache contains clips for.
-		 * 
-		 * @return The name of the audio\resource this cache contains clips for.
-		 */
+		
 		public String getName()
 		{
 			return m_clipPath;
 		}
 
-		/**
-		 * Checks if the clip cache is empty and maintains no clips in its
-		 * cache.
-		 * 
-		 * @return True, if the cache is empty of items cached, or false
-		 *         otherwise.
-		 */
+		
 		public boolean isEmpty()
 		{
 			return m_clips.isEmpty();
 		}
 
-		/**
-		 * An adapter used to adapt a back-end ByteBuffer to an InputStream so
-		 * that it can be used to initialize an AudioInputStream.
-		 */
+		
 		private static class ByteBufferAdapter extends InputStream
 		{
 
 			/** The byte buffer from which the inputstream will read. */
 			private ByteBuffer m_buffer;
 
-			/**
-			 * Instantiates a new byte buffer adapter.
-			 * 
-			 * @param buffer
-			 *            The byte buffer to be adapted to an input stream.
-			 */
+			
 			public ByteBufferAdapter(ByteBuffer buffer)
 			{
 				m_buffer = buffer;
@@ -449,29 +361,21 @@ public final class Audio
 		}
 	}
 
-	/**
-	 * The Class ClipCleanup.
-	 */
+	
 	private static class ClipCleanup extends Thread
 	{
 
 		/** The m_reference queue. */
 		private final ReferenceQueue<Clip> m_referenceQueue = new ReferenceQueue<Clip>();
 
-		/**
-		 * Instantiates a new clip cleanup.
-		 */
+		
 		public ClipCleanup()
 		{
 			this.setDaemon(true);
 			this.start();
 		}
 
-		/**
-		 * Gets the cleanup queue.
-		 * 
-		 * @return the cleanup queue
-		 */
+		
 		public ReferenceQueue<Clip> getCleanupQueue()
 		{
 			return m_referenceQueue;

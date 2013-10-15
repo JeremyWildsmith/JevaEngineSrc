@@ -20,46 +20,31 @@ import jeva.Core;
 import jeva.game.DialogPath;
 import jeva.game.DialogPath.Answer;
 import jeva.game.DialogPath.Query;
-import jeva.game.Game;
+import jeva.graphics.ui.DialogMenu;
 import jeva.graphics.ui.IDialogResponder;
+import jeva.graphics.ui.IWindowManager;
 
-/**
- * The Class DialogTask.
- */
+
 public abstract class DialogTask implements ITask
 {
-
-	/** The m_is busy. */
+	
 	private boolean m_isBusy = true;
-
-	/** The m_subject. */
 	private Entity m_subject;
 
-	/**
-	 * Instantiates a new dialog task.
-	 * 
-	 * @param subject
-	 *            the subject
-	 */
+	private DialogMenu m_dialogMenu = new DialogMenu();
+	
 	public DialogTask(@Nullable Entity subject)
 	{
 		m_subject = subject;
 	}
 
-	/**
-	 * Instantiates a new dialog task.
-	 */
+	
 	public DialogTask()
 	{
 		this(null);
 	}
 
-	/**
-	 * Display query.
-	 * 
-	 * @param entry
-	 *            the entry
-	 */
+	
 	private void displayQuery(final Query entry)
 	{
 		final HashMap<String, Answer> answers = new HashMap<String, Answer>();
@@ -67,7 +52,9 @@ public abstract class DialogTask implements ITask
 		for (Answer a : entry.getAnswers())
 			answers.put(a.getAnswer(), a);
 
-		Core.getService(Game.class).getDialog().issueQuery(entry.getQuery(), answers.keySet().toArray(new String[answers.keySet().size()]), new IDialogResponder()
+		m_dialogMenu.issueQuery(entry.getQuery(), 
+				answers.keySet().toArray(new String[answers.keySet().size()]), 
+				new IDialogResponder()
 		{
 
 			@Override
@@ -105,17 +92,18 @@ public abstract class DialogTask implements ITask
 	@Override
 	public void begin(Entity entity)
 	{
+		Core.getService(IWindowManager.class).addWindow(m_dialogMenu);
 		displayQuery(this.getEntryDialog());
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
 	 * @see jeva.world.ITask#end()
 	 */
 	@Override
 	public void end()
 	{
+		Core.getService(IWindowManager.class).removeWindow(m_dialogMenu);
 	}
 
 	/*
@@ -124,9 +112,7 @@ public abstract class DialogTask implements ITask
 	 * @see jeva.world.ITask#cancel()
 	 */
 	@Override
-	public void cancel()
-	{
-	}
+	public void cancel() { }
 
 	/*
 	 * (non-Javadoc)
@@ -161,26 +147,9 @@ public abstract class DialogTask implements ITask
 		return true;
 	}
 
-	/**
-	 * On dialog end.
-	 */
 	public abstract void onDialogEnd();
 
-	/**
-	 * On event.
-	 * 
-	 * @param subject
-	 *            the subject
-	 * @param eventCode
-	 *            the event code
-	 * @return the query
-	 */
 	public abstract Query onEvent(@Nullable Entity subject, int eventCode);
 
-	/**
-	 * Gets the entry dialog.
-	 * 
-	 * @return the entry dialog
-	 */
 	public abstract Query getEntryDialog();
 }

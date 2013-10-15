@@ -20,11 +20,11 @@ import jeva.game.Game;
 import jeva.game.IGameScriptProvider;
 import jeva.graphics.AnimationState;
 import jeva.graphics.Sprite;
-import jeva.graphics.ui.DialogMenu;
 import jeva.graphics.ui.Window;
 import jeva.graphics.ui.MenuStrip;
 import jeva.graphics.ui.MenuStrip.IMenuStripListener;
 import jeva.graphics.ui.UIStyle;
+import jeva.graphics.ui.IWindowManager;
 import jeva.joystick.InputManager.InputMouseEvent;
 import jeva.joystick.InputManager.InputMouseEvent.MouseButton;
 import jeva.math.Vector2D;
@@ -34,21 +34,13 @@ import jeva.Core;
 import jeva.IResourceLibrary;
 import jevarpg.library.RpgEntityLibrary;
 import jevarpg.quest.QuestState;
-import jevarpg.ui.CharacterMenu;
-import jevarpg.ui.InventoryMenu;
-import jevarpg.ui.ItemInfoMenu;
-import jevarpg.ui.QuestsMenu;
 
 public abstract class RpgGame extends Game
 {
     private Window m_contextStripContainer;
     private MenuStrip m_contextStrip;
-
-    private DialogMenu m_dialog;
-    private QuestsMenu m_questsMenu;
-    private InventoryMenu m_inventoryMenu;
-    private CharacterMenu m_characterMenu;
-    private ItemInfoMenu m_itemInfoMenu;
+    
+    private UIStyle m_gameStyle;
 
     private Sprite m_cursor;
 
@@ -58,7 +50,7 @@ public abstract class RpgGame extends Game
         IResourceLibrary fileSystem = Core.getService(IResourceLibrary.class);
 
         UIStyle styleLarge = UIStyle.create(VariableStore.create(fileSystem.openResourceStream("ui/tech/large.juis")));
-        UIStyle styleSmall = UIStyle.create(VariableStore.create(fileSystem.openResourceStream("ui/tech/small.juis")));
+        m_gameStyle = UIStyle.create(VariableStore.create(fileSystem.openResourceStream("ui/tech/small.juis")));
 
         m_cursor = Sprite.create(VariableStore.create(fileSystem.openResourceStream("ui/tech/cursor.jsf")));
         m_cursor.setAnimation("idle", AnimationState.Play);
@@ -69,31 +61,7 @@ public abstract class RpgGame extends Game
         m_contextStripContainer.setRenderBackground(false);
         m_contextStripContainer.setVisible(false);
 
-        m_itemInfoMenu = new ItemInfoMenu(styleSmall);
-
-        m_questsMenu = new QuestsMenu(styleLarge);
-        m_characterMenu = new CharacterMenu(styleLarge);
-
-        m_dialog = new DialogMenu(styleSmall, 500, 90);
-        m_dialog.setRenderBackground(true);
-
-        m_inventoryMenu = new InventoryMenu(styleLarge);
-
-        m_dialog.setLocation(new Vector2D(10, 550));
-        m_questsMenu.setLocation(new Vector2D(50, 120));
-        m_characterMenu.setLocation(new Vector2D(50, 120));
-        m_inventoryMenu.setLocation(new Vector2D(230, 300));
-
-        m_dialog.setVisible(false);
-
-        m_dialog.setMovable(false);
-
-        getWindowManager().addWindow(m_dialog);
-        getWindowManager().addWindow(m_questsMenu);
-        getWindowManager().addWindow(m_characterMenu);
-        getWindowManager().addWindow(m_inventoryMenu);
-        getWindowManager().addWindow(m_contextStripContainer);
-        getWindowManager().addWindow(m_itemInfoMenu);
+        Core.getService(IWindowManager.class).addWindow(m_contextStripContainer);
     }
 
     public RpgEntityLibrary getEntityLibrary()
@@ -140,45 +108,16 @@ public abstract class RpgGame extends Game
         }
     }
 
-    public DialogMenu getDialog()
-    {
-        return m_dialog;
-    }
-
-    public CharacterMenu getCharacterMenu()
-    {
-        return m_characterMenu;
-    }
-
-    public QuestsMenu getQuestsWindow()
-    {
-        return m_questsMenu;
-    }
-
-    public InventoryMenu getInventoryMenu()
-    {
-        return m_inventoryMenu;
-    }
-
-    public ItemInfoMenu getItemInfoMenu()
-    {
-        return m_itemInfoMenu;
-    }
-
     @Override
     public UIStyle getGameStyle()
     {
-        return m_dialog.getStyle();
+        return m_gameStyle;
     }
 
     @Override
     protected void onLoadedWorld()
     {
-        m_characterMenu.setVisible(false);
         m_contextStrip.setVisible(false);
-        m_inventoryMenu.setVisible(false);
-        m_questsMenu.setVisible(false);
-        m_itemInfoMenu.setVisible(false);
     }
 
     @Override

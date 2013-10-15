@@ -1,9 +1,5 @@
 var attackTickCount = 0;
 
-function onInteract()
-{
-}
-
 function onDialogEvent(eventId)
 {
 	return -1;
@@ -30,6 +26,22 @@ function onAttack(attackee)
 		attackTickCount--;
 	}
 	return true;
+}
+
+function getCommands()
+{
+	var commands = new Array();
+
+	commands[0] = 'Attack!';
+	commands[1] = 'Loot!';
+	
+	return commands;
+}
+
+function doCommand(command)
+{
+	if(command == 'Attack!')
+		game.getPlayer().attack(me);
 }
 
 function onDie()

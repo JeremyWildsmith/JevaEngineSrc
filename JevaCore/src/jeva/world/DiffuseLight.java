@@ -25,9 +25,7 @@ import jeva.math.Matrix2X2;
 import jeva.math.Vector2D;
 import jeva.math.Vector2F;
 
-/**
- * The Class DiffuseLight.
- */
+
 public abstract class DiffuseLight implements ILight
 {
 
@@ -46,16 +44,7 @@ public abstract class DiffuseLight implements ILight
 	/** The m_f radius. */
 	private float m_fRadius;
 
-	/**
-	 * Instantiates a new diffuse light.
-	 * 
-	 * @param world
-	 *            the world
-	 * @param fMaxRadius
-	 *            the f max radius
-	 * @param color
-	 *            the color
-	 */
+	
 	public DiffuseLight(World world, float fMaxRadius, Color color)
 	{
 		m_color = color;

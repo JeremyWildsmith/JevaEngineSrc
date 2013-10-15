@@ -12,9 +12,7 @@
  ******************************************************************************/
 package jeva.graphics.ui;
 
-/**
- * The Class DuplicateWindowException.
- */
+
 public class DuplicateWindowException extends RuntimeException
 {
 

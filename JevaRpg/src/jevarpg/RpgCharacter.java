@@ -46,7 +46,6 @@ import jeva.world.SynchronousOneShotTask;
 import jeva.world.EffectMap;
 import jeva.world.Entity;
 import jeva.world.EntityInstantiationException;
-import jeva.world.IInteractable;
 import jeva.world.TraverseRouteTask;
 import jeva.world.WorldDirection;
 import jeva.world.EffectMap.TileEffects;
@@ -58,7 +57,7 @@ import jevarpg.quest.QuestState;
 import jevarpg.quest.QuestTask;
 import jevarpg.ui.StatisticGuage;
 
-public class RpgCharacter extends Character implements IInteractable
+public class RpgCharacter extends Character
 {
     private CharacterAllegiance m_allegiance;
 
@@ -161,60 +160,6 @@ public class RpgCharacter extends Character implements IInteractable
     protected RpgCharacterAnimator getAnimator()
     {
         return m_animator;
-    }
-
-    @Override
-    public String[] getCommands()
-    {
-        RpgCharacter player = Core.getService(RpgGame.class).getPlayer();
-
-        if (player == null)
-            return new String[]
-            {};
-
-        float fPlayerDistance = player.getLocation().difference(this.getLocation()).getLengthSquared();
-
-        ArrayList<String> commands = new ArrayList<String>();
-
-        if (this != player)
-        {
-            if (fPlayerDistance < 2.0F)
-            {
-                commands.add("Interact");
-
-                if (this.isDead())
-                    commands.add("Loot");
-            }
-
-            if (getAllegiance().conflictsWith(player.getAllegiance()) && !isDead())
-                commands.add("Attack!");
-        }
-
-        return commands.toArray(new String[commands.size()]);
-    }
-
-    @Override
-    public void doCommand(String command)
-    {
-        if (this.isPaused())
-            return;
-
-        RpgCharacter player = Core.getService(RpgGame.class).getPlayer();
-        float fPlayerDistance = player.getLocation().difference(this.getLocation()).getLengthSquared();
-
-        if (command.compareTo("Attack!") == 0)
-        {
-            player.attack(this);
-        } else if (fPlayerDistance <= 2.0F)
-        {
-            if (command.compareTo("Interact") == 0)
-            {
-                m_script.onInteract();
-            } else if (command.compareTo("Loot") == 0)
-            {
-                Core.getService(RpgGame.class).getInventoryMenu().accessInventory(getInventory(), player);
-            }
-        }
     }
 
     @Override
@@ -650,10 +595,10 @@ public class RpgCharacter extends Character implements IInteractable
                 case HeadArmor:
                 case Weapon:
                     return new String[]
-                    { "About", "Equip", "Drop" };
+                    { "Equip", "Drop" };
                 case Consumable:
                     return new String[]
-                    { "About", "Consume", "Drop" };
+                    { "Consume", "Drop" };
                 case General:
                     return new String[]
                     { "About", "Drop" };
@@ -662,8 +607,7 @@ public class RpgCharacter extends Character implements IInteractable
                 }
             } else if (RpgCharacter.this.isDead())
             {
-                return new String[]
-                { "Loot", "About" };
+                return new String[] {"Loot"};
             }
 
             return new String[]
@@ -686,9 +630,6 @@ public class RpgCharacter extends Character implements IInteractable
             } else if (action.compareTo("Equip") == 0)
             {
                 equip(slot);
-            } else if (action.compareTo("About") == 0)
-            {
-                Core.getService(RpgGame.class).getItemInfoMenu().showItem(slot);
             }
         }
 
@@ -837,7 +778,7 @@ public class RpgCharacter extends Character implements IInteractable
         @Override
         public void die()
         {
-            if (getScript().isScriptReady())
+            if (getScript().isReady())
             {
                 try
                 {
@@ -854,7 +795,7 @@ public class RpgCharacter extends Character implements IInteractable
         @Override
         public void onAttacked(RpgCharacter attacker)
         {
-            if (getScript().isScriptReady())
+            if (getScript().isReady())
             {
                 try
                 {
@@ -870,7 +811,7 @@ public class RpgCharacter extends Character implements IInteractable
 
         public boolean onAttack(RpgCharacter attackee)
         {
-            if (!getScript().isScriptReady())
+            if (!getScript().isReady())
                 return false;
 
             try
@@ -891,111 +832,59 @@ public class RpgCharacter extends Character implements IInteractable
             }
         }
 
-        public void onInteract()
-        {
-            if (getScript().isScriptReady())
-            {
-                try
-                {
-                    getScript().invokeScriptFunction("onInteract");
-                } catch (ScriptException e)
-                {
-                    throw new CoreScriptException("Error invoking NPC script routine onInteract: " + e.getMessage());
-                } catch (NoSuchMethodException e)
-                {
-                }
-            }
-        }
+        @Override
+        public void movingTowards(Vector2F target) { }
 
         @Override
-        public void movingTowards(Vector2F target)
-        {
-        }
+        public void directionChanged(WorldDirection direction) { }
 
         @Override
-        public void directionChanged(WorldDirection direction)
-        {
-        }
+        public void placement(Vector2F location) { }
 
         @Override
-        public void placement(Vector2F location)
-        {
-        }
+        public void moved(Vector2F delta) { }
 
         @Override
-        public void moved(Vector2F delta)
-        {
-        }
+        public void enterWorld() { }
 
         @Override
-        public void enterWorld()
-        {
-        }
+        public void leaveWorld() { }
 
         @Override
-        public void leaveWorld()
-        {
-        }
+        public void taskBusyState(boolean isBusy) { }
 
         @Override
-        public void taskBusyState(boolean isBusy)
-        {
-        }
+        public void attack(RpgCharacter attackee) { }
 
         @Override
-        public void attack(RpgCharacter attackee)
-        {
-        }
+        public void healthChanged(int health) { }
 
         @Override
-        public void healthChanged(int health)
-        {
-        }
+        public void addItem(ItemDescriptor item) { }
 
         @Override
-        public void addItem(ItemDescriptor item)
-        {
-        }
+        public void removeItem(ItemDescriptor item) { }
 
         @Override
-        public void removeItem(ItemDescriptor item)
-        {
-        }
+        public void equip(int slot) { }
 
         @Override
-        public void equip(int slot)
-        {
-        }
+        public void unequip(ItemType gearType) { }
 
         @Override
-        public void unequip(ItemType gearType)
-        {
-        }
+        public void drop(int slot) { }
 
         @Override
-        public void drop(int slot)
-        {
-        }
+        public void loot(RpgCharacter accessor, int slot) { }
 
         @Override
-        public void loot(RpgCharacter accessor, int slot)
-        {
-        }
+        public void consume(int slot) { }
 
         @Override
-        public void consume(int slot)
-        {
-        }
+        public void equip(Item item) { }
 
         @Override
-        public void equip(Item item)
-        {
-        }
-
-        @Override
-        public void onDialogEvent(Entity subject, int event)
-        {
-        }
+        public void onDialogEvent(Entity subject, int event) { }
     }
 
     protected class RpgCharacterAnimator extends CharacterAnimator implements IRpgCharacterObserver
@@ -1067,79 +956,49 @@ public class RpgCharacter extends Character implements IInteractable
         }
 
         @Override
-        public void leaveWorld()
-        {
-        }
+        public void leaveWorld() { }
 
         @Override
-        public void taskBusyState(boolean isBusy)
-        {
-        }
+        public void taskBusyState(boolean isBusy) { }
 
         @Override
-        public void healthChanged(int health)
-        {
-        }
+        public void healthChanged(int health) { }
 
         @Override
-        public void placement(Vector2F location)
-        {
-        }
+        public void placement(Vector2F location) { }
 
         @Override
-        public void moved(Vector2F delta)
-        {
-        }
+        public void moved(Vector2F delta) { }
 
         @Override
-        public void onAttacked(RpgCharacter attacker)
-        {
-        }
+        public void onAttacked(RpgCharacter attacker) { }
 
         @Override
-        public void addItem(ItemDescriptor item)
-        {
-        }
+        public void addItem(ItemDescriptor item) { }
 
         @Override
-        public void removeItem(ItemDescriptor item)
-        {
-        }
+        public void removeItem(ItemDescriptor item) { }
 
         @Override
-        public void equip(int slot)
-        {
-        }
+        public void equip(int slot) { }
 
         @Override
-        public void unequip(ItemType gearType)
-        {
-        }
+        public void unequip(ItemType gearType) { }
 
         @Override
-        public void drop(int slot)
-        {
-        }
+        public void drop(int slot) { }
 
         @Override
-        public void loot(RpgCharacter accessor, int slot)
-        {
-        }
+        public void loot(RpgCharacter accessor, int slot) { }
 
         @Override
-        public void consume(int slot)
-        {
-        }
+        public void consume(int slot) { }
 
         @Override
-        public void equip(Item item)
-        {
-        }
+        public void equip(Item item) { }
 
         @Override
-        public void onDialogEvent(Entity subject, int event)
-        {
-        }
+        public void onDialogEvent(Entity subject, int event) { }
     }
 
     public interface IRpgCharacterObserver extends ICharacterObserver
@@ -1174,25 +1033,19 @@ public class RpgCharacter extends Character implements IInteractable
         public void die()
         {
             for (IRpgCharacterObserver observer : this)
-            {
                 observer.die();
-            }
         }
 
         public void equip(Item item)
         {
             for (IRpgCharacterObserver observer : this)
-            {
                 observer.equip(item);
-            }
         }
 
         public void attack(@Nullable RpgCharacter attackee)
         {
             for (IRpgCharacterObserver observer : this)
-            {
                 observer.attack(attackee);
-            }
         }
 
         public void attacked(RpgCharacter attacker)
@@ -1257,10 +1110,11 @@ public class RpgCharacter extends Character implements IInteractable
         {
             if (!(entity instanceof RpgCharacter.RpgCharacterBridge<?>))
                 return;
-
+            
             RpgCharacter character = ((RpgCharacter.RpgCharacterBridge<?>) entity).getMe();
 
-            getMe().addTask(((RpgCharacter) getMe()).createAttackTask(character));
+
+            getMe().attack(character);
         }
 
         public boolean isConflictingAllegiance(EntityBridge<Entity> entity)
@@ -1275,10 +1129,11 @@ public class RpgCharacter extends Character implements IInteractable
 
         public int addItem(String descriptor, int quantity)
         {
-            int added = 0;
+            int added;
 
-            for (added = 0; added < quantity && getMe().getInventory().addItem(new ItemDescriptor(descriptor)); added++)
-                ;
+            for (added = 0; 
+            		added < quantity && getMe().getInventory().addItem(new ItemDescriptor(descriptor));
+            		added++);
 
             return added;
         }
@@ -1321,6 +1176,11 @@ public class RpgCharacter extends Character implements IInteractable
         public Quest getQuest(String quest)
         {
             return getMe().getQuest(quest);
+        }
+        
+        public void loot(RpgCharacterBridge<RpgCharacter> target)
+        {
+        	getMe().addTask(new LootTask(getMe(), target.getMe().getInventory()));
         }
     }
 }

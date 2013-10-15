@@ -21,11 +21,7 @@ import com.sun.istack.internal.Nullable;
 import jeva.math.Vector2D;
 import jeva.math.Vector2F;
 
-/**
- * The Class TraverseRouteTask.
- * 
- * @author Scott
- */
+
 public class TraverseRouteTask extends MovementTask
 {
 
@@ -38,16 +34,7 @@ public class TraverseRouteTask extends MovementTask
 	/** The m_f radius. */
 	private float m_fRadius;
 
-	/**
-	 * Instantiates a new traverse route task.
-	 * 
-	 * @param traveler
-	 *            the traveler
-	 * @param destination
-	 *            the destination
-	 * @param fRadius
-	 *            the f radius
-	 */
+	
 	public TraverseRouteTask(IRouteTraveler traveler, @Nullable Vector2D destination, float fRadius)
 	{
 		super(traveler);
@@ -124,12 +111,7 @@ public class TraverseRouteTask extends MovementTask
 		this.cancel();
 	}
 
-	/**
-	 * Truncate.
-	 * 
-	 * @param maxSteps
-	 *            the max steps
-	 */
+	
 	public final void truncate(int maxSteps)
 	{
 		m_travelRoute.truncate(maxSteps);
@@ -148,17 +130,11 @@ public class TraverseRouteTask extends MovementTask
 		super.cancel();
 	}
 
-	/**
-	 * The Interface IRouteTraveler.
-	 */
+	
 	public interface IRouteTraveler extends ITraveler
 	{
 
-		/**
-		 * Gets the allowed movements.
-		 * 
-		 * @return the allowed movements
-		 */
+		
 		public WorldDirection[] getAllowedMovements();
 	}
 

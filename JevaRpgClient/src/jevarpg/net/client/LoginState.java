@@ -33,6 +33,7 @@ import jeva.graphics.ui.TextArea;
 import jeva.graphics.ui.UIStyle;
 import jeva.graphics.ui.Viewport;
 import jeva.graphics.ui.Window;
+import jeva.graphics.ui.IWindowManager;
 import jeva.math.Vector2D;
 import jeva.math.Vector2F;
 import jeva.world.World;
@@ -174,8 +175,8 @@ public final class LoginState implements IGameState
 
 		context.setWorld(m_menuWorld);
 
-		context.getWindowManager().addWindow(m_loginWindow);
-		context.getWindowManager().addWindow(m_overlayWindow);
+		Core.getService(IWindowManager.class).addWindow(m_loginWindow);
+		Core.getService(IWindowManager.class).addWindow(m_overlayWindow);
 		context.setCamera(m_menuCamera);
 	}
 
@@ -185,8 +186,8 @@ public final class LoginState implements IGameState
 		m_backgroundMusic.stop();
 		m_context.clearWorld();
 
-		m_context.getWindowManager().removeWindow(m_loginWindow);
-		m_context.getWindowManager().removeWindow(m_overlayWindow);
+		Core.getService(IWindowManager.class).removeWindow(m_loginWindow);
+		Core.getService(IWindowManager.class).removeWindow(m_overlayWindow);
 
 		m_context.clearCamera();
 
@@ -194,7 +195,5 @@ public final class LoginState implements IGameState
 	}
 
 	@Override
-	public void update(int deltaTime)
-	{
-	}
+	public void update(int deltaTime) { }
 }

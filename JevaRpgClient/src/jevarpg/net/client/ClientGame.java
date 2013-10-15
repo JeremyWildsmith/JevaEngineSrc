@@ -106,8 +106,6 @@ public class ClientGame extends RpgGame
 	}
 
 	@Override
-	public void mouseButtonStateChanged(InputMouseEvent e)
-	{
-	}
+	public void mouseButtonStateChanged(InputMouseEvent e) { }
 
 }

@@ -34,21 +34,13 @@ public class VariableStore extends BasicVariable
 	/** The Constant GROUP_VALUE. */
 	private static final String GROUP_VALUE = "value";
 
-	/**
-	 * Instantiates a new variable store.
-	 */
+	
 	public VariableStore()
 	{
 		super();
 	}
 
-	/**
-	 * Creates the.
-	 * 
-	 * @param srcStream
-	 *            the src stream
-	 * @return the variable store
-	 */
+	
 	public static VariableStore create(InputStream srcStream)
 	{
 		VariableStore varStore = new VariableStore();
@@ -73,13 +65,7 @@ public class VariableStore extends BasicVariable
 		return varStore;
 	}
 
-	/**
-	 * Decode raw.
-	 * 
-	 * @param raw
-	 *            the raw
-	 * @return the string
-	 */
+	
 	private static String decodeRaw(String raw)
 	{
 		try

@@ -36,12 +36,7 @@ public abstract class Button extends Label
 	/** The m_button sprite. */
 	private Sprite m_buttonSprite;
 
-	/**
-	 * Instantiates a new button.
-	 * 
-	 * @param text
-	 *            the text
-	 */
+	
 	public Button(String text)
 	{
 		super(text, CURSOR_OFF_COLOR);
@@ -112,9 +107,7 @@ public abstract class Button extends Label
 	 * )
 	 */
 	@Override
-	public void onKeyEvent(InputManager.InputKeyEvent keyEvent)
-	{
-	}
+	public void onKeyEvent(InputManager.InputKeyEvent keyEvent) { }
 
 	/*
 	 * (non-Javadoc)
@@ -139,8 +132,6 @@ public abstract class Button extends Label
 		m_buttonSprite.update(deltaTime);
 	}
 
-	/**
-	 * On button press.
-	 */
+	
 	public abstract void onButtonPress();
 }
