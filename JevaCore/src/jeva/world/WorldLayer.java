@@ -145,11 +145,25 @@ public class WorldLayer implements IDisposable
 		@Override
 		public boolean equals(Object o)
 		{
-			if (o instanceof LayerSector)
+			if(o == this)
+				return true;
+			else if(o == null)
+				return false;
+			else if (o instanceof LayerSectorCoordinate)
+			{
+				LayerSectorCoordinate coord = (LayerSectorCoordinate)o;
+				
+				return coord.x == x && coord.y == y;
+			}
+			else if (o instanceof LayerSector)
 			{
 				LayerSector sector = (LayerSector) o;
 
-				return new Rectangle(sector.m_location.x * LayerSector.SECTOR_DIMENSIONS, sector.m_location.y * LayerSector.SECTOR_DIMENSIONS, LayerSector.SECTOR_DIMENSIONS, LayerSector.SECTOR_DIMENSIONS).contains(x, y);
+				return new Rectangle(sector.m_location.x * LayerSector.SECTOR_DIMENSIONS,
+										sector.m_location.y * LayerSector.SECTOR_DIMENSIONS, 
+										LayerSector.SECTOR_DIMENSIONS, 
+										LayerSector.SECTOR_DIMENSIONS)
+											.contains(x, y);
 			} else
 				return false;
 		}
@@ -278,7 +292,11 @@ public class WorldLayer implements IDisposable
 		@Override
 		public boolean equals(Object o)
 		{
-			if (o instanceof Vector2D || o instanceof Vector2F)
+			if(o == this)
+				return true;
+			else if(o == null)
+				return false;
+			else if (o instanceof Vector2D || o instanceof Vector2F)
 			{
 				int x = (o instanceof Vector2F) ? ((Vector2F) o).floor().x : ((Vector2D) o).x;
 				int y = (o instanceof Vector2F) ? ((Vector2F) o).floor().y : ((Vector2D) o).y;

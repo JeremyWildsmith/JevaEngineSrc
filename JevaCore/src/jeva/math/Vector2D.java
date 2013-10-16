@@ -85,14 +85,12 @@ public class Vector2D implements Comparable<Vector2D>
 	@Override
 	public boolean equals(Object o)
 	{
-		if (o == null)
-		{
+		if(this == o)
+			return true;
+		else if (o == null)
 			return false;
-		}
-		if (!(o instanceof Vector2D))
-		{
+		else if (!(o instanceof Vector2D))
 			return false;
-		}
 
 		Vector2D vec = (Vector2D) o;
 

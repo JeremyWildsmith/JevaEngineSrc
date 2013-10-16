@@ -475,10 +475,11 @@ public class Route
 		{
 			if (this == obj)
 				return true;
-			if (obj == null)
+			else if (obj == null)
 				return false;
-			if (getClass() != obj.getClass())
+			else if (!(obj instanceof SearchNode))
 				return false;
+			
 			SearchNode other = (SearchNode) obj;
 			if (m_routeNode == null)
 			{

@@ -17,7 +17,6 @@ import com.sun.istack.internal.Nullable;
 import jeva.game.ControlledCamera;
 import jeva.game.IWorldCamera;
 import jeva.joystick.InputManager.InputMouseEvent;
-import jeva.math.Vector2D;
 import jevarpg.RpgCharacter;
 import jevarpg.RpgGame;
 
@@ -97,12 +96,6 @@ public class ClientGame extends RpgGame
 	public RpgCharacter getPlayer()
 	{
 		return m_player;
-	}
-
-	@Override
-	protected void worldSelection(InputMouseEvent e, Vector2D location)
-	{
-		super.worldSelection(e, location);
 	}
 
 	@Override

@@ -103,7 +103,7 @@ public final class VariableValue
 		{
 			sb.append("\"" + argList[i].getString() + "\"" + (i >= argList.length - 1 ? "" : ","));
 		}
-		sb.append(")");
+		sb.append(')');
 
 		m_value = sb.toString();
 	}

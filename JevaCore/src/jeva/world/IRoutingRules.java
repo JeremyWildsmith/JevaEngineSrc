@@ -13,7 +13,6 @@
 package jeva.world;
 
 import jeva.math.Vector2D;
-import jeva.world.Route;
 
 import com.sun.istack.internal.Nullable;
 

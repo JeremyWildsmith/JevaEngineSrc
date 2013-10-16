@@ -264,6 +264,9 @@ public final class DialogPath
 		@Override
 		public boolean equals(Object o)
 		{
+			if(this == o)
+				return true;
+			
 			if (!(o instanceof Answer))
 				return false;
 
@@ -337,7 +340,11 @@ public final class DialogPath
 		@Override
 		public boolean equals(Object o)
 		{
-			if (!(o instanceof Query))
+			if(this == o)
+				return true;
+			else if(o == null)
+				return false;
+			else if (!(o instanceof Query))
 				return false;
 
 			Query q = (Query) o;

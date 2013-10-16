@@ -176,9 +176,6 @@ public class ServerGame extends RpgGame implements IDisposable
 	}
 
 	@Override
-	protected void worldSelection(InputMouseEvent e, Vector2D location) { }
-
-	@Override
 	protected IWorldCamera getCamera()
 	{
 		return m_camera;

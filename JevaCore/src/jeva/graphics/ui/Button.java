@@ -90,7 +90,7 @@ public abstract class Button extends Label
 	@Override
 	public void onMouseEvent(InputManager.InputMouseEvent mouseEvent)
 	{
-		if (mouseEvent.mouseButtonState == false && mouseEvent.mouseButton == MouseButton.Left)
+		if (!mouseEvent.mouseButtonState && mouseEvent.mouseButton == MouseButton.Left)
 		{
 			getStyle().getPressButtonAudio().play();
 			onButtonPress();

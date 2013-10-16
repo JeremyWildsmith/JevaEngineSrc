@@ -163,17 +163,16 @@ public class Vector2F implements Comparable<Vector2F>
 	@Override
 	public boolean equals(Object o)
 	{
-		if (o == null)
-		{
+		if (this == o)
+			return true;
+		else if(o == null)
 			return false;
-		} else if (o instanceof Vector2F)
+		else if (o instanceof Vector2F)
 		{
 			Vector2F vec = (Vector2F) o;
 			return compareTo(vec) == 0;
 		} else
-		{
 			return false;
-		}
 	}
 
 	/*

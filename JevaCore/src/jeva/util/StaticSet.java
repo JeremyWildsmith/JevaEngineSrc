@@ -147,7 +147,7 @@ public class StaticSet<T> implements Iterable<T>
 	{
 
 		/** The m_index. */
-		int m_index = -1;
+		private int m_index = -1;
 
 		
 		private StaticSetIterator()

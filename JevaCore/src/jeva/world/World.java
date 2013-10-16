@@ -772,7 +772,7 @@ public class World extends Variable implements IDisposable
 
 			Entity entity;
 
-			if (name == null || name == "")
+			if (name == null || name.isEmpty())
 				entity = getEntityLibrary().createEntity(className, null, argVars);
 			else
 				entity = getEntityLibrary().createEntity(className, name, argVars);

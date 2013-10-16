@@ -69,16 +69,6 @@ public abstract class Entity extends Variable implements IWorldAssociation
 	/** The m_observers. */
 	private Observers m_observers = new Observers();
 
-	/*
-	 * All subclass entities to be constructed via map loading must include the
-	 * constructors: Entity(String name, List<VariableValue> arguments)
-	 * 
-	 * If they represent a tile, they can omit name:
-	 * 
-	 * Entity(List<VariableValue> initArgs);
-	 */
-
-	
 	public Entity()
 	{
 		super("__UNNAMED_ENTITY" + m_unnamedCount.getAndIncrement());
@@ -470,9 +460,8 @@ public abstract class Entity extends Variable implements IWorldAssociation
 
 		/** The m_me. */
 		private Entity m_me;
-
 		
-		protected void setMe(Entity me)
+		protected final void setMe(Entity me)
 		{
 			m_me = me;
 		}

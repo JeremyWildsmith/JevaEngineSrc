@@ -8,10 +8,6 @@ function onEnter()
 	}
 }
 
-function onInteract()
-{
-}
-
 function onDialogEvent(eventId)
 {
 	return -1;

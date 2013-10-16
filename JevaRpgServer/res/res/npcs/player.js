@@ -10,6 +10,23 @@ function onLeave()
 {
 }
 
+function getCommands()
+{
+	var commands = new Array();
+	commands[0] = "Kill";
+	commands[1] = "Send to Hell!";
+	
+	return commands;
+}
+
+function doCommand(command)
+{
+	if(command == "Kill")
+		me.setHealth(0);
+	else if(command == "Send to Hell!")
+		me.setWorld('map/cave.jmp');
+}
+
 function onDialogEvent(eventId)
 {
 	return -1;

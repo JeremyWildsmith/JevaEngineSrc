@@ -322,7 +322,7 @@ public final class Audio
 			 * @see java.io.InputStream#reset()
 			 */
 			@Override
-			public void reset()
+			public synchronized void reset()
 			{
 				m_buffer.rewind();
 			}

@@ -20,7 +20,6 @@ import jeva.graphics.AnimationState;
 import jeva.graphics.IRenderable;
 import jeva.graphics.Sprite;
 import jeva.math.Vector2F;
-import jeva.world.EffectMap;
 import jeva.world.EffectMap.TileEffects;
 
 
