@@ -33,7 +33,9 @@ function getCommands()
 	var commands = new Array();
 
 	commands[0] = 'Attack!';
-	commands[1] = 'Loot!';
+	
+	if(game.getPlayer().distance(me) <= 2.0 && me.getHealth() == 0)
+		commands[1] = 'Loot!';
 	
 	return commands;
 }
@@ -42,6 +44,8 @@ function doCommand(command)
 {
 	if(command == 'Attack!')
 		game.getPlayer().attack(me);
+	else if(command == 'Loot!')
+		game.getPlayer().loot(me);
 }
 
 function onDie()
