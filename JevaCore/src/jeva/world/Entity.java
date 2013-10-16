@@ -26,6 +26,7 @@ import javax.script.ScriptException;
 import com.sun.istack.internal.Nullable;
 
 import proguard.annotation.KeepClassMemberNames;
+import sun.org.mozilla.javascript.internal.Scriptable;
 import jeva.Core;
 import jeva.CoreScriptException;
 import jeva.IResourceLibrary;
@@ -579,6 +580,14 @@ public abstract class Entity extends Variable implements IWorldAssociation
 			}
 
 			return true;
+		}
+		
+		public Scriptable getScript()
+		{
+			if(!getMe().getScript().isReady())
+				return null;
+			
+			return getMe().getScript().getScriptedInterface();
 		}
 	}
 }

@@ -19,6 +19,7 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
+import sun.org.mozilla.javascript.internal.Scriptable;
 import jeva.game.Game;
 
 
@@ -42,6 +43,7 @@ public class Script
 		m_scriptEngine.put("game", Core.getService(Game.class).getScriptBridge().getGameBridge());
 		m_scriptEngine.put("me", context);
 
+		
 		for (Map.Entry<String, Object> entry : Core.getService(Game.class).getScriptBridge().getGlobals().entrySet())
 			m_scriptEngine.put(entry.getKey(), entry.getValue());
 
@@ -54,6 +56,10 @@ public class Script
 		}
 	}
 
+	public final Scriptable getScriptedInterface()
+	{
+		return new ScriptInterface();
+	}
 	
 	public final void setScript(Object context)
 	{
@@ -65,7 +71,6 @@ public class Script
 	{
 		return m_scriptEngine != null;
 	}
-
 	
 	public final Object invokeScriptFunction(String functionName, Object... arguments) throws NoSuchMethodException, ScriptException
 	{
@@ -88,5 +93,97 @@ public class Script
 		{
 			throw new CoreScriptException(e);
 		}
+	}
+	
+	public class ScriptInterface implements Scriptable
+	{
+
+		@Override
+		public void delete(String arg0) { }
+
+		@Override
+		public void delete(int arg0) { }
+
+		@Override
+		public Object get(String name, Scriptable start)
+		{
+			return m_scriptEngine.get(name);
+		}
+
+		@Override
+		public Object get(int index, Scriptable start)
+		{
+			return null;
+		}
+
+		@Override
+		public String getClassName()
+		{
+			return "Script";
+		}
+
+		@Override
+		public Object getDefaultValue(Class<?> arg0)
+		{
+			return null;
+		}
+
+		@Override
+		public Object[] getIds()
+		{
+			return null;
+		}
+
+		@Override
+		public Scriptable getParentScope()
+		{
+			return null;
+		}
+
+		@Override
+		public Scriptable getPrototype()
+		{
+			return null;
+		}
+
+		@Override
+		public boolean has(String arg0, Scriptable arg1)
+		{
+			try
+			{
+				m_scriptEngine.get(arg0);
+				return true;
+			} catch(IllegalArgumentException | NullPointerException e)
+			{
+				return false;
+			}
+		}
+
+		@Override
+		public boolean has(int arg0, Scriptable arg1)
+		{
+			return false;
+		}
+
+		@Override
+		public boolean hasInstance(Scriptable arg0)
+		{
+			return false;
+		}
+
+		@Override
+		public void put(String key, Scriptable arg1, Object value) {
+			
+			m_scriptEngine.put(key, value);
+		}
+
+		@Override
+		public void put(int arg0, Scriptable arg1, Object arg2) { }
+
+		@Override
+		public void setParentScope(Scriptable arg0) { }
+
+		@Override
+		public void setPrototype(Scriptable arg0) { }
 	}
 }
