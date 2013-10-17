@@ -43,7 +43,7 @@ import jevarpg.net.NetUser.UserCredentials;
 public final class LoginState implements IGameState
 {
 
-	protected static final String HOST = "jevaengine.no-ip.biz";
+	protected static final String HOST = "127.0.0.1";
 
 	protected static final int PORT = 1554;
 
