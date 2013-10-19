@@ -414,9 +414,6 @@ public abstract class Actor extends Entity implements IInteractable
 	{
 		public String[] getCommands()
 		{
-			if(!getScript().isReady())
-				return new String[0];
-			
 			try
 			{
 				NativeArray jsStringArray = (NativeArray)getScript().invokeScriptFunction("getCommands");
@@ -446,9 +443,6 @@ public abstract class Actor extends Entity implements IInteractable
 		
 		public void doCommand(String command)
 		{
-			if(!getScript().isReady())
-				return;
-			
 			try
 			{
 				getScript().invokeScriptFunction("doCommand", command);

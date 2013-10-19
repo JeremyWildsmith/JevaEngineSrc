@@ -27,33 +27,36 @@ public class Script
 {
 	/** The m_script engine. */
 	private ScriptEngine m_scriptEngine;
-
 	
-	public Script() { }
-
+	private Object m_context;
 	
-	public final void setScript(String script, Object context)
+	public Script(Object context)
 	{
-		m_scriptEngine = new ScriptEngineManager().getEngineByName("JavaScript");
-
-		if (m_scriptEngine == null)
-			throw new CoreScriptException("JavaScript script engine is not installed.");
-
-		m_scriptEngine.put("core", Core.getScriptBridge());
-		m_scriptEngine.put("game", Core.getService(Game.class).getScriptBridge().getGameBridge());
-		m_scriptEngine.put("me", context);
-
-		
-		for (Map.Entry<String, Object> entry : Core.getService(Game.class).getScriptBridge().getGlobals().entrySet())
-			m_scriptEngine.put(entry.getKey(), entry.getValue());
-
-		try
+		m_context = context;
+	}
+	
+	private void initEngine()
+	{
+		if(m_scriptEngine == null)
 		{
-			m_scriptEngine.eval(script);
-		} catch (ScriptException e)
-		{
-			throw new CoreScriptException(e);
+			m_scriptEngine = new ScriptEngineManager().getEngineByName("JavaScript");
+	
+			if (m_scriptEngine == null)
+				throw new CoreScriptException("JavaScript script engine is not installed.");
+	
+			m_scriptEngine.put("core", Core.getScriptBridge());
+			m_scriptEngine.put("game", Core.getService(Game.class).getScriptBridge().getGameBridge());
+			m_scriptEngine.put("script", new ScriptContext());
+			m_scriptEngine.put("me", m_context);
+			
+			for (Map.Entry<String, Object> entry : Core.getService(Game.class).getScriptBridge().getGlobals().entrySet())
+				m_scriptEngine.put(entry.getKey(), entry.getValue());
 		}
+	}
+	
+	public Script()
+	{
+		this(null);
 	}
 
 	public final Scriptable getScriptedInterface()
@@ -61,33 +64,19 @@ public class Script
 		return new ScriptInterface();
 	}
 	
-	public final void setScript(Object context)
-	{
-		setScript("", context);
-	}
-
-	
-	public final boolean isReady()
-	{
-		return m_scriptEngine != null;
-	}
-	
 	public final Object invokeScriptFunction(String functionName, Object... arguments) throws NoSuchMethodException, ScriptException
 	{
-		if (!isReady())
-			throw new CoreScriptException("Cannot invoke script routine on script that is not ready");
-
+		if(m_scriptEngine == null)
+			throw new NoSuchMethodException("Script has not been initialized with anything and thus does not contain this method");
+		
 		return ((Invocable) m_scriptEngine).invokeFunction(functionName, arguments);
 	}
-
 	
-	public final Object evaluate(String expression) throws ScriptException
+	public final Object evaluate(String expression)
 	{
-		if (!isReady())
-			throw new CoreScriptException("Cannot invoke script routine on script that is not ready");
-
 		try
 		{
+			initEngine();
 			return m_scriptEngine.eval(expression);
 		} catch (ScriptException e)
 		{
@@ -95,9 +84,16 @@ public class Script
 		}
 	}
 	
+	public class ScriptContext
+	{
+		public void evaluate(String path)
+		{
+			Script.this.evaluate(Core.getService(IResourceLibrary.class).openResourceContents(path));
+		}
+	}
+	
 	public class ScriptInterface implements Scriptable
 	{
-
 		@Override
 		public void delete(String arg0) { }
 
@@ -107,6 +103,7 @@ public class Script
 		@Override
 		public Object get(String name, Scriptable start)
 		{
+			initEngine();
 			return m_scriptEngine.get(name);
 		}
 
@@ -151,6 +148,7 @@ public class Script
 		{
 			try
 			{
+				initEngine();
 				m_scriptEngine.get(arg0);
 				return true;
 			} catch(IllegalArgumentException | NullPointerException e)
@@ -172,8 +170,9 @@ public class Script
 		}
 
 		@Override
-		public void put(String key, Scriptable arg1, Object value) {
-			
+		public void put(String key, Scriptable arg1, Object value)
+		{
+			initEngine();
 			m_scriptEngine.put(key, value);
 		}
 

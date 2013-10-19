@@ -776,44 +776,37 @@ public class RpgCharacter extends Character
     private class RpgCharacterScript implements IRpgCharacterObserver
     {
         @Override
-        public void die()
+		public void die()
         {
-            if (getScript().isReady())
-            {
-                try
-                {
-                    getScript().invokeScriptFunction("onDie");
-                } catch (NoSuchMethodException e)
-                {
-                } catch (ScriptException e)
-                {
-                    throw new CoreScriptException("Error invoking RpgCharacter onDie: " + e.toString());
-                }
-            }
-        }
+			try
+			{
+				getScript().invokeScriptFunction("onDie");
+			} catch (NoSuchMethodException e)
+			{
+			} catch (ScriptException e)
+			{
+				throw new CoreScriptException(
+						"Error invoking RpgCharacter onDie: " + e.toString());
+			}
+		}
 
         @Override
         public void onAttacked(RpgCharacter attacker)
         {
-            if (getScript().isReady())
-            {
-                try
-                {
-                    getScript().invokeScriptFunction("onAttacked", attacker.getScriptBridge());
-                } catch (NoSuchMethodException e)
-                {
-                } catch (ScriptException e)
-                {
-                    throw new CoreScriptException("Error invoking RpgCharacter onAttacked: " + e.toString());
-                }
-            }
+			try
+			{
+				getScript().invokeScriptFunction("onAttacked",
+						attacker.getScriptBridge());
+			} catch (NoSuchMethodException e)
+			{
+        	} catch (ScriptException e) {
+				throw new CoreScriptException("Error invoking RpgCharacter onAttacked: "
+													+ e.toString());
+			}
         }
 
         public boolean onAttack(RpgCharacter attackee)
         {
-            if (!getScript().isReady())
-                return false;
-
             try
             {
                 Object o = getScript().invokeScriptFunction("onAttack", attackee.getScriptBridge());

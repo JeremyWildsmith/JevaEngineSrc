@@ -99,16 +99,13 @@ public class Item
         Sprite graphic = Sprite.create(VariableStore.create(Core.getService(IResourceLibrary.class).openResourceStream(root.getVariable("sprite").getValue().getString())));
 
         String description = "";
-
         if (root.variableExists("description"))
             description = root.getVariable("description").getValue().getString();
 
-        Script script = new Script();
+        Script script = new Script(new ItemBridge());
 
         if (root.variableExists("script"))
-        {
-            script.setScript(Core.getService(IResourceLibrary.class).openResourceContents(root.getVariable("script").getValue().getString()), new ItemBridge());
-        }
+        	script.evaluate(Core.getService(IResourceLibrary.class).openResourceContents(root.getVariable("script").getValue().getString()));
 
         graphic.setAnimation("idle", AnimationState.Play);
 

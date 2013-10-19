@@ -51,9 +51,6 @@ public abstract class Entity extends Variable implements IWorldAssociation
 	/** The m_running tasks. */
 	private ArrayList<ITask> m_runningTasks = new ArrayList<ITask>();
 
-	/** The m_entity script. */
-	private EntityScript m_entityScript = new EntityScript();
-
 	/** The m_is paused. */
 	private boolean m_isPaused = false;
 
@@ -68,6 +65,8 @@ public abstract class Entity extends Variable implements IWorldAssociation
 
 	/** The m_observers. */
 	private Observers m_observers = new Observers();
+	
+	private Script m_script;
 
 	public Entity()
 	{
@@ -105,16 +104,17 @@ public abstract class Entity extends Variable implements IWorldAssociation
 
 		m_bridge = entityContext;
 
+		m_script = new Script(entityContext);
+		
 		if (root.variableExists("script"))
 		{
 			String script = Core.getService(IResourceLibrary.class).openResourceContents(root.getVariable("script").getValue().getString());
-
-			m_entityScript = new EntityScript(script, entityContext);
-
-			m_observers.add(m_entityScript);
-
+			m_script.evaluate(script);
+			
+			m_observers.add(new EntityScriptObserver());
+			
 		} else
-			m_entityScript = new EntityScript();
+			m_script = new Script();
 	}
 
 	
@@ -259,7 +259,7 @@ public abstract class Entity extends Variable implements IWorldAssociation
 	
 	public Script getScript()
 	{
-		return m_entityScript;
+		return m_script;
 	}
 
 	
@@ -369,19 +369,8 @@ public abstract class Entity extends Variable implements IWorldAssociation
 	}
 
 	
-	private class EntityScript extends Script implements IEntityObserver
+	private class EntityScriptObserver implements IEntityObserver
 	{
-
-		
-		public EntityScript()
-		{
-		}
-
-		
-		public EntityScript(String script, Object context)
-		{
-			setScript(script, context);
-		}
 
 		/*
 		 * (non-Javadoc)
@@ -391,18 +380,15 @@ public abstract class Entity extends Variable implements IWorldAssociation
 		@Override
 		public void enterWorld()
 		{
-			if (isReady())
+			try
 			{
-				try
-				{
-					invokeScriptFunction("onEnter");
-				} catch (NoSuchMethodException e)
-				{
-					// Startup is an optional implementation for entities.
-				} catch (ScriptException e)
-				{
-					throw new CoreScriptException("Error executing NPC Script onEnter routine for " + Entity.this.getFullName() + ", " + e.getMessage());
-				}
+				m_script.invokeScriptFunction("onEnter");
+			} catch (NoSuchMethodException e)
+			{
+				// Startup is an optional implementation for entities.
+			} catch (ScriptException e)
+			{
+				throw new CoreScriptException("Error executing NPC Script onEnter routine for " + Entity.this.getFullName() + ", " + e.getMessage());
 			}
 		}
 
@@ -414,20 +400,18 @@ public abstract class Entity extends Variable implements IWorldAssociation
 		@Override
 		public void leaveWorld()
 		{
-			if (isReady())
+			try
 			{
-				try
-				{
-					invokeScriptFunction("onLeave");
-				} catch (NoSuchMethodException e)
-				{
-					// Startup is an optional implementation for entities.
-				} catch (ScriptException e)
-				{
-					throw new CoreScriptException("Error executing entity Script onLeave routine of " + Entity.this.getName() + " " + e.getMessage());
-				}
+				m_script.invokeScriptFunction("onLeave");
+			} catch (NoSuchMethodException e)
+			{
+				// Startup is an optional implementation for entities.
+			} catch (ScriptException e)
+			{
+				throw new CoreScriptException("Error executing entity Script onLeave routine of " + Entity.this.getName() + " " + e.getMessage());
 			}
 		}
+
 
 		/*
 		 * (non-Javadoc)
@@ -437,18 +421,14 @@ public abstract class Entity extends Variable implements IWorldAssociation
 		@Override
 		public void taskBusyState(boolean isBusy)
 		{
-			if (isReady())
+			try
 			{
-				try
-				{
-					invokeScriptFunction("taskBusyState", isBusy);
-				} catch (NoSuchMethodException e)
-				{
-
-				} catch (ScriptException e)
-				{
-					throw new CoreScriptException("Error occured while invoking onIdle: " + e.getMessage());
-				}
+				m_script.invokeScriptFunction("taskBusyState", isBusy);
+			} catch (NoSuchMethodException e)
+			{
+			} catch (ScriptException e)
+			{
+				throw new CoreScriptException("Error occured while invoking onIdle: " + e.getMessage());
 			}
 		}
 	}
@@ -573,9 +553,6 @@ public abstract class Entity extends Variable implements IWorldAssociation
 		
 		public Scriptable getScript()
 		{
-			if(!getMe().getScript().isReady())
-				return null;
-			
 			return getMe().getScript().getScriptedInterface();
 		}
 	}

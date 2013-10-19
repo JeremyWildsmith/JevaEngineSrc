@@ -18,9 +18,6 @@ import java.awt.event.KeyEvent;
 
 import proguard.annotation.KeepClassMemberNames;
 import proguard.annotation.KeepName;
-import jeva.Core;
-import jeva.CoreScriptException;
-import jeva.IResourceLibrary;
 import jeva.Script;
 import jeva.joystick.InputManager.InputKeyEvent;
 import jeva.joystick.InputManager.InputKeyEvent.EventType;
@@ -37,7 +34,7 @@ public final class CommandMenu extends Window
 	private TextArea m_commandIn;
 
 	/** The m_script. */
-	private Script m_script = new Script();
+	private Script m_script = new Script(new CommandMenuScriptContext());
 
 	/** The m_is ctrl down. */
 	private boolean m_isCtrlDown = false;
@@ -64,14 +61,6 @@ public final class CommandMenu extends Window
 
 		this.addControl(new Label(">", Color.red), new Vector2D(3, bounds.height - 200));
 
-		try
-		{
-			m_script.setScript(new CommandMenuScriptContext());
-		} catch (CoreScriptException e)
-		{
-			m_commandOutArea.appendText("Error Initializing scripting interface : " + e.toString() + "\n");
-		}
-
 	}
 
 	/*
@@ -90,18 +79,7 @@ public final class CommandMenu extends Window
 		} else if (m_isCtrlDown && e.type == EventType.KeyTyped)
 		{
 			m_isCtrlDown = false;
-			if (Character.toLowerCase(e.keyChar) == 'l')
-			{
-				try
-				{
-					m_script.setScript(m_commandIn.getText(), new CommandMenuScriptContext());
-					m_commandIn.setText("");
-				} catch (CoreScriptException ex)
-				{
-					m_commandOutArea.appendText("Error occured while loading script: " + ex.toString() + "\n");
-					m_commandOutArea.scrollToEnd();
-				}
-			} else if (Character.toLowerCase(e.keyChar) == 'e')
+			if (Character.toLowerCase(e.keyChar) == 'e')
 			{
 				try
 				{
@@ -127,17 +105,9 @@ public final class CommandMenu extends Window
 	public class CommandMenuScriptContext
 	{
 
-		
 		public void echo(String s)
 		{
 			m_commandOutArea.appendText(s + "\n");
-		}
-
-		
-		public void execute(String path)
-		{
-			m_script.setScript(Core.getService(IResourceLibrary.class).openResourceContents(path), new CommandMenuScriptContext());
-			m_commandIn.setText("");
 		}
 
 		

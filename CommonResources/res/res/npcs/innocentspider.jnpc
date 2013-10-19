@@ -1,5 +1,5 @@
 name:Spider;
-
+isInteractable:true;
 //Sprite to use for npc
 sprite:sprites/spider.jsf;
 
@@ -23,7 +23,7 @@ visualAcuity:1.0;
 speed:1.1;
 
 //Script file
-script:npcs/innocentspider.js;
+script:npcs/innocentSpider.js;
 
 allegiance:1;
 inventorySize:1;

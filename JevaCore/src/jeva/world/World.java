@@ -28,6 +28,8 @@ import java.util.TreeMap;
 
 import javax.script.ScriptException;
 
+import com.sun.istack.internal.Nullable;
+
 import proguard.annotation.KeepClassMemberNames;
 import jeva.Core;
 import jeva.CoreScriptException;
@@ -660,25 +662,26 @@ public class World extends Variable implements IDisposable
 	{
 
 		/** The m_world script. */
+		@Nullable
 		private Script m_worldScript;
 
 		
 		public WorldScriptManager(String script)
 		{
-			m_worldScript = new Script();
-			m_worldScript.setScript(script, new WorldScriptContext());
+			m_worldScript = new Script(new WorldScriptContext());
+			m_worldScript.evaluate(script);
 		}
 
 		
 		public WorldScriptManager()
 		{
-			m_worldScript = new Script();
+			m_worldScript = null;
 		}
 
 		
 		public void onEnter()
 		{
-			if (!m_worldScript.isReady())
+			if (m_worldScript == null)
 				return;
 
 			try
@@ -695,7 +698,7 @@ public class World extends Variable implements IDisposable
 		
 		public void onLeave()
 		{
-			if (!m_worldScript.isReady())
+			if (m_worldScript == null)
 				return;
 
 			try
@@ -712,7 +715,7 @@ public class World extends Variable implements IDisposable
 		
 		public void onTick()
 		{
-			if (!m_worldScript.isReady())
+			if (m_worldScript == null)
 				return;
 
 			try

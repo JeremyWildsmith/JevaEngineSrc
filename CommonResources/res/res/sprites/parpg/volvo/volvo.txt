@@ -1,8 +1,0 @@
-blue_volvo_smashed_000 = 228 0 223 82
-blue_volvo_smashed_045 = 1088 0 209 125
-blue_volvo_smashed_090 = 1297 0 119 133
-blue_volvo_smashed_135 = 665 0 214 125
-blue_volvo_smashed_180 = 0 0 228 91
-blue_volvo_smashed_225 = 451 0 214 134
-blue_volvo_smashed_270 = 1416 0 116 142
-blue_volvo_smashed_315 = 879 0 209 134
