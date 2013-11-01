@@ -65,7 +65,7 @@ public class BasicWindowManager implements IWindowManager
 
 				if (window.getBounds().contains(relativePoint.x, relativePoint.y))
 				{
-					if (window.isFocusable() && (!isCursorOverTop && mouseEvent.isDragging || mouseEvent.type == EventType.MouseClicked))
+					if (window.isFocusable() && (!isCursorOverTop && (mouseEvent.isDragging || mouseEvent.type == EventType.MouseClicked)))
 						moveToTop = topWindow = window;
 
 					if (mouseEvent.isDragging && window.isMovable() && window == topWindow)
