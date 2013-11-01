@@ -47,4 +47,5 @@ How to Compile
 
 - Uses Eclipse Project Files
 - Check out solution, add the individual projects into a single work-space. They should compile fine.
+- JevaEngine is currently transitioning to a maven build system to maximize portability of project. Until then, you will need to use Eclipse.
 
