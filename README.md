@@ -13,7 +13,7 @@ Features
 - Centralized Server Networking Implementation for Online RPG Games. Entity scripts, world triggers etc work seamlessly off and on server.
 - Networking is cleanly isolated from the engine, allowing for varios networking models to be implemented seamlessly.
 - UI Is entirely skinnable and customizable - Jeva Core provides a solid infastructure for most general UI components.
-- Basic particle engine (implemented primary for attack\heal\projectile effects so noting too fancy)
+- Basic particle engine (implemented primary for attack\heal\projectile effects so nothing too fancy)
 - Entities can save states and reload states (essential for game saves). States are can be saved on an integrated back-end that works over GameJolt API for Achievements, Scoring and Cloud Saving
 - Fully capable quest system & dialogue system (dialogue can be complex with various pathways which effect any internal variables of the character (i.e. moral))
 - Most of the engine is entirely extensible - with logical partitions in implementation logic between Java and external scripts.
