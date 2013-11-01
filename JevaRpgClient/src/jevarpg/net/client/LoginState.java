@@ -26,6 +26,7 @@ import jeva.audio.Audio;
 import jeva.communication.network.RemoteSocketCommunicator;
 import jeva.config.VariableStore;
 import jeva.game.ControlledCamera;
+import jeva.game.Game;
 import jeva.graphics.IRenderable;
 import jeva.graphics.ui.Button;
 import jeva.graphics.ui.Label;
@@ -34,6 +35,7 @@ import jeva.graphics.ui.UIStyle;
 import jeva.graphics.ui.Viewport;
 import jeva.graphics.ui.Window;
 import jeva.graphics.ui.IWindowManager;
+import jeva.graphics.ui.WorldView;
 import jeva.math.Vector2D;
 import jeva.math.Vector2F;
 import jeva.world.World;
@@ -58,8 +60,7 @@ public final class LoginState implements IGameState
 	private TextArea m_nickname;
 
 	private Window m_overlayWindow;
-
-	private ControlledCamera m_menuCamera = new ControlledCamera();
+	private Window m_worldViewWindow;
 
 	private World m_menuWorld;
 
@@ -79,7 +80,7 @@ public final class LoginState implements IGameState
 
 		final UIStyle styleLarge = UIStyle.create(VariableStore.create(Core.getService(IResourceLibrary.class).openResourceStream("ui/tech/large.juis")));
 		final UIStyle styleSmall = UIStyle.create(VariableStore.create(Core.getService(IResourceLibrary.class).openResourceStream("ui/tech/small.juis")));
-
+		
 		m_loginWindow = new Window(styleLarge, 500, 400);
 		m_loginWindow.setRenderBackground(false);
 		m_loginWindow.setMovable(false);
@@ -164,7 +165,22 @@ public final class LoginState implements IGameState
 
 		m_menuWorld = World.create(new RpgEntityLibrary(), VariableStore.create(Core.getService(IResourceLibrary.class).openResourceStream("map/menu.jmp")));
 
-		m_menuCamera.lookAt(new Vector2F(27, 33));
+		Vector2D resolution = Core.getService(Game.class).getResolution();
+		
+		ControlledCamera menuCamera = new ControlledCamera();
+		menuCamera.attach(m_menuWorld);
+		menuCamera.lookAt(new Vector2F(27, 33));
+		
+		WorldView worldViewport = new WorldView(resolution.x, resolution.y);
+		worldViewport.setRenderBackground(false);
+		worldViewport.setCamera(menuCamera);
+
+		m_worldViewWindow = new Window(styleSmall, resolution.x, resolution.y);
+		m_worldViewWindow.setRenderBackground(false);
+		m_worldViewWindow.setMovable(false);
+		m_worldViewWindow.setFocusable(false);
+		
+		m_worldViewWindow.addControl(worldViewport);
 	}
 
 	@Override
@@ -173,27 +189,27 @@ public final class LoginState implements IGameState
 		m_context = context;
 		m_backgroundMusic.repeat();
 
-		context.setWorld(m_menuWorld);
-
 		Core.getService(IWindowManager.class).addWindow(m_loginWindow);
 		Core.getService(IWindowManager.class).addWindow(m_overlayWindow);
-		context.setCamera(m_menuCamera);
+		Core.getService(IWindowManager.class).addWindow(m_worldViewWindow);
 	}
 
 	@Override
 	public void leave()
 	{
 		m_backgroundMusic.stop();
-		m_context.clearWorld();
 
+		Core.getService(IWindowManager.class).removeWindow(m_worldViewWindow);
 		Core.getService(IWindowManager.class).removeWindow(m_loginWindow);
 		Core.getService(IWindowManager.class).removeWindow(m_overlayWindow);
 
-		m_context.clearCamera();
-
+		m_menuWorld.dispose();
 		m_context = null;
 	}
 
 	@Override
-	public void update(int deltaTime) { }
+	public void update(int deltaTime)
+	{
+		m_menuWorld.update(deltaTime);
+	}
 }

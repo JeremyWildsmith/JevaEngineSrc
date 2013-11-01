@@ -19,7 +19,7 @@ import jeva.math.Vector2F;
 import jeva.world.World;
 
 
-public final class ControlledCamera implements IWorldCamera
+public final class ControlledCamera implements ICamera
 {
 
 	/** The m_world. */
@@ -73,6 +73,12 @@ public final class ControlledCamera implements IWorldCamera
 	public Vector2D getLookAt()
 	{
 		return m_lookAtScreen;
+	}
+	
+	@Override
+	public World getWorld()
+	{
+		return m_world;
 	}
 
 	/*

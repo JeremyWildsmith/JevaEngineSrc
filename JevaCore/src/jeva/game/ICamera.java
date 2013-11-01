@@ -12,21 +12,17 @@
  ******************************************************************************/
 package jeva.game;
 
+import com.sun.istack.internal.Nullable;
+
 import jeva.math.Vector2D;
 import jeva.world.World;
 
-
-public interface IWorldCamera
+public interface ICamera
 {
-	
 	Vector2D getLookAt();
-
-	
 	float getScale();
-
 	
+	@Nullable World getWorld();
 	void attach(World world);
-
-	
 	void dettach();
 }

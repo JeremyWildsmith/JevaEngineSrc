@@ -17,6 +17,8 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Map;
 
+import com.sun.istack.internal.Nullable;
+
 import jeva.Core;
 import jeva.IResourceLibrary;
 import jeva.config.Variable;
@@ -24,10 +26,14 @@ import jeva.config.VariableStore;
 import jeva.config.VariableValue;
 import jeva.game.ControlledCamera;
 import jeva.game.ResourceLoadingException;
-import jeva.game.IWorldCamera;
 import jeva.graphics.Sprite;
+import jeva.graphics.ui.IWindowManager;
+import jeva.graphics.ui.Window;
+import jeva.graphics.ui.WorldView;
+import jeva.graphics.ui.WorldView.IWorldViewListener;
 import jeva.joystick.InputManager.InputKeyEvent;
 import jeva.joystick.InputManager.InputMouseEvent;
+import jeva.joystick.InputManager.InputMouseEvent.MouseButton;
 import jeva.math.Vector2D;
 import jeva.math.Vector2F;
 import jeva.world.IInteractable;
@@ -49,12 +55,32 @@ public class MapEditor extends RpgGame implements IEditorPaneListener
 
 	private String m_worldScript = "";
 
+	private @Nullable World m_world;
+	
+	private WorldView m_worldView;
+	
 	@Override
 	protected void startup()
 	{
 		super.startup();
+		
 		m_pane.setVisible(true);
 		m_selectedLayer = -1;
+		
+		Vector2D resolution = getResolution();
+		
+		m_worldView = new WorldView(resolution.x, resolution.y);
+		m_worldView.setRenderBackground(false);
+		m_worldView.setCamera(m_camera);
+		
+		Window worldWindow = new Window(getGameStyle(), resolution.x, resolution.y);
+		worldWindow.setRenderBackground(false);
+		worldWindow.addControl(m_worldView);
+		worldWindow.setMovable(false);
+		
+		Core.getService(IWindowManager.class).addWindow(worldWindow);
+		
+		m_worldView.addListener(new MapViewListener());
 	}
 
 	@Override
@@ -63,8 +89,8 @@ public class MapEditor extends RpgGame implements IEditorPaneListener
 		if (!m_cameraMovement.isZero())
 			m_camera.move(m_cameraMovement.normalize().multiply(0.3F));
 
-		if (getWorld() != null)
-			getWorld().update(deltaTime);
+		if (m_world != null)
+			m_world.update(deltaTime);
 
 		super.update(deltaTime);
 	}
@@ -72,8 +98,7 @@ public class MapEditor extends RpgGame implements IEditorPaneListener
 	@Override
 	public synchronized void initializeWorld(int worldWidth, int worldHeight, int tileWidth, int tileHeight)
 	{
-		World w = new World(getEntityLibrary(), worldWidth, worldHeight, tileWidth, tileHeight, 0);
-		setWorld(w);
+		m_world = new World(getEntityLibrary(), worldWidth, worldHeight, tileWidth, tileHeight, 0);
 
 		WorldLayer mainLayer = new WorldLayer();
 
@@ -90,8 +115,10 @@ public class MapEditor extends RpgGame implements IEditorPaneListener
 		}
 
 		m_selectedLayer = 0;
-		w.addLayer(mainLayer);
+		m_world.addLayer(mainLayer);
 		m_pane.setMapLayers(1);
+		
+		m_camera.attach(m_world);
 	}
 
 	@Override
@@ -110,36 +137,7 @@ public class MapEditor extends RpgGame implements IEditorPaneListener
 		tile.setVisibilityObstruction(fVisibility);
 		tile.setEnableSplitting(enableSplitting);
 	}
-
-	@Override
-	public void worldSelection(InputMouseEvent e, Vector2D location)
-	{
-		if (m_selectedLayer >= 0 && m_selectedLayer < getWorld().getLayers().length)
-		{
-			ArrayList<IInteractable> interactables = getWorld().getLayers()[m_selectedLayer].getTileEffects(location).interactables;
-
-			EditorTile selectedTile = null;
-
-			for (IInteractable i : interactables)
-			{
-				if (i instanceof EditorTile)
-				{
-					selectedTile = (EditorTile) i;
-					break;
-				}
-			}
-
-			if (selectedTile == null)
-			{
-				selectedTile = new EditorTile(m_nullTile, WorldDirection.Zero, "idle", true, true, false, 1.0F);
-				selectedTile.setLocation(location);
-				selectedTile.addToWorld(getWorld(), getWorld().getLayers()[m_selectedLayer]);
-			}
-
-			m_pane.selectedTile(selectedTile);
-		}
-	}
-
+	
 	@Override
 	public synchronized void refreshEntity(EditorEntity entity)
 	{
@@ -179,7 +177,7 @@ public class MapEditor extends RpgGame implements IEditorPaneListener
 	{
 		m_pane.clearEntities();
 
-		World world = new World(getEntityLibrary(), source.getVariable("width").getValue().getInt(), source.getVariable("height").getValue().getInt(), source.getVariable("tileWidth").getValue().getInt(), source.getVariable("tileHeight").getValue().getInt(), source.getVariable("entityLayer").getValue().getInt());
+		m_world = new World(getEntityLibrary(), source.getVariable("width").getValue().getInt(), source.getVariable("height").getValue().getInt(), source.getVariable("tileWidth").getValue().getInt(), source.getVariable("tileHeight").getValue().getInt(), source.getVariable("entityLayer").getValue().getInt());
 
 		if (source.variableExists("entity"))
 		{
@@ -202,7 +200,7 @@ public class MapEditor extends RpgGame implements IEditorPaneListener
 
 				m_pane.addEntity(entity);
 
-				entity.refresh(world);
+				entity.refresh(m_world);
 			}
 		}
 
@@ -240,12 +238,12 @@ public class MapEditor extends RpgGame implements IEditorPaneListener
 				} else
 					tile = new EditorTile(m_nullTile, WorldDirection.Zero, "idle", true, true, false, 1.0F);
 
-				tile.setLocation(new Vector2D(tileIndex % world.getWidth(), (int) Math.floor(tileIndex / world.getHeight())));
+				tile.setLocation(new Vector2D(tileIndex % m_world.getWidth(), (int) Math.floor(tileIndex / m_world.getHeight())));
 
-				tile.addToWorld(world, worldLayer);
+				tile.addToWorld(m_world, worldLayer);
 			}
 
-			world.addLayer(worldLayer);
+			m_world.addLayer(worldLayer);
 		}
 
 		if (source.variableExists("script"))
@@ -260,8 +258,9 @@ public class MapEditor extends RpgGame implements IEditorPaneListener
 			m_selectedLayer = -1;
 
 		m_pane.setMapLayers(layerDeclarations.length);
-		m_pane.setEntityLayer(world.getEntityLayer());
-		setWorld(world);
+		m_pane.setEntityLayer(m_world.getEntityLayer());
+		
+		m_camera.attach(m_world);
 	}
 
 	@Override
@@ -345,17 +344,10 @@ public class MapEditor extends RpgGame implements IEditorPaneListener
 	{
 		return null;
 	}
-
-	@Override
-	protected void onLoadedWorld()
+	
+	public World getWorld()
 	{
-		m_camera.attach(getWorld());
-	}
-
-	@Override
-	protected IWorldCamera getCamera()
-	{
-		return m_camera;
+		return m_world;
 	}
 
 	@Override
@@ -433,4 +425,39 @@ public class MapEditor extends RpgGame implements IEditorPaneListener
 
 	@Override
 	public void mouseButtonStateChanged(InputMouseEvent e) { }
+	
+	private class MapViewListener implements IWorldViewListener
+	{
+		@Override
+		public void worldSelection(Vector2D screenLocation, Vector2D worldLocation, MouseButton button)
+		{
+			if(button != MouseButton.Left)
+				return;
+			
+			if (m_selectedLayer >= 0 && m_selectedLayer < getWorld().getLayers().length)
+			{
+				ArrayList<IInteractable> interactables = getWorld().getLayers()[m_selectedLayer].getTileEffects(worldLocation).interactables;
+	
+				EditorTile selectedTile = null;
+	
+				for (IInteractable i : interactables)
+				{
+					if (i instanceof EditorTile)
+					{
+						selectedTile = (EditorTile) i;
+						break;
+					}
+				}
+	
+				if (selectedTile == null)
+				{
+					selectedTile = new EditorTile(m_nullTile, WorldDirection.Zero, "idle", true, true, false, 1.0F);
+					selectedTile.setLocation(worldLocation);
+					selectedTile.addToWorld(getWorld(), getWorld().getLayers()[m_selectedLayer]);
+				}
+	
+				m_pane.selectedTile(selectedTile);
+			}
+		}
+	}
 }

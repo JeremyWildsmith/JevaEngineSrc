@@ -16,30 +16,22 @@ import java.awt.Color;
 import java.awt.Frame;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
-import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.image.BufferStrategy;
 import java.awt.image.VolatileImage;
 
 import jeva.Core;
-import jeva.IDisposable;
 import jeva.graphics.Sprite;
 import jeva.graphics.ui.*;
 import jeva.joystick.*;
-import jeva.joystick.InputManager.InputMouseEvent;
 import jeva.math.Vector2D;
-import jeva.world.World;
 
 
-public abstract class Game implements IInputDeviceListener, IDisposable
+public abstract class Game implements IInputDeviceListener
 {
 
 	/** The m_input man. */
 	private InputManager m_inputMan;
-
-	/** The m_world. */
-	private World m_world;
 
 	/** The m_cursor. */
 	private Sprite m_cursor;
@@ -71,7 +63,6 @@ public abstract class Game implements IInputDeviceListener, IDisposable
 	
 	public Game() { }
 
-	
 	public final void init(Frame target, int resolutionX, int resolutionY)
 	{
 		target.createBufferStrategy(2);
@@ -93,51 +84,11 @@ public abstract class Game implements IInputDeviceListener, IDisposable
 
 		m_cursor = getCursor();
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see jeva.IDisposable#dispose()
-	 */
-	public void dispose()
-	{
-		if (m_world != null)
-			m_world.dispose();
-	}
-
 	
-	protected Vector2D getWorldOffset()
+	public final Vector2D getResolution()
 	{
-		return new Vector2D(m_targetWidth / 2, m_targetHeight / 2).difference(getCamera().getLookAt());
+		return new Vector2D(m_renderWidth, m_renderHeight);
 	}
-
-	
-	protected float getWorldScale()
-	{
-		return getCamera().getScale();
-	}
-
-	
-	public final void setWorld(World world)
-	{
-		m_world = world;
-		getCamera().attach(world);
-		onLoadedWorld();
-	}
-
-	
-	public final void clearWorld()
-	{
-		getCamera().dettach();
-		m_world = null;
-	}
-
-	
-	public final World getWorld()
-	{
-		return m_world;
-	}
-
 	
 	public final void render()
 	{
@@ -153,9 +104,6 @@ public abstract class Game implements IInputDeviceListener, IDisposable
 
 			g.setColor(Color.black);
 			g.fillRect(0, 0, m_targetWidth, m_targetHeight);
-
-			if (m_world != null)
-				m_world.render(g, 1.0F, new Rectangle(getWorldOffset().x, getWorldOffset().y, m_targetWidth, m_targetHeight));
 
 			Core.getService(IWindowManager.class).render(g, 0, 0, 1.0F);
 
@@ -195,7 +143,6 @@ public abstract class Game implements IInputDeviceListener, IDisposable
 		m_cursorLocation = new Vector2D(e.location);
 
 		Core.getService(IWindowManager.class).onMouseEvent(e);
-
 	}
 
 	/*
@@ -208,17 +155,6 @@ public abstract class Game implements IInputDeviceListener, IDisposable
 	public void mouseClicked(InputManager.InputMouseEvent e)
 	{
 		Core.getService(IWindowManager.class).onMouseEvent(e);
-
-		if (!e.isConsumed)
-		{
-			if (m_world != null)
-			{
-				Vector2D tilePos = m_world.translateScreenToWorld(new Vector2D(e.location.x, e.location.y).difference(getWorldOffset()), getWorldScale());
-
-				if (m_world.getMapBounds().contains(new Point(tilePos.x, tilePos.y)))
-					worldSelection(e, tilePos);
-			}
-		}
 	}
 
 	/*
@@ -291,21 +227,11 @@ public abstract class Game implements IInputDeviceListener, IDisposable
 	
 	public abstract UIStyle getGameStyle();
 
-
 	
 	public abstract IGameScriptProvider getScriptBridge();
 
 	
-	protected abstract IWorldCamera getCamera();
-
-	
 	protected abstract void startup();
-
-	
-	protected abstract void worldSelection(InputMouseEvent e, Vector2D location);
-
-	
-	protected abstract void onLoadedWorld();
 
 	
 	protected abstract Sprite getCursor();

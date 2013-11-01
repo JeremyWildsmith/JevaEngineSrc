@@ -39,7 +39,6 @@ import jeva.game.Game;
 import jevarpg.library.StatelessResourceLibrary;
 
 
-
 @KeepApplication
 public class Main implements WindowListener, KeyListener
 {
@@ -128,11 +127,11 @@ public class Main implements WindowListener, KeyListener
 
 		game.init(m_frame, WINX, WINY);
 
-		final int targetTime = 1000 / 60 + 20;
+		final int targetTime = 1000 / 60 + 5;
 
 		long lastTime = System.nanoTime() / 1000000;
 		long curTime = lastTime;
-
+		
 		while (!m_terminate)
 		{
 			curTime = System.nanoTime() / 1000000;
@@ -148,13 +147,13 @@ public class Main implements WindowListener, KeyListener
 			{
 				if (targetTime > cycleLength)
 					Thread.sleep(targetTime - cycleLength);
+	
 			} catch (InterruptedException ex)
 			{
 				Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
 			}
 		}
 
-		game.dispose();
 		m_frame.setVisible(false);
 		System.exit(0);
 	}

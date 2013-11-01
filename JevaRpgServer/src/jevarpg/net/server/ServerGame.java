@@ -12,7 +12,6 @@
  ******************************************************************************/
 package jevarpg.net.server;
 
-import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -33,9 +32,7 @@ import jeva.communication.PolicyViolationException;
 import jeva.communication.ShareEntityException;
 import jeva.communication.network.RemoteSocketCommunicator;
 import jeva.config.VariableStore;
-import jeva.game.ControlledCamera;
 import jeva.game.IGameScriptProvider;
-import jeva.game.IWorldCamera;
 import jeva.graphics.ui.CommandMenu;
 import jeva.graphics.ui.UIStyle;
 import jeva.graphics.ui.IWindowManager;
@@ -50,6 +47,7 @@ import jevarpg.RpgCharacter;
 import jevarpg.RpgGame;
 import jevarpg.net.NetUser.UserCredentials;
 import jevarpg.net.server.ServerUser.IUserHandler;
+import jevarpg.net.server.ui.WorldViewWindow;
 
 public class ServerGame extends RpgGame implements IDisposable
 {
@@ -58,10 +56,6 @@ public class ServerGame extends RpgGame implements IDisposable
 	private final Logger m_logger = LoggerFactory.getLogger(ServerGame.class);
 
 	private CommandMenu m_commandMenu;
-
-	private Vector2F m_cameraMovement = new Vector2F();
-
-	private ControlledCamera m_camera = new ControlledCamera();
 
 	private StaticSet<RemoteClient> m_clients = new StaticSet<RemoteClient>();
 	private ServerListener m_listener;
@@ -98,6 +92,11 @@ public class ServerGame extends RpgGame implements IDisposable
 		m_listener.stop();
 	}
 
+	private void openWorldViewWindow(World world)
+	{
+		Core.getService(IWindowManager.class).addWindow(new WorldViewWindow(world));
+	}
+	
 	public ServerWorld getServerWorld(String worldName)
 	{
 		String formalName = worldName.trim().replace('\\', '/');
@@ -155,9 +154,6 @@ public class ServerGame extends RpgGame implements IDisposable
 	@Override
 	public void update(int deltaTime)
 	{
-		if (!m_cameraMovement.isZero())
-			m_camera.move(m_cameraMovement.normalize().multiply(0.3F));
-
 		for (RemoteClient client : m_clients)
 		{
 			client.update(deltaTime);
@@ -176,41 +172,6 @@ public class ServerGame extends RpgGame implements IDisposable
 	}
 
 	@Override
-	protected IWorldCamera getCamera()
-	{
-		return m_camera;
-	}
-
-	@Override
-	public void keyDown(InputKeyEvent e)
-	{
-		super.keyDown(e);
-
-		if (!e.isConsumed)
-		{
-			switch (e.keyCode)
-			{
-			case KeyEvent.VK_UP:
-				e.isConsumed = true;
-				m_cameraMovement.y = -1;
-				break;
-			case KeyEvent.VK_RIGHT:
-				e.isConsumed = true;
-				m_cameraMovement.x = 1;
-				break;
-			case KeyEvent.VK_DOWN:
-				e.isConsumed = true;
-				m_cameraMovement.y = 1;
-				break;
-			case KeyEvent.VK_LEFT:
-				e.isConsumed = true;
-				m_cameraMovement.x = -1;
-				break;
-			}
-		}
-	}
-
-	@Override
 	public void keyUp(InputKeyEvent e)
 	{
 		super.keyUp(e);
@@ -222,22 +183,6 @@ public class ServerGame extends RpgGame implements IDisposable
 		{
 			m_commandMenu.setVisible(!m_commandMenu.isVisible());
 			e.isConsumed = true;
-		} else
-		{
-
-			switch (e.keyCode)
-			{
-			case KeyEvent.VK_UP:
-			case KeyEvent.VK_DOWN:
-				e.isConsumed = true;
-				m_cameraMovement.y = 0;
-				break;
-			case KeyEvent.VK_RIGHT:
-			case KeyEvent.VK_LEFT:
-				e.isConsumed = true;
-				m_cameraMovement.x = 0;
-				break;
-			}
 		}
 	}
 
@@ -384,16 +329,11 @@ public class ServerGame extends RpgGame implements IDisposable
 		@KeepClassMemberNames
 		public class ServerGameBridge extends GameBridge
 		{
-			public void setWorldView(String world)
+			public void openWorldView(String world)
 			{
-				ServerGame.this.setWorld(ServerGame.this.getServerWorld(world).getWorld());
+				openWorldViewWindow(ServerGame.this.getServerWorld(world).getWorld());
 			}
-
-			public void clearWorldView()
-			{
-				ServerGame.this.clearWorld();
-			}
-
+			
 			public void loadWorld(String world)
 			{
 				ServerGame.this.getServerWorld(world);

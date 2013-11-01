@@ -593,7 +593,7 @@ public class World extends Variable implements IDisposable
 	}
 
 	
-	public void render(Graphics2D g, float fScale, Rectangle viewBounds)
+	public void render(Graphics2D g, float fScale, Rectangle viewBounds, int x, int y)
 	{
 		Vector2D tlWorldBounds = translateScreenToWorld(new Vector2D(-viewBounds.x, -viewBounds.y), fScale);
 		Vector2D trWorldBounds = translateScreenToWorld(new Vector2D(-viewBounds.x + viewBounds.width, -viewBounds.y), fScale);
@@ -626,9 +626,9 @@ public class World extends Variable implements IDisposable
 		if (m_worldLighting.getTargetWidth() != viewBounds.width || m_worldLighting.getTargetHeight() != viewBounds.height)
 			m_worldLighting.setTargetBounds(viewBounds.width, viewBounds.height);
 
-		m_worldLighting.enqueueRender(g.getDeviceConfiguration(), worldViewBounds, m_worldToScreenMatrix, viewBounds.x, viewBounds.y, fScale);
+		m_worldLighting.enqueueRender(g.getDeviceConfiguration(), worldViewBounds, m_worldToScreenMatrix, x, y, fScale);
 
-		renderQueue(g, viewBounds.x, viewBounds.y, fScale);
+		renderQueue(g, viewBounds.x + x, viewBounds.y + y, fScale);
 	}
 
 	/*

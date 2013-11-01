@@ -19,12 +19,19 @@ import jeva.IResourceLibrary;
 import jeva.config.Variable;
 import jeva.config.VariableStore;
 import jeva.game.FollowCamera;
+import jeva.game.Game;
 import jeva.graphics.ui.Button;
+import jeva.graphics.ui.MenuStrip;
+import jeva.graphics.ui.MenuStrip.IMenuStripListener;
 import jeva.graphics.ui.UIStyle;
 import jeva.graphics.ui.Window;
 import jeva.graphics.ui.IWindowManager;
+import jeva.graphics.ui.WorldView;
+import jeva.graphics.ui.WorldView.IWorldViewListener;
+import jeva.joystick.InputManager.InputMouseEvent.MouseButton;
 import jeva.math.Vector2D;
 import jeva.world.Entity;
+import jeva.world.IInteractable;
 import jeva.world.World;
 import jeva.world.World.IWorldObserver;
 import jevarpg.RpgCharacter;
@@ -38,23 +45,27 @@ public class PlayingState implements IGameState
 {
 	private ClientGame m_context;
 
-	private Window m_hud;
-
-	private ChatMenu m_chatMenu;
-
 	private EventHandler m_handler = new EventHandler();
 
 	private World m_world;
 	
 	private ClientUser m_user;
 	
-	private FollowCamera m_camera = new FollowCamera();
+	@Nullable
+	private RpgCharacter m_playerCharacter;
 
+	@Nullable
+	private String m_playerEntityName;
+	
+	private FollowCamera m_playerCamera = new FollowCamera();
+	
+	private Window m_worldViewWindow;
+	private Window m_hud;
+	private ChatMenu m_chatMenu;
 	private InventoryMenu m_inventoryMenu = new InventoryMenu();
 	private CharacterMenu m_characterMenu = new CharacterMenu();
 	
-	@Nullable
-	private String m_playerEntityName;
+	private MenuStrip m_contextStrip = new MenuStrip();
 
 	public PlayingState(String playerEntityName, ClientUser user, World world)
 	{
@@ -101,6 +112,23 @@ public class PlayingState implements IGameState
 		m_hud.setLocation(new Vector2D(20, 670));
 		m_hud.setMovable(false);
 		m_hud.setVisible(false);
+		
+		Vector2D resolution = Core.getService(Game.class).getResolution();
+		
+		m_playerCamera = new FollowCamera();
+		
+		WorldView worldViewport = new WorldView(resolution.x, resolution.y);
+		worldViewport.setRenderBackground(false);
+		worldViewport.setCamera(m_playerCamera);
+		worldViewport.addListener(new WorldViewListener());
+
+		m_worldViewWindow = new Window(styleSmall, resolution.x, resolution.y);
+		m_worldViewWindow.setRenderBackground(false);
+		m_worldViewWindow.setMovable(false);
+		m_worldViewWindow.setFocusable(false);
+		
+		m_worldViewWindow.addControl(worldViewport);
+		m_worldViewWindow.addControl(m_contextStrip);
 	}
 
 	@Override
@@ -115,13 +143,11 @@ public class PlayingState implements IGameState
 		windowManager.addWindow(m_chatMenu);
 		windowManager.addWindow(m_inventoryMenu);
 		windowManager.addWindow(m_characterMenu);
+		windowManager.addWindow(m_worldViewWindow);
 
 		m_user.addObserver(m_handler);
 		context.getCommunicator().addObserver(m_handler);
 
-		m_context.setWorld(m_world);
-		
-		m_context.setCamera(m_camera);
 
 		if (m_playerEntityName != null && m_world.variableExists(m_playerEntityName))
 		{
@@ -145,35 +171,74 @@ public class PlayingState implements IGameState
 		windowManager.removeWindow(m_chatMenu);
 		windowManager.removeWindow(m_inventoryMenu);
 		windowManager.removeWindow(m_characterMenu);
+		windowManager.removeWindow(m_worldViewWindow);
 		
 		m_user.removeObserver(m_handler);
 		m_world.removeObserver(m_handler);
 		m_context.getCommunicator().removeObserver(m_handler);
-
-		m_context.clearCamera();
 		
 		m_context.setPlayer(null);
-		m_context.clearWorld();
 
 		m_context = null;
 	}
 
 	@Override
-	public void update(int deltaTime) { }
+	public void update(int deltaTime)
+	{
+		m_world.update(deltaTime);
+	}
 
 	private void playerAdded(RpgCharacter player)
 	{
-		m_camera.setTarget(player.getName());
+		m_playerCharacter = player;
+		m_playerCamera.attach(m_world);
+		m_playerCamera.setTarget(player.getName());
 		m_context.setPlayer(player);
 		m_hud.setVisible(true);
 	}
 
 	private void playerRemoved()
 	{
+		m_playerCharacter = null;
+		m_playerCamera.dettach();
 		m_context.setPlayer(null);
 		m_hud.setVisible(false);
 	}
 
+	private class WorldViewListener implements IWorldViewListener
+	{
+
+		@Override
+		public void worldSelection(Vector2D screenLocation, Vector2D worldLocation, MouseButton button)
+		{
+	        final IInteractable[] interactables = m_world.getTileEffects(worldLocation).interactables.toArray(new IInteractable[0]);
+
+	        if (button == MouseButton.Left)
+	        {
+	            if (m_playerCharacter != null)
+	            	m_playerCharacter.moveTo(worldLocation);
+
+	            m_contextStrip.setVisible(false);
+	        } else if (button == MouseButton.Right)
+	        {
+	            if (interactables.length > 0 && interactables[0].getCommands().length > 0)
+	            {
+	                m_contextStrip.setContext(interactables[0].getCommands(), new IMenuStripListener()
+	                {
+	                    @Override
+	                    public void onCommand(String command)
+	                    {
+	                        interactables[0].doCommand(command);
+	                    }
+	                });
+	                
+	                m_contextStrip.setLocation(screenLocation.difference(m_contextStrip.getParent().getAbsoluteLocation()));
+	            }
+	        }
+		}
+		
+	}
+	
 	private class EventHandler implements IClientUserObserver, IClientCommunicatorObserver, IWorldObserver
 	{
 		@Override

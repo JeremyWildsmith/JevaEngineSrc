@@ -22,7 +22,7 @@ import jeva.world.Actor.IActorObserver;
 import jeva.world.WorldDirection;
 
 
-public final class FollowCamera implements IWorldCamera
+public final class FollowCamera implements ICamera
 {
 
 	/** The m_world. */
@@ -77,6 +77,12 @@ public final class FollowCamera implements IWorldCamera
 			return m_targetLocation;
 	}
 
+	@Override
+	public World getWorld()
+	{
+		return m_world;
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 

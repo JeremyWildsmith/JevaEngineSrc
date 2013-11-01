@@ -63,7 +63,7 @@ public class BasicWindowManager implements IWindowManager
 
 				boolean isCursorOverTop = topWindow.isVisible() && topWindow.getBounds().contains(topRelativePoint.x, topRelativePoint.y);
 
-				if (window.getBounds().contains(relativePoint.x, relativePoint.y))
+				if (!mouseEvent.isConsumed && window.getBounds().contains(relativePoint.x, relativePoint.y))
 				{
 					if (window.isFocusable() && (!isCursorOverTop && (mouseEvent.isDragging || mouseEvent.type == EventType.MouseClicked)))
 						moveToTop = topWindow = window;
@@ -73,7 +73,7 @@ public class BasicWindowManager implements IWindowManager
 						window.setLocation(window.getLocation().add(mouseEvent.delta));
 					} else
 					{
-						if (window == topWindow)
+						if (window == topWindow || !isCursorOverTop)
 							window.onMouseEvent(mouseEvent);
 						else if (mouseEvent.type == EventType.MouseMoved && !isCursorOverTop)
 							window.onMouseEvent(mouseEvent);

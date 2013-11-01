@@ -17,6 +17,5 @@ import java.awt.Graphics2D;
 
 public interface IRenderable
 {
-	
 	void render(Graphics2D g, int x, int y, float fScale);
 }

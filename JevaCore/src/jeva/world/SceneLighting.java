@@ -150,7 +150,7 @@ public class SceneLighting implements IWorldAssociation
 	}
 
 	
-	protected void enqueueRender(GraphicsConfiguration gc, Rectangle worldViewBounds, Matrix2X2 worldTranslationMatrix, int offsetX, int offsetY, float fScale)
+	protected void enqueueRender(GraphicsConfiguration gc, Rectangle worldViewBounds, Matrix2X2 worldTranslationMatrix, final int offsetX, final int offsetY, float fScale)
 	{
 
 		if (m_renderTargetBounds.width <= 0 || m_renderTargetBounds.height <= 0)
@@ -181,69 +181,6 @@ public class SceneLighting implements IWorldAssociation
 				Area lightArea = source.getAllocation(fScale, offsetX, offsetY);
 
 				lightAreaMap.put(source, lightArea);
-
-				/*
-				 * Subtract from it collision area, first from our map
-				 * TileEffects[] encompassedTileEffects =
-				 * getWorld().getTileEffectMap().getTileEffects(new
-				 * TransformShapeSearchFilter<TileEffects>(
-				 * worldTranslationMatrix.scale(fScale), lightArea));
-				 * 
-				 * obstructionMap.put(source, new
-				 * ArrayList<LightObstruction>());
-				 * 
-				 * Area obstructionArea = new Area();
-				 * 
-				 * for(TileEffects tileEffects : encompassedTileEffects) {
-				 * Vector2D obstructionOrigin =
-				 * getWorld().translateWorldToScreen(new
-				 * Vector2F(tileEffects.location), fScale);//.difference(new
-				 * Vector2D(-iOffsetX, -iOffsetY));
-				 * 
-				 * Vector2F difference = new
-				 * Vector2F(tileEffects.location).difference
-				 * (source.getLocation());
-				 * 
-				 * if(tileEffects.sightEffect <= 0.8F &&
-				 * difference.getLengthSquared() > 0.5F) { Vector2D
-				 * shadowProjection =
-				 * getWorld().translateWorldToScreen(difference, fScale);
-				 * 
-				 * Vector2F obstructionShadeNormal = new
-				 * Vector2F(-shadowProjection.y,
-				 * shadowProjection.x).normalize(); Vector2F obstructionShadeTop
-				 * =
-				 * obstructionShadeNormal.multiply(-getWorld().getTileHeight()/
-				 * 2); Vector2F obstructionShadeBottom =
-				 * obstructionShadeNormal.multiply
-				 * (+getWorld().getTileHeight()/2);
-				 * 
-				 * Polygon obstructionPolygon = new Polygon();
-				 * obstructionPolygon.addPoint(obstructionOrigin.x +
-				 * (int)(obstructionShadeTop.x), obstructionOrigin.y +
-				 * (int)(obstructionShadeTop.y));
-				 * obstructionPolygon.addPoint(obstructionOrigin.x +
-				 * (int)(obstructionShadeBottom.x), obstructionOrigin.y +
-				 * (int)(obstructionShadeBottom.y));
-				 * 
-				 * obstructionPolygon.addPoint(obstructionOrigin.x +
-				 * shadowProjection.x * 10 + (int)(obstructionShadeBottom.x),
-				 * obstructionOrigin.y + shadowProjection.y * 10 +
-				 * (int)(obstructionShadeBottom.y));
-				 * obstructionPolygon.addPoint(obstructionOrigin.x +
-				 * shadowProjection.x * 10 + (int)(obstructionShadeTop.x),
-				 * obstructionOrigin.y + shadowProjection.y * 10 +
-				 * (int)(obstructionShadeTop.y));
-				 * 
-				 * Area obstruction = new Area(obstructionPolygon);
-				 * obstruction.intersect(lightArea);
-				 * obstruction.subtract(obstructionArea);
-				 * 
-				 * obstructionMap.get(source).add(new
-				 * LightObstruction(obstruction, new Vector2F(shadowProjection),
-				 * tileEffects.sightEffect)); obstructionArea.add(obstruction);
-				 * } }
-				 */
 			}
 
 			for (Map.Entry<ILight, Area> light : lightAreaMap.entrySet())
@@ -278,7 +215,7 @@ public class SceneLighting implements IWorldAssociation
 				// expensive to repeat, so we just won't render the
 				// image...
 				if (!m_lightmap.contentsLost())
-					g.drawImage(m_lightmap, 0, 0, null);
+					g.drawImage(m_lightmap, offsetX, offsetY, null);
 			}
 		}, new Vector2F(worldViewBounds.x + worldViewBounds.width, worldViewBounds.y + worldViewBounds.height));
 	}
