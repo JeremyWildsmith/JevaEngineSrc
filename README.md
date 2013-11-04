@@ -40,12 +40,12 @@ How to Contribute
 =================
 
 - You can contact the project administrator (Jeremy. Allen. Wildsmith) at JeremyWildsmith@yahoo.ca
-- You must sign and agree to the following CLA: http://www.clahub.com/agreements/JeremyWildsmith/JevaEngineSrc
+- You must sign and agree to the CLA (Contributor License Agreement) <a href="http://www.clahub.com/agreements/JeremyWildsmith/JevaEngineSrc" target="_blank">here.</a> the
+contributor license agreement allows JevaEngine developers (and the user-base of JevaEngine) to use your contributions to the project under the GPLV3 license.
 
 How to Compile
 =================
 
-- Uses Eclipse Project Files
-- Check out solution, add the individual projects into a single work-space. They should compile fine.
-- JevaEngine is currently transitioning to a maven build system to maximize portability of project. Until then, you will need to use Eclipse.
-
+JevaEngine is fairly straight-forward to compile. As JevaEngine uses Maven as its build platform, the project
+is very portable accross various IDEs and dependency resolution is very easy. You can read a short guide on how
+to setup JevaEngine <a href="https://github.com/JeremyWildsmith/JevaEngineSrc/wiki/Compiling-JevaEngine" target="_blank">here.</a>
