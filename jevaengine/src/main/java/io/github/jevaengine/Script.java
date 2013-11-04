@@ -21,8 +21,10 @@ import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.Undefined;
 
 import io.github.jevaengine.game.Game;
+import io.github.jevaengine.util.Nullable;
 
 public class Script
 {
@@ -62,7 +64,7 @@ public class Script
 		return m_scope;
 	}
 
-	public final Object invokeScriptFunction(String functionName, Object... arguments) throws NoSuchMethodException, ScriptException
+	public final @Nullable Object invokeScriptFunction(String functionName, Object... arguments) throws NoSuchMethodException, ScriptException
 	{
 		if(m_scope == null)
 			throw new NoSuchMethodException();
@@ -73,10 +75,12 @@ public class Script
 				!(function instanceof Function))
 			throw new NoSuchMethodException();
 		
-		return Context.call(ContextFactory.getGlobal(), ((Function)function), m_scope, null, arguments);
+		Object returnValue = Context.call(ContextFactory.getGlobal(), ((Function)function), m_scope, null, arguments);
+		
+		return returnValue instanceof Undefined ? null : returnValue;
 	}
 
-	public final Object evaluate(String expression)
+	public final @Nullable Object evaluate(String expression)
 	{
 
 		initEngine();
@@ -84,7 +88,9 @@ public class Script
 		
 		try
 		{
-			return context.evaluateString(m_scope, expression, "JevaEngine", 0, null);
+			Object returnValue = context.evaluateString(m_scope, expression, "JevaEngine", 0, null);
+			
+			return returnValue instanceof Undefined ? null : returnValue;
 		} catch (Exception e)
 		{
 			throw new CoreScriptException(e);
