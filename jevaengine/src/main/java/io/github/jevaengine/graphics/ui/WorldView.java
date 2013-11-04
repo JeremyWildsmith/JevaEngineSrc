@@ -101,7 +101,7 @@ public final class WorldView extends Panel
 			Rectangle bounds = getBounds();
 
 			Shape oldClip = g.getClip();
-
+ 
 			g.clipRect(x, y, getBounds().width, getBounds().height);
 			world.render(g, scale * m_camera.getScale(), new Rectangle(offset.x, offset.y, bounds.width, bounds.height), getAbsoluteLocation().x, getAbsoluteLocation().y);// bounds.width,																																		// bounds.height));
 			g.setClip(oldClip);
