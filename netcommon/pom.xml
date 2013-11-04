@@ -4,7 +4,7 @@
 	<groupId>io.github.jevaengine.rpgbase</groupId>
 	<artifactId>netcommon</artifactId>
 	<version>0.0.1</version>
-	<name>Common Networking Library for Client &amp; Server of RPG Networked base</name>
+	<name>netcommon</name>
 	<description>Common Networking Library for Client &amp; Server of RPG Networked base</description>
 	
 	<properties>
