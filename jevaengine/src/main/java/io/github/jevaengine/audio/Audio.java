@@ -221,19 +221,15 @@ public final class Audio
 					AudioInputStream ais = AudioSystem.getAudioInputStream(m_clipStream);
 
 					AudioFormat baseFormat = ais.getFormat();
-
-					// Specify desired Audio Line format to find compatible line
-					AudioFormat targetFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 
-																baseFormat.getSampleRate(),
-																16,
-																baseFormat.getChannels(),
-																baseFormat.getChannels() * 2,
-																baseFormat.getSampleRate(),
-																false);
+					
+					AudioFormat[] supportedTargets = AudioSystem.getTargetFormats(AudioFormat.Encoding.PCM_SIGNED, baseFormat);
+					
+					if(supportedTargets.length == 0)
+						throw new AudioException("No supported target formats found.");
 
 					clip = AudioSystem.getClip();
 
-					clip.open(AudioSystem.getAudioInputStream(targetFormat, ais));
+					clip.open(AudioSystem.getAudioInputStream(supportedTargets[0], ais));
 
 					ais.close();
 
