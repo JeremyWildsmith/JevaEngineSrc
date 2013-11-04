@@ -217,21 +217,21 @@ public final class Audio
 				try
 				{
 					m_clipStream.reset();
-
-					AudioInputStream ais = AudioSystem.getAudioInputStream(m_clipStream);
-
-					AudioFormat baseFormat = ais.getFormat();
-					
-					AudioFormat[] supportedTargets = AudioSystem.getTargetFormats(AudioFormat.Encoding.PCM_SIGNED, baseFormat);
-					
-					if(supportedTargets.length == 0)
-						throw new AudioException("No supported target formats found.");
-
-					clip = AudioSystem.getClip();
-
-					clip.open(AudioSystem.getAudioInputStream(supportedTargets[0], ais));
-
-					ais.close();
+					try (AudioInputStream ais = AudioSystem.getAudioInputStream(m_clipStream))
+					{
+						AudioFormat baseFormat = ais.getFormat();
+						
+						AudioFormat[] supportedTargets = AudioSystem.getTargetFormats(AudioFormat.Encoding.PCM_SIGNED, baseFormat);
+						
+						if(supportedTargets.length == 0)
+							throw new AudioException("No supported target formats found.");
+						
+						clip = AudioSystem.getClip();
+						try (AudioInputStream targetAis = AudioSystem.getAudioInputStream(supportedTargets[0], ais))
+						{
+							clip.open(targetAis);
+						}
+					}
 
 					m_clips.add(new SoftReference<Clip>(clip, m_cleanup.getCleanupQueue()));
 

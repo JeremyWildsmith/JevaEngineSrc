@@ -13,7 +13,7 @@ spawnZones[6] = {x: 34, y: 1, xmax: 39, ymax: 14};
 function spawnZombie()
 {
 	var character = Math.random() > 0.3 ? 'npcs/zombie.jnpc' : 'npcs/innocentspider.jnpc';
-	var z = me.createEntity('jevarpg.RpgCharacter', character);
+	var z = me.createEntity('rpgCharacter', character);
 	
 	var zone = spawnZones[Math.round(Math.random() * (spawnZones.length-1))];
 	

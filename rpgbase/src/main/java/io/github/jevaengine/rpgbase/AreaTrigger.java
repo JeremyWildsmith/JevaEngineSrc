@@ -157,10 +157,5 @@ public class AreaTrigger extends Entity
 		public void enterWorld()
 		{
 		}
-
-		@Override
-		public void taskBusyState(boolean isBusy)
-		{
-		}
 	}
 }

@@ -316,11 +316,6 @@ public class ServerRpgCharacter extends NetRpgCharacter implements IServerEntity
 		}
 
 		@Override
-		public void taskBusyState(boolean isBusy)
-		{
-		}
-
-		@Override
 		public void moved(Vector2F delta)
 		{
 		}

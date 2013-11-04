@@ -25,6 +25,7 @@ import io.github.jevaengine.graphics.ui.MenuStrip.IMenuStripListener;
 import io.github.jevaengine.graphics.ui.WorldView.IWorldViewListener;
 import io.github.jevaengine.joystick.InputManager.InputKeyEvent;
 import io.github.jevaengine.joystick.InputManager.InputKeyEvent.EventType;
+import io.github.jevaengine.joystick.InputManager.InputMouseEvent;
 import io.github.jevaengine.joystick.InputManager.InputMouseEvent.MouseButton;
 import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.math.Vector2F;
@@ -39,11 +40,12 @@ public class WorldViewWindow extends Window
 	private Vector2F m_cameraMovement = new Vector2F();
 
 	private MenuStrip m_contextStrip = new MenuStrip();
-
+	
 	public WorldViewWindow(World world)
 	{
 		super(Core.getService(Game.class).getGameStyle(), 400, 400);
 
+		m_camera.setZoom(.5F);
 		m_camera.attach(world);
 
 		WorldView worldView = new WorldView(360, 370);
@@ -74,6 +76,20 @@ public class WorldViewWindow extends Window
 			m_camera.move(m_cameraMovement.normalize().multiply(0.3F));
 	}
 
+	@Override
+	public void onMouseEvent(InputMouseEvent e)
+	{
+		if(e.deltaMouseWheel != 0)
+		{
+			e.isConsumed = true;
+			if(e.deltaMouseWheel < 0)
+				m_camera.setZoom(Math.min(1.3F, m_camera.getZoom() + 0.05F));
+			else if(e.deltaMouseWheel > 0)
+				m_camera.setZoom(Math.max(0.2F, m_camera.getZoom() - 0.05F));
+		}
+		super.onMouseEvent(e);
+	}
+	
 	@Override
 	public void onKeyEvent(InputKeyEvent e)
 	{

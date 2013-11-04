@@ -21,6 +21,8 @@ public final class ControlledCamera implements ICamera
 {
 	@Nullable private World m_world;
 
+	private float m_zoom;
+	
 	/** Tile Offset */
 	private Vector2F m_lookAtTile;
 
@@ -38,6 +40,17 @@ public final class ControlledCamera implements ICamera
 		lookAt(tileLocation);
 	}
 
+	public void setZoom(float zoom)
+	{
+		m_zoom = zoom;
+		lookAt(m_lookAtTile);
+	}
+	
+	public float getZoom()
+	{
+		return m_zoom;
+	}
+	
 	public void lookAt(Vector2F tileLocation)
 	{
 		if (m_world != null)
@@ -106,6 +119,6 @@ public final class ControlledCamera implements ICamera
 	@Override
 	public float getScale()
 	{
-		return 1.0F;
+		return m_zoom;
 	}
 }

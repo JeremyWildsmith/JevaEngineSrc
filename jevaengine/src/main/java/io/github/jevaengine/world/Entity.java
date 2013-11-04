@@ -36,6 +36,7 @@ import io.github.jevaengine.config.Variable;
 import io.github.jevaengine.config.VariableStore;
 import io.github.jevaengine.util.Nullable;
 import io.github.jevaengine.util.StaticSet;
+import org.mozilla.javascript.Function;
 
 public abstract class Entity extends Variable implements IWorldAssociation
 {
@@ -118,6 +119,7 @@ public abstract class Entity extends Variable implements IWorldAssociation
 	 * 
 	 * @see io.github.jeremywildsmith.jevaengine.world.IWorldAssociation#isAssociated()
 	 */
+	@Override
 	public final boolean isAssociated()
 	{
 		return m_parentWorld != null;
@@ -128,6 +130,7 @@ public abstract class Entity extends Variable implements IWorldAssociation
 	 * 
 	 * @see io.github.jeremywildsmith.jevaengine.world.IWorldAssociation#associate(jeva.world.World)
 	 */
+	@Override
 	public final void associate(World world)
 	{
 		if (m_parentWorld != null)
@@ -136,7 +139,6 @@ public abstract class Entity extends Variable implements IWorldAssociation
 		m_parentWorld = world;
 
 		m_observers.enterWorld();
-		m_observers.taskBusyState(isIdle());
 	}
 
 	/*
@@ -144,6 +146,7 @@ public abstract class Entity extends Variable implements IWorldAssociation
 	 * 
 	 * @see io.github.jeremywildsmith.jevaengine.world.IWorldAssociation#disassociate()
 	 */
+	@Override
 	public final void disassociate()
 	{
 		if (m_parentWorld == null)
@@ -285,11 +288,6 @@ public abstract class Entity extends Variable implements IWorldAssociation
 			task.end();
 			m_runningTasks.remove(task);
 		}
-
-		if (isIdle() != oldIsIdle && !this.isPaused())
-		{
-			m_observers.taskBusyState(isIdle());
-		}
 	}
 
 	public abstract void blendEffectMap(EffectMap globalEffectMap);
@@ -302,8 +300,6 @@ public abstract class Entity extends Variable implements IWorldAssociation
 		void enterWorld();
 
 		void leaveWorld();
-
-		void taskBusyState(boolean isBusy);
 	}
 
 	private class Observers extends StaticSet<IEntityObserver>
@@ -319,12 +315,6 @@ public abstract class Entity extends Variable implements IWorldAssociation
 		{
 			for (IEntityObserver observer : this)
 				observer.leaveWorld();
-		}
-
-		public void taskBusyState(boolean isBusy)
-		{
-			for (IEntityObserver observer : this)
-				observer.taskBusyState(isBusy);
 		}
 	}
 
@@ -370,25 +360,6 @@ public abstract class Entity extends Variable implements IWorldAssociation
 				throw new CoreScriptException("Error executing entity Script onLeave routine of " + Entity.this.getName() + " " + e.getMessage());
 			}
 		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see io.github.jeremywildsmith.jevaengine.world.Entity.IEntityObserver#taskBusyState(boolean)
-		 */
-		@Override
-		public void taskBusyState(boolean isBusy)
-		{
-			try
-			{
-				m_script.invokeScriptFunction("taskBusyState", isBusy);
-			} catch (NoSuchMethodException e)
-			{
-			} catch (ScriptException e)
-			{
-				throw new CoreScriptException("Error occured while invoking onIdle: " + e.getMessage());
-			}
-		}
 	}
 
 	public static class EntityBridge<T extends Entity>
@@ -430,6 +401,11 @@ public abstract class Entity extends Variable implements IWorldAssociation
 		public void playAudio(String audioName)
 		{
 			getMe().addTask(new PlayAudioTask(new Audio(audioName), false));
+		}
+		
+		public void invoke(Function target, Object ... parameters)
+		{
+			getMe().addTask(new InvokeScriptFunctionTask(target, parameters));
 		}
 
 		public boolean isIdle()

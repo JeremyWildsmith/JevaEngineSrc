@@ -8,6 +8,9 @@ function onEnter()
 	{
 		me.addItem('item/healthpack.jitm', 1);
 	}
+        
+        me.beginLook();
+        constructTasks();
 }
 
 function getCommands()
@@ -22,17 +25,17 @@ function getCommands()
 
 function doCommand(command)
 {
-	if(command == 'Kill!')
+	if(command === 'Kill!')
 		me.setHealth(0);
 }
 
-function taskBusyState(isIdle)
+function constructTasks()
 {
-	if(isIdle && me.getHealth() > 0)
+	if(me.getHealth() > 0)
 	{
 		me.idle(500);
 		me.wonder(4);
-		me.look();
+                me.invoke(constructTasks);
 	}
 }
 
@@ -42,6 +45,7 @@ function onAttacked(attackee)
 	{
 		me.moveTo(attackee.getLocation().x, attackee.getLocation().y, 1);
 		me.attack(attackee);
+                me.invoke(constructTasks);
 	}
 }
 
@@ -67,7 +71,8 @@ function lookFound(target)
 		me.cancelTasks();
 		me.moveTo(target.location.x, target.location.y, 1);
 		me.attack(target.target);
-		return true;
+                me.invoke(constructTasks);
+                return true;
 	}
 
 	return false;
@@ -75,4 +80,5 @@ function lookFound(target)
 
 function onDie()
 {
+    me.endLook();
 }

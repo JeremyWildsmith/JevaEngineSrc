@@ -185,7 +185,7 @@ public class ServerWorld extends NetWorld implements IDisposable, IServerShared
 		public Entity createEntity(String entityName, @Nullable String instanceName, List<VariableValue> arguments)
 		{
 			// Override RpgCharacter implementation with networked RPG Character
-			if (entityName.compareTo("jevarpg.RpgCharacter") == 0)
+			if (entityName.compareTo("rpgCharacter") == 0)
 				return new ServerRpgCharacter(instanceName, m_server, arguments).getControlledEntity();
 			else
 				return super.createEntity(entityName, instanceName, arguments);

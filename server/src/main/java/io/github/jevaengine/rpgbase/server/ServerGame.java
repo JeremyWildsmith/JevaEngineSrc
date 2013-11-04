@@ -534,11 +534,6 @@ public class ServerGame extends RpgGame implements IDisposable
 					closeConnection(RemoteClient.this, "Error occured attempting to share with client: " + e.toString());
 				}
 			}
-
-			@Override
-			public void taskBusyState(boolean isBusy)
-			{
-			}
 		}
 	}
 

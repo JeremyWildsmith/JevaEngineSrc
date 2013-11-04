@@ -855,11 +855,6 @@ public class RpgCharacter extends Character
 		}
 
 		@Override
-		public void taskBusyState(boolean isBusy)
-		{
-		}
-
-		@Override
 		public void attack(RpgCharacter attackee)
 		{
 		}
@@ -985,11 +980,6 @@ public class RpgCharacter extends Character
 
 		@Override
 		public void leaveWorld()
-		{
-		}
-
-		@Override
-		public void taskBusyState(boolean isBusy)
 		{
 		}
 

@@ -424,9 +424,10 @@ public abstract class Actor extends Entity implements IInteractable
 	}
 	public static class ActorBridge<Y extends Actor> extends EntityBridge<Y>
 	{
+		private SearchForTask m_searchTask;
+		
 		public static class FoundDetails
 		{
-
 			public String name;
 
 			public ActorBridge<?> target;
@@ -461,37 +462,19 @@ public abstract class Actor extends Entity implements IInteractable
 			getMe().setLocation(new Vector2F(x, y));
 		}
 
-		public void look()
+		public void beginLook()
 		{
-			getMe().addTask(new SearchForTask<Actor>(getMe(), Actor.class)
-			{
-				@Override
-				public boolean found(Actor actor)
-				{
-					try
-					{
-						return ((Boolean) getMe().getScript().invokeScriptFunction("lookFound", new FoundDetails(actor))).booleanValue();
-
-					} catch (ScriptException e)
-					{
-						throw new CoreScriptException("Error occured while attempting to invoke script found routine: " + e.getMessage());
-					} catch (NoSuchMethodException e)
-					{
-						return true;
-					}
-				}
-
-				@Override
-				public void nothingFound()
-				{
-				}
-
-				@Override
-				public boolean continueSearch()
-				{
-					return false;
-				}
-			});
+			if(m_searchTask == null)
+				m_searchTask = new ActorSearch(getMe());
+			
+			if(!getMe().isTaskActive(m_searchTask))
+				getMe().addTask(m_searchTask);
+		}
+		
+		public void endLook()
+		{
+			if(m_searchTask != null && getMe().isTaskActive(m_searchTask))
+				getMe().cancelTask(m_searchTask);
 		}
 
 		public final void dialog(@Nullable final EntityBridge<Entity> subject, final int dialogId)
@@ -525,6 +508,39 @@ public abstract class Actor extends Entity implements IInteractable
 					return dialog.getQuery(dialogId);
 				}
 			});
+		}
+		
+		private class ActorSearch extends SearchForTask<Actor>
+		{
+			public ActorSearch(Actor me)
+			{
+				super(me, Actor.class);
+			}
+			@Override
+			public boolean found(Actor actor)
+			{
+				try {
+					return ((Boolean) getMe().getScript().invokeScriptFunction("lookFound", new FoundDetails(actor))).booleanValue();
+
+				} catch (ScriptException e)
+				{
+					throw new CoreScriptException("Error occured while attempting to invoke script found routine: " + e.getMessage());
+				} catch (NoSuchMethodException e)
+				{
+					return true;
+				}
+			}
+
+			@Override
+			public void nothingFound()
+			{
+			}
+
+			@Override
+			public boolean continueSearch()
+			{
+				return true;
+			}
 		}
 	}
 }

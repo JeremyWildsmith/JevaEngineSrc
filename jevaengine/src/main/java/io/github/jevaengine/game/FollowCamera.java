@@ -158,16 +158,6 @@ public final class FollowCamera implements ICamera
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see jeva.world.Entity.IEntityObserver#taskBusyState(boolean)
-		 */
-		@Override
-		public void taskBusyState(boolean isBusy)
-		{
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
 		 * @see jeva.world.Actor.IActorObserver#directionChanged(jeva.world.
 		 * WorldDirection)
 		 */

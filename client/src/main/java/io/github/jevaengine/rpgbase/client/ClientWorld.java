@@ -171,11 +171,6 @@ public class ClientWorld extends NetWorld implements IClientShared
 		}
 
 		@Override
-		public void taskBusyState(boolean isBusy)
-		{
-		}
-
-		@Override
 		public void directionChanged(WorldDirection direction)
 		{
 		}

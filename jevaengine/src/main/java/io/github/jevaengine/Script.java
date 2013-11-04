@@ -75,7 +75,15 @@ public class Script
 				!(function instanceof Function))
 			throw new NoSuchMethodException();
 		
-		Object returnValue = Context.call(ContextFactory.getGlobal(), ((Function)function), m_scope, null, arguments);
+		return invokeScriptFunction(((Function)function), arguments);
+	}
+	
+	public final @Nullable Object invokeScriptFunction(Function function, Object... arguments) throws NoSuchMethodException, ScriptException
+	{
+		if(m_scope == null)
+			throw new NoSuchMethodException();
+		
+		Object returnValue = Context.call(ContextFactory.getGlobal(), function, m_scope, null, arguments);
 		
 		return returnValue instanceof Undefined ? null : returnValue;
 	}

@@ -4,6 +4,9 @@ var __commonEnemy = {
 
 function onAttack(attackee)
 {
+	if(me.distance(attackee) > 1.7)
+		return false;
+            
 	if(__commonEnemy.attackTickCount <= 0)
 	{
 		__commonEnemy.attackTickCount = __commonEnemy_config.attackInterval;
@@ -29,9 +32,9 @@ function getCommands()
 
 function doCommand(command)
 {
-	if(command == 'Attack!')
+	if(command === 'Attack!')
 		game.getPlayer().attack(me);
-	else if(command == 'Loot!')
+	else if(command === 'Loot!')
 		game.getPlayer().loot(me);
 }
 

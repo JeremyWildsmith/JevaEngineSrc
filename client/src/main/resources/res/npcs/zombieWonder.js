@@ -1,5 +1,6 @@
 function onEnter()
 {
+    constructTasks();
 }
 
 function onInteract()
@@ -11,12 +12,13 @@ function onDialogEvent(eventId)
 	return -1;
 }
 
-function taskBusyState(isIdle)
+function constructTasks()
 {
-	if(isIdle && me.getHealth() > 0)
+	if(me.getHealth() > 0)
 	{
 		me.idle(500);
 		me.wonder(8);
+                me.invoke(constructTasks);
 	}
 }
 

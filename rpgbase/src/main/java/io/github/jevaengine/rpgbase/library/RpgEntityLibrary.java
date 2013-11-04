@@ -27,9 +27,9 @@ public class RpgEntityLibrary implements IEntityLibrary
 	@Override
 	public Entity createEntity(String entityName, @Nullable String instanceName, List<VariableValue> arguments)
 	{
-		if (entityName.compareTo("jevarpg.RpgCharacter") == 0)
+		if (entityName.compareTo("rpgCharacter") == 0)
 			return new RpgCharacter(instanceName, arguments);
-		else if (entityName.compareTo("jevarpg.AreaTrigger") == 0)
+		else if (entityName.compareTo("areaTrigger") == 0)
 			return new AreaTrigger(instanceName, arguments);
 		else
 			throw new ResourceLoadingException("Error constructing entity for: " + entityName + " not found in asset library");
