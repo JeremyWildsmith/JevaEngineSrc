@@ -52,12 +52,12 @@ public class ServerGame extends RpgGame implements IDisposable
 
 	private final Logger m_logger = LoggerFactory.getLogger(ServerGame.class);
 
+	private final StaticSet<RemoteClient> m_clients = new StaticSet<RemoteClient>();
+	private final StaticSet<ServerWorld> m_worlds = new StaticSet<ServerWorld>();
+	
 	private CommandMenu m_commandMenu;
-
-	private StaticSet<RemoteClient> m_clients = new StaticSet<RemoteClient>();
+	
 	private ServerListener m_listener;
-
-	private StaticSet<ServerWorld> m_worlds = new StaticSet<ServerWorld>();
 
 	public void startup()
 	{
@@ -256,7 +256,7 @@ public class ServerGame extends RpgGame implements IDisposable
 		}
 	}
 
-	public void closeConnection(RemoteClient client, @Nullable String reason)
+	void closeConnection(RemoteClient client, @Nullable String reason)
 	{
 		client.dispose();
 		m_clients.remove(client);
@@ -265,7 +265,7 @@ public class ServerGame extends RpgGame implements IDisposable
 
 	}
 
-	public void closeConnection(RemoteSocketCommunicator connection, @Nullable String reason)
+	void closeConnection(RemoteSocketCommunicator connection, @Nullable String reason)
 	{
 		RemoteClient client = getClient(connection);
 
@@ -278,12 +278,12 @@ public class ServerGame extends RpgGame implements IDisposable
 		}
 	}
 
-	public void closeConnection(RemoteSocketCommunicator connection)
+	void closeConnection(RemoteSocketCommunicator connection)
 	{
 		closeConnection(connection, null);
 	}
 
-	public void closeConnection(ServerCommunicator connection, @Nullable String reason)
+	void closeConnection(ServerCommunicator connection, @Nullable String reason)
 	{
 		RemoteClient client = getClient(connection);
 
@@ -301,7 +301,7 @@ public class ServerGame extends RpgGame implements IDisposable
 		}
 	}
 
-	public void closeConnection(ServerCommunicator connection)
+	void closeConnection(ServerCommunicator connection)
 	{
 		closeConnection(connection, null);
 	}
@@ -335,6 +335,11 @@ public class ServerGame extends RpgGame implements IDisposable
 			public void loadWorld(String world)
 			{
 				ServerGame.this.getServerWorld(world);
+			}
+			
+			public World.WorldScriptContext getWorld(String name)
+			{
+				return ServerGame.this.getServerWorld(name).getWorld().getScriptBridge();
 			}
 
 			public RpgCharacter.EntityBridge<?> getClientPlayer(String name)

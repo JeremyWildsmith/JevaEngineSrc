@@ -26,6 +26,7 @@ import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.util.Nullable;
 import io.github.jevaengine.util.StaticSet;
 import io.github.jevaengine.world.World;
+import java.awt.Color;
 
 public final class WorldView extends Panel
 {
@@ -88,23 +89,25 @@ public final class WorldView extends Panel
 	}
 
 	@Override
-	public void render(Graphics2D g, int x, int y, float fScale)
+	public void render(Graphics2D g, int x, int y, float scale)
 	{
-		super.render(g, x, y, fScale);
+		super.render(g, x, y, scale);
 
-		if (m_camera != null && m_camera.getWorld() != null)
+		World world = m_camera == null ? null : m_camera.getWorld();
+		
+		if (world != null)
 		{
 			Vector2D offset = getCameraOffset();
 			Rectangle bounds = getBounds();
-			World world = m_camera.getWorld();
 
 			Shape oldClip = g.getClip();
 
 			g.clipRect(x, y, getBounds().width, getBounds().height);
-			world.render(g, fScale * m_camera.getScale(), new Rectangle(offset.x, offset.y, bounds.width, bounds.height), getAbsoluteLocation().x, getAbsoluteLocation().y);// bounds.width,
-																																											// bounds.height));
-
+			world.render(g, scale * m_camera.getScale(), new Rectangle(offset.x, offset.y, bounds.width, bounds.height), getAbsoluteLocation().x, getAbsoluteLocation().y);// bounds.width,																																		// bounds.height));
 			g.setClip(oldClip);
+			
+			g.setColor(Color.black);
+			g.drawRect(x, y, getBounds().width, getBounds().height);
 		}
 	}
 
