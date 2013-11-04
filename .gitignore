@@ -1,8 +1,16 @@
 #################
+## Maven
+#################
+/*/*/target/
+
+#################
 ## Eclipse
 #################
 
 *.pydevproject
+classes
+.project
+.classpath
 .metadata
 bin/
 tmp/
@@ -211,3 +219,4 @@ pip-log.txt
 
 #Mr Developer
 .mr.developer.cfg
+/preloader
