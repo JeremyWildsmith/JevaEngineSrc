@@ -4,7 +4,7 @@
 	<groupId>io.github.jevaengine</groupId>
 	<artifactId>jevaengine</artifactId>
 	<version>0.0.1</version>
-	<name>JevaEngine Core</name>
+	<name>jevaengine</name>
 	<description>JevaEngine Core</description>
 
 	<properties>
