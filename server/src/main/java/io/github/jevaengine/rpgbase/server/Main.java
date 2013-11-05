@@ -69,7 +69,7 @@ public class Main
 
 		game.init(frameBuffer, WINX, WINY);
 
-		final int targetTime = 1000 / 60 + 20;
+		final int targetTime = 1000 / 60;
 
 		long lastTime = System.nanoTime() / 1000000;
 		long curTime = lastTime;
@@ -84,11 +84,10 @@ public class Main
 			int cycleLength = (int) (curTime - lastTime);
 
 			lastTime = curTime;
-
+			
 			try
 			{
-				if (targetTime > cycleLength)
-					Thread.sleep(targetTime - cycleLength);
+				Thread.sleep(Math.max(targetTime - cycleLength, 20));
 			} catch (InterruptedException ex)
 			{
 				Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);

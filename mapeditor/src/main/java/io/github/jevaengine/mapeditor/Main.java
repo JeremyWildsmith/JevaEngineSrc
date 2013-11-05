@@ -86,8 +86,7 @@ public class Main
 
 			try
 			{
-				if (targetTime > cycleLength)
-					Thread.sleep(targetTime - cycleLength);
+				Thread.sleep(Math.max(targetTime - cycleLength, 20));
 			} catch (InterruptedException ex)
 			{
 				Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
