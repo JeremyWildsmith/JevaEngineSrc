@@ -604,11 +604,10 @@ public abstract class Actor extends Entity implements IInteractable
 
 				public void add()
 				{
-					if(!getMe().isAssociated())
-						throw new CoreScriptException("Entity has not been associated with a world.");
-					
+					if(getMe().isAssociated())
+						getMe().getWorld().getLighting().addLight(this);
+
 					getMe().addObserver(this);
-					getMe().getWorld().getLighting().addLight(this);
 				}
 
 				public void remove()

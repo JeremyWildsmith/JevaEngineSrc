@@ -32,14 +32,12 @@ public class LootTask implements ITask
 	@Override
 	public void begin(Entity entity)
 	{
+		Core.getService(IWindowManager.class).addWindow(m_inventoryMenu);
+			
 		if (m_target.get() == null || m_looter != entity)
 			cancel();
 		else
-		{
-			Core.getService(IWindowManager.class).addWindow(m_inventoryMenu);
-
 			m_inventoryMenu.accessInventory(m_target.get(), m_looter);
-		}
 	}
 
 	@Override
