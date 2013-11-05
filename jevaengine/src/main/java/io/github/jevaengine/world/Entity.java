@@ -221,11 +221,6 @@ public abstract class Entity extends Variable implements IWorldAssociation
 		return false;
 	}
 
-	public final boolean isIdle()
-	{
-		return m_runningTasks.isEmpty() && m_pendingTasks.isEmpty();
-	}
-
 	public final World getWorld()
 	{
 		return m_parentWorld;
@@ -238,8 +233,6 @@ public abstract class Entity extends Variable implements IWorldAssociation
 
 	public final void update(int deltaTime)
 	{
-		boolean oldIsIdle = isIdle();
-
 		if (!this.isAssociated())
 			throw new WorldAssociationException("Entity is unassociated with a world and thus cannot process logic.");
 
@@ -296,9 +289,7 @@ public abstract class Entity extends Variable implements IWorldAssociation
 
 	public interface IEntityObserver
 	{
-
 		void enterWorld();
-
 		void leaveWorld();
 	}
 
@@ -406,11 +397,6 @@ public abstract class Entity extends Variable implements IWorldAssociation
 		public void invoke(Function target, Object ... parameters)
 		{
 			getMe().addTask(new InvokeScriptFunctionTask(target, parameters));
-		}
-
-		public boolean isIdle()
-		{
-			return getMe().isIdle();
 		}
 
 		public void idle(int length)

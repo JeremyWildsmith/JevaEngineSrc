@@ -24,7 +24,6 @@ import io.github.jevaengine.world.EffectMap.TileEffects;
 
 public class Tile extends Actor
 {
-
 	protected Sprite m_sprite;
 
 	private boolean m_isTraversable;
@@ -59,22 +58,22 @@ public class Tile extends Actor
 		m_fVisiblityObstruction = fVisibilityObstruction;
 	}
 
-	protected void setVisibilityObstruction(float fObstruction)
+	protected final void setVisibilityObstruction(float fObstruction)
 	{
 		m_fVisiblityObstruction = fObstruction;
 	}
 
-	protected float getVisibilityObstruction()
+	protected final float getVisibilityObstruction()
 	{
 		return m_fVisiblityObstruction;
 	}
 
-	protected void setAnimation(String animation)
+	protected final void setAnimation(String animation)
 	{
 		m_sprite.setAnimation(getDirection().toString() + animation, AnimationState.Play);
 	}
 
-	protected void setSprite(Sprite sprite)
+	protected final void setSprite(Sprite sprite)
 	{
 		m_sprite = sprite;
 	}

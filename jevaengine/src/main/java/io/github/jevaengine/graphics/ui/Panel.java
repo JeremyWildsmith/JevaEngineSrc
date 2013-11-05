@@ -14,7 +14,6 @@ package io.github.jevaengine.graphics.ui;
 
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.util.ArrayList;
 
 import io.github.jevaengine.graphics.AnimationState;
 import io.github.jevaengine.graphics.Sprite;
@@ -23,10 +22,10 @@ import io.github.jevaengine.joystick.InputManager.InputMouseEvent;
 import io.github.jevaengine.joystick.InputManager.InputMouseEvent.EventType;
 import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.util.Nullable;
+import io.github.jevaengine.util.StaticSet;
 
 public abstract class Panel extends Control
 {
-
 	private boolean m_renderBackground;
 
 	private Sprite m_frameFill;
@@ -55,11 +54,7 @@ public abstract class Panel extends Control
 
 	private Control m_lastOver;
 
-	private ArrayList<Control> m_controls;
-
-	private ArrayList<Control> m_garbageControls;
-
-	private ArrayList<Control> m_addingControls;
+	private StaticSet<Control> m_controls;
 
 	public Panel(int width, int height, boolean renderBackground)
 	{
@@ -67,9 +62,7 @@ public abstract class Panel extends Control
 		m_height = height;
 		m_renderBackground = renderBackground;
 
-		m_controls = new ArrayList<Control>();
-		m_garbageControls = new ArrayList<Control>();
-		m_addingControls = new ArrayList<Control>();
+		m_controls = new StaticSet<Control>();
 	}
 
 	public Panel(int width, int height)
@@ -86,7 +79,7 @@ public abstract class Panel extends Control
 	{
 		if (!m_controls.contains(control))
 		{
-			m_addingControls.add(control);
+			m_controls.add(control);
 			control.setParent(this);
 
 			if (location != null)
@@ -107,7 +100,7 @@ public abstract class Panel extends Control
 		if (m_controls.contains(control))
 		{
 			control.setParent(null);
-			m_garbageControls.add(control);
+			m_controls.remove(control);
 		}
 	}
 
@@ -246,15 +239,6 @@ public abstract class Panel extends Control
 	@Override
 	public void update(int deltaTime)
 	{
-		for (Control control : m_addingControls)
-			m_controls.add(control);
-
-		for (Control control : m_garbageControls)
-			m_controls.remove(control);
-
-		m_addingControls.clear();
-		m_garbageControls.clear();
-
 		for (Control control : m_controls)
 			control.update(deltaTime);
 	}

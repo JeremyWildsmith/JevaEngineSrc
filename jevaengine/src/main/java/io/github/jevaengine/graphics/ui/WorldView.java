@@ -70,7 +70,8 @@ public final class WorldView extends Panel
 	@Override
 	public void onMouseEvent(InputMouseEvent mouseEvent)
 	{
-		if (mouseEvent.type == EventType.MouseClicked)
+		if (mouseEvent.type == EventType.MouseClicked ||
+			mouseEvent.type == EventType.MouseMoved)
 		{
 			Vector2D relativePos = mouseEvent.location.difference(getAbsoluteLocation());
 
@@ -81,18 +82,22 @@ public final class WorldView extends Panel
 				Vector2D tilePos = world.translateScreenToWorld(new Vector2D(relativePos.x, relativePos.y).difference(getCameraOffset()), m_camera.getScale());
 
 				if (world.getMapBounds().contains(new Point(tilePos.x, tilePos.y)))
-					m_listeners.worldSelection(mouseEvent.location, tilePos, mouseEvent.mouseButton);
+				{
+					if(mouseEvent.type == EventType.MouseClicked)
+						m_listeners.worldSelection(mouseEvent.location, tilePos, mouseEvent.mouseButton);
+					else
+						m_listeners.worldMove(mouseEvent.location, tilePos);
+				}
 			}
 			else
 				super.onMouseEvent(mouseEvent);
+			
 		}
 	}
 
 	@Override
 	public void render(Graphics2D g, int x, int y, float scale)
 	{
-		super.render(g, x, y, scale);
-
 		World world = m_camera == null ? null : m_camera.getWorld();
 		
 		if (world != null)
@@ -109,6 +114,8 @@ public final class WorldView extends Panel
 			g.setColor(Color.black);
 			g.drawRect(x, y, getBounds().width, getBounds().height);
 		}
+		
+		super.render(g, x, y, scale);
 	}
 
 	private static class Listeners extends StaticSet<IWorldViewListener>
@@ -118,10 +125,17 @@ public final class WorldView extends Panel
 			for (IWorldViewListener l : this)
 				l.worldSelection(screenLocation, worldLocation, button);
 		}
+		
+		public void worldMove(Vector2D screenLocation, Vector2D worldLocation)
+		{
+			for (IWorldViewListener l : this)
+				l.worldMove(screenLocation, worldLocation);
+		}
 	}
 
 	public interface IWorldViewListener
 	{
 		void worldSelection(Vector2D screenLocation, Vector2D worldLocation, MouseButton button);
+		void worldMove(Vector2D screenLocation, Vector2D worldLocation);
 	}
 }

@@ -21,7 +21,6 @@ import java.util.regex.Pattern;
 
 public class VariableStore extends BasicVariable
 {
-
 	private static final Pattern REGEX_VAR = Pattern.compile("\\s*(?<name>((/?([^/:\r\n]+)))+):(?<value>[^;]*);");
 
 	private static final Pattern REGEX_COMMENT = Pattern.compile("/\\*[\\x00-\\xFF]*?(?=\\*/)\\*/|//[^\\r\\n]*");
@@ -38,14 +37,14 @@ public class VariableStore extends BasicVariable
 	public static VariableStore create(InputStream srcStream)
 	{
 		VariableStore varStore = new VariableStore();
-
-		Scanner scanner = new Scanner(srcStream, "UTF-8");
-
-		scanner.useDelimiter("\\A");
-
-		String contents = (scanner.hasNext() ? scanner.next() : "");
-
-		scanner.close();
+		
+		String contents;
+		
+		try (Scanner scanner = new Scanner(srcStream, "UTF-8"))
+		{
+			scanner.useDelimiter("\\A");
+			contents = (scanner.hasNext() ? scanner.next() : "");
+		}
 
 		String variablesCommentless = REGEX_COMMENT.matcher(contents).replaceAll("");
 

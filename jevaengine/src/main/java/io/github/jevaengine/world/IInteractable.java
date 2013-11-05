@@ -16,10 +16,11 @@
  */
 package io.github.jevaengine.world;
 
+import io.github.jevaengine.util.Nullable;
+
 public interface IInteractable
 {
-
+	@Nullable String getDefaultCommand();
 	String[] getCommands();
-
 	void doCommand(String command);
 }

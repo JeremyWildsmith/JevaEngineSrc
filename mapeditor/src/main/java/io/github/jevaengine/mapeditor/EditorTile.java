@@ -66,12 +66,12 @@ public class EditorTile implements IInteractable
 
 	public void setVisibilityObstruction(float fVisiblity)
 	{
-		m_tile.setVisibilityObstruction(fVisiblity);
+		m_tile.setTileVisibilityObstruction(fVisiblity);
 	}
 
 	public float getVisibilityObstruction()
 	{
-		return m_tile.getVisibilityObstruction();
+		return m_tile.getTileVisibilityObstruction();
 	}
 
 	public void setTraversable(boolean isTraversable)
@@ -97,7 +97,7 @@ public class EditorTile implements IInteractable
 	public void setSpriteName(String spriteName)
 	{
 		m_spriteName = spriteName;
-		m_tile.setSprite(spriteName);
+		m_tile.setTileSprite(spriteName);
 	}
 
 	public boolean enablesSplitting()
@@ -118,7 +118,7 @@ public class EditorTile implements IInteractable
 	public void setSpriteAnimation(String animation)
 	{
 		m_animation = animation;
-		m_tile.setAnimation(animation);
+		m_tile.setTileAnimation(animation);
 	}
 
 	public String getSpriteAnimation()
@@ -168,6 +168,21 @@ public class EditorTile implements IInteractable
 		return (tile.m_isStatic == this.m_isStatic && tile.m_isTraversable == this.m_isTraversable && tile.m_enablesSplitting == this.m_enablesSplitting && tile.getVisibilityObstruction() == this.getVisibilityObstruction() && tile.getDirection() == this.getDirection() && tile.getSpriteName().compareTo(this.getSpriteName()) == 0 && tile.getSpriteAnimation().compareTo(this.getSpriteAnimation()) == 0);
 	}
 
+	@Override
+	public String getDefaultCommand()
+	{
+		return null;
+	}
+	
+	@Override
+	public String[] getCommands()
+	{
+		return new String[0];
+	}
+
+	@Override
+	public void doCommand(String bommand) { }
+
 	private class ContainedTile extends Tile
 	{
 		public ContainedTile(Sprite sprite, WorldDirection direction, String animation, boolean isTraversable, float fVisiblity)
@@ -186,22 +201,22 @@ public class EditorTile implements IInteractable
 			super.setDirection(direction);
 		}
 
-		protected void setAnimation(String animation)
+		protected void setTileAnimation(String animation)
 		{
 			super.setAnimation(animation);
 		}
 
-		protected void setSprite(String spriteName)
+		protected void setTileSprite(String spriteName)
 		{
 			super.setSprite(Sprite.create(VariableStore.create(Core.getService(IResourceLibrary.class).openResourceStream(spriteName))));
 		}
 
-		protected void setVisibilityObstruction(float fVisiblity)
+		protected void setTileVisibilityObstruction(float fVisiblity)
 		{
 			super.setVisibilityObstruction(fVisiblity);
 		}
 
-		protected float getVisibilityObstruction()
+		protected float getTileVisibilityObstruction()
 		{
 			return super.getVisibilityObstruction();
 		}
@@ -230,19 +245,4 @@ public class EditorTile implements IInteractable
 				return super.getGraphics();
 		}
 	}
-
-	@Override
-	public String[] getCommands()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void doCommand(String bommand)
-	{
-		// TODO Auto-generated method stub
-
-	}
-
 }

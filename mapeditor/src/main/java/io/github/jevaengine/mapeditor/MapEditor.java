@@ -232,7 +232,7 @@ public class MapEditor extends RpgGame implements IEditorPaneListener
 
 					if (arguments.length >= 7)
 						enablesSplitting = arguments[6].getBoolean();
-
+			
 					tile = new EditorTile(arguments[0].getString(), WorldDirection.values()[arguments[1].getInt()], arguments[2].getString(), arguments[3].getBoolean(), arguments[4].getBoolean(), enablesSplitting, arguments[5].getFloat());
 				} else
 					tile = new EditorTile(m_nullTile, WorldDirection.Zero, "idle", true, true, false, 1.0F);
@@ -460,5 +460,8 @@ public class MapEditor extends RpgGame implements IEditorPaneListener
 				m_pane.selectedTile(selectedTile);
 			}
 		}
+
+		@Override
+		public void worldMove(Vector2D screenLocation, Vector2D worldLocation) { }
 	}
 }

@@ -51,7 +51,7 @@ import io.github.jevaengine.world.Entity.EntityBridge;
 public class World extends Variable implements IDisposable
 {
 
-	private static final int WORLD_TICK_INTERVAL = 3000;
+	private static final int WORLD_TICK_INTERVAL = 500;
 
 	private static final int WORLD_CULLING_EXCCESS = 6;
 
@@ -195,13 +195,14 @@ public class World extends Variable implements IDisposable
 		Variable[] tileDeclarations = source.getVariable("tile").getVariableArray();
 
 		Variable[] layerDeclarations = source.getVariable("layer").getVariableArray();
-
-		for (int i = 0; i < layerDeclarations.length; i++)
+		
+		HashMap<Integer, Variable> tileDefinitions = new HashMap<Integer, Variable>();
+			
+		for (Variable layerDeclaration : layerDeclarations)
 		{
 			WorldLayer worldLayer = new WorldLayer();
-
-			Integer[] tileDeclIndices = layerDeclarations[i].getValue().getIntArray();
-
+			Integer[] tileDeclIndices = layerDeclaration.getValue().getIntArray();
+			
 			for (int tileIndex = 0; tileIndex < tileDeclIndices.length; tileIndex++)
 			{
 				if (tileDeclIndices[tileIndex] < 0)
@@ -220,9 +221,13 @@ public class World extends Variable implements IDisposable
 				if (arguments.length >= 7)
 					enableSplitting = arguments[6].getBoolean();
 
-				Tile tile = new Tile(Sprite.create(VariableStore.create(Core.getService(IResourceLibrary.class).openResourceStream(arguments[0].getString()))), WorldDirection.values()[arguments[1].getInt()], arguments[2].getString(), arguments[3].getBoolean(), enableSplitting, arguments[5].getFloat());
+				if(!tileDefinitions.containsKey(tileDeclIndices[tileIndex]))
+					tileDefinitions.put(tileDeclIndices[tileIndex], VariableStore.create(Core.getService(IResourceLibrary.class).openResourceStream(arguments[0].getString())));
+				
+				Tile tile = new Tile(Sprite.create(tileDefinitions.get(tileDeclIndices[tileIndex])), WorldDirection.values()[arguments[1].getInt()], arguments[2].getString(), arguments[3].getBoolean(), enableSplitting, arguments[5].getFloat());
 
 				tile.associate(world);
+				
 				// Location of tile must be set _BEFORE_ adding it to map layer
 				// so map layer can properly place the tile in the proper sector
 				// for optimizations.
@@ -233,7 +238,6 @@ public class World extends Variable implements IDisposable
 				else
 					worldLayer.addDynamicTile(tile);
 			}
-
 			world.m_layers.add(worldLayer);
 		}
 
@@ -452,11 +456,14 @@ public class World extends Variable implements IDisposable
 	{
 		m_worldTime.add(Calendar.MILLISECOND, (int) (delta * m_fTimeMultiplier));
 
-		m_timeSinceTick += delta * m_fTimeMultiplier;
+		m_timeSinceTick += delta;
 
-		for (; m_timeSinceTick > WORLD_TICK_INTERVAL; m_timeSinceTick -= WORLD_TICK_INTERVAL)
-			m_worldScript.onTick();
-
+		if(m_timeSinceTick > WORLD_TICK_INTERVAL)
+		{
+			m_worldScript.onTick(m_timeSinceTick);
+			m_timeSinceTick = 0;
+		}
+		
 		// Entities must be added on update cycles to assure they
 		// are not being added to the world in an inapproriate state
 		// (i.e. notifying observers of entering world while world is still
@@ -643,14 +650,14 @@ public class World extends Variable implements IDisposable
 			}
 		}
 
-		public void onTick()
+		public void onTick(int delta)
 		{
 			if (m_worldScript == null)
 				return;
 
 			try
 			{
-				m_worldScript.invokeScriptFunction("onTick");
+				m_worldScript.invokeScriptFunction("onTick", delta);
 			} catch (ScriptException e)
 			{
 				throw new CoreScriptException("Error executing world's onTimeTick script routine." + e.toString());

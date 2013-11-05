@@ -35,6 +35,11 @@ public class Label extends Control
 		m_color = color;
 		m_text = text;
 	}
+	
+	public Font getFont()
+	{
+		return getStyle().getFont(m_color);
+	}
 
 	public String getText()
 	{

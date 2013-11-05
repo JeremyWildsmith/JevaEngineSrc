@@ -16,8 +16,10 @@ package io.github.jevaengine.rpgbase.server.ui;
 import io.github.jevaengine.Core;
 import io.github.jevaengine.game.ControlledCamera;
 import io.github.jevaengine.game.Game;
+import io.github.jevaengine.graphics.Font;
 import io.github.jevaengine.graphics.ui.Button;
 import io.github.jevaengine.graphics.ui.IWindowManager;
+import io.github.jevaengine.graphics.ui.Label;
 import io.github.jevaengine.graphics.ui.MenuStrip;
 import io.github.jevaengine.graphics.ui.Window;
 import io.github.jevaengine.graphics.ui.WorldView;
@@ -31,15 +33,21 @@ import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.math.Vector2F;
 import io.github.jevaengine.world.IInteractable;
 import io.github.jevaengine.world.World;
+import java.awt.Color;
 
 import java.awt.event.KeyEvent;
 
 public class WorldViewWindow extends Window
 {
-	private ControlledCamera m_camera = new ControlledCamera();
-	private Vector2F m_cameraMovement = new Vector2F();
+	private final ControlledCamera m_camera = new ControlledCamera();
 
-	private MenuStrip m_contextStrip = new MenuStrip();
+	private final MenuStrip m_contextStrip = new MenuStrip();
+	
+	private final Label m_cursorActionLabel = new Label("None", Color.yellow);
+	
+	private WorldView m_worldView;
+	
+	private Vector2F m_cameraMovement = new Vector2F();
 	
 	public WorldViewWindow(World world)
 	{
@@ -48,12 +56,13 @@ public class WorldViewWindow extends Window
 		m_camera.setZoom(.5F);
 		m_camera.attach(world);
 
-		WorldView worldView = new WorldView(360, 370);
-		worldView.setRenderBackground(false);
-		worldView.setCamera(m_camera);
-		worldView.addListener(new WorldViewListener());
+		m_worldView = new WorldView(360, 370);
+		m_worldView.setRenderBackground(false);
+		m_worldView.setCamera(m_camera);
+		m_worldView.addListener(new WorldViewListener());
+		m_worldView.addControl(m_cursorActionLabel);
 
-		this.addControl(worldView, new Vector2D(15, 15));
+		this.addControl(m_worldView, new Vector2D(15, 15));
 
 		this.addControl(new Button("Close") {
 
@@ -64,6 +73,8 @@ public class WorldViewWindow extends Window
 			}
 		}, new Vector2D(2, 2));
 
+		m_cursorActionLabel.setVisible(false);
+		
 		this.addControl(m_contextStrip);
 	}
 
@@ -124,7 +135,8 @@ public class WorldViewWindow extends Window
 
 	private class WorldViewListener implements IWorldViewListener
 	{
-
+		private IInteractable m_lastTarget = null;
+		
 		@Override
 		public void worldSelection(Vector2D screenLocation, Vector2D worldLocation, MouseButton button)
 		{
@@ -145,8 +157,45 @@ public class WorldViewWindow extends Window
 
 					m_contextStrip.setLocation(screenLocation.difference(WorldViewWindow.this.getAbsoluteLocation()));
 				}
+			}else if(button == MouseButton.Left)
+			{
+				if(m_lastTarget != null)
+				{
+					m_lastTarget.doCommand(m_lastTarget.getDefaultCommand());
+					m_lastTarget = null;
+					m_cursorActionLabel.setVisible(false);
+				}
 			}
+		}
 
+		@Override
+		public void worldMove(Vector2D screenLocation, Vector2D worldLocation)
+		{
+			final IInteractable[] interactables = m_camera.getWorld().getTileEffects(worldLocation).interactables.toArray(new IInteractable[0]);
+			
+			IInteractable defaultable = null;
+			
+			for(int i = 0; i < interactables.length && defaultable == null; i++)
+			{
+				if(interactables[i].getDefaultCommand() != null)
+					defaultable = interactables[i];
+			}
+			
+			if(defaultable != null)
+			{
+				m_cursorActionLabel.setText(defaultable.getDefaultCommand());
+				m_cursorActionLabel.setVisible(true);
+				
+				Vector2D offset = new Vector2D(10, 15);
+				
+				m_cursorActionLabel.setLocation(screenLocation.difference(WorldViewWindow.this.m_worldView.getAbsoluteLocation()).add(offset));
+			
+				m_lastTarget = defaultable;
+			}else
+			{
+				m_lastTarget = null;
+				m_cursorActionLabel.setVisible(false);
+			}
 		}
 
 	}

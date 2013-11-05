@@ -6,7 +6,7 @@ function onAttack(attackee)
 {
 	if(me.distance(attackee) > 1.7)
 		return false;
-            
+
 	if(__commonEnemy.attackTickCount <= 0)
 	{
 		__commonEnemy.attackTickCount = __commonEnemy_config.attackInterval;
@@ -28,6 +28,14 @@ function getCommands()
 		commands[0] = 'Loot!';
 	
 	return commands;
+}
+
+function getDefaultCommand()
+{
+	if(me.getHealth() > 0)
+		return "Attack!";
+	else
+		return "Loot!";
 }
 
 function doCommand(command)

@@ -1,64 +1,76 @@
 var __commonEnemy = {
-		attackTickCount: 0
+	attackTickCount: 0
 };
 
 function onEnter()
 {
-	if(Math.random() < 0.3)
+	if (Math.random() < 0.3)
 	{
 		me.addItem('item/healthpack.jitm', 1);
 	}
-        
-        me.beginLook();
-        constructTasks();
+
+	me.beginLook();
+	constructTasks();
+}
+
+function getDefaultCommand()
+{
+	return me.getHealth() == 0 ? "Revive" : "Kill!";
 }
 
 function getCommands()
 {
 	var commands = new Array();
 
-	if(me.getHealth() > 0)
+	if (me.getHealth() > 0)
 		commands[0] = 'Kill!';
-	
+	else
+		commands[1] = "Revive";
+
 	return commands;
 }
 
 function doCommand(command)
 {
-	if(command === 'Kill!')
+	if (command === 'Kill!')
 		me.setHealth(0);
+	else if (command === "Revive")
+	{
+		me.setHealth(100);
+	constructTasks();
+	}
 }
 
 function constructTasks()
 {
-	if(me.getHealth() > 0)
+	if (me.getHealth() > 0)
 	{
 		me.idle(500);
 		me.wonder(4);
-                me.invoke(constructTasks);
+		me.invoke(constructTasks);
 	}
 }
 
 function onAttacked(attackee)
 {
-	if(me.getHealth() > 0)
+	if (me.getHealth() > 0)
 	{
 		me.moveTo(attackee.getLocation().x, attackee.getLocation().y, 1);
 		me.attack(attackee);
-                me.invoke(constructTasks);
+		me.invoke(constructTasks);
 	}
 }
 
 function onAttack(attackee)
 {
-	if(me.distance(attackee) > 1.7)
+	if (me.distance(attackee) > 1.7)
 		return false;
 
-	if(__commonEnemy.attackTickCount <= 0)
+	if (__commonEnemy.attackTickCount <= 0)
 	{
 		__commonEnemy.attackTickCount = __commonEnemy_config.attackInterval;
 		attackee.setHealth(attackee.getHealth() - 5);
-	}else
+	} else
 		__commonEnemy.attackTickCount--;
 
 	return true;
@@ -66,13 +78,13 @@ function onAttack(attackee)
 
 function lookFound(target)
 {
-	if(me.isConflictingAllegiance(target.target))
+	if (me.isConflictingAllegiance(target.target))
 	{
 		me.cancelTasks();
 		me.moveTo(target.location.x, target.location.y, 1);
 		me.attack(target.target);
-                me.invoke(constructTasks);
-                return true;
+		me.invoke(constructTasks);
+		return true;
 	}
 
 	return false;
@@ -80,5 +92,5 @@ function lookFound(target)
 
 function onDie()
 {
-    me.endLook();
+	me.endLook();
 }

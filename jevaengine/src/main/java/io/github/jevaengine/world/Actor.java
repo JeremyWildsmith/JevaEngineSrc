@@ -160,6 +160,12 @@ public abstract class Actor extends Entity implements IInteractable
 	}
 
 	@Override
+	public String getDefaultCommand()
+	{
+		return m_script.getDefaultCommand();
+	}
+	
+	@Override
 	public String[] getCommands()
 	{
 		return m_script.getCommands();
@@ -382,6 +388,25 @@ public abstract class Actor extends Entity implements IInteractable
 
 	private class ActorScript
 	{
+		public String getDefaultCommand()
+		{
+			try
+			{
+				Object jsString = getScript().invokeScriptFunction("getDefaultCommand");
+				
+				if(!(jsString instanceof String))
+					throw new CoreScriptException("Unexpected return value from doCommand script routine.");
+				
+				return (String)jsString;
+			} catch (NoSuchMethodException e)
+			{
+				return null;
+			} catch (ScriptException e)
+			{
+				throw new CoreScriptException(e);
+			}
+		}
+		
 		public String[] getCommands()
 		{
 			try

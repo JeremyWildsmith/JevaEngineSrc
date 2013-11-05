@@ -48,17 +48,7 @@ public abstract class Variable implements Iterable<Variable>
 		m_parent = parent;
 		m_name = name;
 	}
-
-	public final String getName()
-	{
-		return m_name;
-	}
-
-	public final String getFullName()
-	{
-		return (m_parent == null ? "" : m_parent.getFullName() + NAME_SPLIT) + m_name;
-	}
-
+	
 	protected final Variable getChild(String name)
 	{
 		for (Variable v : getChildren())
@@ -71,10 +61,21 @@ public abstract class Variable implements Iterable<Variable>
 
 		throw new UnknownVariableException(name);
 	}
+	
+	protected Variable createChild(String name, VariableValue value)
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	public final String getName()
+	{
+		return m_name;
+	}
 
-	protected abstract Variable[] getChildren();
-
-	protected abstract Variable setChild(String name, VariableValue value);
+	public final String getFullName()
+	{
+		return (m_parent == null ? "" : m_parent.getFullName() + NAME_SPLIT) + m_name;
+	}
 
 	public VariableValue getValue()
 	{
@@ -89,11 +90,6 @@ public abstract class Variable implements Iterable<Variable>
 		}
 
 		m_parent.setChild(m_name, value);
-	}
-
-	protected Variable createChild(String name, VariableValue value)
-	{
-		throw new UnsupportedOperationException();
 	}
 
 	public final Variable[] getVariableArray()
@@ -173,7 +169,18 @@ public abstract class Variable implements Iterable<Variable>
 	{
 		return new VariableIterator();
 	}
-
+	
+	private static String encodeRaw(String raw)
+	{
+		try
+		{
+			return URLEncoder.encode(raw, "ISO-8859-1");
+		} catch (UnsupportedEncodingException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+	
 	private static void serialize(StringBuilder builder, String parentName, Variable parent)
 	{
 		String fullName = (parentName.length() > 0 ? parentName + NAME_SPLIT : "") + parent.getName();
@@ -218,17 +225,10 @@ public abstract class Variable implements Iterable<Variable>
 			throw new VariableStoreSerializationException("IO Exception occured " + e.getMessage());
 		}
 	}
+	
+	protected abstract Variable[] getChildren();
 
-	private static String encodeRaw(String raw)
-	{
-		try
-		{
-			return URLEncoder.encode(raw, "ISO-8859-1");
-		} catch (UnsupportedEncodingException e)
-		{
-			throw new RuntimeException(e);
-		}
-	}
+	protected abstract Variable setChild(String name, VariableValue value);
 
 	private class VariableIterator implements Iterator<Variable>
 	{

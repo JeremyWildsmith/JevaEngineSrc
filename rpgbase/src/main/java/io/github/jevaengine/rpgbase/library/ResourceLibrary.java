@@ -56,6 +56,7 @@ public class ResourceLibrary implements IResourceLibrary
 		return new File(new File(m_base), path).getPath().replace("\\", "/");
 	}
 
+	@Override
 	public String openResourceContents(String path)
 	{
 		InputStream srcStream = openResourceStream(path);

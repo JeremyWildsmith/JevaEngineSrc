@@ -18,8 +18,10 @@ import io.github.jevaengine.config.Variable;
 import io.github.jevaengine.config.VariableStore;
 import io.github.jevaengine.game.FollowCamera;
 import io.github.jevaengine.game.Game;
+import io.github.jevaengine.graphics.Font;
 import io.github.jevaengine.graphics.ui.Button;
 import io.github.jevaengine.graphics.ui.IWindowManager;
+import io.github.jevaengine.graphics.ui.Label;
 import io.github.jevaengine.graphics.ui.MenuStrip;
 import io.github.jevaengine.graphics.ui.UIStyle;
 import io.github.jevaengine.graphics.ui.Window;
@@ -39,6 +41,7 @@ import io.github.jevaengine.world.Entity;
 import io.github.jevaengine.world.IInteractable;
 import io.github.jevaengine.world.World;
 import io.github.jevaengine.world.World.IWorldObserver;
+import java.awt.Color;
 
 public class PlayingState implements IGameState
 {
@@ -63,6 +66,9 @@ public class PlayingState implements IGameState
 	private CharacterMenu m_characterMenu = new CharacterMenu();
 
 	private MenuStrip m_contextStrip = new MenuStrip();
+	
+	private Label m_cursorActionLabel = new Label("", Color.yellow);
+	private WorldView m_worldView;
 
 	public PlayingState(String playerEntityName, ClientUser user, World world)
 	{
@@ -114,17 +120,18 @@ public class PlayingState implements IGameState
 
 		m_playerCamera = new FollowCamera();
 
-		WorldView worldViewport = new WorldView(resolution.x, resolution.y);
-		worldViewport.setRenderBackground(false);
-		worldViewport.setCamera(m_playerCamera);
-		worldViewport.addListener(new WorldViewListener());
+		m_worldView = new WorldView(resolution.x, resolution.y);
+		m_worldView.setRenderBackground(false);
+		m_worldView.setCamera(m_playerCamera);
+		m_worldView.addListener(new WorldViewListener());
+		m_worldView.addControl(m_cursorActionLabel);
 
 		m_worldViewWindow = new Window(styleSmall, resolution.x, resolution.y);
 		m_worldViewWindow.setRenderBackground(false);
 		m_worldViewWindow.setMovable(false);
 		m_worldViewWindow.setFocusable(false);
 
-		m_worldViewWindow.addControl(worldViewport);
+		m_worldViewWindow.addControl(m_worldView);
 		m_worldViewWindow.addControl(m_contextStrip);
 	}
 
@@ -203,7 +210,8 @@ public class PlayingState implements IGameState
 
 	private class WorldViewListener implements IWorldViewListener
 	{
-
+		private IInteractable m_lastTarget;
+		
 		@Override
 		public void worldSelection(Vector2D screenLocation, Vector2D worldLocation, MouseButton button)
 		{
@@ -211,7 +219,12 @@ public class PlayingState implements IGameState
 
 			if (button == MouseButton.Left)
 			{
-				if (m_playerCharacter != null)
+				if(m_lastTarget != null)
+				{
+					m_lastTarget.doCommand(m_lastTarget.getDefaultCommand());
+					m_lastTarget = null;
+					m_cursorActionLabel.setVisible(false);
+				}else if (m_playerCharacter != null)
 					m_playerCharacter.moveTo(worldLocation);
 
 				m_contextStrip.setVisible(false);
@@ -230,6 +243,36 @@ public class PlayingState implements IGameState
 
 					m_contextStrip.setLocation(screenLocation.difference(m_contextStrip.getParent().getAbsoluteLocation()));
 				}
+			}
+		}
+
+		@Override
+		public void worldMove(Vector2D screenLocation, Vector2D worldLocation)
+		{
+			final IInteractable[] interactables = m_world.getTileEffects(worldLocation).interactables.toArray(new IInteractable[0]);
+			
+			IInteractable defaultable = null;
+			
+			for(int i = 0; i < interactables.length && defaultable == null; i++)
+			{
+				if(interactables[i].getDefaultCommand() != null)
+					defaultable = interactables[i];
+			}
+			
+			if(defaultable != null)
+			{
+				m_cursorActionLabel.setText(defaultable.getDefaultCommand());
+				m_cursorActionLabel.setVisible(true);
+				
+				Vector2D offset = new Vector2D(10, 15);
+				
+				m_cursorActionLabel.setLocation(screenLocation.difference(PlayingState.this.m_worldView.getAbsoluteLocation()).add(offset));
+			
+				m_lastTarget = defaultable;
+			}else
+			{
+				m_lastTarget = null;
+				m_cursorActionLabel.setVisible(false);
 			}
 		}
 
