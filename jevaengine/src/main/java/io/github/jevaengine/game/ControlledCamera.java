@@ -20,14 +20,12 @@ import io.github.jevaengine.world.World;
 public final class ControlledCamera implements ICamera
 {
 	@Nullable private World m_world;
-
-	private float m_zoom;
 	
-	/** Tile Offset */
 	private Vector2F m_lookAtTile;
 
-	/** Screen Offset */
 	private Vector2D m_lookAtScreen;
+	
+	private float m_zoom = 1.0F;
 
 	public ControlledCamera()
 	{

@@ -19,11 +19,9 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.NoninvertibleTransformException;
-import java.util.List;
 
 import io.github.jevaengine.math.Matrix2X2;
 import io.github.jevaengine.math.Vector2D;
-import io.github.jevaengine.math.Vector2F;
 
 public abstract class DiffuseLight implements ILight
 {
@@ -32,22 +30,26 @@ public abstract class DiffuseLight implements ILight
 
 	private Area m_lightCast;
 
-	private AffineTransform m_worldTransform;
-
-	private World m_world;
-
 	private float m_fRadius;
 
-	public DiffuseLight(World world, float fMaxRadius, Color color)
+	public DiffuseLight(float fMaxRadius, Color color)
 	{
 		m_color = color;
 
-		m_world = world;
 		m_fRadius = fMaxRadius;
 		m_lightCast = new Area(new Ellipse2D.Float(-fMaxRadius / 2, -fMaxRadius / 2, fMaxRadius, fMaxRadius));
-
-		Matrix2X2 worldScreenMatrix = world.getPerspectiveMatrix(1.0F);
-		m_worldTransform = new AffineTransform(worldScreenMatrix.matrix[0][0], worldScreenMatrix.matrix[0][1], worldScreenMatrix.matrix[1][0], worldScreenMatrix.matrix[1][1], 0, 0);
+	}
+	
+	private AffineTransform getWorldTransform(World world, float scale)
+	{
+		Matrix2X2 worldScreenMatrix = world.getPerspectiveMatrix(scale);
+		return new AffineTransform(worldScreenMatrix.matrix[0][0], worldScreenMatrix.matrix[0][1], worldScreenMatrix.matrix[1][0], worldScreenMatrix.matrix[1][1], 0, 0);
+	}
+	
+	@Override
+	public final void setColor(Color color)
+	{
+		m_color = color;
 	}
 
 	/*
@@ -56,35 +58,13 @@ public abstract class DiffuseLight implements ILight
 	 * @see io.github.jeremywildsmith.jevaengine.world.ILight#renderComposite(java.awt.Graphics2D,
 	 * java.awt.geom.Area, java.awt.Color, java.util.List, int, int, float)
 	 */
-	public void renderComposite(Graphics2D g, Area lightingArea, Color ambient, List<LightObstruction> obstructedLightingArea, int x, int y, float fScale)
+	@Override
+	public final void renderComposite(World world, Graphics2D g, Area lightingArea, Color ambient, int x, int y, float scale)
 	{
-		g.translate(x, y);
-		g.transform(m_worldTransform);
-
-		AffineTransform reverse = new AffineTransform();
-
-		try
-		{
-			reverse.concatenate(m_worldTransform.createInverse());
-			reverse.translate(-x, -y);
-		} catch (NoninvertibleTransformException e)
-		{
-			throw new RuntimeException(e);
-		}
-
 		g.setPaint(new RadialGradientPaint(getLocation().x, getLocation().y, m_fRadius, new float[]
-		{ 0, 0.5F }, new Color[]
-		{ Color.black, new Color(0, 0, 0, 0) }));
-		g.fill(lightingArea.createTransformedArea(reverse));
-
-		try
-		{
-			g.transform(m_worldTransform.createInverse());
-			g.translate(-x, -y);
-		} catch (NoninvertibleTransformException e)
-		{
-			throw new RuntimeException(e);
-		}
+												{ 0, 0.5F }, new Color[]
+												{ Color.black, new Color(0, 0, 0, 0) }));
+		g.fill(lightingArea);
 	}
 
 	/*
@@ -93,16 +73,19 @@ public abstract class DiffuseLight implements ILight
 	 * @see io.github.jeremywildsmith.jevaengine.world.ILight#renderLight(java.awt.Graphics2D,
 	 * java.awt.geom.Area, java.awt.Color, java.util.List, int, int, float)
 	 */
-	public void renderLight(Graphics2D g, Area lightingArea, Color ambient, List<LightObstruction> obstructedLightingArea, int x, int y, float fScale)
+	@Override
+	public final void renderLight(World world, Graphics2D g, Area lightingArea, Color ambient, int x, int y, float scale)
 	{
+		AffineTransform worldTransform = getWorldTransform(world, scale);
+		
 		g.translate(x, y);
-		g.transform(m_worldTransform);
+		g.transform(worldTransform);
 
 		AffineTransform reverse = new AffineTransform();
 
 		try
 		{
-			reverse.concatenate(m_worldTransform.createInverse());
+			reverse.concatenate(worldTransform.createInverse());
 			reverse.translate(-x, -y);
 		} catch (NoninvertibleTransformException e)
 		{
@@ -116,7 +99,7 @@ public abstract class DiffuseLight implements ILight
 
 		try
 		{
-			g.transform(m_worldTransform.createInverse());
+			g.transform(worldTransform.createInverse());
 			g.translate(-x, -y);
 		} catch (NoninvertibleTransformException e)
 		{
@@ -129,26 +112,18 @@ public abstract class DiffuseLight implements ILight
 	 * 
 	 * @see io.github.jeremywildsmith.jevaengine.world.ILight#getAllocation(float, int, int)
 	 */
-	public Area getAllocation(float fWorldScale, int offsetX, int offsetY)
+	@Override
+	public final Area getAllocation(World world, int offsetX, int offsetY, float scale)
 	{
-		Vector2D location = m_world.translateWorldToScreen(getLocation(), fWorldScale);// .add(new
-																						// Vector2D(offsetX,
-																						// offsetY));
+		Vector2D location = world.translateWorldToScreen(getLocation(), scale);
 
-		Area worldShape = m_lightCast.createTransformedArea(m_worldTransform);
+		Area worldShape = m_lightCast.createTransformedArea(getWorldTransform(world, scale));
 
 		AffineTransform transform = new AffineTransform();
 		transform.translate(location.x + offsetX, location.y + offsetY);
-		transform.scale(fWorldScale, fWorldScale);
+		transform.scale(scale, scale);
 		worldShape.transform(transform);
 
 		return worldShape;
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see io.github.jeremywildsmith.jevaengine.world.ILight#getLocation()
-	 */
-	public abstract Vector2F getLocation();
 }

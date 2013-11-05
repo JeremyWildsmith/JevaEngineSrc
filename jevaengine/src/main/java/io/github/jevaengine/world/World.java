@@ -123,7 +123,6 @@ public class World extends Variable implements IDisposable
 		m_worldToScreenMatrix = new Matrix2X2(tileWidth / 2.0F, -tileWidth / 2.0F, tileHeight / 2.0F, tileHeight / 2.0F);
 
 		m_worldLighting = new SceneLighting();
-		m_worldLighting.associate(this);
 
 		m_worldTime = Calendar.getInstance();
 		m_fTimeMultiplier = 1.0F;
@@ -246,6 +245,7 @@ public class World extends Variable implements IDisposable
 	 * 
 	 * @see io.github.jeremywildsmith.jevaengine.IDisposable#dispose()
 	 */
+	@Override
 	public void dispose()
 	{
 		m_worldScript.onLeave();
@@ -258,7 +258,6 @@ public class World extends Variable implements IDisposable
 
 		m_entities.clear();
 		m_layers.clear();
-		m_worldLighting.disassociate();
 	}
 
 	public void addObserver(IWorldObserver o)
@@ -565,7 +564,7 @@ public class World extends Variable implements IDisposable
 				m_worldLighting.getTargetHeight() != viewBounds.height)
 			m_worldLighting.setTargetBounds(viewBounds.width, viewBounds.height);
 
-		m_worldLighting.enqueueRender(g.getDeviceConfiguration(), worldViewBounds, m_worldToScreenMatrix, x, y, fScale);
+		m_worldLighting.enqueueRender(this, g.getDeviceConfiguration(), viewBounds, x, y, fScale);
 
 		renderQueue(g, viewBounds.x + x, viewBounds.y + y, fScale);
 	}

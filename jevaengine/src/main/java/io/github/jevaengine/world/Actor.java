@@ -38,17 +38,18 @@ import io.github.jevaengine.math.Vector2F;
 import io.github.jevaengine.util.Nullable;
 import io.github.jevaengine.util.StaticSet;
 import io.github.jevaengine.world.EffectMap.TileEffects;
+import java.awt.Color;
 
 public abstract class Actor extends Entity implements IInteractable
 {
 
+	private final Observers m_observers = new Observers();
+
+	private final ActorScript m_script = new ActorScript();
+	
 	private Vector2F m_location;
 
 	private WorldDirection m_direction;
-
-	private Observers m_observers = new Observers();
-
-	private ActorScript m_script = new ActorScript();
 
 	private boolean m_isInteractable;
 
@@ -170,6 +171,7 @@ public abstract class Actor extends Entity implements IInteractable
 		m_script.doCommand(command);
 	}
 
+	@Override
 	public void blendEffectMap(EffectMap globalEffectMap)
 	{
 		if (m_isInteractable)
@@ -295,11 +297,11 @@ public abstract class Actor extends Entity implements IInteractable
 	private final class RenderTile implements IRenderable
 	{
 
-		private Vector2D m_location;
+		private final Vector2D m_location;
 
-		private IRenderable[] m_renderables;
+		private final IRenderable[] m_renderables;
 
-		private boolean m_isYAxis;
+		private final boolean m_isYAxis;
 
 		public RenderTile(boolean isYAxis, IRenderable[] renderables, Vector2D location)
 		{
@@ -386,9 +388,12 @@ public abstract class Actor extends Entity implements IInteractable
 			{
 				NativeArray jsStringArray = (NativeArray) getScript().invokeScriptFunction("getCommands");
 
+				if(jsStringArray == null)
+					return new String[0];
+				
 				String[] commands = new String[(int) jsStringArray.getLength()];
 
-				for (int i = 0; i < jsStringArray.getLength(); i++)
+				for (int i = 0; i < commands.length; i++)
 				{
 					Object element = jsStringArray.get(i, null);
 
@@ -425,23 +430,12 @@ public abstract class Actor extends Entity implements IInteractable
 	public static class ActorBridge<Y extends Actor> extends EntityBridge<Y>
 	{
 		private SearchForTask m_searchTask;
-		
-		public static class FoundDetails
+
+		public ScriptLight bindLight(float offsetX, float offsetY, float radius, int r, int g, int b, int a)
 		{
-			public String name;
-
-			public ActorBridge<?> target;
-
-			public Vector2D location;
-
-			public FoundDetails(Actor foundEntity)
-			{
-				name = foundEntity.getName();
-				location = foundEntity.getLocation().round();
-				target = (ActorBridge<?>) foundEntity.getScriptBridge();
-			}
+			return new ScriptLight(new Vector2F(offsetX, offsetY), radius, new Color(r, g, b, a));
 		}
-
+		
 		public float distance(ActorBridge<?> actor)
 		{
 			return getMe().getLocation().difference(actor.getLocation()).getLength();
@@ -540,6 +534,94 @@ public abstract class Actor extends Entity implements IInteractable
 			public boolean continueSearch()
 			{
 				return true;
+			}
+		}
+		
+		public class ScriptLight
+		{
+			private LightSource m_light;
+			
+			private ScriptLight(Vector2F offset, float radius, Color color)
+			{
+				m_light = new LightSource(offset, radius, color);
+			}
+			
+			public void setColor(int a, int r, int g, int b)
+			{
+				m_light.setColor(new Color(a,r,g,b));
+			}
+			
+			public void off()
+			{
+				m_light.remove();
+			}
+			
+			public void on()
+			{
+				m_light.add();
+			}
+		
+			private class LightSource extends DiffuseLight implements IEntityObserver
+			{
+				private Vector2F m_offset;
+
+				public LightSource(Vector2F offset, float radius, Color color)
+				{
+					super(radius, color);
+					m_offset = offset;
+				}
+
+				@Override
+				public Vector2F getLocation()
+				{
+					return getMe().getLocation().add(m_offset);
+				}
+
+				public void add()
+				{
+					if(!getMe().isAssociated())
+						throw new CoreScriptException("Entity has not been associated with a world.");
+					
+					getMe().addObserver(this);
+					getMe().getWorld().getLighting().addLight(this);
+				}
+
+				public void remove()
+				{
+					if(!getMe().isAssociated())
+						throw new CoreScriptException("Entity has not been associated with a world.");
+					
+					getMe().removeObserver(this);
+					getMe().getWorld().getLighting().removeLight(this);
+				}
+
+				@Override
+				public void enterWorld()
+				{
+					add();
+				}
+
+				@Override
+				public void leaveWorld()
+				{
+					getMe().getWorld().getLighting().removeLight(this);
+				}
+			}
+		}
+		
+		public static class FoundDetails
+		{
+			public String name;
+
+			public ActorBridge<?> target;
+
+			public Vector2D location;
+
+			public FoundDetails(Actor foundEntity)
+			{
+				name = foundEntity.getName();
+				location = foundEntity.getLocation().round();
+				target = (ActorBridge<?>) foundEntity.getScriptBridge();
 			}
 		}
 	}

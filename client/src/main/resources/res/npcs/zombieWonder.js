@@ -1,6 +1,6 @@
 function onEnter()
 {
-    constructTasks();
+        constructTasks();
 }
 
 function onInteract()

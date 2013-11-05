@@ -29,7 +29,7 @@ import io.github.jevaengine.graphics.IRenderable;
 import io.github.jevaengine.math.Matrix2X2;
 import io.github.jevaengine.math.Vector2F;
 
-public class SceneLighting implements IWorldAssociation
+public class SceneLighting
 {
 
 	private VolatileImage m_lightmap;
@@ -38,13 +38,11 @@ public class SceneLighting implements IWorldAssociation
 
 	private Rectangle m_renderTargetBounds;
 
-	private World m_parentWorld;
-
 	private Color m_ambientLight;
 
 	public SceneLighting(int renderTargetWidth, int renderTargetHeight)
 	{
-		m_lightSources = new ArrayList<ILight>();
+		m_lightSources = new ArrayList();
 		m_renderTargetBounds = new Rectangle(0, 0, renderTargetWidth, renderTargetHeight);
 
 		m_ambientLight = new Color(0, 0, 0, 0);
@@ -52,7 +50,7 @@ public class SceneLighting implements IWorldAssociation
 
 	public SceneLighting()
 	{
-		m_lightSources = new ArrayList<ILight>();
+		m_lightSources = new ArrayList();
 		m_renderTargetBounds = new Rectangle(0, 0, 0, 0);
 		m_ambientLight = new Color(0, 0, 0, 0);
 	}
@@ -72,53 +70,6 @@ public class SceneLighting implements IWorldAssociation
 		m_lightSources.remove(source);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see io.github.jeremywildsmith.jevaengine.world.IWorldAssociation#isAssociated()
-	 */
-	@Override
-	public final boolean isAssociated()
-	{
-		return m_parentWorld != null;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see io.github.jeremywildsmith.jevaengine.world.IWorldAssociation#associate(jeva.world.World)
-	 */
-	@Override
-	public final void associate(World world)
-	{
-		if (m_parentWorld != null)
-			throw new WorldAssociationException("Already associated with world");
-
-		m_parentWorld = world;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see io.github.jeremywildsmith.jevaengine.world.IWorldAssociation#disassociate()
-	 */
-	@Override
-	public final void disassociate()
-	{
-		if (m_parentWorld == null)
-			throw new WorldAssociationException("Not associated with world");
-
-		m_parentWorld = null;
-	}
-
-	private World getWorld()
-	{
-		if (m_parentWorld == null)
-			throw new WorldAssociationException("Not associated with world");
-
-		return m_parentWorld;
-	}
-
 	public void setTargetBounds(int width, int height)
 	{
 		m_renderTargetBounds = new Rectangle(0, 0, width, height);
@@ -134,7 +85,7 @@ public class SceneLighting implements IWorldAssociation
 		return m_renderTargetBounds.getBounds().width;
 	}
 
-	protected void enqueueRender(GraphicsConfiguration gc, Rectangle worldViewBounds, Matrix2X2 worldTranslationMatrix, final int offsetX, final int offsetY, float fScale)
+	protected void enqueueRender(World world, GraphicsConfiguration gc, Rectangle viewBounds, final int offsetX, final int offsetY, float fScale)
 	{
 
 		if (m_renderTargetBounds.width <= 0 || m_renderTargetBounds.height <= 0)
@@ -156,20 +107,19 @@ public class SceneLighting implements IWorldAssociation
 			g.setBackground(new Color(0, 0, 0, 0));
 			g.clearRect(0, 0, m_renderTargetBounds.width, m_renderTargetBounds.height);
 
-			HashMap<ILight, Area> lightAreaMap = new HashMap<ILight, Area>();
-			HashMap<ILight, ArrayList<LightObstruction>> obstructionMap = new HashMap<ILight, ArrayList<LightObstruction>>();
+			HashMap<ILight, Area> lightAreaMap = new HashMap();
 
 			for (ILight source : m_lightSources)
 			{
 				// Calculate area allocated by the light source.
-				Area lightArea = source.getAllocation(fScale, offsetX, offsetY);
+				Area lightArea = source.getAllocation(world, viewBounds.x + offsetX, viewBounds.y + offsetY, fScale);
 
 				lightAreaMap.put(source, lightArea);
 			}
 
 			for (Map.Entry<ILight, Area> light : lightAreaMap.entrySet())
 			{
-				light.getKey().renderComposite(g, light.getValue(), m_ambientLight, obstructionMap.get(light.getKey()), offsetX, offsetY, fScale);
+				light.getKey().renderComposite(world, g, light.getValue(), m_ambientLight, viewBounds.x + offsetX, viewBounds.y + offsetY, fScale);
 			}
 
 			Composite old = g.getComposite();
@@ -182,25 +132,24 @@ public class SceneLighting implements IWorldAssociation
 
 			for (Map.Entry<ILight, Area> light : lightAreaMap.entrySet())
 			{
-				light.getKey().renderLight(g, light.getValue(), m_ambientLight, obstructionMap.get(light.getKey()), offsetX, offsetY, fScale);
+				light.getKey().renderLight(world, g, light.getValue(), m_ambientLight, viewBounds.x + offsetX, viewBounds.y + offsetY, fScale);
 			}
 
 			g.dispose();
 
 		} while (m_lightmap.contentsLost());
-
-		getWorld().enqueueRender(new IRenderable()
+		
+		world.enqueueRender(new IRenderable()
 		{
 			@Override
 			public void render(Graphics2D g, int x, int y, float fScale)
 			{
 				// If out contents are lost at this stage - the
-				// operation is too
-				// expensive to repeat, so we just won't render the
+				// operation is too expensive to repeat, so we just won't render the
 				// image...
 				if (!m_lightmap.contentsLost())
 					g.drawImage(m_lightmap, offsetX, offsetY, null);
 			}
-		}, new Vector2F(worldViewBounds.x + worldViewBounds.width, worldViewBounds.y + worldViewBounds.height));
+		}, new Vector2F(Float.MAX_VALUE, Float.MAX_VALUE));
 	}
 }

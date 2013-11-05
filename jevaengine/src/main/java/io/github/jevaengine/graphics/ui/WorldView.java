@@ -74,10 +74,10 @@ public final class WorldView extends Panel
 		{
 			Vector2D relativePos = mouseEvent.location.difference(getAbsoluteLocation());
 
-			if (m_camera != null && m_camera.getWorld() != null)
+			World world = m_camera == null ? null : m_camera.getWorld();
+			
+			if (world != null)
 			{
-				World world = m_camera.getWorld();
-
 				Vector2D tilePos = world.translateScreenToWorld(new Vector2D(relativePos.x, relativePos.y).difference(getCameraOffset()), m_camera.getScale());
 
 				if (world.getMapBounds().contains(new Point(tilePos.x, tilePos.y)))
@@ -101,7 +101,7 @@ public final class WorldView extends Panel
 			Rectangle bounds = getBounds();
 
 			Shape oldClip = g.getClip();
- 
+
 			g.clipRect(x, y, getBounds().width, getBounds().height);
 			world.render(g, scale * m_camera.getScale(), new Rectangle(offset.x, offset.y, bounds.width, bounds.height), getAbsoluteLocation().x, getAbsoluteLocation().y);// bounds.width,																																		// bounds.height));
 			g.setClip(oldClip);
