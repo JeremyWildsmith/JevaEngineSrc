@@ -35,7 +35,6 @@ http://www.youtube.com/watch?v=eOQo7KmqtFM
 
 Due to some code refactoring, some of those videos will differ from the current version in the repository.
 
-
 How to Contribute
 =================
 
@@ -43,9 +42,11 @@ How to Contribute
 - You must sign and agree to the CLA (Contributor License Agreement) <a href="http://www.clahub.com/agreements/JeremyWildsmith/JevaEngineSrc" target="_blank">here.</a> the
 contributor license agreement allows JevaEngine developers (and the user-base of JevaEngine) to use your contributions to the project under the GPLV3 license.
 
-How to Compile
+How to Compile\Use
 =================
 
 JevaEngine is fairly straight-forward to compile. As JevaEngine uses Maven as its build platform, the project
 is very portable accross various IDEs and dependency resolution is very easy. You can read a short guide on how
 to setup JevaEngine <a href="https://github.com/JeremyWildsmith/JevaEngineSrc/wiki/Compiling-JevaEngine" target="_blank">here.</a>
+
+You can find some decent quick-start guides on the project's wiki page.
