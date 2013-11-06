@@ -10,11 +10,10 @@
  * Contributors:
  *     Jeremy - initial API and implementation
  ******************************************************************************/
-package io.github.jevaengine.graphics.ui;
+package io.github.jevaengine.ui;
 
-public class NoSuchWindowException extends RuntimeException
+public interface IDialogResponder
 {
 
-	private static final long serialVersionUID = 1L;
-
+	void onAnswer(String answer);
 }

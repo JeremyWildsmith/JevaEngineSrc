@@ -10,7 +10,7 @@
  * Contributors:
  *     Jeremy - initial API and implementation
  ******************************************************************************/
-package io.github.jevaengine.graphics.ui;
+package io.github.jevaengine.ui;
 
 public class DuplicateWindowException extends RuntimeException
 {

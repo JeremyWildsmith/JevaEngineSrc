@@ -14,12 +14,12 @@ package io.github.jevaengine.rpgbase.ui;
 
 import io.github.jevaengine.Core;
 import io.github.jevaengine.game.Game;
-import io.github.jevaengine.graphics.ui.Button;
-import io.github.jevaengine.graphics.ui.MenuStrip;
-import io.github.jevaengine.graphics.ui.Panel;
-import io.github.jevaengine.graphics.ui.UIStyle;
-import io.github.jevaengine.graphics.ui.Window;
-import io.github.jevaengine.graphics.ui.MenuStrip.IMenuStripListener;
+import io.github.jevaengine.ui.Button;
+import io.github.jevaengine.ui.MenuStrip;
+import io.github.jevaengine.ui.Panel;
+import io.github.jevaengine.ui.UIStyle;
+import io.github.jevaengine.ui.Window;
+import io.github.jevaengine.ui.MenuStrip.IMenuStripListener;
 import io.github.jevaengine.joystick.InputManager.InputKeyEvent;
 import io.github.jevaengine.joystick.InputManager.InputMouseEvent;
 import io.github.jevaengine.joystick.InputManager.InputMouseEvent.EventType;

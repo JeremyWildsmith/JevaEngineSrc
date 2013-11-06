@@ -12,11 +12,11 @@
  ******************************************************************************/
 package io.github.jevaengine.rpgbase.ui;
 
-import io.github.jevaengine.graphics.ui.Button;
-import io.github.jevaengine.graphics.ui.Label;
-import io.github.jevaengine.graphics.ui.TextArea;
-import io.github.jevaengine.graphics.ui.UIStyle;
-import io.github.jevaengine.graphics.ui.Window;
+import io.github.jevaengine.ui.Button;
+import io.github.jevaengine.ui.Label;
+import io.github.jevaengine.ui.TextArea;
+import io.github.jevaengine.ui.UIStyle;
+import io.github.jevaengine.ui.Window;
 import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.rpgbase.quest.Quest;
 import io.github.jevaengine.rpgbase.quest.QuestTask;

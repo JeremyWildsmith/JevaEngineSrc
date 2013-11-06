@@ -21,7 +21,7 @@ import io.github.jevaengine.game.Game;
 import io.github.jevaengine.game.IGameScriptProvider;
 import io.github.jevaengine.graphics.AnimationState;
 import io.github.jevaengine.graphics.Sprite;
-import io.github.jevaengine.graphics.ui.UIStyle;
+import io.github.jevaengine.ui.UIStyle;
 import io.github.jevaengine.rpgbase.library.RpgEntityLibrary;
 import io.github.jevaengine.rpgbase.quest.QuestState;
 import io.github.jevaengine.util.Nullable;

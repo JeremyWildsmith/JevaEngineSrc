@@ -17,7 +17,7 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
 import io.github.jevaengine.graphics.IRenderable;
-import io.github.jevaengine.graphics.ui.Control;
+import io.github.jevaengine.ui.Control;
 import io.github.jevaengine.joystick.InputManager.InputKeyEvent;
 import io.github.jevaengine.joystick.InputManager.InputMouseEvent;
 import io.github.jevaengine.math.Vector2D;

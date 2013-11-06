@@ -18,9 +18,9 @@ import io.github.jevaengine.Core;
 import io.github.jevaengine.game.DialogPath;
 import io.github.jevaengine.game.DialogPath.Answer;
 import io.github.jevaengine.game.DialogPath.Query;
-import io.github.jevaengine.graphics.ui.DialogMenu;
-import io.github.jevaengine.graphics.ui.IDialogResponder;
-import io.github.jevaengine.graphics.ui.IWindowManager;
+import io.github.jevaengine.ui.DialogMenu;
+import io.github.jevaengine.ui.IDialogResponder;
+import io.github.jevaengine.ui.IWindowManager;
 import io.github.jevaengine.util.Nullable;
 
 public abstract class DialogTask implements ITask

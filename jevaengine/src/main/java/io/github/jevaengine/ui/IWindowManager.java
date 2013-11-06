@@ -1,4 +1,4 @@
-package io.github.jevaengine.graphics.ui;
+package io.github.jevaengine.ui;
 
 import io.github.jevaengine.graphics.IRenderable;
 import io.github.jevaengine.joystick.InputManager;

@@ -10,7 +10,7 @@
  * Contributors:
  *     Jeremy - initial API and implementation
  ******************************************************************************/
-package io.github.jevaengine.graphics.ui;
+package io.github.jevaengine.ui;
 
 import io.github.jevaengine.joystick.InputManager.InputKeyEvent;
 import io.github.jevaengine.math.Vector2D;

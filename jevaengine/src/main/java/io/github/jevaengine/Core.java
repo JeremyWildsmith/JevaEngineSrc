@@ -16,8 +16,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.github.jevaengine.game.Game;
-import io.github.jevaengine.graphics.ui.BasicWindowManager;
-import io.github.jevaengine.graphics.ui.IWindowManager;
+import io.github.jevaengine.ui.BasicWindowManager;
+import io.github.jevaengine.ui.IWindowManager;
 
 public final class Core
 {

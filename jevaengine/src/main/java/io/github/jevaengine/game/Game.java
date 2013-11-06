@@ -12,6 +12,8 @@
  ******************************************************************************/
 package io.github.jevaengine.game;
 
+import io.github.jevaengine.ui.UIStyle;
+import io.github.jevaengine.ui.IWindowManager;
 import java.awt.Color;
 import java.awt.Frame;
 import java.awt.Graphics2D;
@@ -22,7 +24,6 @@ import java.awt.image.VolatileImage;
 
 import io.github.jevaengine.Core;
 import io.github.jevaengine.graphics.Sprite;
-import io.github.jevaengine.graphics.ui.*;
 import io.github.jevaengine.joystick.*;
 import io.github.jevaengine.math.Vector2D;
 

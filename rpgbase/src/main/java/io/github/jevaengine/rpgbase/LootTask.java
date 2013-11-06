@@ -3,7 +3,7 @@ package io.github.jevaengine.rpgbase;
 import java.lang.ref.WeakReference;
 
 import io.github.jevaengine.Core;
-import io.github.jevaengine.graphics.ui.IWindowManager;
+import io.github.jevaengine.ui.IWindowManager;
 import io.github.jevaengine.rpgbase.ui.InventoryMenu;
 import io.github.jevaengine.world.Entity;
 import io.github.jevaengine.world.ITask;

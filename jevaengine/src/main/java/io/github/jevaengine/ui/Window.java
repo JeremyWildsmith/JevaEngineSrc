@@ -10,10 +10,41 @@
  * Contributors:
  *     Jeremy - initial API and implementation
  ******************************************************************************/
-package io.github.jevaengine.graphics.ui;
+package io.github.jevaengine.ui;
 
-public interface IDialogResponder
+public class Window extends Panel
 {
 
-	void onAnswer(String answer);
+	private boolean m_isMovable;
+
+	private boolean m_isFocusable;
+
+	public Window(UIStyle style, int width, int height)
+	{
+		super(width, height);
+		m_isFocusable = true;
+		m_isMovable = true;
+
+		this.setStyle(style);
+	}
+
+	public boolean isMovable()
+	{
+		return m_isMovable;
+	}
+
+	public boolean isFocusable()
+	{
+		return m_isFocusable;
+	}
+
+	public void setMovable(boolean isMovable)
+	{
+		m_isMovable = isMovable;
+	}
+
+	public void setFocusable(boolean isFocusable)
+	{
+		m_isFocusable = isFocusable;
+	}
 }

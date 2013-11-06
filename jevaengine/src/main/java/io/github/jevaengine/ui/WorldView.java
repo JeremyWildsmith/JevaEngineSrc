@@ -11,7 +11,7 @@
  *     Jeremy - initial API and implementation
  ******************************************************************************/
 
-package io.github.jevaengine.graphics.ui;
+package io.github.jevaengine.ui;
 
 import java.awt.Graphics2D;
 import java.awt.Point;

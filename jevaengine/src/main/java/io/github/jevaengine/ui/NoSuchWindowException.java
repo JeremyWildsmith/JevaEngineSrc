@@ -10,41 +10,11 @@
  * Contributors:
  *     Jeremy - initial API and implementation
  ******************************************************************************/
-package io.github.jevaengine.graphics.ui;
+package io.github.jevaengine.ui;
 
-public class Window extends Panel
+public class NoSuchWindowException extends RuntimeException
 {
 
-	private boolean m_isMovable;
+	private static final long serialVersionUID = 1L;
 
-	private boolean m_isFocusable;
-
-	public Window(UIStyle style, int width, int height)
-	{
-		super(width, height);
-		m_isFocusable = true;
-		m_isMovable = true;
-
-		this.setStyle(style);
-	}
-
-	public boolean isMovable()
-	{
-		return m_isMovable;
-	}
-
-	public boolean isFocusable()
-	{
-		return m_isFocusable;
-	}
-
-	public void setMovable(boolean isMovable)
-	{
-		m_isMovable = isMovable;
-	}
-
-	public void setFocusable(boolean isFocusable)
-	{
-		m_isFocusable = isFocusable;
-	}
 }
