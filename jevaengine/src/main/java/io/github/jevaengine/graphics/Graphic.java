@@ -44,7 +44,7 @@ public final class Graphic
 		if(!Core.getMode().allowsRender())
 			return new Graphic(null);
 		
-		String formal = name.replace("\\", "/").trim().toLowerCase();
+		String formal = name.replace("\\", "/").trim();
 
 		if (formal.startsWith("/"))
 			formal = formal.substring(1);
