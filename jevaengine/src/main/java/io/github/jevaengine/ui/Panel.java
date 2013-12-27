@@ -1,15 +1,16 @@
-/*******************************************************************************
- * Copyright (c) 2013 Jeremy.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the GNU Public License v3.0
- * which accompanies this distribution, and is available at
+/**
+ * *****************************************************************************
+ * Copyright (c) 2013 Jeremy. All rights reserved. This program and the
+ * accompanying materials are made available under the terms of the GNU Public
+ * License v3.0 which accompanies this distribution, and is available at
  * http://www.gnu.org/licenses/gpl.html
- * 
- * If you'd like to obtain a another license to this code, you may contact Jeremy to discuss alternative redistribution options.
- * 
- * Contributors:
- *     Jeremy - initial API and implementation
- ******************************************************************************/
+ *
+ * If you'd like to obtain a another license to this code, you may contact
+ * Jeremy to discuss alternative redistribution options.
+ *
+ * Contributors: Jeremy - initial API and implementation
+ *****************************************************************************
+ */
 package io.github.jevaengine.ui;
 
 import java.awt.Graphics2D;
@@ -26,6 +27,7 @@ import io.github.jevaengine.util.StaticSet;
 
 public abstract class Panel extends Control
 {
+
 	private boolean m_renderBackground;
 
 	private Sprite m_frameFill;
@@ -99,6 +101,12 @@ public abstract class Panel extends Control
 	{
 		if (m_controls.contains(control))
 		{
+			if(m_activeControl == control)
+				m_activeControl = null;
+			
+			if(m_lastOver == control)
+				m_lastOver = null;
+			
 			control.setParent(null);
 			m_controls.remove(control);
 		}
@@ -109,63 +117,67 @@ public abstract class Panel extends Control
 		m_activeControl = null;
 
 		for (Control ctrl : m_controls)
+		{
 			removeControl(ctrl);
+		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see io.github.jeremywildsmith.jevaengine.graphics.IRenderable#render(java.awt.Graphics2D, int, int,
-	 * float)
-	 */
-	@Override
-	public void render(Graphics2D g, int x, int y, float fScale)
+	protected void renderBackground(Graphics2D g, int x, int y, float fScale)
 	{
-		if (m_renderBackground)
+		if (!m_renderBackground)
+			return;
+		
+		// Render upper border
+		m_frameTopLeft.render(g, x, y, fScale);
+
+		int offsetX;
+
+		for (offsetX = m_frameTopLeft.getBounds().width; offsetX < m_width - m_frameTopRight.getBounds().width; offsetX += m_frameTop.getBounds().width)
 		{
-			// Render upper border
-			m_frameTopLeft.render(g, x, y, fScale);
+			m_frameTop.render(g, x + offsetX, y, fScale);
+		}
+		m_frameTopRight.render(g, x + offsetX, y, fScale);
 
-			int offsetX;
+		offsetX += m_frameTopRight.getBounds().width;
 
-			for (offsetX = m_frameTopLeft.getBounds().width; offsetX < m_width - m_frameTopRight.getBounds().width; offsetX += m_frameTop.getBounds().width)
+		int offsetY = m_frameTop.getBounds().height;
+		// Render fill and left\right border
+		for (; offsetY < m_height - m_frameBottom.getBounds().height; offsetY += m_frameFill.getBounds().width)
+		{
+			m_frameLeft.render(g, x, offsetY + y, fScale);
+
+			for (offsetX = m_frameLeft.getBounds().width; offsetX < m_width - m_frameRight.getBounds().width; offsetX += m_frameFill.getBounds().width)
 			{
-				m_frameTop.render(g, x + offsetX, y, fScale);
-			}
-			m_frameTopRight.render(g, x + offsetX, y, fScale);
-
-			offsetX += m_frameTopRight.getBounds().width;
-
-			int offsetY = m_frameTop.getBounds().height;
-			// Render fill and left\right border
-			for (; offsetY < m_height - m_frameBottom.getBounds().height; offsetY += m_frameFill.getBounds().width)
-			{
-				m_frameLeft.render(g, x, offsetY + y, fScale);
-
-				for (offsetX = m_frameLeft.getBounds().width; offsetX < m_width - m_frameRight.getBounds().width; offsetX += m_frameFill.getBounds().width)
-				{
-					m_frameFill.render(g, x + offsetX, y + offsetY, fScale);
-				}
-
-				m_frameRight.render(g, x + offsetX, offsetY + y, fScale);
+				m_frameFill.render(g, x + offsetX, y + offsetY, fScale);
 			}
 
-			// Render lower border
-
-			offsetX = 0;
-			m_frameBottomLeft.render(g, x + offsetX, y + offsetY, fScale);
-			for (offsetX = m_frameBottomLeft.getBounds().width; offsetX < m_width - m_frameBottomRight.getBounds().width; offsetX += m_frameTop.getBounds().width)
-			{
-				m_frameBottom.render(g, x + offsetX, y + offsetY, fScale);
-			}
-			m_frameBottomRight.render(g, x + offsetX, y + offsetY, fScale);
+			m_frameRight.render(g, x + offsetX, offsetY + y, fScale);
 		}
 
+		// Render lower border
+		offsetX = 0;
+		m_frameBottomLeft.render(g, x + offsetX, y + offsetY, fScale);
+		for (offsetX = m_frameBottomLeft.getBounds().width; offsetX < m_width - m_frameBottomRight.getBounds().width; offsetX += m_frameTop.getBounds().width)
+		{
+			m_frameBottom.render(g, x + offsetX, y + offsetY, fScale);
+		}
+		m_frameBottomRight.render(g, x + offsetX, y + offsetY, fScale);
+	}
+	
+	protected final void renderControls(Graphics2D g, int x, int y, float fScale)
+	{
 		for (Control control : m_controls)
 		{
 			if (control.isVisible())
 				control.render(g, control.getLocation().x + x, control.getLocation().y + y, fScale);
 		}
+	}
+
+	@Override
+	public void render(Graphics2D g, int x, int y, float fScale)
+	{
+		renderBackground(g, x, y, fScale);
+		renderControls(g, x, y, fScale);
 	}
 
 	/*
@@ -240,7 +252,9 @@ public abstract class Panel extends Control
 	public void update(int deltaTime)
 	{
 		for (Control control : m_controls)
+		{
 			control.update(deltaTime);
+		}
 	}
 
 	public void setRenderBackground(boolean renderBackground)
@@ -292,19 +306,21 @@ public abstract class Panel extends Control
 			m_frameBottomLeft = getStyle().createFrameBottomLeftSprite();
 			m_frameBottomRight = getStyle().createFrameBottomRightSprite();
 
-			m_frameFill.setAnimation("off", AnimationState.Play);
-			m_frameLeft.setAnimation("off", AnimationState.Play);
-			m_frameRight.setAnimation("off", AnimationState.Play);
-			m_frameTop.setAnimation("off", AnimationState.Play);
-			m_frameBottom.setAnimation("off", AnimationState.Play);
+			m_frameFill.setAnimation("idle", AnimationState.Play);
+			m_frameLeft.setAnimation("idle", AnimationState.Play);
+			m_frameRight.setAnimation("idle", AnimationState.Play);
+			m_frameTop.setAnimation("idle", AnimationState.Play);
+			m_frameBottom.setAnimation("idle", AnimationState.Play);
 
-			m_frameTopLeft.setAnimation("off", AnimationState.Play);
-			m_frameTopRight.setAnimation("off", AnimationState.Play);
-			m_frameBottomLeft.setAnimation("off", AnimationState.Play);
-			m_frameBottomRight.setAnimation("off", AnimationState.Play);
+			m_frameTopLeft.setAnimation("idle", AnimationState.Play);
+			m_frameTopRight.setAnimation("idle", AnimationState.Play);
+			m_frameBottomLeft.setAnimation("idle", AnimationState.Play);
+			m_frameBottomRight.setAnimation("idle", AnimationState.Play);
 
 			for (Control ctrl : m_controls)
+			{
 				ctrl.setStyle(getStyle());
+			}
 		}
 	}
 

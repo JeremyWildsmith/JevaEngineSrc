@@ -12,14 +12,19 @@
  ******************************************************************************/
 package io.github.jevaengine.rpgbase.client;
 
-import io.github.jevaengine.game.ICamera;
+import io.github.jevaengine.Core;
+import io.github.jevaengine.IResourceLibrary;
+import io.github.jevaengine.config.ISerializable;
+import io.github.jevaengine.config.IVariable;
 import io.github.jevaengine.game.IGameScriptProvider;
+import io.github.jevaengine.graphics.AnimationState;
+import io.github.jevaengine.graphics.Sprite;
 import io.github.jevaengine.joystick.InputManager.InputMouseEvent;
 import io.github.jevaengine.rpgbase.RpgCharacter;
 import io.github.jevaengine.rpgbase.RpgGame;
+import io.github.jevaengine.ui.UIStyle;
 import io.github.jevaengine.util.Nullable;
 import io.github.jevaengine.world.Entity;
-import io.github.jevaengine.world.World;
 import io.github.jevaengine.world.World.WorldScriptContext;
 
 public class ClientGame extends RpgGame
@@ -28,17 +33,26 @@ public class ClientGame extends RpgGame
 
 	@Nullable private RpgCharacter m_player;
 
-	@Nullable private ICamera m_camera;
-
 	private IGameState m_state;
 
-	private World m_world;
-
+	private UIStyle m_style;
+	private Sprite m_cursor;
+	
+	private ClientConfiguration m_configuration;
+	
 	@Override
 	protected void startup()
 	{
 		super.startup();
 
+		IResourceLibrary library = Core.getService(IResourceLibrary.class);
+		
+		m_configuration = library.openConfiguration("client.cfg").getValue(ClientConfiguration.class);
+		
+		m_style = UIStyle.create(library.openConfiguration("ui/game.juis"));
+		m_cursor = Sprite.create(library.openConfiguration("ui/tech/cursor/cursor.jsf"));
+		m_cursor.setAnimation("idle", AnimationState.Play);
+		
 		setState(new LoginState());
 	}
 
@@ -62,17 +76,19 @@ public class ClientGame extends RpgGame
 		m_state.update(deltaTime);
 		m_communicator.update(deltaTime);
 
-		if (m_world != null)
-			m_world.update(deltaTime);
-
 		super.update(deltaTime);
 	}
 
-	public void setPlayer(@Nullable RpgCharacter player)
+	protected void setPlayer(@Nullable RpgCharacter player)
 	{
 		m_player = player;
 	}
 
+	public ClientConfiguration getConfiguration()
+	{
+		return m_configuration;
+	}
+	
 	@Override
 	public RpgCharacter getPlayer()
 	{
@@ -90,6 +106,40 @@ public class ClientGame extends RpgGame
 	{
 	}
 
+	@Override
+	public UIStyle getGameStyle()
+	{
+		return m_style;
+	}
+
+	@Override
+	protected Sprite getCursor()
+	{
+		return m_cursor;
+	}
+
+	public static class ClientConfiguration implements ISerializable
+	{
+		public String server;
+		public int port;
+		
+		public ClientConfiguration() { }
+
+		@Override
+		public void serialize(IVariable target)
+		{
+			target.addChild("server").setValue(this.server);
+			target.addChild("port").setValue(this.port);
+		}
+
+		@Override
+		public void deserialize(IVariable source)
+		{
+			server = source.getChild("server").getValue(String.class);
+			port = source.getChild("port").getValue(Integer.class);
+		}
+	}
+	
 	public class ClientGameScriptProvider extends RpgGameScriptProvider
 	{
 		@Override

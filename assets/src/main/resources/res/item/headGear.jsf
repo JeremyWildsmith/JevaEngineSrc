@@ -1,7 +1,20 @@
-source:item/graphic/gear.png;
-scale:1.0;
-
-animation/idle/0:0,0,16,16;
-
-anchor/idle/0:8,8;
-delay/idle/0:1000;
+{
+  "scale" : 1.0,
+  "animations" : [ {
+    "frames" : [ {
+      "region" : {
+        "height" : 16,
+        "width" : 16,
+        "y" : 0,
+        "x" : 0
+      },
+      "delay" : 1000,
+      "anchor" : {
+        "y" : 8,
+        "x" : 8
+      }
+    } ],
+    "name" : "idle"
+  } ],
+  "texture" : "item/graphic/gear.png"
+}

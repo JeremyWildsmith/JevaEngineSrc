@@ -1,0 +1,14 @@
+{
+  "name" : "Crazy Skeleton",
+  "inventorySize" : 0,
+  "visualAcuity" : 1.0,
+  "visibility" : 1.0,
+  "speed" : 0.9,
+  "fieldOfView" : 2.0999999046325684,
+  "sprite" : "artifact/entity/skeletonWarrior/skeletonWarrior.jsf",
+  "script" : "artifact/entity/skeletonWarrior/wonder.js",
+  "allegiance" : 1,
+  "blood" : "particle/blood/bleeding.jpar",
+  "health" : 50,
+  "viewDistance" : 8.0
+}

@@ -25,9 +25,24 @@ import org.mozilla.javascript.Undefined;
 
 import io.github.jevaengine.game.Game;
 import io.github.jevaengine.util.Nullable;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashMap;
+import org.mozilla.javascript.NativeJavaObject;
+import org.mozilla.javascript.WrapFactory;
 
 public class Script
 {
+	static
+	{
+		ContextFactory.initGlobal(new ProtectedContextFactory());
+	}
+	
 	private ScriptableObject m_scope;
 	private Object m_context;
 	
@@ -58,12 +73,17 @@ public class Script
 	{
 		this(null);
 	}
-
+	
 	public final Scriptable getScriptedInterface()
 	{
 		return m_scope;
 	}
 
+	public void putConst(String name, Object o)
+	{
+		m_scope.putConst(name, m_scope, o);
+	}
+	
 	public final @Nullable Object invokeScriptFunction(String functionName, Object... arguments) throws NoSuchMethodException, ScriptException
 	{
 		if(m_scope == null)
@@ -108,11 +128,98 @@ public class Script
 		}
 	}
 
+	private static class ProtectedContextFactory extends ContextFactory
+	{
+		private static final ProtectedWrapFactory wrapper = new ProtectedWrapFactory();
+		
+		@Override
+		protected Context makeContext()
+		{
+			Context c = super.makeContext();
+			c.setWrapFactory(wrapper);
+			
+			return c;
+		}
+	}
+	
+	private static class ProtectedWrapFactory extends WrapFactory
+	{
+		@Override
+		public Scriptable wrapAsJavaObject(Context cx, Scriptable scope, Object javaObject, Class<?> staticType)
+		{
+			return new ProtectedNativeJavaObject(scope, javaObject, staticType);
+		}
+	}
+	
+	private static class ProtectedNativeJavaObject extends NativeJavaObject
+	{
+		private static final HashMap<Class<?>, ArrayList<String>> CLASS_PROTECTION_CACHE = new HashMap<Class<?>, ArrayList<String>>();
+		
+		private ArrayList<String> m_protectedMembers;
+		
+		public ProtectedNativeJavaObject(Scriptable scope, Object javaObject, Class<?> staticType)
+		{
+			super(scope, javaObject, staticType);
+			
+			Class<?> clazz = javaObject != null ? javaObject.getClass() : staticType;
+			
+			m_protectedMembers = CLASS_PROTECTION_CACHE.get(clazz);
+			
+			if(m_protectedMembers == null)
+				m_protectedMembers = processClass(clazz);
+		}
+		
+		private static ArrayList<String> processClass(Class<?> clazz)
+		{
+			ArrayList<String> protectedMethods = new ArrayList<String>();
+			
+			CLASS_PROTECTION_CACHE.put(clazz, protectedMethods);
+
+			for(Method m : clazz.getMethods())
+			{
+				if(m.getAnnotation(ScriptHiddenMember.class) != null)
+					protectedMethods.add(m.getName());
+			}
+			
+			for(Field f : clazz.getFields())
+			{
+				if(f.getAnnotation(ScriptHiddenMember.class) != null)
+					protectedMethods.add(f.getName());
+			}
+			return protectedMethods;
+		}
+		
+		@Override
+		public boolean has(String name, Scriptable start)
+		{
+			if(m_protectedMembers.contains(name))
+				return false;
+			else
+				return super.has(name, start);
+		}
+		
+		@Override
+		public Object get(String name, Scriptable start)
+		{
+			if(m_protectedMembers.contains(name))
+				return NOT_FOUND;
+			else
+				return super.get(name, start);
+		}
+	}
+	
+	@Target({ElementType.METHOD, ElementType.FIELD})
+	@Retention(RetentionPolicy.RUNTIME)
+	public @interface ScriptHiddenMember {}
+	
 	public class ScriptContext
 	{
 		public void evaluate(String path)
 		{
-			Script.this.evaluate(Core.getService(IResourceLibrary.class).openResourceContents(path));
+			Script script = Core.getService(IResourceLibrary.class).openScript(path, m_context);
+			
+			script.m_scope.setParentScope(getScriptedInterface());
+			m_scope = script.m_scope;
 		}
 	}
 }

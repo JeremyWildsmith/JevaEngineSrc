@@ -64,10 +64,11 @@ public class Route
 
 		for (int iterations = 0; iterations < MAX_PATH_ITERATIONS && !open.isEmpty(); iterations++)
 		{
-			best = null;
+			best = open.get(0);
+			
 			for (SearchNode node : open)
 			{
-				if (best == null || node.getCost(endPoint) < best.getCost(endPoint))
+				if (node.getCost(endPoint) < best.getCost(endPoint))
 					best = node;
 			}
 
@@ -81,7 +82,7 @@ public class Route
 				open.remove(best);
 				closed.add(best);
 
-				for (WorldDirection dir : routingRules.getMovements(best, endPoint))
+				for (WorldDirection dir : routingRules.getMovements(world, best, endPoint))
 				{
 					SearchNode step = best.addNode(dir);
 
@@ -116,7 +117,7 @@ public class Route
 
 			while (head.getRoute().length < length)
 			{
-				for (WorldDirection dir : routingRules.getMovements(head, null))
+				for (WorldDirection dir : routingRules.getMovements(world, head, null))
 					head.addNode(dir);
 
 				if (head.getChildren().length <= 0)
@@ -204,12 +205,7 @@ public class Route
 		if (!m_path.isEmpty())
 			m_path.remove(0);
 
-		if (m_path.isEmpty())
-		{
-			return false;
-		}
-
-		return true;
+		return !m_path.isEmpty();
 	}
 
 	public boolean hasNext()

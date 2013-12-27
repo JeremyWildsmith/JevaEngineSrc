@@ -12,25 +12,15 @@
  ******************************************************************************/
 package io.github.jevaengine.rpgbase;
 
-import io.github.jevaengine.rpgbase.Item.ItemDescriptor;
+import io.github.jevaengine.rpgbase.Item.ItemIdentifer;
+import io.github.jevaengine.util.Nullable;
 
 public interface IItemStore
 {
-
-	boolean allowStoreAccess(RpgCharacter accessor);
-
-	public ItemSlot[] getSlots();
-
-	int getSlotIndex(ItemSlot slot);
-
-	boolean hasItem(ItemDescriptor item);
-
-	boolean addItem(ItemDescriptor item);
-
-	boolean removeItem(ItemDescriptor item);
-
-	void doSlotAction(RpgCharacter accessor, String action, int slotIndex);
-
-	public String[] getSlotActions(RpgCharacter accessor, int slotIndex);
-
+	ItemSlot[] getSlots();
+	boolean hasItem(ItemIdentifer item);
+	boolean addItem(ItemIdentifer item);
+	boolean removeItem(ItemIdentifer item);
+	boolean isFull();
+	@Nullable ItemSlot getEmptySlot();
 }

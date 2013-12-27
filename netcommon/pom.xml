@@ -5,6 +5,9 @@
     <artifactId>netcommon</artifactId>
     <version>0.0.1</version>
     <name>netcommon</name>
+    
+    <url>http://jevaengine.com/</url>
+    
     <description>Common Networking Library for Client &amp; Server of RPG Networked base</description>
 	
     <properties>

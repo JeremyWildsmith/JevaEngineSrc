@@ -22,6 +22,7 @@ import java.awt.Rectangle;
 
 import io.github.jevaengine.graphics.Font;
 import io.github.jevaengine.joystick.InputManager;
+import io.github.jevaengine.math.Rect2D;
 
 public class Label extends Control
 {
@@ -58,9 +59,9 @@ public class Label extends Control
 
 		int width = 0;
 
-		Rectangle[] widths = font.getString(m_text);
+		Rect2D[] widths = font.getString(m_text);
 
-		for (Rectangle rect : widths)
+		for (Rect2D rect : widths)
 			width += rect.width;
 
 		return new Rectangle(0, 0, width, font.getHeight());
@@ -108,13 +109,13 @@ public class Label extends Control
 	{
 		Font font = getStyle().getFont(m_color);
 
-		Rectangle[] str = font.getString(m_text);
+		Rect2D[] str = font.getString(m_text);
 
 		int xOffset = x;
 
 		for (int i = 0; i < str.length; i++)
 		{
-			g.drawImage(font.getSource(), xOffset, y, xOffset + str[i].width, y + str[i].height, str[i].x, str[i].y, str[i].x + str[i].width, str[i].y + str[i].height, null);
+			font.getSource().render(g, xOffset, y, str[i].width, str[i].height, str[i].x, str[i].y, str[i].width, str[i].height);
 			xOffset += str[i].width;
 		}
 	}

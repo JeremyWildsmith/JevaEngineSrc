@@ -12,15 +12,14 @@
  ******************************************************************************/
 package io.github.jevaengine.world;
 
-import java.awt.Rectangle;
-
+import io.github.jevaengine.math.Rect2D;
 import io.github.jevaengine.math.Vector2F;
 import io.github.jevaengine.util.Nullable;
 
 public interface ISearchFilter<T>
 {
 
-	public abstract Rectangle getSearchBounds();
+	public abstract Rect2D getSearchBounds();
 
 	public abstract boolean shouldInclude(Vector2F location);
 

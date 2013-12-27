@@ -16,6 +16,7 @@
  */
 package io.github.jevaengine.world;
 
+import io.github.jevaengine.math.Rect2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
@@ -79,7 +80,7 @@ public class EffectMap
 	{
 		ArrayList<TileEffects> tileEffects = new ArrayList<TileEffects>();
 
-		Rectangle searchBounds = filter.getSearchBounds();
+		Rect2D searchBounds = filter.getSearchBounds();
 
 		for (int x = searchBounds.x; x <= searchBounds.x + searchBounds.width; x++)
 		{
@@ -99,7 +100,7 @@ public class EffectMap
 
 	public final void applyOverlayEffects(ISearchFilter<TileEffects> filter, TileEffects overlay)
 	{
-		Rectangle searchBounds = filter.getSearchBounds();
+		Rect2D searchBounds = filter.getSearchBounds();
 
 		for (int x = searchBounds.x; x <= searchBounds.width; x++)
 		{

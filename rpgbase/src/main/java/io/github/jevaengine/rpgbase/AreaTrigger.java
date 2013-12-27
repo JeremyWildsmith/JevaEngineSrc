@@ -12,31 +12,25 @@
  ******************************************************************************/
 package io.github.jevaengine.rpgbase;
 
-import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
 
 import javax.script.ScriptException;
 
-import io.github.jevaengine.Core;
 import io.github.jevaengine.CoreScriptException;
-import io.github.jevaengine.IResourceLibrary;
-import io.github.jevaengine.config.Variable;
-import io.github.jevaengine.config.VariableStore;
-import io.github.jevaengine.config.VariableValue;
+import io.github.jevaengine.config.ISerializable;
+import io.github.jevaengine.config.IVariable;
+import io.github.jevaengine.math.Rect2F;
 import io.github.jevaengine.util.Nullable;
 import io.github.jevaengine.world.Actor;
 import io.github.jevaengine.world.EffectMap;
 import io.github.jevaengine.world.Entity;
-import io.github.jevaengine.world.EntityInstantiationException;
 import io.github.jevaengine.world.RectangleSearchFilter;
 
 public class AreaTrigger extends Entity
 {
 	private static final int SCAN_INTERVAL = 400;
 
-	private Rectangle2D.Float m_bounds;
+	private Rect2F m_bounds;
 
 	private int m_lastScan;
 
@@ -44,32 +38,11 @@ public class AreaTrigger extends Entity
 
 	private ArrayList<RpgCharacter> m_includedEntities = new ArrayList<RpgCharacter>();
 
-	public AreaTrigger(@Nullable String name, List<VariableValue> arguments)
+	public AreaTrigger(@Nullable String name, IVariable arguments)
 	{
-		super(name, initTriggerVariable(arguments), new AreaTriggerBridge<>());
+		super(name, arguments, new AreaTriggerBridge<>());
 
-		m_bounds = arguments.get(1).getRectangleFloat();
-	}
-
-	private static Variable initTriggerVariable(List<VariableValue> arguments)
-	{
-		if (arguments.size() < 2)
-			throw new EntityInstantiationException("Illegal number of arguments");
-
-		return VariableStore.create(Core.getService(IResourceLibrary.class).openResourceStream(arguments.get(0).getString()));
-	}
-
-	@Override
-	protected Variable[] getChildren()
-	{
-		return new Variable[]
-		{};
-	}
-
-	@Override
-	protected Variable setChild(String name, VariableValue value)
-	{
-		throw new NoSuchElementException();
+		m_bounds = arguments.getValue(AreaTriggerDeclaration.class).region;
 	}
 
 	@Override
@@ -156,6 +129,28 @@ public class AreaTrigger extends Entity
 		@Override
 		public void enterWorld()
 		{
+		}
+
+		@Override
+		public void replaced() { }
+	}
+	
+	public static class AreaTriggerDeclaration implements ISerializable
+	{
+		public Rect2F region;
+		
+		public AreaTriggerDeclaration() { }
+		
+		@Override
+		public void serialize(IVariable target)
+		{
+			target.addChild("region").setValue(this.region);
+		}
+
+		@Override
+		public void deserialize(IVariable source)
+		{
+			this.region = source.getChild("region").getValue(Rect2F.class);
 		}
 	}
 }

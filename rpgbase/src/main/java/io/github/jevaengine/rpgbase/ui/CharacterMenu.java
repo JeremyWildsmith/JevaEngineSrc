@@ -18,10 +18,10 @@ import java.lang.ref.WeakReference;
 
 import io.github.jevaengine.Core;
 import io.github.jevaengine.IResourceLibrary;
-import io.github.jevaengine.config.VariableStore;
 import io.github.jevaengine.game.Game;
 import io.github.jevaengine.graphics.IRenderable;
 import io.github.jevaengine.graphics.ParticleEmitter;
+import io.github.jevaengine.graphics.Sprite;
 import io.github.jevaengine.ui.Button;
 import io.github.jevaengine.ui.Label;
 import io.github.jevaengine.ui.MenuStrip;
@@ -35,8 +35,11 @@ import io.github.jevaengine.joystick.InputManager.InputMouseEvent;
 import io.github.jevaengine.joystick.InputManager.InputMouseEvent.EventType;
 import io.github.jevaengine.joystick.InputManager.InputMouseEvent.MouseButton;
 import io.github.jevaengine.math.Vector2D;
+import io.github.jevaengine.rpgbase.IItemStore;
 import io.github.jevaengine.rpgbase.RpgCharacter;
 import io.github.jevaengine.rpgbase.Item.ItemType;
+import io.github.jevaengine.rpgbase.ItemSlot;
+import io.github.jevaengine.rpgbase.Loadout;
 
 
 public class CharacterMenu extends Window
@@ -56,7 +59,7 @@ public class CharacterMenu extends Window
 	{
 		super(style, 300, 330);
 
-		m_characterEmitter = ParticleEmitter.create(VariableStore.create(Core.getService(IResourceLibrary.class).openResourceStream("particle/charactermenu.jpar")), new Vector2D());
+		m_characterEmitter = ParticleEmitter.create(Core.getService(IResourceLibrary.class).openConfiguration("particle/characterMenu/characterMenu.jpar"));
 
 		m_characterEmitter.setEmit(true);
 
@@ -92,11 +95,7 @@ public class CharacterMenu extends Window
 			{
 				m_characterEmitter.render(g, x + 30, y + 40, fScale * 3.0F);
 				if (m_target.get() != null)
-				{
-					for (IRenderable renderable : m_target.get().getGraphics())
-						renderable.render(g, x + 30, y + 60, fScale * 1.3F);
-				}
-
+					m_target.get().getGraphic().render(g, x + 30, y + 60, fScale * 1.3F);
 			}
 		}, 75, 100), new Vector2D(215, 95));
 
@@ -156,22 +155,30 @@ public class CharacterMenu extends Window
 		@Override
 		public void onMouseEvent(InputMouseEvent mouseEvent)
 		{
-			if (m_target.get() == null || m_target.get().getInventory().getGearSlot(m_gearType).isEmpty())
+			if(m_target.get() == null)
+				return;
+			
+			Loadout loadout = m_target.get().getLoadout();
+			
+			final ItemSlot gearSlot = loadout.getSlot(m_gearType);
+			
+			if (gearSlot == null || gearSlot.isEmpty())
 				return;
 
 			if (mouseEvent.type == EventType.MouseClicked && mouseEvent.mouseButton == MouseButton.Right)
 			{
 				CharacterMenu.this.addControl(m_contextStrip, mouseEvent.location.difference(CharacterMenu.this.getAbsoluteLocation()));
 
-				m_contextStrip.setContext(new String[]
-				{ "Unequip" }, new IMenuStripListener()
+				String[] slotActions = gearSlot.getSlotActions(m_target.get());
+				
+				m_contextStrip.setContext(slotActions, new IMenuStripListener()
 				{
 					@Override
-					public void onCommand(String bommand)
+					public void onCommand(String command)
 					{
 						if (m_target.get() != null)
 						{
-							m_target.get().getInventory().unequip(m_gearType);
+							gearSlot.doSlotAction(m_target.get(), command);
 						}
 					}
 				});
@@ -196,12 +203,17 @@ public class CharacterMenu extends Window
 			g.setColor(Color.DARK_GRAY);
 			g.drawRect(x, y, 20, 20);
 
-			m_gearType.getIcon().render(g, x + 10, y + 10, fScale);
-
+			Sprite icon = m_gearType.getIcon();
+			
+			if(icon != null)
+				icon.render(g, x + 10, y + 10, fScale);
+			
 			if (m_target.get() != null)
 			{
-				if (!m_target.get().getInventory().getGearSlot(m_gearType).isEmpty())
-					m_target.get().getInventory().getGearSlot(m_gearType).getItem().getGraphic().render(g, x + 10, y + 10, fScale);
+				ItemSlot gearSlot = m_target.get().getLoadout().getSlot(m_gearType);
+				
+				if (gearSlot != null && !gearSlot.isEmpty())
+					gearSlot.getItem().getGraphic().render(g, x + 10, y + 10, fScale);
 			}
 
 			super.render(g, x, y, fScale);

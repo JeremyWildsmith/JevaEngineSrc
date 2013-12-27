@@ -19,9 +19,8 @@ package io.github.jevaengine.ui;
 import java.awt.Color;
 import java.awt.Graphics2D;
 
-import io.github.jevaengine.graphics.AnimationState;
-import io.github.jevaengine.graphics.Sprite;
 import io.github.jevaengine.joystick.InputManager;
+import io.github.jevaengine.joystick.InputManager.InputMouseEvent;
 import io.github.jevaengine.joystick.InputManager.InputMouseEvent.MouseButton;
 
 public abstract class Button extends Label
@@ -31,28 +30,9 @@ public abstract class Button extends Label
 
 	private static final Color CURSOR_OFF_COLOR = new Color(150, 150, 150);
 
-	private Sprite m_buttonSprite;
-
 	public Button(String text)
 	{
 		super(text, CURSOR_OFF_COLOR);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see io.github.jeremywildsmith.jevaengine.graphics.ui.Control#onStyleChanged()
-	 */
-	@Override
-	public final void onStyleChanged()
-	{
-		super.onStyleChanged();
-
-		if (getStyle() != null)
-		{
-			m_buttonSprite = getStyle().createButtonSprite();
-			m_buttonSprite.setAnimation("off", AnimationState.Play);
-		}
 	}
 
 	/*
@@ -84,9 +64,11 @@ public abstract class Button extends Label
 	 * InputMouseEvent)
 	 */
 	@Override
-	public void onMouseEvent(InputManager.InputMouseEvent mouseEvent)
+	public void onMouseEvent(InputMouseEvent mouseEvent)
 	{
-		if (!mouseEvent.mouseButtonState && mouseEvent.mouseButton == MouseButton.Left)
+		if (!mouseEvent.mouseButtonState &&
+			mouseEvent.mouseButton == MouseButton.Left &&
+			mouseEvent.type == InputMouseEvent.EventType.MouseClicked)
 		{
 			getStyle().getPressButtonAudio().play();
 			onButtonPress();
@@ -115,19 +97,7 @@ public abstract class Button extends Label
 	@Override
 	public void render(Graphics2D g, int x, int y, float fScale)
 	{
-		m_buttonSprite.render(g, x, y, fScale);
 		super.render(g, x, y, fScale);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see io.github.jeremywildsmith.jevaengine.graphics.ui.Label#update(int)
-	 */
-	@Override
-	public void update(int deltaTime)
-	{
-		m_buttonSprite.update(deltaTime);
 	}
 
 	public abstract void onButtonPress();

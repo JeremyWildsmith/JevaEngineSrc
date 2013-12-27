@@ -12,152 +12,161 @@
  ******************************************************************************/
 package io.github.jevaengine.rpgbase;
 
-import java.awt.Color;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-
-import javax.script.ScriptException;
-
 import io.github.jevaengine.Core;
 import io.github.jevaengine.CoreScriptException;
 import io.github.jevaengine.IResourceLibrary;
-import io.github.jevaengine.config.ShallowVariable;
-import io.github.jevaengine.config.UnknownVariableException;
-import io.github.jevaengine.config.Variable;
-import io.github.jevaengine.config.VariableStore;
-import io.github.jevaengine.config.VariableValue;
-import io.github.jevaengine.game.Character;
+import io.github.jevaengine.config.IVariable;
+import io.github.jevaengine.graphics.AnimationState;
 import io.github.jevaengine.graphics.IRenderable;
 import io.github.jevaengine.graphics.ParticleEmitter;
+import io.github.jevaengine.graphics.Sprite;
 import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.math.Vector2F;
-import io.github.jevaengine.rpgbase.AttackTask.IAttacker;
-import io.github.jevaengine.rpgbase.Item.ItemDescriptor;
+import io.github.jevaengine.rpgbase.Inventory.InventoryBridge;
 import io.github.jevaengine.rpgbase.Item.ItemType;
-import io.github.jevaengine.rpgbase.quest.Quest;
-import io.github.jevaengine.rpgbase.quest.QuestState;
-import io.github.jevaengine.rpgbase.quest.QuestTask;
 import io.github.jevaengine.rpgbase.ui.StatisticGuage;
 import io.github.jevaengine.util.Nullable;
 import io.github.jevaengine.util.StaticSet;
+import io.github.jevaengine.world.Actor;
 import io.github.jevaengine.world.EffectMap;
+import io.github.jevaengine.world.EffectMap.TileEffects;
 import io.github.jevaengine.world.Entity;
-import io.github.jevaengine.world.EntityInstantiationException;
-import io.github.jevaengine.world.SynchronousOneShotTask;
+import io.github.jevaengine.world.MovementTask;
 import io.github.jevaengine.world.TraverseRouteTask;
 import io.github.jevaengine.world.WorldDirection;
-import io.github.jevaengine.world.EffectMap.TileEffects;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import javax.script.ScriptException;
 
-public class RpgCharacter extends Character
+public final class RpgCharacter extends Actor
 {
 	private CharacterAllegiance m_allegiance;
-
-	private int m_showHealthTimeout;
-
-	private int m_iMaxHealth;
-	private int m_health;
+	
+	private String m_name;
+	private int m_maxHealth;
+	private float m_visibility;
+	private float m_viewDistance;
+	private float m_fieldOfView;
+	private float m_visualAcuity;
+	private float m_speed;
 
 	private Inventory m_inventory;
-
-	private HashMap<String, Quest> m_quests = new HashMap<String, Quest>();
-
+	private Loadout m_loadout;
+	
+	private int m_health;
+	
 	private ParticleEmitter m_bloodEmitter;
-
-	private int m_bleedTimeout = 0;
 
 	private Observers m_observers = new Observers();
 
-	private RpgCharacterAnimator m_animator;
-
+	private CharacterModel m_model;
 	private RpgCharacterScript m_script = new RpgCharacterScript();
 
-	public <Y extends RpgCharacter, T extends RpgCharacterBridge<Y>> RpgCharacter(@Nullable String name, Variable root, T entityContext)
+	private RpgCharacterTaskFactory m_taskFactory;
+	
+	public <Y extends RpgCharacter, T extends RpgCharacterBridge<Y>> RpgCharacter(@Nullable String name, IVariable root, T entityContext, @Nullable RpgCharacterTaskFactory taskFactory)
 	{
 		super(name, root, entityContext);
+		m_taskFactory = (taskFactory == null ? new RpgCharacterTaskFactory() : taskFactory);
+		
 		init();
 	}
 
-	public <Y extends RpgCharacter, T extends RpgCharacterBridge<Y>> RpgCharacter(@Nullable String name, Variable root)
+	public <Y extends RpgCharacter, T extends RpgCharacterBridge<Y>> RpgCharacter(@Nullable String name, IVariable root, @Nullable RpgCharacterTaskFactory taskFactory)
 	{
 		super(name, root, new RpgCharacterBridge<>());
+		m_taskFactory = (taskFactory == null ? new RpgCharacterTaskFactory() : taskFactory);
+		
 		init();
 	}
-
-	public RpgCharacter(@Nullable String name, List<VariableValue> arguments)
+	
+	public <Y extends RpgCharacter, T extends RpgCharacterBridge<Y>> RpgCharacter(@Nullable String name, IVariable root, T entityContext)
 	{
-		super(name, initVariable(arguments), new RpgCharacterBridge<>());
-
-		init();
+		this(name, root, entityContext, null);
+	}
+	
+	
+	public <Y extends RpgCharacter, T extends RpgCharacterBridge<Y>> RpgCharacter(@Nullable String name, IVariable root)
+	{
+		this(name, root, new RpgCharacterBridge<>());
+	}
+	
+	public <Y extends RpgCharacter, T extends RpgCharacterBridge<Y>> RpgCharacter(IVariable root, T entityContext, @Nullable RpgCharacterTaskFactory taskFactory)
+	{
+		this(null, root, entityContext, taskFactory);
+	}
+	
+	public <Y extends RpgCharacter, T extends RpgCharacterBridge<Y>> RpgCharacter(IVariable root, T entityContext)
+	{
+		this(null, root, entityContext, null);
+	}
+	
+	public RpgCharacter(IVariable root, RpgCharacterTaskFactory factory)
+	{
+		this(null, root, factory);
+	}
+	
+	public RpgCharacter(IVariable root)
+	{
+		this(null, root);
 	}
 
 	private void init()
 	{
-		setDirection(WorldDirection.values()[(int) (Math.random() * 10) % WorldDirection.Zero.ordinal()]);
+		RpgCharacterDeclaration decl = getConfiguration().getValue(RpgCharacterDeclaration.class);
+		
+		setDirection(WorldDirection.values()[(int)Math.round(Math.random() * (float)WorldDirection.Zero.ordinal())]);
+		
+		m_bloodEmitter = ParticleEmitter.create(Core.getService(IResourceLibrary.class).openConfiguration(decl.blood));
+		m_name = decl.name;
+		m_allegiance = decl.allegiance;
+		m_visibility = decl.visibility;
+		m_viewDistance = decl.viewDistance;
+		m_fieldOfView = decl.fieldOfView;
+		m_visualAcuity = decl.visualAcuity;
+		m_speed = decl.speed;
+		m_maxHealth = decl.health;
+		
+		m_health = m_maxHealth;
 
-		m_animator = new RpgCharacterAnimator(super.getAnimator());
-
-		addObserver(m_animator);
-		addObserver(m_script);
-
-		m_showHealthTimeout = 0;
-
-		m_bloodEmitter = ParticleEmitter.create(VariableStore.create(Core.getService(IResourceLibrary.class).openResourceStream("particle/blood.jpar")), new Vector2D(0, 5));
-
-		if (getEntityVariables().variableExists("allegiance"))
-		{
-			int allegianceIndex = getEntityVariables().getVariable("allegiance").getValue().getInt();
-
-			if (allegianceIndex < 0 || allegianceIndex >= CharacterAllegiance.values().length)
-				throw new CoreScriptException("Character claims allegiance via unassigned index.");
-
-			m_allegiance = CharacterAllegiance.values()[allegianceIndex];
-		} else
-			m_allegiance = CharacterAllegiance.Nuetral;
-
-		if (getEntityVariables().variableExists("health"))
-			m_iMaxHealth = getEntityVariables().getVariable("health").getValue().getInt();
-		else
-			m_iMaxHealth = 100;
-
-		m_health = m_iMaxHealth;
-
-		if (getEntityVariables().variableExists("inventorySize"))
-			m_inventory = new Inventory(getEntityVariables().getVariable("inventorySize").getValue().getInt());
-		else
-			m_inventory = new Inventory();
+		m_inventory = new Inventory(this, decl.inventorySize);
+		m_loadout = new Loadout(this);
+		
+		m_model = new CharacterModel(Sprite.create(Core.getService(IResourceLibrary.class).openConfiguration(decl.sprite)));
+		addActionObserver(m_model);
+		addConditionObserver(m_model);
+		addConditionObserver(m_script);
 	}
 
-	private static Variable initVariable(List<VariableValue> arguments)
-	{
-		if (arguments.size() < 1)
-			throw new EntityInstantiationException("Illegal number of arguments");
-
-		return VariableStore.create(Core.getService(IResourceLibrary.class).openResourceStream(arguments.get(0).getString()));
-	}
-
-	public void addObserver(IRpgCharacterObserver observer)
+	public void addActionObserver(IActionObserver observer)
 	{
 		m_observers.add(observer);
-		super.addObserver(observer);
 	}
 
-	public void removeObserver(IRpgCharacterObserver observer)
+	public void addConditionObserver(IConditionObserver observer)
+	{
+		m_observers.add(observer);
+	}
+	
+	public void removeActionObserver(IActionObserver observer)
 	{
 		m_observers.remove(observer);
-		super.removeObserver(observer);
+	}
+	
+	public void removeConditionObserver(IConditionObserver observer)
+	{
+		m_observers.remove(observer);
 	}
 
-	@Override
-	protected RpgCharacterAnimator getAnimator()
+	public String getCharacterName()
 	{
-		return m_animator;
+		return m_name;
+	}
+	
+	@Override
+	public IRenderable getGraphic()
+	{
+		return m_model;
 	}
 
 	@Override
@@ -178,61 +187,107 @@ public class RpgCharacter extends Character
 		return 1;
 	}
 
-	public CharacterAllegiance getAllegiance()
+	public final CharacterAllegiance getAllegiance()
 	{
 		return m_allegiance;
 	}
 
-	public int getHealth()
+	public final int getHealth()
 	{
 		return m_health;
 	}
 
-	public void setHealth(int health)
+	public final void setHealth(int health)
 	{
 		if (health != m_health)
 		{
-			if (health < m_health)
-				m_bleedTimeout = 200;
-
 			if (health == 0)
-			{
 				cancelTasks();
-				RpgCharacter.this.addTask(new SynchronousOneShotTask()
-				{
+			
+			int prevHealth = m_health;
+			
+			m_health = Math.min(m_maxHealth, Math.max(0, health));
 
-					@Override
-					public void run(Entity world)
-					{
-						RpgCharacter.this.m_observers.die();
-					}
-				});
-			} else if (m_health == 0 && health > 0)
-			{
-				cancelTasks();
-				m_animator.idle();
-			}
-			m_health = Math.min(m_iMaxHealth, Math.max(0, health));
-
-			m_showHealthTimeout = 5000;
-			m_observers.healthChanged(health);
+			m_observers.healthChanged(m_health - prevHealth);
 		}
 	}
 
-	public int getMaxHealth()
+	public final int getMaxHealth()
 	{
-		return m_iMaxHealth;
+		return m_maxHealth;
 	}
 
-	public boolean isDead()
+	public final boolean isDead()
 	{
 		return m_health == 0;
 	}
 
+	public final Inventory getInventory()
+	{
+		return m_inventory;
+	}
+	
+	public final Loadout getLoadout()
+	{
+		return m_loadout;
+	}
+
+	@Override
+	public final float getVisibilityFactor()
+	{
+		return m_visibility;
+	}
+
+	@Override
+	public final float getViewDistance()
+	{
+		return m_viewDistance;
+	}
+
+	@Override
+	public final float getFieldOfView()
+	{
+		return m_fieldOfView;
+	}
+
+	@Override
+	public final float getVisualAcuity()
+	{
+		return m_visualAcuity;
+	}
+
+	@Override
+	public final float getSpeed()
+	{
+		return m_speed;
+	}
+	
+	private MovementTask createMoveTask(@Nullable Vector2D dest, float fRadius)
+	{
+		MovementTask task = m_taskFactory.createMovementTask(this, dest, fRadius);
+		task.addObserver(m_observers);
+		
+		return task;
+	}
+	
+	private AttackTask createAttackTask(final @Nullable RpgCharacter target)
+	{
+		AttackTask task = m_taskFactory.createAttackTask(this, target);
+		task.addObserver(m_observers);
+		
+		return task;
+	}
+	
 	public void moveTo(Vector2D destination)
 	{
 		cancelTasks();
-		addTask(new TraverseRouteTask(new CharacterRouteTraveler(), destination, 0.0F));
+		addTask(createMoveTask(destination, m_speed));
+	}
+	
+	public void loot(RpgCharacter target)
+	{
+		cancelTasks();
+		addTask(new LootTask(this, target.getInventory()));
 	}
 
 	public void attack(@Nullable RpgCharacter target)
@@ -240,542 +295,34 @@ public class RpgCharacter extends Character
 		addTask(createAttackTask(target));
 	}
 
-	protected AttackTask createAttackTask(@Nullable final RpgCharacter attackee)
+	protected final MovementTask createWonderTask(float fRadius)
 	{
-		return new AttackTask(new IAttacker()
-		{
-
-			@Override
-			public boolean attack(RpgCharacter target)
-			{
-				ItemSlot weapon = m_inventory.getGearSlot(ItemType.Weapon);
-
-				boolean usedWeapon = !weapon.isEmpty() && weapon.getItem().use(RpgCharacter.this, target);
-
-				boolean usedNatural = !usedWeapon && m_script.onAttack(target);
-
-				if (usedWeapon || usedNatural)
-				{
-					m_observers.attack(target);
-					target.m_observers.attacked(RpgCharacter.this);
-					return true;
-				} else
-					return false;
-			}
-
-			@Override
-			public RpgCharacter getCharacter()
-			{
-				return RpgCharacter.this;
-			}
-
-		}, attackee);
+		return createMoveTask(null, fRadius);
 	}
-
-	protected final AttackTask createAttackTask()
-	{
-		return createAttackTask(null);
-	}
-
-	public Inventory getInventory()
-	{
-		return m_inventory;
-	}
-
-	public Quest getQuest(String quest)
-	{
-		String formal = quest.trim().replace('\\', '/').toLowerCase();
-
-		if (!m_quests.containsKey(formal))
-		{
-			m_quests.put(formal, Quest.create(VariableStore.create(Core.getService(IResourceLibrary.class).openResourceStream(formal))));
-		}
-
-		return m_quests.get(formal);
-	}
-
+	
 	@Override
 	public void blendEffectMap(EffectMap globalEffectMap)
 	{
 		globalEffectMap.applyOverlayEffects(getLocation().round(), new TileEffects(this.isDead()));
 		globalEffectMap.applyOverlayEffects(getLocation().round(), new TileEffects(this));
 	}
-
+	
 	@Override
 	public void doLogic(int deltaTime)
 	{
-		if (m_showHealthTimeout > 0)
-			m_showHealthTimeout -= deltaTime;
-
-		if (m_bleedTimeout > 0)
-		{
-			m_bloodEmitter.setEmit(true);
-			m_bleedTimeout -= deltaTime;
-		} else
-			m_bloodEmitter.setEmit(false);
+		m_model.update(deltaTime);
 
 		m_bloodEmitter.update(deltaTime);
-		super.doLogic(deltaTime);
 	}
-
-	@Override
-	public IRenderable[] getGraphics()
+	
+	private class RpgCharacterScript implements IConditionObserver
 	{
-		ArrayList<IRenderable> renders = new ArrayList<IRenderable>();
-		renders.addAll(Arrays.asList(super.getGraphics()));
-
-		renders.add(m_bloodEmitter);
-
-		if (m_showHealthTimeout > 0)
-			renders.add(new StatisticGuage(new Vector2D(25, -10), new Color(255, 0, 0, 122), 50, 3, (float) m_health / (float) m_iMaxHealth));
-
-		return renders.toArray(new IRenderable[renders.size()]);
-	}
-
-	@Override
-	public Variable[] getChildren()
-	{
-		ArrayList<Variable> variables = new ArrayList<Variable>();
-
-		variables.addAll(Arrays.asList(super.getChildren()));
-
-		variables.add(new InventoryVariable());
-		variables.add(new QuestSetVariable());
-
-		return variables.toArray(new Variable[variables.size()]);
-	}
-
-	public class Inventory implements IItemStore
-	{
-		private ItemSlot m_weaponGear = new ItemSlot();
-		private ItemSlot m_headGear = new ItemSlot();
-		private ItemSlot m_bodyGear = new ItemSlot();
-		private ItemSlot m_accessoryGear = new ItemSlot();
-
-		private ArrayList<ItemSlot> m_inventory;
-
-		public Inventory(int slotCount)
-		{
-			m_inventory = new ArrayList<ItemSlot>(slotCount);
-
-			for (int i = 0; i < slotCount; i++)
-				m_inventory.add(new ItemSlot());
-		}
-
-		public Inventory()
-		{
-			this(0);
-		}
-
-		public ItemSlot getGearSlot(ItemType gearType)
-		{
-			switch (gearType)
-			{
-				case Accessory:
-					return m_accessoryGear;
-				case BodyArmor:
-					return m_bodyGear;
-				case HeadArmor:
-					return m_headGear;
-				case Weapon:
-					return m_weaponGear;
-				default:
-					throw new NoSuchElementException();
-			}
-		}
-
 		@Override
-		public boolean allowStoreAccess(RpgCharacter accessor)
+		public void healthChanged(int delta)
 		{
-			return accessor == RpgCharacter.this || (RpgCharacter.this.isDead() && accessor.getLocation().difference(RpgCharacter.this.getLocation()).getLength() < 2.5F);
-		}
-
-		@Override
-		public ItemSlot[] getSlots()
-		{
-			return m_inventory.toArray(new ItemSlot[m_inventory.size()]);
-		}
-
-		@Override
-		public boolean hasItem(ItemDescriptor item)
-		{
-			for (ItemSlot slot : m_inventory)
-			{
-				if (!slot.isEmpty() && slot.getItem().getDescription().equals(item))
-					return true;
-			}
-
-			return false;
-		}
-
-		@Override
-		public boolean addItem(ItemDescriptor item)
-		{
-			for (int i = 0; i < m_inventory.size(); i++)
-			{
-				if (m_inventory.get(i).isEmpty())
-				{
-					m_inventory.get(i).setItem(Item.create(item));
-					m_observers.addItem(item);
-					return true;
-				}
-			}
-
-			return false;
-		}
-
-		@Override
-		public boolean removeItem(ItemDescriptor item)
-		{
-			for (ItemSlot slot : m_inventory)
-			{
-				if (!slot.isEmpty() && slot.getItem().getDescription().equals(item))
-				{
-					m_observers.removeItem(item);
-					slot.clear();
-					return true;
-				}
-			}
-
-			return false;
-		}
-
-		public void equip(Item item)
-		{
-			switch (item.getType())
-			{
-				case Accessory:
-					m_accessoryGear.setItem(item);
-					break;
-				case BodyArmor:
-					m_bodyGear.setItem(item);
-					break;
-				case HeadArmor:
-					m_headGear.setItem(item);
-					break;
-				case Weapon:
-					m_weaponGear.setItem(item);
-					break;
-				default:
-					throw new NoSuchElementException();
-			}
-
-			m_observers.equip(item);
-		}
-
-		public void equip(ItemSlot slot)
-		{
-			ItemSlot destination = null;
-
-			if (slot.isEmpty())
+			if(getHealth() != 0)
 				return;
-
-			switch (slot.getItem().getType())
-			{
-				case Accessory:
-					destination = m_accessoryGear;
-					break;
-				case BodyArmor:
-					destination = m_bodyGear;
-					break;
-				case HeadArmor:
-					destination = m_headGear;
-					break;
-				case Weapon:
-					destination = m_weaponGear;
-					break;
-				default:
-					throw new NoSuchElementException();
-			}
-
-			m_observers.equip(m_inventory.indexOf(slot));
-
-			Item destItem = destination.isEmpty() ? null : destination.getItem();
-
-			if (slot.isEmpty())
-				destination.clear();
-			else
-				destination.setItem(slot.getItem());
-
-			if (destItem != null)
-				slot.setItem(destItem);
-			else
-				slot.clear();
-		}
-
-		public boolean unequip(ItemType gearType)
-		{
-			ItemSlot gearSlot = getGearSlot(gearType);
-
-			if (!gearSlot.isEmpty() && addItem(gearSlot.getItem().getDescriptor()))
-			{
-				gearSlot.clear();
-				m_observers.unequip(gearType);
-				return true;
-			}
-
-			return false;
-		}
-
-		public void consume(ItemSlot slot)
-		{
-			if (!slot.isEmpty())
-			{
-				m_observers.consume(m_inventory.indexOf(slot));
-
-				if (slot.getItem().use(RpgCharacter.this, RpgCharacter.this))
-					slot.clear();
-			}
-		}
-
-		public boolean loot(RpgCharacter accessor, ItemSlot slot)
-		{
-			if (slot.isEmpty())
-				return false;
-
-			for (ItemSlot accessorSlot : accessor.getInventory().getSlots())
-			{
-				if (accessorSlot.isEmpty())
-				{
-					m_observers.loot(accessor, m_inventory.indexOf(slot));
-					accessorSlot.setItem(slot.getItem());
-					slot.clear();
-					return true;
-				}
-			}
-
-			return false;
-		}
-
-		public void drop(ItemSlot slot)
-		{
-			m_observers.drop(m_inventory.indexOf(slot));
-			slot.clear();
-		}
-
-		public boolean isFull()
-		{
-			for (ItemSlot slot : m_inventory)
-			{
-				if (slot.isEmpty())
-					return false;
-			}
-
-			return true;
-		}
-
-		@Override
-		public int getSlotIndex(ItemSlot slot)
-		{
-			int index = m_inventory.indexOf(slot);
-
-			if (index < 0)
-				throw new NoSuchElementException();
-
-			return index;
-		}
-
-		@Override
-		public String[] getSlotActions(RpgCharacter accessor, int slotIndex)
-		{
-			ItemSlot slot = getSlots()[slotIndex];
-
-			if (slot.isEmpty())
-				return new String[]
-				{};
-
-			if (accessor == RpgCharacter.this)
-			{
-				switch (slot.getItem().getType())
-				{
-					case Accessory:
-					case BodyArmor:
-					case HeadArmor:
-					case Weapon:
-						return new String[]
-						{ "Equip", "Drop" };
-					case Consumable:
-						return new String[]
-						{ "Consume", "Drop" };
-					case General:
-						return new String[]
-						{ "About", "Drop" };
-					default:
-						throw new RuntimeException("Unknown Item Type");
-				}
-			} else if (RpgCharacter.this.isDead())
-			{
-				return new String[] { "Loot" };
-			}
-
-			return new String[]
-			{};
-		}
-
-		@Override
-		public void doSlotAction(RpgCharacter accessor, String action, int slotIndex)
-		{
-			ItemSlot slot = getSlots()[slotIndex];
-
-			if (action.compareTo("Drop") == 0)
-				drop(slot);
-			else if (action.compareTo("Loot") == 0)
-			{
-				loot(accessor, slot);
-			} else if (action.compareTo("Consume") == 0)
-			{
-				consume(slot);
-			} else if (action.compareTo("Equip") == 0)
-			{
-				equip(slot);
-			}
-		}
-
-		public ItemSlot[] getGearSlots()
-		{
-			return new ItemSlot[]
-			{ m_accessoryGear, m_headGear, m_bodyGear, m_weaponGear };
-		}
-	}
-
-	public class QuestSetVariable extends Variable
-	{
-		public QuestSetVariable()
-		{
-			super("quests");
-		}
-
-		@Override
-		protected Variable[] getChildren()
-		{
-			ArrayList<Variable> variables = new ArrayList<Variable>();
-
-			for (Map.Entry<String, Quest> q : m_quests.entrySet())
-			{
-				variables.add(new QuestVariable(encodeQuestName(q.getKey()), q.getValue()));
-			}
-
-			return variables.toArray(new Variable[variables.size()]);
-		}
-
-		@Override
-		protected Variable setChild(String name, VariableValue value)
-		{
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		protected Variable createChild(String name, VariableValue value)
-		{
-			Quest q = getQuest(decodeQuestName(name));
-
-			return new QuestVariable(name, q);
-		}
-
-		private String encodeQuestName(String raw)
-		{
-			try
-			{
-				return URLEncoder.encode(raw, "ISO-8859-1");
-			} catch (UnsupportedEncodingException e)
-			{
-				throw new RuntimeException(e);
-			}
-		}
-
-		private String decodeQuestName(String raw)
-		{
-			try
-			{
-				return URLDecoder.decode(raw, "ISO-8859-1");
-			} catch (UnsupportedEncodingException e)
-			{
-				throw new RuntimeException(e);
-			}
-		}
-
-		public class QuestVariable extends Variable
-		{
-			private Quest m_quest;
-
-			public QuestVariable(String questName, Quest quest)
-			{
-				super(questName);
-
-				m_quest = quest;
-			}
-
-			@Override
-			protected Variable[] getChildren()
-			{
-				ArrayList<Variable> variables = new ArrayList<Variable>();
-
-				for (QuestTask t : m_quest.getTasks())
-				{
-					variables.add(new ShallowVariable(this, t.getId(), new VariableValue(t.getState().ordinal())));
-				}
-
-				return variables.toArray(new Variable[variables.size()]);
-			}
-
-			@Override
-			protected Variable setChild(String name, VariableValue value)
-			{
-				m_quest.getTask(name).setState(QuestState.values()[value.getInt()]);
-
-				return new ShallowVariable(this, name, value);
-			}
-		}
-	}
-
-	public class InventoryVariable extends Variable
-	{
-		InventoryVariable()
-		{
-			super("inventory");
-		}
-
-		@Override
-		protected Variable[] getChildren()
-		{
-			ArrayList<ShallowVariable> children = new ArrayList<ShallowVariable>();
-
-			ItemSlot[] slots = getInventory().getSlots();
-
-			for (int i = 0; i < slots.length; i++)
-			{
-				ItemSlot slot = slots[i];
-
-				children.add(new ShallowVariable(this, String.valueOf(i), (slot.isEmpty() ? new VariableValue() : new VariableValue(slot.getItem().getDescriptor().toString()))));
-			}
-
-			return children.toArray(new ShallowVariable[children.size()]);
-		}
-
-		@Override
-		protected Variable setChild(String name, VariableValue value)
-		{
-			int slotIndex = Integer.parseInt(name);
-
-			if (slotIndex >= getInventory().getSlots().length && slotIndex < 0)
-				throw new UnknownVariableException(String.format("Inventory slot %d does not exist", slotIndex));
-
-			ItemSlot slot = getInventory().getSlots()[slotIndex];
-
-			if (value.getString().length() <= 0)
-				slot.clear();
-			else
-				slot.setItem(Item.create(value.getString()));
-
-			return new ShallowVariable(this, name, value);
-		}
-	}
-
-	private class RpgCharacterScript implements IRpgCharacterObserver
-	{
-		@Override
-		public void die()
-		{
+			
 			try
 			{
 				getScript().invokeScriptFunction("onDie");
@@ -783,13 +330,12 @@ public class RpgCharacter extends Character
 			{
 			} catch (ScriptException e)
 			{
-				throw new CoreScriptException(
-						"Error invoking RpgCharacter onDie: " + e.toString());
+				throw new CoreScriptException("Error invoking RpgCharacter onDie: " + e.toString());
 			}
 		}
 
 		@Override
-		public void onAttacked(RpgCharacter attacker)
+		public void attacked(RpgCharacter attacker)
 		{
 			try
 			{
@@ -823,344 +369,315 @@ public class RpgCharacter extends Character
 				throw new CoreScriptException("Error occured executing onAttack: " + e.toString());
 			}
 		}
-
-		@Override
-		public void movingTowards(Vector2F target)
+		
+		public int handleDialogueEvent(Entity listener, int event)
 		{
+			try
+			{
+				Object o = getScript().invokeScriptFunction("handleDialogueEvent", listener.getScriptBridge(), event);
+				
+				if(o instanceof Integer)
+					return ((Integer)o).intValue();
+				else
+					return -1;
+				
+			} catch (NoSuchMethodException e)
+			{
+				return -1;
+			} catch (ScriptException e)
+			{
+				throw new CoreScriptException("Error invoking RpgCharacter handleDialogueEvent: " + e.toString());
+			}
+		}
+	}
+
+	protected final class CharacterModel implements IConditionObserver, IActionObserver, IRenderable
+	{
+		private static final int ATTACK_TIMEOUT = 2000;
+		
+		private Sprite m_sprite;
+		private String m_lastDirectionalAnimation = "idle";
+		private AnimationState m_lastDirectionalState = AnimationState.Stop;
+
+		private WorldDirection m_lastDirection;
+		
+		private StatisticGuage m_healthGuage = new StatisticGuage(new Vector2D(25, -10), Color.red, 50, 3, 1.0F);
+		
+		private int m_bleedTimeout = 0;
+		private int m_showHealthTimeout = 0;
+		private int m_attackTimeout = 0;
+		
+		private CharacterModel(Sprite sprite)
+		{
+			m_sprite = sprite;
+			m_lastDirection = getDirection() == WorldDirection.Zero ? WorldDirection.XMinus : RpgCharacter.this.getDirection();
+			idle();
 		}
 
-		@Override
-		public void directionChanged(WorldDirection direction)
+		private void setDirectionalAnimation(String animationName, AnimationState state)
 		{
+			m_lastDirectionalAnimation = animationName;
+			m_lastDirectionalState = state;
+
+			m_lastDirection = getDirection() == WorldDirection.Zero ? m_lastDirection : getDirection();
+
+			m_sprite.setAnimation(m_lastDirection.toString() + animationName, 
+								  state);
 		}
 
-		@Override
-		public void placement(Vector2F location)
+		public void updateDirectional()
 		{
+			if(getDirection() != m_lastDirection)
+				setDirectionalAnimation(m_lastDirectionalAnimation, m_lastDirectionalState);
 		}
 
-		@Override
-		public void moved(Vector2F delta)
+		private void idle()
 		{
-		}
-
-		@Override
-		public void enterWorld()
-		{
-		}
-
-		@Override
-		public void leaveWorld()
-		{
+			if(getHealth() == 0)
+				setDirectionalAnimation("die", AnimationState.PlayToEnd);
+			else
+				setDirectionalAnimation("idle", AnimationState.PlayWrap);
 		}
 
 		@Override
 		public void attack(RpgCharacter attackee)
 		{
-		}
-
-		@Override
-		public void healthChanged(int health)
-		{
-		}
-
-		@Override
-		public void addItem(ItemDescriptor item)
-		{
-		}
-
-		@Override
-		public void removeItem(ItemDescriptor item)
-		{
-		}
-
-		@Override
-		public void equip(int slot)
-		{
-		}
-
-		@Override
-		public void unequip(ItemType gearType)
-		{
-		}
-
-		@Override
-		public void drop(int slot)
-		{
-		}
-
-		@Override
-		public void loot(RpgCharacter accessor, int slot)
-		{
-		}
-
-		@Override
-		public void consume(int slot)
-		{
-		}
-
-		@Override
-		public void equip(Item item)
-		{
-		}
-
-		@Override
-		public void onDialogEvent(Entity subject, int event)
-		{
-		}
-	}
-
-	protected class RpgCharacterAnimator extends CharacterAnimator implements IRpgCharacterObserver
-	{
-		private String m_lastDirectionalAnimation = "idle";
-		private boolean m_lastDirectionalPlayOnce = false;
-
-		private WorldDirection m_lastDirection;
-
-		public RpgCharacterAnimator(CharacterAnimator animator)
-		{
-			super(animator);
-			m_lastDirection = getDirection() == WorldDirection.Zero ? WorldDirection.XMinus : RpgCharacter.this.getDirection();
-			idle();
-		}
-
-		private void setDirectionalAnimation(String animationName, boolean playOnce)
-		{
-			m_lastDirectionalAnimation = animationName;
-			m_lastDirectionalPlayOnce = playOnce;
-
-			m_lastDirection = getDirection() == WorldDirection.Zero ? m_lastDirection : getDirection();
-
-			setAnimation(m_lastDirection.toString() + animationName, playOnce);
-		}
-
-		public void updateDirectional()
-		{
-			setDirectionalAnimation(m_lastDirectionalAnimation, m_lastDirectionalPlayOnce);
-		}
-
-		private void idle()
-		{
-			setDirectionalAnimation("idle", false);
-		}
-
-		public void attack(@Nullable RpgCharacter attackee)
-		{
-			setDirectionalAnimation(attackee != null ? "attack" : "idle", false);
-		}
-
-		@Override
-		public void die()
-		{
-			setDirectionalAnimation("die", true);
-		}
-
-		@Override
-		public void movingTowards(@Nullable Vector2F target)
-		{
-			if (isDead() && target == null)
-				die();
-			else if (target == null)
-				setDirectionalAnimation("idle", false);
-			else
-				setDirectionalAnimation("walking", false);
-		}
-
-		@Override
-		public void directionChanged(WorldDirection direction)
-		{
+			WorldDirection attackDirection = WorldDirection.fromVector(attackee.getLocation().difference(RpgCharacter.this.getLocation()));
+			setDirection(attackDirection);
 			updateDirectional();
+			
+			m_attackTimeout = ATTACK_TIMEOUT;
+			setDirectionalAnimation("attack", AnimationState.PlayWrap);
 		}
 
 		@Override
-		public void enterWorld()
+		public void healthChanged(int delta)
+		{
+			if(getHealth() == 0)
+				setDirectionalAnimation("die", AnimationState.PlayToEnd);
+			else if(m_lastDirectionalAnimation.equals("die"))
+				idle();
+				
+			m_healthGuage.setValue((float)getHealth() / (float)getMaxHealth());
+			
+			m_showHealthTimeout = 3000;
+			
+			if(delta < 0)
+				m_bleedTimeout = 650;
+		}
+		
+		@Override
+		public void beginMoving()
+		{
+			setDirectionalAnimation("walk", AnimationState.Play);
+		}
+		
+		@Override
+		public void endMoving()
 		{
 			idle();
 		}
-
-		@Override
-		public void leaveWorld()
+		
+		public void update(int delta)
 		{
+			if(getDirection() != m_lastDirection)
+				setDirectionalAnimation(m_lastDirectionalAnimation, m_lastDirectionalState);
+			
+			m_sprite.update(delta);
+			
+			if (m_showHealthTimeout > 0)
+				m_showHealthTimeout -= delta;
+			
+			if (m_bleedTimeout > 0)
+			{
+				m_bloodEmitter.setEmit(true);
+				m_bleedTimeout -= delta;
+			} else
+				m_bloodEmitter.setEmit(false);
+			
+			if(m_attackTimeout > 0)
+			{
+				m_attackTimeout -= delta;
+				
+				if(m_attackTimeout <= 0 && m_lastDirectionalAnimation.equals("attack"))
+					idle();
+			}
 		}
 
 		@Override
-		public void healthChanged(int health)
+		public void render(Graphics2D g, int x, int y, float fScale)
 		{
+			m_sprite.render(g, x, y, fScale);
+			m_bloodEmitter.render(g, x, y, fScale);
+
+			if (m_showHealthTimeout > 0)
+				m_healthGuage.render(g, x, y, fScale);
 		}
+		
+		@Override
+		public void attacked(RpgCharacter attacker) { }
 
 		@Override
-		public void placement(Vector2F location)
-		{
-		}
-
-		@Override
-		public void moved(Vector2F delta)
-		{
-		}
-
-		@Override
-		public void onAttacked(RpgCharacter attacker)
-		{
-		}
-
-		@Override
-		public void addItem(ItemDescriptor item)
-		{
-		}
-
-		@Override
-		public void removeItem(ItemDescriptor item)
-		{
-		}
-
-		@Override
-		public void equip(int slot)
-		{
-		}
-
-		@Override
-		public void unequip(ItemType gearType)
-		{
-		}
-
-		@Override
-		public void drop(int slot)
-		{
-		}
-
-		@Override
-		public void loot(RpgCharacter accessor, int slot)
-		{
-		}
-
-		@Override
-		public void consume(int slot)
-		{
-		}
-
-		@Override
-		public void equip(Item item)
-		{
-		}
-
-		@Override
-		public void onDialogEvent(Entity subject, int event)
-		{
-		}
+		public void movingTowards(Vector2F target) { }
 	}
 
-	public interface IRpgCharacterObserver extends ICharacterObserver
+	public interface IConditionObserver
 	{
-		void die();
-
-		void healthChanged(int health);
-
+		void healthChanged(int delta);
+		void attacked(RpgCharacter attacker);
+	}
+	
+	public interface IActionObserver
+	{
 		void attack(@Nullable RpgCharacter attackee);
-
-		void onAttacked(RpgCharacter attacker);
-
-		void addItem(ItemDescriptor item);
-
-		void removeItem(ItemDescriptor item);
-
-		void equip(int slotIndex);
-
-		void equip(Item item);
-
-		void unequip(ItemType gearType);
-
-		void drop(int slotIndex);
-
-		void loot(RpgCharacter accessor, int slotIndex);
-
-		void consume(int slotIndex);
+		void movingTowards(Vector2F target);
+		void beginMoving();
+		void endMoving();
 	}
-
-	private class Observers extends StaticSet<IRpgCharacterObserver>
+	
+	public static class RpgCharacterTaskFactory
 	{
-		public void die()
+		public MovementTask createMovementTask(final RpgCharacter host, final @Nullable Vector2D dest, final float fRadius)
 		{
-			for (IRpgCharacterObserver observer : this)
-				observer.die();
+			return new TraverseRouteTask(dest, host.getAllowedMovements(), host.getSpeed(), fRadius);
 		}
-
-		public void equip(Item item)
+		
+		public AttackTask createAttackTask(final RpgCharacter host, final @Nullable RpgCharacter target)
 		{
-			for (IRpgCharacterObserver observer : this)
-				observer.equip(item);
+			return new AttackTask(target)
+			{
+				@Override
+				public boolean doAttack(RpgCharacter target)
+				{
+					ItemSlot weapon = host.getLoadout().getSlot(ItemType.Weapon);
+
+					boolean attacked;
+					
+					if(weapon != null && !weapon.isEmpty())
+						attacked = weapon.getItem().use(host, target);
+					else
+						attacked = host.m_script.onAttack(target);
+					
+					return attacked;
+				}
+			};
 		}
+	}
+	
+	private class Observers implements MovementTask.IMovementObserver, AttackTask.IAttackObserver
+	{
+		private StaticSet<IConditionObserver> m_conditionObservers = new StaticSet<IConditionObserver>();
+		private StaticSet<IActionObserver> m_actionObservers = new StaticSet<IActionObserver>();
 
-		public void attack(@Nullable RpgCharacter attackee)
+		private boolean m_isMoving = false;
+		
+		public void add(IConditionObserver observer)
 		{
-			for (IRpgCharacterObserver observer : this)
-				observer.attack(attackee);
+			m_conditionObservers.add(observer);
+		}
+		
+		public void add(IActionObserver observer)
+		{
+			m_actionObservers.add(observer);
+		}
+		
+		public void remove(IConditionObserver observer)
+		{
+			m_conditionObservers.remove(observer);
+		}
+		
+		public void remove(IActionObserver observer)
+		{
+			m_actionObservers.remove(observer);
 		}
 
 		public void attacked(RpgCharacter attacker)
 		{
-			for (IRpgCharacterObserver observer : this)
-				observer.onAttacked(attacker);
+			for (IConditionObserver observer : m_conditionObservers)
+				observer.attacked(attacker);
 		}
 
-		public void healthChanged(int health)
+		public void healthChanged(int delta)
 		{
-			for (IRpgCharacterObserver observer : this)
-				observer.healthChanged(health);
+			for (IConditionObserver observer : m_conditionObservers)
+				observer.healthChanged(delta);
 		}
-
-		public void addItem(ItemDescriptor item)
+		
+		@Override
+		public void attack(@Nullable RpgCharacter attackee)
 		{
-			for (IRpgCharacterObserver observer : this)
-				observer.addItem(item);
+			for (IActionObserver observer : m_actionObservers)
+				observer.attack(attackee);
+			
+			if(attackee != null)
+				attackee.m_observers.attacked(RpgCharacter.this);
 		}
-
-		public void removeItem(ItemDescriptor item)
+		
+		@Override
+		public void movingTowards(Vector2F target)
 		{
-			for (IRpgCharacterObserver observer : this)
-				observer.removeItem(item);
+			for (IActionObserver observer : m_actionObservers)
+				observer.movingTowards(target);
 		}
-
-		public void equip(int slot)
+		
+		@Override
+		public void updateMovement(Vector2F delta)
 		{
-			for (IRpgCharacterObserver observer : this)
-				observer.equip(slot);
+			WorldDirection direction = WorldDirection.fromVector(delta);
+
+			if (direction != WorldDirection.Zero)
+				setDirection(direction);
+
+			move(delta);
+			
+			if(!m_isMoving && !delta.isZero())
+				beginMoving();
+			else if(m_isMoving && delta.isZero())
+				endMoving();
+			
+			m_isMoving = !delta.isZero();
 		}
-
-		public void unequip(ItemType gearType)
+		
+		public void beginMoving()
 		{
-			for (IRpgCharacterObserver observer : this)
-				observer.unequip(gearType);
+			for(IActionObserver observer : m_actionObservers)
+				observer.beginMoving();
 		}
-
-		public void drop(int slot)
+		
+		public void endMoving()
 		{
-			for (IRpgCharacterObserver observer : this)
-				observer.drop(slot);
-		}
-
-		public void loot(RpgCharacter accessor, int slot)
-		{
-			for (IRpgCharacterObserver observer : this)
-				observer.loot(accessor, slot);
-		}
-
-		public void consume(int slot)
-		{
-			for (IRpgCharacterObserver observer : this)
-				observer.consume(slot);
+			for (IActionObserver observer : m_actionObservers)
+				observer.endMoving();
 		}
 	}
 
-	public static class RpgCharacterBridge<Y extends RpgCharacter> extends CharacterBridge<Y>
+	public static class RpgCharacterBridge<Y extends RpgCharacter> extends ActorBridge<Y>
 	{
+		public void wonder(float fRadius)
+		{
+			getEntity().addTask(((RpgCharacter) getEntity()).createMoveTask(null, fRadius));
+		}
+
+		public void moveTo(int x, int y, float fRadius)
+		{
+			getEntity().addTask(((RpgCharacter) getEntity()).createMoveTask(new Vector2D(x, y), fRadius));
+		}
+
+		public void moveTo(int x, int y, float fRadius, int maxSteps)
+		{
+			MovementTask moveTask = ((RpgCharacter) getEntity()).createMoveTask(new Vector2D(x, y), fRadius);
+
+			getEntity().addTask(moveTask);
+		}
+				
 		public void attack(EntityBridge<Entity> entity)
 		{
-			if (!(entity instanceof RpgCharacter.RpgCharacterBridge<?>))
+			if (!(entity instanceof RpgCharacter.ActorBridge<?>))
 				return;
 
-			RpgCharacter character = ((RpgCharacter.RpgCharacterBridge<?>) entity).getMe();
+			RpgCharacter character = ((RpgCharacter.RpgCharacterBridge<?>) entity).getEntity();
 
-			getMe().attack(character);
+			getEntity().attack(character);
 		}
 
 		public boolean isConflictingAllegiance(EntityBridge<Entity> entity)
@@ -1168,64 +685,79 @@ public class RpgCharacter extends Character
 			if (!(entity instanceof RpgCharacter.RpgCharacterBridge<?>))
 				return false;
 
-			RpgCharacter character = ((RpgCharacter.RpgCharacterBridge<?>) entity).getMe();
+			RpgCharacter character = ((RpgCharacter.RpgCharacterBridge<?>) entity).getEntity();
 
-			return character.m_allegiance.conflictsWith(((RpgCharacter) getMe()).m_allegiance);
+			return character.m_allegiance.conflictsWith(((RpgCharacter) getEntity()).m_allegiance);
 		}
-
-		public int addItem(String descriptor, int quantity)
+		
+		public void loot(RpgCharacterBridge<RpgCharacter> target)
 		{
-			int added;
-
-			for (added = 0; added < quantity && getMe().getInventory().addItem(new ItemDescriptor(descriptor)); added++)
-				;
-
-			return added;
+			getEntity().addTask(new LootTask(getEntity(), target.getEntity().getInventory()));
 		}
-
-		public boolean hasItem(String descriptor, int quantity)
+				
+		public InventoryBridge getInventory()
 		{
-			Item.ItemDescriptor searchingFor = new ItemDescriptor(descriptor);
-
-			int count = 0;
-
-			for (ItemSlot slot : getMe().getInventory().getSlots())
-			{
-				if (!slot.isEmpty() && slot.getItem().getDescriptor().equals(searchingFor))
-					count++;
-			}
-
-			return (count >= quantity);
-		}
-
-		public int removeItem(String descriptor, int quantity)
-		{
-			int taken = 0;
-
-			for (taken = 0; taken < quantity && getMe().getInventory().removeItem(new ItemDescriptor(descriptor)); taken++)
-				;
-
-			return taken;
+			return getEntity().getInventory().getScriptBridge();
 		}
 
 		public int getHealth()
 		{
-			return ((RpgCharacter) getMe()).getHealth();
+			return ((RpgCharacter) getEntity()).getHealth();
 		}
 
 		public void setHealth(int health)
 		{
-			((RpgCharacter) getMe()).setHealth(Math.max(Math.min(getMe().getMaxHealth(), health), 0));
+			((RpgCharacter) getEntity()).setHealth(Math.max(Math.min(getEntity().getMaxHealth(), health), 0));
+		}
+	}
+	
+	public static class RpgCharacterDeclaration extends EntityDeclaration
+	{
+		public String name;
+		public String sprite;
+		public String blood;
+		public CharacterAllegiance allegiance;
+		public int health;
+		public int inventorySize;
+		public float visibility;
+		public float viewDistance;
+		public float fieldOfView;
+		public float visualAcuity;
+		public float speed;
+
+		@Override
+		public void serialize(IVariable target)
+		{
+			target.addChild("name").setValue(name);
+			target.addChild("sprite").setValue(sprite);
+			target.addChild("blood").setValue(blood);
+			target.addChild("allegiance").setValue(allegiance.ordinal());
+			target.addChild("health").setValue(health);
+			target.addChild("inventorySize").setValue(inventorySize);
+			target.addChild("visibility").setValue(visibility);
+			target.addChild("viewDistance").setValue(viewDistance);
+			target.addChild("fieldOfView").setValue(fieldOfView);
+			target.addChild("visualAcuity").setValue(visualAcuity);
+			target.addChild("speed").setValue(speed);
+			super.serialize(target);
 		}
 
-		public Quest getQuest(String quest)
+		@Override
+		public void deserialize(IVariable source)
 		{
-			return getMe().getQuest(quest);
-		}
-
-		public void loot(RpgCharacterBridge<RpgCharacter> target)
-		{
-			getMe().addTask(new LootTask(getMe(), target.getMe().getInventory()));
+			name = source.getChild("name").getValue(String.class);
+			sprite = source.getChild("sprite").getValue(String.class);
+			blood = source.getChild("blood").getValue(String.class);
+			allegiance = CharacterAllegiance.values()[source.getChild("allegiance").getValue(Integer.class)];
+			health = source.getChild("health").getValue(Integer.class);
+			inventorySize = source.getChild("inventorySize").getValue(Integer.class);
+			visibility = source.getChild("visibility").getValue(Double.class).floatValue();
+			viewDistance = source.getChild("viewDistance").getValue(Double.class).floatValue();
+			fieldOfView = source.getChild("fieldOfView").getValue(Double.class).floatValue();
+			visualAcuity = source.getChild("visualAcuity").getValue(Double.class).floatValue();
+			speed = source.getChild("speed").getValue(Double.class).floatValue();
+			
+			super.deserialize(source);
 		}
 	}
 }

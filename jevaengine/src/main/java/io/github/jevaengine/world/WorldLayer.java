@@ -36,24 +36,24 @@ public class WorldLayer implements IDisposable
 		m_sectors = new ArrayList<LayerSector>();
 	}
 
-	public void addStaticTile(Tile tile)
+	public void addStatic(Actor entity)
 	{
-		if (!m_sectors.contains(new LayerSectorCoordinate(tile.getLocation())))
-			m_sectors.add(new LayerSector(tile.getLocation().round()));
+		if (!m_sectors.contains(new LayerSectorCoordinate(entity.getLocation())))
+			m_sectors.add(new LayerSector(entity.getLocation().round()));
 
-		int sec = m_sectors.indexOf(new LayerSectorCoordinate(tile.getLocation()));
+		int sec = m_sectors.indexOf(new LayerSectorCoordinate(entity.getLocation()));
 
-		m_sectors.get(sec).addStaticTile(tile);
+		m_sectors.get(sec).addStatic(entity);
 	}
 
-	public void addDynamicTile(Tile tile)
+	public void addDynamic(Actor entity)
 	{
-		if (!m_sectors.contains(tile.getLocation()))
-			m_sectors.add(new LayerSector(tile.getLocation().round()));
+		if (!m_sectors.contains(entity.getLocation()))
+			m_sectors.add(new LayerSector(entity.getLocation().round()));
 
-		int sec = m_sectors.indexOf(new LayerSectorCoordinate(tile.getLocation()));
+		int sec = m_sectors.indexOf(new LayerSectorCoordinate(entity.getLocation()));
 
-		m_sectors.get(sec).addDynamicTile(tile);
+		m_sectors.get(sec).addDynamic(entity);
 	}
 
 	public TileEffects getTileEffects(Vector2D location)
@@ -158,13 +158,13 @@ public class WorldLayer implements IDisposable
 	private static class LayerSector implements IDisposable
 	{
 
-		protected static final int SECTOR_DIMENSIONS = 40;
+		protected static final int SECTOR_DIMENSIONS = 25;
 
 		private Vector2D m_location;
 
-		private ArrayList<Tile> m_dynamicTiles;
+		private ArrayList<Actor> m_dynamic;
 
-		private ArrayList<Tile> m_staticTiles;
+		private ArrayList<Actor> m_static;
 
 		private EffectMap m_staticEffectMap;
 
@@ -175,8 +175,8 @@ public class WorldLayer implements IDisposable
 		public LayerSector(Vector2D containingLocation)
 		{
 			m_location = new Vector2D(containingLocation.x / SECTOR_DIMENSIONS, containingLocation.y / SECTOR_DIMENSIONS);
-			m_dynamicTiles = new ArrayList<Tile>();
-			m_staticTiles = new ArrayList<Tile>();
+			m_dynamic= new ArrayList<Actor>();
+			m_static = new ArrayList<Actor>();
 
 			m_staticEffectMap = new EffectMap();
 			m_dynamicEffectMap = new EffectMap();
@@ -184,15 +184,15 @@ public class WorldLayer implements IDisposable
 			m_isDirty = false;
 		}
 
-		public void addDynamicTile(Tile tile)
+		public void addDynamic(Actor entity)
 		{
-			m_dynamicTiles.add(tile);
+			m_dynamic.add(entity);
 			m_isDirty = true;
 		}
 
-		public void addStaticTile(Tile tile)
+		public void addStatic(Actor Actor)
 		{
-			m_staticTiles.add(tile);
+			m_static.add(Actor);
 			m_isDirty = true;
 		}
 
@@ -205,18 +205,18 @@ public class WorldLayer implements IDisposable
 		{
 			m_dynamicEffectMap.clear();
 
-			for (Tile t : m_dynamicTiles)
+			for (Actor a : m_dynamic)
 			{
-				t.blendEffectMap(m_dynamicEffectMap);
-				t.update(deltaTime);
+				a.blendEffectMap(m_dynamicEffectMap);
+				a.update(deltaTime);
 			}
 
 			if (m_isDirty)
 			{
 				m_staticEffectMap.clear();
 
-				for (Tile t : m_staticTiles)
-					t.blendEffectMap(m_staticEffectMap);
+				for (Actor a : m_static)
+					a.blendEffectMap(m_staticEffectMap);
 
 				m_isDirty = false;
 			}
@@ -224,19 +224,19 @@ public class WorldLayer implements IDisposable
 
 		public void enqueueRender(Rectangle renderBounds)
 		{
-			for (Tile t : m_staticTiles)
+			for (Actor a : m_static)
 			{
-				Vector2D location = t.getLocation().round();
+				Vector2D location = a.getLocation().round();
 
 				if (renderBounds.contains(new Point(location.x, location.y)))
-					t.enqueueRender();
+					a.enqueueRender();
 			}
-			for (Tile t : m_dynamicTiles)
+			for (Actor a : m_dynamic)
 			{
-				Vector2D location = t.getLocation().floor();
+				Vector2D location = a.getLocation().floor();
 
 				if (renderBounds.contains(new Point(location.x, location.y)))
-					t.enqueueRender();
+					a.enqueueRender();
 			}
 		}
 
@@ -248,12 +248,11 @@ public class WorldLayer implements IDisposable
 		@Override
 		public void dispose()
 		{
-			for (Tile t : m_dynamicTiles)
-				t.disassociate();
+			for (Actor a : m_dynamic)
+				a.disassociate();
 
-			for (Tile t : m_staticTiles)
-				t.disassociate();
-
+			for (Actor a : m_static)
+				a.disassociate();
 		}
 
 		/*

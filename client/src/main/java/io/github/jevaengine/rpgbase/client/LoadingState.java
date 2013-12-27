@@ -15,7 +15,7 @@ package io.github.jevaengine.rpgbase.client;
 import io.github.jevaengine.Core;
 import io.github.jevaengine.IDisposable;
 import io.github.jevaengine.IResourceLibrary;
-import io.github.jevaengine.config.VariableStore;
+import io.github.jevaengine.game.Game;
 import io.github.jevaengine.ui.IWindowManager;
 import io.github.jevaengine.ui.Label;
 import io.github.jevaengine.ui.UIStyle;
@@ -37,9 +37,7 @@ public class LoadingState implements IGameState
 
 	public LoadingState(@Nullable ClientUser user, @Nullable String playerEntity, @Nullable World world)
 	{
-		final UIStyle styleLarge = UIStyle.create(VariableStore.create(Core.getService(IResourceLibrary.class).openResourceStream("ui/tech/large.juis")));
-
-		m_connectingWindow = new Window(styleLarge, 300, 50);
+		m_connectingWindow = new Window(Core.getService(Game.class).getGameStyle(), 300, 50);
 		m_connectingWindow.setMovable(false);
 		m_connectingWindow.setRenderBackground(false);
 		m_connectingWindow.addControl(new Label("Loading - May take some time", Color.white));

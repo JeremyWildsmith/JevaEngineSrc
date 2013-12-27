@@ -18,5 +18,5 @@ import io.github.jevaengine.util.Nullable;
 public interface IRoutingRules
 {
 
-	public WorldDirection[] getMovements(Route.SearchNode currentNode, @Nullable Vector2D destination) throws IncompleteRouteException;
+	public WorldDirection[] getMovements(World world, Route.SearchNode currentNode, @Nullable Vector2D destination) throws IncompleteRouteException;
 }

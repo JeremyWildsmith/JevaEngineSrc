@@ -5,6 +5,8 @@
     <artifactId>communication</artifactId>
     <version>0.0.1</version>
 	
+    <url>http://jevaengine.com/</url>
+    
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>

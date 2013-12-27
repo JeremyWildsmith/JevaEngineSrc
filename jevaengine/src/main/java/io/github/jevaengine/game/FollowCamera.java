@@ -12,14 +12,11 @@
  ******************************************************************************/
 package io.github.jevaengine.game;
 
-import io.github.jevaengine.config.Variable;
 import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.math.Vector2F;
-import io.github.jevaengine.world.Actor;
 import io.github.jevaengine.world.Entity;
 import io.github.jevaengine.world.World;
-import io.github.jevaengine.world.WorldDirection;
-import io.github.jevaengine.world.Actor.IActorObserver;
+import io.github.jevaengine.world.Entity.IEntityObserver;
 
 public final class FollowCamera implements ICamera
 {
@@ -28,9 +25,7 @@ public final class FollowCamera implements ICamera
 
 	private String m_targetEntity;
 
-	private Actor m_target;
-
-	private Vector2D m_targetLocation;
+	private Entity m_target;
 
 	public FollowCamera()
 	{
@@ -50,24 +45,21 @@ public final class FollowCamera implements ICamera
 	@Override
 	public Vector2D getLookAt()
 	{
-		if (m_world == null || m_targetEntity == null || !m_world.variableExists(m_targetEntity))
+		if (m_world.getEntity(m_targetEntity) == null)
 			return new Vector2D();
 
 		if (m_target == null)
 		{
-			Variable v = m_world.getVariable(m_targetEntity);
-
-			if (v instanceof Actor)
-				m_target = (Actor) v;
-
-			m_target.addObserver(new ActorObserver());
-			m_targetLocation = m_world.translateWorldToScreen(m_target.getLocation(), getScale());
+			m_target = m_world.getEntity(m_targetEntity);
+			
+			if(m_target != null)
+				m_target.addObserver(new EntityObserver());
 		}
 
 		if (m_target == null)
 			return new Vector2D();
 		else
-			return m_targetLocation;
+			return m_world.translateWorldToScreen(m_target.getLocation(), getScale());
 	}
 
 	@Override
@@ -109,7 +101,7 @@ public final class FollowCamera implements ICamera
 		m_world = null;
 	}
 
-	private class ActorObserver implements IActorObserver
+	private class EntityObserver implements IEntityObserver
 	{
 		/*
 		 * (non-Javadoc)
@@ -126,57 +118,13 @@ public final class FollowCamera implements ICamera
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see io.github.jeremywildsmith.jevaengine.world.Actor.IActorObserver#placement(jeva.math.Vector2F)
-		 */
-		@Override
-		public void placement(Vector2F location)
-		{
-			m_targetLocation = m_world.translateWorldToScreen(m_target.getLocation(), getScale());
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see io.github.jeremywildsmith.jevaengine.world.Actor.IActorObserver#moved(jeva.math.Vector2F)
-		 */
-		@Override
-		public void moved(Vector2F delta)
-		{
-			m_targetLocation = m_world.translateWorldToScreen(m_target.getLocation(), getScale());
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
 		 * @see io.github.jeremywildsmith.jevaengine.world.Entity.IEntityObserver#enterWorld()
 		 */
 		@Override
-		public void enterWorld()
-		{
-		}
+		public void enterWorld() { }
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see jeva.world.Actor.IActorObserver#directionChanged(jeva.world.
-		 * WorldDirection)
-		 */
 		@Override
-		public void directionChanged(WorldDirection direction)
-		{
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see
-		 * jeva.world.DialogicalEntity.IDialogueObserver#onDialogEvent(jeva.
-		 * world.Entity, int)
-		 */
-		@Override
-		public void onDialogEvent(Entity subject, int event)
-		{
-		}
+		public void replaced() { }
 	}
 
 }

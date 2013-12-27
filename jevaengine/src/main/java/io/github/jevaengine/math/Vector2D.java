@@ -16,7 +16,10 @@
  */
 package io.github.jevaengine.math;
 
-public class Vector2D implements Comparable<Vector2D>
+import io.github.jevaengine.config.ISerializable;
+import io.github.jevaengine.config.IVariable;
+
+public class Vector2D implements Comparable<Vector2D>, ISerializable
 {
 
 	public int x;
@@ -117,5 +120,19 @@ public class Vector2D implements Comparable<Vector2D>
 	public Vector2D difference(Vector2D v)
 	{
 		return new Vector2D(x - v.x, y - v.y);
+	}
+	
+		@Override
+	public void serialize(IVariable target)
+	{
+		target.addChild("x").setValue(x);
+		target.addChild("y").setValue(y);
+	}
+
+	@Override
+	public void deserialize(IVariable source)
+	{
+		x = source.getChild("x").getValue(Integer.class);
+		y = source.getChild("y").getValue(Integer.class);
 	}
 }

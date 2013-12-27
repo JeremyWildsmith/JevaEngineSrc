@@ -13,21 +13,8 @@
 package io.github.jevaengine.rpgbase.client;
 
 import io.github.jevaengine.Core;
-import io.github.jevaengine.IResourceLibrary;
-import io.github.jevaengine.config.Variable;
-import io.github.jevaengine.config.VariableStore;
 import io.github.jevaengine.game.FollowCamera;
 import io.github.jevaengine.game.Game;
-import io.github.jevaengine.graphics.Font;
-import io.github.jevaengine.ui.Button;
-import io.github.jevaengine.ui.IWindowManager;
-import io.github.jevaengine.ui.Label;
-import io.github.jevaengine.ui.MenuStrip;
-import io.github.jevaengine.ui.UIStyle;
-import io.github.jevaengine.ui.Window;
-import io.github.jevaengine.ui.WorldView;
-import io.github.jevaengine.ui.MenuStrip.IMenuStripListener;
-import io.github.jevaengine.ui.WorldView.IWorldViewListener;
 import io.github.jevaengine.joystick.InputManager.InputMouseEvent.MouseButton;
 import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.rpgbase.RpgCharacter;
@@ -36,6 +23,15 @@ import io.github.jevaengine.rpgbase.client.ClientUser.IClientUserObserver;
 import io.github.jevaengine.rpgbase.client.ui.ChatMenu;
 import io.github.jevaengine.rpgbase.ui.CharacterMenu;
 import io.github.jevaengine.rpgbase.ui.InventoryMenu;
+import io.github.jevaengine.ui.Button;
+import io.github.jevaengine.ui.IWindowManager;
+import io.github.jevaengine.ui.Label;
+import io.github.jevaengine.ui.MenuStrip;
+import io.github.jevaengine.ui.MenuStrip.IMenuStripListener;
+import io.github.jevaengine.ui.UIStyle;
+import io.github.jevaengine.ui.Window;
+import io.github.jevaengine.ui.WorldView;
+import io.github.jevaengine.ui.WorldView.IWorldViewListener;
 import io.github.jevaengine.util.Nullable;
 import io.github.jevaengine.world.Entity;
 import io.github.jevaengine.world.IInteractable;
@@ -72,14 +68,13 @@ public class PlayingState implements IGameState
 
 	public PlayingState(String playerEntityName, ClientUser user, World world)
 	{
-		final UIStyle styleLarge = UIStyle.create(VariableStore.create(Core.getService(IResourceLibrary.class).openResourceStream("ui/tech/large.juis")));
-		final UIStyle styleSmall = UIStyle.create(VariableStore.create(Core.getService(IResourceLibrary.class).openResourceStream("ui/tech/small.juis")));
-
+		final UIStyle style = Core.getService(Game.class).getGameStyle();
+		
 		m_playerEntityName = playerEntityName;
 		m_user = user;
 		m_world = world;
 
-		m_hud = new Window(styleLarge, 177, 80);
+		m_hud = new Window(style, 177, 80);
 		m_hud.addControl(new Button("Inventory")
 		{
 
@@ -99,7 +94,7 @@ public class PlayingState implements IGameState
 			}
 		}, new Vector2D(5, 40));
 
-		m_chatMenu = new ChatMenu(styleSmall)
+		m_chatMenu = new ChatMenu(style)
 		{
 
 			@Override
@@ -126,7 +121,7 @@ public class PlayingState implements IGameState
 		m_worldView.addListener(new WorldViewListener());
 		m_worldView.addControl(m_cursorActionLabel);
 
-		m_worldViewWindow = new Window(styleSmall, resolution.x, resolution.y);
+		m_worldViewWindow = new Window(style, resolution.x, resolution.y);
 		m_worldViewWindow.setRenderBackground(false);
 		m_worldViewWindow.setMovable(false);
 		m_worldViewWindow.setFocusable(false);
@@ -152,14 +147,14 @@ public class PlayingState implements IGameState
 		m_user.addObserver(m_handler);
 		context.getCommunicator().addObserver(m_handler);
 
-		if (m_playerEntityName != null && m_world.variableExists(m_playerEntityName))
+		Entity playerEntity = m_playerEntityName == null ? null : m_world.getEntity(m_playerEntityName);
+		
+		if (playerEntity != null)
 		{
-			Variable characterVar = m_world.getVariable(m_playerEntityName);
-
-			if (!(characterVar instanceof RpgCharacter))
+			if (playerEntity instanceof RpgCharacter)
+				playerAdded((RpgCharacter) playerEntity);
+			else
 				m_context.getCommunicator().disconnect("Server did not assign proper character entity");
-
-			playerAdded((RpgCharacter) characterVar);
 		}
 
 		m_world.addObserver(m_handler);
@@ -195,7 +190,7 @@ public class PlayingState implements IGameState
 	{
 		m_playerCharacter = player;
 		m_playerCamera.attach(m_world);
-		m_playerCamera.setTarget(player.getName());
+		m_playerCamera.setTarget(player.getInstanceName());
 		m_context.setPlayer(player);
 		m_hud.setVisible(true);
 	}
@@ -347,14 +342,14 @@ public class PlayingState implements IGameState
 		@Override
 		public void addedEntity(Entity e)
 		{
-			if (m_playerEntityName != null && e instanceof RpgCharacter && e.getName().equals(m_playerEntityName))
+			if (m_playerEntityName != null && e instanceof RpgCharacter && e.getInstanceName().equals(m_playerEntityName))
 				playerAdded((RpgCharacter) e);
 		}
 
 		@Override
 		public void removedEntity(Entity e)
 		{
-			if (m_playerEntityName != null && e.getName().equals(m_playerEntityName))
+			if (m_playerEntityName != null && e.getInstanceName().equals(m_playerEntityName))
 				playerRemoved();
 		}
 	}

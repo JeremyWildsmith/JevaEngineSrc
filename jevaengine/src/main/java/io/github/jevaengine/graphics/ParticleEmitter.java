@@ -16,41 +16,12 @@ import java.awt.Graphics2D;
 
 import io.github.jevaengine.Core;
 import io.github.jevaengine.IResourceLibrary;
-import io.github.jevaengine.config.Variable;
-import io.github.jevaengine.config.VariableStore;
-import io.github.jevaengine.math.Vector2D;
+import io.github.jevaengine.config.ISerializable;
+import io.github.jevaengine.config.IVariable;
 import io.github.jevaengine.math.Vector2F;
 
 public final class ParticleEmitter implements IRenderable
 {
-
-	private enum ParticleOffset
-	{
-
-		LocationX(0),
-
-		LocationY(1),
-
-		VelocityX(2),
-
-		VelocityY(3),
-
-		AccelerationX(4),
-
-		AccelerationY(5),
-
-		Life(6),
-
-		Size(7);
-
-		public int offset;
-
-		ParticleOffset(int _offset)
-		{
-			offset = _offset;
-		}
-	}
-
 	private static final int MAX_SPRITES = 25;
 
 	private Sprite[] m_spriteMaps;
@@ -71,12 +42,8 @@ public final class ParticleEmitter implements IRenderable
 
 	private boolean m_isEmitting;
 
-	private Vector2D m_anchor;
-
-	public ParticleEmitter(Vector2D anchor, Sprite[] spriteMaps, Vector2F acceleration, Vector2F velocity, int particleCount, int particleLife, float fVariation)
+	public ParticleEmitter(Sprite[] spriteMaps, Vector2F acceleration, Vector2F velocity, int particleCount, int particleLife, float fVariation)
 	{
-		m_anchor = anchor;
-
 		m_spriteMaps = spriteMaps;
 		m_acceleration = acceleration;
 		m_velocity = velocity;
@@ -89,26 +56,21 @@ public final class ParticleEmitter implements IRenderable
 		m_isEmitting = false;
 	}
 
-	public static ParticleEmitter create(Variable root, Vector2D anchor)
+	public static ParticleEmitter create(IVariable root)
 	{
-		int particleCount = Math.max(10, root.getVariable("particleCount").getValue().getInt());
-		int particleLife = Math.max(10, root.getVariable("particleLife").getValue().getInt());
+		ParticleEmitterDeclaration decl = root.getValue(ParticleEmitterDeclaration.class);
 
-		Vector2F velocity = new Vector2F(root.getVariable("velocity/x").getValue().getFloat(), root.getVariable("velocity/y").getValue().getFloat());
+		Sprite[] spriteMaps = new Sprite[decl.sprites.length];
 
-		Vector2F acceleration = new Vector2F(root.getVariable("accleration/x").getValue().getFloat(), root.getVariable("accleration/y").getValue().getFloat());
+		for (int i = 0; i < decl.sprites.length; i++)
+			spriteMaps[i] = Sprite.create(Core.getService(IResourceLibrary.class).openConfiguration(decl.sprites[i]));
 
-		float fVariation = root.getVariable("variation").getValue().getFloat();
-
-		Variable[] maps = root.getVariable("sprites").getVariableArray();
-		Sprite[] spriteMaps = new Sprite[maps.length];
-
-		for (int i = 0; i < maps.length; i++)
-		{
-			spriteMaps[i] = Sprite.create(VariableStore.create(Core.getService(IResourceLibrary.class).openResourceStream(maps[i].getValue().getString())));
-		}
-
-		return new ParticleEmitter(anchor, spriteMaps, acceleration, velocity, particleCount, particleLife, fVariation);
+		return new ParticleEmitter(spriteMaps, 
+									decl.acceleration, 
+									decl.velocity, 
+									Math.max(1, decl.count), 
+									Math.max(100, decl.life), 
+									decl.variation);
 	}
 
 	public void update(int deltaTime)
@@ -166,12 +128,78 @@ public final class ParticleEmitter implements IRenderable
 			int base = i * ParticleOffset.Size.offset;
 
 			if (m_particleSprites[i % m_particleSprites.length] != null && m_particleBuffer[base + ParticleOffset.Life.offset] > 0)
-				m_particleSprites[i % m_particleSprites.length].render(g, x - m_anchor.x + Math.round(m_particleBuffer[base + ParticleOffset.LocationX.offset]), y - m_anchor.y + Math.round(m_particleBuffer[base + ParticleOffset.LocationY.offset]), fScale * (float) m_particleBuffer[base + ParticleOffset.Life.offset] / (float) m_particleLife);
+				m_particleSprites[i % m_particleSprites.length].render(g, 
+					x + Math.round(m_particleBuffer[base + ParticleOffset.LocationX.offset]), 
+					y + Math.round(m_particleBuffer[base + ParticleOffset.LocationY.offset]), 
+					fScale * (float) m_particleBuffer[base + ParticleOffset.Life.offset] / (float) m_particleLife);
 		}
 	}
 
 	public void setEmit(boolean emit)
 	{
 		m_isEmitting = emit;
+	}
+	
+	private static enum ParticleOffset
+	{
+
+		LocationX(0),
+
+		LocationY(1),
+
+		VelocityX(2),
+
+		VelocityY(3),
+
+		AccelerationX(4),
+
+		AccelerationY(5),
+
+		Life(6),
+
+		Size(7);
+
+		public int offset;
+
+		ParticleOffset(int _offset)
+		{
+			offset = _offset;
+		}
+	}
+	
+	public static class ParticleEmitterDeclaration implements ISerializable
+	{
+		public int count;
+		public int life;
+		public Vector2F velocity;
+		public Vector2F acceleration;
+		public float variation;
+		public String[] sprites;
+
+		public ParticleEmitterDeclaration() { }
+		
+		@Override
+		public void serialize(IVariable target)
+		{
+			target.addChild("count").setValue(this.count);
+			target.addChild("life").setValue(this.life);
+			target.addChild("velocity").setValue(this.velocity);
+			target.addChild("acceleration").setValue(this.acceleration);
+			target.addChild("variation").setValue(this.variation);
+			target.addChild("sprites").setValue(this.sprites);
+		}
+
+		@Override
+		public void deserialize(IVariable source)
+		{
+			this.count = source.getChild("count").getValue(Integer.class);
+			this.life = source.getChild("life").getValue(Integer.class);
+			this.velocity = source.getChild("velocity").getValue(Vector2F.class);
+			this.acceleration = source.getChild("acceleration").getValue(Vector2F.class);
+			this.variation = source.getChild("variation").getValue(Double.class).floatValue();
+			this.sprites = source.getChild("sprites").getValues(String[].class);
+		}
+		
+		
 	}
 }

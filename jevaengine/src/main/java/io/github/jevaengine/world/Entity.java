@@ -29,29 +29,34 @@ import io.github.jevaengine.Core;
 import io.github.jevaengine.CoreScriptException;
 import io.github.jevaengine.IResourceLibrary;
 import io.github.jevaengine.Script;
-import io.github.jevaengine.StatelessEnvironmentException;
-import io.github.jevaengine.UnresolvedResourcePathException;
+import io.github.jevaengine.Script.ScriptHiddenMember;
 import io.github.jevaengine.audio.Audio;
-import io.github.jevaengine.config.Variable;
-import io.github.jevaengine.config.VariableStore;
+import io.github.jevaengine.config.ISerializable;
+import io.github.jevaengine.config.IVariable;
+import io.github.jevaengine.math.Vector2D;
+import io.github.jevaengine.math.Vector2F;
 import io.github.jevaengine.util.Nullable;
 import io.github.jevaengine.util.StaticSet;
 import org.mozilla.javascript.Function;
 
-public abstract class Entity extends Variable implements IWorldAssociation
+public abstract class Entity implements IWorldAssociation
 {
-
 	private static AtomicInteger m_unnamedCount = new AtomicInteger(0);
 
 	private ArrayList<ITask> m_pendingTasks = new ArrayList<ITask>();
 
 	private ArrayList<ITask> m_runningTasks = new ArrayList<ITask>();
 
+	private String m_name;
+	
+	private Vector2F m_location = new Vector2F();
+	private WorldDirection m_direction = WorldDirection.Zero;
+	
 	private boolean m_isPaused = false;
 
 	private EntityBridge<?> m_bridge;
 
-	private Variable m_scriptVariables;
+	private IVariable m_config;
 
 	private World m_parentWorld;
 
@@ -61,47 +66,45 @@ public abstract class Entity extends Variable implements IWorldAssociation
 
 	public Entity()
 	{
-		super("__UNNAMED_ENTITY" + m_unnamedCount.getAndIncrement());
+		m_name = "__UNNAMED_ENTITY" + m_unnamedCount.getAndIncrement();
 	}
 
 	public Entity(@Nullable String name)
 	{
-		super(name == null ? "__UNNAMED_ENTITY" + m_unnamedCount.getAndIncrement() : name);
+		m_name = (name == null ? "__UNNAMED_ENTITY" + m_unnamedCount.getAndIncrement() : name);
 	}
 
-	protected <T extends EntityBridge<?>> Entity(@Nullable String name, Variable root, T entityContext)
+	protected <T extends EntityBridge<?>> Entity(@Nullable String name, IVariable config, T entityContext)
 	{
-		super(name == null ? "__UNNAMED_ENTITY" + m_unnamedCount.getAndIncrement() : name);
-
-		init(root, entityContext);
+		this(name == null ? "__UNNAMED_ENTITY" + m_unnamedCount.getAndIncrement() : name);
+		
+		init(config, entityContext);
 	}
 
-	protected <T extends EntityBridge<?>> Entity(@Nullable String name, Variable root, T entityContext, WorldDirection direction)
+	protected <T extends EntityBridge<?>> Entity(@Nullable String name, IVariable config, T entityContext, WorldDirection direction)
 	{
-		super(name == null ? "__UNNAMED_ENTITY" + m_unnamedCount.getAndIncrement() : name);
-
-		init(root, entityContext);
+		this(name == null ? "__UNNAMED_ENTITY" + m_unnamedCount.getAndIncrement() : name);
+		
+		init(config, entityContext);
 	}
 
-	private <T extends EntityBridge<?>> void init(Variable root, T entityContext)
+	private <T extends EntityBridge<?>> void init(IVariable config, T entityContext)
 	{
-		m_scriptVariables = root;
+		m_config = config;
 
 		entityContext.setMe(this);
 
 		m_bridge = entityContext;
 
-		m_script = new Script(entityContext);
-
-		if (root.variableExists("script"))
+		EntityDeclaration entityConfig = new EntityDeclaration();
+		entityConfig.deserialize(config);
+		
+		if (entityConfig.script != null && entityConfig.script.length() > 0)
 		{
-			String script = Core.getService(IResourceLibrary.class).openResourceContents(root.getVariable("script").getValue().getString());
-			m_script.evaluate(script);
-
+			m_script = Core.getService(IResourceLibrary.class).openScript(entityConfig.script, m_bridge);
 			m_observers.add(new EntityScriptObserver());
-
-		} else
-			m_script = new Script();
+		}else
+			m_script = new Script(entityContext);
 	}
 
 	public void addObserver(IEntityObserver observer)
@@ -158,10 +161,40 @@ public abstract class Entity extends Variable implements IWorldAssociation
 
 		m_parentWorld = null;
 	}
-
-	protected final Variable getEntityVariables()
+	
+	
+	public final Vector2F getLocation()
 	{
-		return m_scriptVariables;
+		return m_location;
+	}
+
+	public final void setLocation(Vector2F location)
+	{
+		Vector2F oldLocation = m_location;
+		m_location = location;
+
+		if (!oldLocation.equals(location))
+			m_observers.replaced();
+	}
+	
+	public final WorldDirection getDirection()
+	{
+		return m_direction;
+	}
+
+	public final void setDirection(WorldDirection direction)
+	{
+		m_direction = direction;
+	}
+
+	public final void move(Vector2F delta)
+	{
+		m_location = m_location.add(delta);
+	}
+
+	protected final IVariable getConfiguration()
+	{
+		return m_config;
 	}
 
 	public final EntityBridge<?> getScriptBridge()
@@ -197,7 +230,7 @@ public abstract class Entity extends Variable implements IWorldAssociation
 		m_pendingTasks.clear();
 	}
 
-	public void cancelTask(ITask task)
+	protected void cancelTask(ITask task)
 	{
 		if (!m_runningTasks.contains(task))
 			throw new NoSuchElementException();
@@ -221,12 +254,17 @@ public abstract class Entity extends Variable implements IWorldAssociation
 		return false;
 	}
 
+	public final String getInstanceName()
+	{
+		return m_name;
+	}
+	
 	public final World getWorld()
 	{
 		return m_parentWorld;
 	}
 
-	public Script getScript()
+	public final Script getScript()
 	{
 		return m_script;
 	}
@@ -291,6 +329,7 @@ public abstract class Entity extends Variable implements IWorldAssociation
 	{
 		void enterWorld();
 		void leaveWorld();
+		void replaced();
 	}
 
 	private class Observers extends StaticSet<IEntityObserver>
@@ -306,6 +345,12 @@ public abstract class Entity extends Variable implements IWorldAssociation
 		{
 			for (IEntityObserver observer : this)
 				observer.leaveWorld();
+		}
+		
+		void replaced()
+		{
+			for (IEntityObserver observer : this)
+				observer.replaced();
 		}
 	}
 
@@ -328,7 +373,7 @@ public abstract class Entity extends Variable implements IWorldAssociation
 				// Startup is an optional implementation for entities.
 			} catch (ScriptException e)
 			{
-				throw new CoreScriptException("Error executing NPC Script onEnter routine for " + Entity.this.getFullName() + ", " + e.getMessage());
+				throw new CoreScriptException("Error executing NPC Script onEnter routine for " + m_name + ", " + e.getMessage());
 			}
 		}
 
@@ -348,14 +393,36 @@ public abstract class Entity extends Variable implements IWorldAssociation
 				// Startup is an optional implementation for entities.
 			} catch (ScriptException e)
 			{
-				throw new CoreScriptException("Error executing entity Script onLeave routine of " + Entity.this.getName() + " " + e.getMessage());
+				throw new CoreScriptException("Error executing entity Script onLeave routine of " + m_name + " " + e.getMessage());
 			}
 		}
+
+		@Override
+		public void replaced() { }
 	}
 
+	public static class EntityDeclaration implements ISerializable
+	{
+		public String script;
+
+		@Override
+		public void serialize(IVariable target)
+		{
+			if(script != null && script.length() > 0)
+				target.addChild("script").setValue(script);
+		}
+
+		@Override
+		public void deserialize(IVariable source)
+		{
+			if(source.childExists("script"))
+				script = source.getChild("script").getValue(String.class);
+		}
+		
+	}
+	
 	public static class EntityBridge<T extends Entity>
 	{
-
 		private Entity m_me;
 
 		protected final void setMe(Entity me)
@@ -364,101 +431,82 @@ public abstract class Entity extends Variable implements IWorldAssociation
 		}
 
 		@SuppressWarnings("unchecked")
-		protected T getMe()
+		@ScriptHiddenMember
+		public T getEntity()
 		{
 			return (T) m_me;
 		}
 
 		public String getName()
 		{
-			return getMe().getName();
+			return getEntity().getInstanceName();
+		}
+		
+		public float distance(EntityBridge<?> entity)
+		{
+			return getEntity().getLocation().difference(entity.getLocation()).getLength();
+		}
+
+		public Vector2D getLocation()
+		{
+			return getEntity().getLocation().round();
+		}
+
+		public void setLocation(Vector2F location)
+		{
+			getEntity().setLocation(location);
+		}
+
+		public void setLocation(float x, float y)
+		{
+			getEntity().setLocation(new Vector2F(x, y));
 		}
 
 		public void cancelTasks()
 		{
-			getMe().cancelTasks();
+			getEntity().cancelTasks();
 		}
 
 		public void pause()
 		{
-			getMe().pause();
+			getEntity().pause();
 		}
 
 		public void resume()
 		{
-			getMe().resume();
+			getEntity().resume();
 		}
 
 		public void playAudio(String audioName)
 		{
-			getMe().addTask(new PlayAudioTask(new Audio(audioName), false));
+			getEntity().addTask(new PlayAudioTask(new Audio(audioName), false));
 		}
 		
 		public void invoke(Function target, Object ... parameters)
 		{
-			getMe().addTask(new InvokeScriptFunctionTask(target, parameters));
+			getEntity().addTask(new InvokeScriptFunctionTask(target, parameters));
 		}
 
 		public void idle(int length)
 		{
-			getMe().addTask(new IdleTask(length));
+			getEntity().addTask(new IdleTask(length));
 		}
 
 		public void leave()
 		{
-			getMe().addTask(new SynchronousOneShotTask()
+			getEntity().addTask(new SynchronousOneShotTask()
 			{
 				@Override
 				public void run(Entity entity)
 				{
-					getMe().getWorld().removeEntity(getMe());
+					getEntity().getWorld().removeEntity(getEntity());
 				}
 			});
 		}
 
-		private static void loadState(Entity entity, Variable srcProperty, String parentName)
-		{
-			if (!srcProperty.getValue().getString().isEmpty())
-				entity.setVariable(parentName, srcProperty.getValue());
-
-			for (Variable var : srcProperty)
-				loadState(entity, var, (parentName.length() > 0 ? parentName + Variable.NAME_SPLIT : "") + var.getName());
-		}
-
-		public boolean loadState(String state)
-		{
-			try
-			{
-				VariableStore varStore = VariableStore.create(Core.getService(IResourceLibrary.class).openState(state));
-
-				for (Variable v : varStore)
-				{
-					loadState((T) getMe(), v, v.getName());
-				}
-				return true;
-
-			} catch (UnresolvedResourcePathException | StatelessEnvironmentException e)
-			{
-				return false;
-			}
-		}
-
-		public boolean storeState(String state)
-		{
-			try
-			{
-				getMe().serialize(Core.getService(IResourceLibrary.class).createState(state));
-			} catch (StatelessEnvironmentException e)
-			{
-				return false;
-			}
-
-			return true;
-		}
-
 		public Scriptable getScript()
 		{
-			return getMe().getScript().getScriptedInterface();
+			return getEntity().getScript().getScriptedInterface();
 		}
 	}
 }

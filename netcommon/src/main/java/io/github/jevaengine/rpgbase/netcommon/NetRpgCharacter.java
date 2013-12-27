@@ -12,140 +12,26 @@
  ******************************************************************************/
 package io.github.jevaengine.rpgbase.netcommon;
 
+import io.github.jevaengine.CoreScriptException;
 import io.github.jevaengine.communication.Communicator;
 import io.github.jevaengine.communication.InvalidMessageException;
 import io.github.jevaengine.communication.SharedEntity;
-import io.github.jevaengine.config.Variable;
+import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.math.Vector2F;
-import io.github.jevaengine.rpgbase.AttackTask;
 import io.github.jevaengine.rpgbase.Item;
 import io.github.jevaengine.rpgbase.RpgCharacter;
-import io.github.jevaengine.rpgbase.Item.ItemDescriptor;
+import io.github.jevaengine.rpgbase.Item.ItemIdentifer;
 import io.github.jevaengine.rpgbase.Item.ItemType;
-import io.github.jevaengine.rpgbase.RpgCharacter.Inventory;
+import io.github.jevaengine.rpgbase.ItemSlot;
+import io.github.jevaengine.rpgbase.Loadout;
 import io.github.jevaengine.util.Nullable;
-import io.github.jevaengine.world.MovementTask;
-import io.github.jevaengine.world.World;
+import io.github.jevaengine.world.Entity;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.script.ScriptException;
 
 public abstract class NetRpgCharacter extends SharedEntity
 {
-	protected static class ControlledRpgCharacter extends RpgCharacter
-	{
-		private NetCharacterMovementTask m_lastMoveTask = new NetCharacterMovementTask();
-		private AttackTask m_lastAttackTask = createAttackTask();
-
-		public <Y extends ControlledRpgCharacter, T extends ControlledRpgCharacterBridge<Y>> ControlledRpgCharacter(@Nullable String name, Variable root, T bridge)
-		{
-			super(name, root, bridge);
-		}
-
-		public ControlledRpgCharacter(@Nullable String name, Variable root)
-		{
-			super(name, root);
-		}
-
-		public ControlledRpgCharacter(Variable root)
-		{
-			this(null, root);
-		}
-
-		public RpgCharacter getCharacter()
-		{
-			return this;
-		}
-
-		public Inventory getControlledInventory()
-		{
-			return super.getInventory();
-		}
-
-		void commandMoveTo(Vector2F destination)
-		{
-			if (!isTaskActive(m_lastMoveTask))
-			{
-				cancelTasks();
-				addTask(m_lastMoveTask);
-			}
-
-			m_lastMoveTask.setDestination(destination);
-		}
-
-		void commandRouteTo(Vector2F destination)
-		{
-			cancelTasks();
-			addTask(createMoveToTask(destination.floor(), 0));
-		}
-
-		// Only accessible within this package
-		// Keep away from inherting classes etc...
-		void commandAttack(@Nullable RpgCharacter target)
-		{
-			if (target == null && isTaskActive(m_lastAttackTask))
-				cancelTask(m_lastAttackTask);
-			else
-			{
-				if (!isTaskActive(m_lastAttackTask))
-				{
-					cancelTasks();
-					addTask(m_lastAttackTask);
-				}
-
-				m_lastAttackTask.setTarget(target);
-			}
-		}
-
-		private class NetCharacterMovementTask extends MovementTask
-		{
-			private Vector2F m_destination;
-
-			public NetCharacterMovementTask()
-			{
-				super(new CharacterRouteTraveler());
-				m_destination = new Vector2F();
-			}
-
-			public NetCharacterMovementTask(Vector2F destination)
-			{
-				super(new CharacterRouteTraveler());
-				m_destination = destination;
-			}
-
-			public void setDestination(Vector2F destination)
-			{
-				m_destination = destination;
-			}
-
-			@Override
-			protected void blocking()
-			{
-				// Server knows best, ignore blocking state.
-			}
-
-			@Override
-			protected Vector2F getDestination()
-			{
-				return m_destination;
-			}
-
-			@Override
-			protected boolean atDestination()
-			{
-				return getLocation().equals(m_destination);
-			}
-
-			@Override
-			protected boolean hasNext()
-			{
-				return false;
-			}
-		}
-
-		public static class ControlledRpgCharacterBridge<Y extends ControlledRpgCharacter> extends RpgCharacterBridge<Y>
-		{
-
-		}
-	}
-
 	protected static enum PrimitiveQuery
 	{
 		Initialize,
@@ -153,23 +39,24 @@ public abstract class NetRpgCharacter extends SharedEntity
 
 	protected static class InitializationArguments
 	{
-		private String m_varStore;
+		private String m_configuration;
 
 		private String m_name;
 
 		private String m_titleName;
 
+		private boolean m_isClientOwned;
+		
 		@SuppressWarnings("unused")
 		// Used by Kryo
-		private InitializationArguments()
-		{
-		}
+		private InitializationArguments() { }
 
-		public InitializationArguments(String varStore, @Nullable String name, @Nullable String titleName)
+		public InitializationArguments(String config, @Nullable String name, @Nullable String titleName, boolean isClientOwned)
 		{
-			m_varStore = varStore;
+			m_configuration = config;
 			m_name = name;
 			m_titleName = titleName;
+			m_isClientOwned = isClientOwned;
 		}
 
 		@Nullable
@@ -184,21 +71,73 @@ public abstract class NetRpgCharacter extends SharedEntity
 			return m_name;
 		}
 
-		public String getStore()
+		public String getConfiguration()
 		{
-			return m_varStore;
+			return m_configuration;
+		}
+		
+		public boolean isClientOwned()
+		{
+			return m_isClientOwned;
 		}
 	}
 
 	protected interface IRpgCharacterVisitor
 	{
-		void visit(Communicator sender, ControlledRpgCharacter controller) throws InvalidMessageException;
+		void visit(Communicator sender, RpgCharacter character) throws InvalidMessageException;
 
+		boolean isServerDispatchOnly();
 		boolean requiresOwnership();
-
-		boolean isServerOnly();
 	}
+	
+	protected static final class DialogueEvent implements IRpgCharacterVisitor
+	{
+		private int m_eventCode;
+		private @Nullable String m_speakerEntity;
+		
+		@SuppressWarnings("unused")
+		// Used by Kryo
+		private DialogueEvent() { }
+		
+		public DialogueEvent(int eventCode, @Nullable String speakerEntity)
+		{
+			m_eventCode = eventCode;
+			m_speakerEntity = speakerEntity;
+		}
 
+		@Override
+		public void visit(Communicator sender, RpgCharacter character) throws InvalidMessageException
+		{
+			if(!character.isAssociated())
+				throw new InvalidMessageException(sender, this, "Unassociated entity cannot invoke dialogue event.");
+		
+			Entity speaker = m_speakerEntity == null ? null : character.getWorld().getEntity(m_speakerEntity);
+			
+			if(speaker == null)
+				throw new InvalidMessageException(sender, this, "Unknown speaker entity.");
+			try
+			{
+				speaker.getScript().invokeScriptFunction("remoteDialogueEvent", character.getScriptBridge(), m_eventCode);
+			} catch (NoSuchMethodException ex){
+			} catch (ScriptException ex)
+			{
+				throw new CoreScriptException(ex);
+			}
+		}
+
+		@Override
+		public boolean isServerDispatchOnly()
+		{
+			return false;
+		}
+
+		@Override
+		public boolean requiresOwnership()
+		{
+			return true;
+		}
+	}
+	
 	protected static final class Movement implements IRpgCharacterVisitor
 	{
 		private Vector2F m_location;
@@ -232,26 +171,13 @@ public abstract class NetRpgCharacter extends SharedEntity
 			return m_destination;
 		}
 
-		public boolean isMoving()
-		{
-			return !m_location.equals(m_destination);
-		}
-
 		@Override
-		public void visit(Communicator sender, ControlledRpgCharacter controller)
+		public void visit(Communicator sender, RpgCharacter character)
 		{
-			RpgCharacter character = controller.getCharacter();
-
 			if (character.getLocation().difference(getLocation()).getLength() > 0.8F)
 				character.setLocation(getLocation());
-
-			if (!character.getLocation().equals(getDestination()))
-			{
-				if (isMoving())
-					controller.commandMoveTo(getDestination());
-				else
-					controller.commandMoveTo(getLocation());
-			}
+			else
+				character.moveTo(getDestination().floor());
 		}
 
 		@Override
@@ -261,7 +187,7 @@ public abstract class NetRpgCharacter extends SharedEntity
 		}
 
 		@Override
-		public boolean isServerOnly()
+		public boolean isServerDispatchOnly()
 		{
 			return true;
 		}
@@ -269,13 +195,13 @@ public abstract class NetRpgCharacter extends SharedEntity
 
 	protected static final class Attack implements IRpgCharacterVisitor
 	{
-		@Nullable private String m_target;
+		private String m_target;
 
 		public Attack()
 		{
 		}
 
-		public Attack(@Nullable String target)
+		public Attack(String target)
 		{
 			m_target = target;
 		}
@@ -291,24 +217,19 @@ public abstract class NetRpgCharacter extends SharedEntity
 		}
 
 		@Override
-		public void visit(Communicator sender, ControlledRpgCharacter controller) throws InvalidMessageException
+		public void visit(Communicator sender, RpgCharacter controller) throws InvalidMessageException
 		{
-			if (m_target == null)
+			Entity target = controller.getWorld().getEntity(m_target);
+			
+			if (target != null)
 			{
-				controller.commandAttack(null);
+				if (target instanceof RpgCharacter)
+					controller.attack((RpgCharacter) target);
+				else
+					throw new InvalidMessageException(sender, this, "Server ordered client character to attack non-character target");
 			} else
-			{
-				if (controller.getWorld().variableExists(m_target))
-				{
-					Object o = controller.getWorld().getVariable(m_target);
+				throw new InvalidMessageException(sender, this, "Server ordered client character to attack non-existant target");
 
-					if (o instanceof RpgCharacter)
-						controller.commandAttack((RpgCharacter) o);
-					else
-						throw new InvalidMessageException(sender, this, "Server ordered client character to attack non-character target");
-				} else
-					throw new InvalidMessageException(sender, this, "Server ordered client character to attack non-existant target");
-			}
 		}
 
 		@Override
@@ -318,22 +239,22 @@ public abstract class NetRpgCharacter extends SharedEntity
 		}
 
 		@Override
-		public boolean isServerOnly()
+		public boolean isServerDispatchOnly()
 		{
 			return false;
 		}
 	}
 
-	protected static final class HealthChange implements IRpgCharacterVisitor
+	protected static final class HealthSet implements IRpgCharacterVisitor
 	{
 		private int m_health;
 
-		public HealthChange()
+		public HealthSet()
 		{
 			m_health = 0;
 		}
 
-		public HealthChange(int health)
+		public HealthSet(int health)
 		{
 			m_health = health;
 		}
@@ -344,9 +265,9 @@ public abstract class NetRpgCharacter extends SharedEntity
 		}
 
 		@Override
-		public void visit(Communicator sender, ControlledRpgCharacter controller) throws InvalidMessageException
+		public void visit(Communicator sender, RpgCharacter controller) throws InvalidMessageException
 		{
-			controller.getCharacter().setHealth(m_health);
+			controller.setHealth(m_health);
 		}
 
 		@Override
@@ -356,187 +277,77 @@ public abstract class NetRpgCharacter extends SharedEntity
 		}
 
 		@Override
-		public boolean isServerOnly()
+		public boolean isServerDispatchOnly()
 		{
 			return true;
 		}
 	}
 
-	protected static class AddItem implements IRpgCharacterVisitor
+	protected static class AddInventoryItem implements IRpgCharacterVisitor
 	{
 		private String m_item;
-
+		private int m_slot;
+		
 		@SuppressWarnings("unused")
 		// Used by Kryo
-		private AddItem()
+		private AddInventoryItem()
 		{
 		}
 
-		public AddItem(ItemDescriptor item)
+		public AddInventoryItem(int slot, ItemIdentifer item)
 		{
 			m_item = item.toString();
-		}
-
-		public ItemDescriptor getItem()
-		{
-			return new ItemDescriptor(m_item);
-		}
-
-		@Override
-		public void visit(Communicator sender, ControlledRpgCharacter controller) throws InvalidMessageException
-		{
-			if (!controller.getControlledInventory().addItem(new ItemDescriptor(m_item)))
-				throw new InvalidMessageException(sender, this, "Characters inventory not in sync with server.");
-		}
-
-		@Override
-		public boolean requiresOwnership()
-		{
-			return true;
-		}
-
-		@Override
-		public boolean isServerOnly()
-		{
-			return true;
-		}
-	}
-
-	protected static class RemoveItem implements IRpgCharacterVisitor
-	{
-		private String m_item;
-
-		@SuppressWarnings("unused")
-		// Used by Kryo
-		private RemoveItem()
-		{
-		}
-
-		public RemoveItem(ItemDescriptor item)
-		{
-			m_item = item.toString();
-		}
-
-		public ItemDescriptor getItem()
-		{
-			return new ItemDescriptor(m_item);
-		}
-
-		@Override
-		public void visit(Communicator sender, ControlledRpgCharacter controller) throws InvalidMessageException
-		{
-			if (!controller.getControlledInventory().removeItem(new ItemDescriptor(m_item)))
-				throw new InvalidMessageException(sender, this, "Characters inventory not in sync with server.");
-		}
-
-		@Override
-		public boolean requiresOwnership()
-		{
-			return true;
-		}
-
-		@Override
-		public boolean isServerOnly()
-		{
-			return true;
-		}
-	}
-
-	protected static class LootItem implements IRpgCharacterVisitor
-	{
-		private String m_accessor;
-
-		private int m_slot;
-
-		@SuppressWarnings("unused")
-		// Used by Kryo
-		private LootItem()
-		{
-		}
-
-		public LootItem(String accessor, int slot)
-		{
-			m_accessor = accessor;
 			m_slot = slot;
 		}
 
-		public String getAccessor()
-		{
-			return m_accessor;
-		}
-
-		public int getSlot()
-		{
-			return m_slot;
-		}
-
 		@Override
-		public void visit(Communicator sender, ControlledRpgCharacter controller) throws InvalidMessageException
+		public void visit(Communicator sender, RpgCharacter controller) throws InvalidMessageException
 		{
-			if (!controller.getCharacter().isAssociated())
-				throw new InvalidMessageException(sender, this, "Character unassociated with world. Cannot loot items.");
-
-			World world = controller.getCharacter().getWorld();
-
-			if (!world.variableExists(m_accessor))
-				throw new InvalidMessageException(sender, this, "Accessor does not exist.");
-
-			Variable v = controller.getCharacter().getWorld().getVariable(m_accessor);
-
-			if (!(v instanceof RpgCharacter))
-				throw new InvalidMessageException(sender, this, "Accessor is not an RpgCharacter.");
-
-			Inventory inventory = controller.getControlledInventory();
-
-			if (m_slot >= inventory.getSlots().length || m_slot < 0)
-				throw new InvalidMessageException(sender, this, "Invalid inventory slot index");
-
-			if (!controller.getControlledInventory().loot((RpgCharacter) v, inventory.getSlots()[m_slot]))
-				throw new InvalidMessageException(sender, this, "Inventories are not in sync.");
+			ItemSlot[] slots = controller.getInventory().getSlots();
+			
+			if (m_slot >= slots.length || m_slot < 0)
+				throw new InvalidMessageException(sender, this, "Inventory slot index is not valid.");
+			else
+				slots[m_slot].setItem(Item.create(m_item));
 		}
 
 		@Override
 		public boolean requiresOwnership()
 		{
-			return false;
+			return true;
 		}
 
 		@Override
-		public boolean isServerOnly()
+		public boolean isServerDispatchOnly()
 		{
-			return false;
+			return true;
 		}
 	}
 
-	protected static class ConsumeItem implements IRpgCharacterVisitor
+	protected static class RemoveInventoryItem implements IRpgCharacterVisitor
 	{
 		private int m_slot;
-
+		
 		@SuppressWarnings("unused")
 		// Used by Kryo
-		private ConsumeItem()
+		private RemoveInventoryItem()
 		{
 		}
 
-		public ConsumeItem(int slot)
+		public RemoveInventoryItem(int slot)
 		{
 			m_slot = slot;
 		}
 
-		public int getSlot()
-		{
-			return m_slot;
-		}
-
 		@Override
-		public void visit(Communicator sender, ControlledRpgCharacter controller) throws InvalidMessageException
+		public void visit(Communicator sender, RpgCharacter controller) throws InvalidMessageException
 		{
-			Inventory inventory = controller.getControlledInventory();
-
-			if (m_slot >= inventory.getSlots().length || m_slot < 0)
-				throw new InvalidMessageException(sender, this, "Invalid inventory slot index");
-
-			inventory.consume(inventory.getSlots()[m_slot]);
+			ItemSlot[] slots = controller.getInventory().getSlots();
+			
+			if (m_slot >= slots.length || m_slot < 0)
+				throw new InvalidMessageException(sender, this, "Inventory slot index is not valid.");
+			else
+				slots[m_slot].clear();
 		}
 
 		@Override
@@ -546,59 +357,14 @@ public abstract class NetRpgCharacter extends SharedEntity
 		}
 
 		@Override
-		public boolean isServerOnly()
-		{
-			return false;
-		}
-	}
-
-	protected static class DropItem implements IRpgCharacterVisitor
-	{
-		private int m_slot;
-
-		@SuppressWarnings("unused")
-		// Used by Kryo
-		private DropItem()
-		{
-		}
-
-		public DropItem(int slot)
-		{
-			m_slot = slot;
-		}
-
-		public int getSlot()
-		{
-			return m_slot;
-		}
-
-		@Override
-		public void visit(Communicator sender, ControlledRpgCharacter controller) throws InvalidMessageException
-		{
-			Inventory inventory = controller.getControlledInventory();
-
-			if (m_slot >= inventory.getSlots().length || m_slot < 0)
-				throw new InvalidMessageException(sender, this, "Invalid inventory slot index");
-
-			inventory.drop(inventory.getSlots()[m_slot]);
-		}
-
-		@Override
-		public boolean requiresOwnership()
+		public boolean isServerDispatchOnly()
 		{
 			return true;
-		}
-
-		@Override
-		public boolean isServerOnly()
-		{
-			return false;
 		}
 	}
 
 	protected static class EquipItem implements IRpgCharacterVisitor
 	{
-		private int m_slot;
 		private String m_item;
 
 		@SuppressWarnings("unused")
@@ -607,36 +373,15 @@ public abstract class NetRpgCharacter extends SharedEntity
 		{
 		}
 
-		public EquipItem(int slot)
-		{
-			m_slot = slot;
-		}
-
 		public EquipItem(String item)
 		{
 			m_item = item;
 		}
 
-		public int getSlot()
-		{
-			return m_slot;
-		}
-
 		@Override
-		public void visit(Communicator sender, ControlledRpgCharacter controller) throws InvalidMessageException
+		public void visit(Communicator sender, RpgCharacter controller) throws InvalidMessageException
 		{
-			Inventory inventory = controller.getControlledInventory();
-
-			if (m_item != null)
-			{
-				inventory.equip(Item.create(m_item));
-			} else
-			{
-				if (m_slot >= inventory.getSlots().length || m_slot < 0)
-					throw new InvalidMessageException(sender, this, "Invalid inventory slot index");
-
-				inventory.equip(inventory.getSlots()[m_slot]);
-			}
+			controller.getLoadout().equip(Item.create(m_item));
 		}
 
 		@Override
@@ -646,9 +391,9 @@ public abstract class NetRpgCharacter extends SharedEntity
 		}
 
 		@Override
-		public boolean isServerOnly()
+		public boolean isServerDispatchOnly()
 		{
-			return m_item != null;
+			return true;
 		}
 	}
 
@@ -673,12 +418,10 @@ public abstract class NetRpgCharacter extends SharedEntity
 		}
 
 		@Override
-		public void visit(Communicator sender, ControlledRpgCharacter controller) throws InvalidMessageException
+		public void visit(Communicator sender, RpgCharacter controller) throws InvalidMessageException
 		{
-			Inventory inventory = controller.getControlledInventory();
-
-			if (!inventory.unequip(m_slot))
-				throw new InvalidMessageException(sender, this, "Character inventory is out of sync.");
+			Loadout loadout = controller.getLoadout();
+			loadout.unequip(m_slot);
 		}
 
 		@Override
@@ -688,36 +431,89 @@ public abstract class NetRpgCharacter extends SharedEntity
 		}
 
 		@Override
-		public boolean isServerOnly()
+		public boolean isServerDispatchOnly()
+		{
+			return true;
+		}
+	}
+	
+	protected static class InventoryAction implements IRpgCharacterVisitor
+	{
+		private String m_accessor;
+		private String m_action;
+		private int m_slotIndex;
+		
+		@SuppressWarnings("unused")
+		// Used by Kryo
+		private InventoryAction()
+		{
+		}
+
+		public InventoryAction(RpgCharacter accessor, String action, int slotIndex)
+		{
+			m_accessor = accessor.getInstanceName();
+			m_action = action;
+			m_slotIndex = slotIndex;
+		}
+
+		public String getAction()
+		{
+			return m_action;
+		}
+
+		@Override
+		public void visit(Communicator sender, RpgCharacter controller) throws InvalidMessageException
+		{
+			Entity accessor = m_accessor == null ? controller : controller.getWorld().getEntity(m_accessor);
+
+			if(accessor == null || !(accessor instanceof RpgCharacter))
+				throw new InvalidMessageException(sender, this, "Invalid accessor.");
+			
+			ItemSlot[] slots = controller.getInventory().getSlots();
+			
+			if(m_slotIndex > slots.length || m_slotIndex < 0)
+				throw new InvalidMessageException(sender, this, "Invalid slot index");
+			
+			slots[m_slotIndex].doSlotAction((RpgCharacter)accessor, m_action);
+		}
+
+		@Override
+		public boolean requiresOwnership()
+		{
+			return true;
+		}
+
+		@Override
+		public boolean isServerDispatchOnly()
 		{
 			return false;
 		}
 	}
 
-	protected static class MoveTo implements IRpgCharacterVisitor
+	protected static class QueryMoveTo implements IRpgCharacterVisitor
 	{
-		private Vector2F m_destination;
+		private Vector2D m_destination;
 
 		@SuppressWarnings("unused")
 		// Used by Kryo
-		private MoveTo()
+		private QueryMoveTo()
 		{
 		}
 
-		public MoveTo(Vector2F destination)
+		public QueryMoveTo(Vector2D destination)
 		{
 			m_destination = destination;
 		}
 
-		public Vector2F getDestination()
+		public Vector2D getDestination()
 		{
 			return m_destination;
 		}
 
 		@Override
-		public void visit(Communicator sender, ControlledRpgCharacter controller) throws InvalidMessageException
+		public void visit(Communicator sender, RpgCharacter controller) throws InvalidMessageException
 		{
-			controller.commandRouteTo(m_destination);
+			controller.moveTo(m_destination);
 		}
 
 		@Override
@@ -727,7 +523,7 @@ public abstract class NetRpgCharacter extends SharedEntity
 		}
 
 		@Override
-		public boolean isServerOnly()
+		public boolean isServerDispatchOnly()
 		{
 			return false;
 		}

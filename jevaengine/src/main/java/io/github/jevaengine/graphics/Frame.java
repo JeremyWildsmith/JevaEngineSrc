@@ -16,28 +16,28 @@
  */
 package io.github.jevaengine.graphics;
 
-import java.awt.Point;
-import java.awt.Rectangle;
+import io.github.jevaengine.math.Rect2D;
+import io.github.jevaengine.math.Vector2D;
 
 public final class Frame
 {
 
-	private Rectangle m_srcRect;
+	private Rect2D m_srcRect;
 
 	private int m_delay;
 
-	private Point m_origin;
+	private Vector2D m_origin;
 
-	public Frame(Rectangle srcRect, int delay, Point origin)
+	public Frame(Rect2D srcRect, int delay, Vector2D origin)
 	{
 		m_delay = delay;
 
-		m_srcRect = new Rectangle(srcRect);
+		m_srcRect = srcRect;
 
 		m_origin = origin;
 	}
 
-	public Rectangle getSourceRect()
+	public Rect2D getSourceRect()
 	{
 		return m_srcRect;
 	}
@@ -47,7 +47,7 @@ public final class Frame
 		return m_delay;
 	}
 
-	public Point getOrigin()
+	public Vector2D getOrigin()
 	{
 		return m_origin;
 	}

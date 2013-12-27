@@ -55,9 +55,6 @@ public class InventoryMenu extends Window
 
 	public void accessInventory(IItemStore host, RpgCharacter accessor)
 	{
-		if (!host.allowStoreAccess(accessor))
-			return;
-
 		this.clearControls();
 
 		this.setVisible(true);
@@ -72,7 +69,7 @@ public class InventoryMenu extends Window
 
 		for (int i = 0; i < slots.length; i++)
 		{
-			InventorySlotContainer slot = new InventorySlotContainer(i);
+			InventorySlotContainer slot = new InventorySlotContainer(slots[i]);
 			slot.setRenderBackground(false);
 			slot.setStyle(getStyle());
 
@@ -106,45 +103,45 @@ public class InventoryMenu extends Window
 	{
 		super.update(delta);
 
-		// If the accessor is disposed off, the inventory host can be released.
+		// If the accessor is disposed of, the inventory host can be released.
 		if (m_accessor.get() == null)
 			m_inventoryHost = null;
 
-		if (this.isVisible() && (m_accessor.get() == null || !m_inventoryHost.allowStoreAccess(m_accessor.get())))
+		if (this.isVisible() && m_accessor.get() == null)
 			this.setVisible(false);
 	}
 
 	private class InventorySlotContainer extends Panel
 	{
-		private int m_slotIndex;
+		private ItemSlot m_slot;
 
-		public InventorySlotContainer(int slotIndex)
+		public InventorySlotContainer(ItemSlot slot)
 		{
 			super(30, 30);
-			m_slotIndex = slotIndex;
+			m_slot = slot;
 		}
 
 		@Override
 		public void onMouseEvent(InputMouseEvent mouseEvent)
 		{
-			if (m_accessor.get() == null || !m_inventoryHost.allowStoreAccess(m_accessor.get()))
+			if (m_accessor.get() == null)
 				return;
 
 			if (mouseEvent.type == EventType.MouseClicked && mouseEvent.mouseButton == MouseButton.Right)
 			{
 				InventoryMenu.this.addControl(m_menuStrip, mouseEvent.location.difference(InventoryMenu.this.getAbsoluteLocation()));
 
-				String options[] = m_inventoryHost.getSlotActions(m_accessor.get(), m_slotIndex);
+				String options[] = m_slot.getSlotActions(m_accessor.get());
 
 				if (options.length > 0)
 				{
 					m_menuStrip.setContext(options, new IMenuStripListener()
 					{
 						@Override
-						public void onCommand(String bommand)
+						public void onCommand(String command)
 						{
-							if (m_accessor.get() != null && m_inventoryHost.allowStoreAccess(m_accessor.get()))
-								m_inventoryHost.doSlotAction(m_accessor.get(), bommand, m_slotIndex);
+							if (m_accessor.get() != null)
+								m_slot.doSlotAction(m_accessor.get(), command);
 						}
 					});
 				}
@@ -168,10 +165,8 @@ public class InventoryMenu extends Window
 		{
 			super.render(g, x, y, fScale);
 
-			ItemSlot slot = m_inventoryHost.getSlots()[m_slotIndex];
-
-			if (!slot.isEmpty())
-				slot.getItem().getGraphic().render(g, x + this.getBounds().width / 3, y + this.getBounds().height / 3, fScale);
+			if (!m_slot.isEmpty())
+				m_slot.getItem().getGraphic().render(g, x + this.getBounds().width / 3, y + this.getBounds().height / 3, fScale);
 		}
 	}
 }

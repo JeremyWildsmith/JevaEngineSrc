@@ -70,6 +70,8 @@ public final class WorldView extends Panel
 	@Override
 	public void onMouseEvent(InputMouseEvent mouseEvent)
 	{
+		super.onMouseEvent(mouseEvent);
+		
 		if (mouseEvent.type == EventType.MouseClicked ||
 			mouseEvent.type == EventType.MouseMoved)
 		{
@@ -84,20 +86,19 @@ public final class WorldView extends Panel
 				if (world.getMapBounds().contains(new Point(tilePos.x, tilePos.y)))
 				{
 					if(mouseEvent.type == EventType.MouseClicked)
-						m_listeners.worldSelection(mouseEvent.location, tilePos, mouseEvent.mouseButton);
+						m_listeners.worldSelection(relativePos, tilePos, mouseEvent.mouseButton);
 					else
-						m_listeners.worldMove(mouseEvent.location, tilePos);
+						m_listeners.worldMove(relativePos, tilePos);
 				}
 			}
-			else
-				super.onMouseEvent(mouseEvent);
-			
 		}
 	}
 
 	@Override
 	public void render(Graphics2D g, int x, int y, float scale)
 	{
+		super.renderBackground(g, x, y, scale);
+		
 		World world = m_camera == null ? null : m_camera.getWorld();
 		
 		if (world != null)
@@ -105,17 +106,17 @@ public final class WorldView extends Panel
 			Vector2D offset = getCameraOffset();
 			Rectangle bounds = getBounds();
 
+			
+			g.setColor(Color.black);
+			g.fillRect(x, y, getBounds().width, getBounds().height);
+			
 			Shape oldClip = g.getClip();
-
 			g.clipRect(x, y, getBounds().width, getBounds().height);
 			world.render(g, scale * m_camera.getScale(), new Rectangle(offset.x, offset.y, bounds.width, bounds.height), getAbsoluteLocation().x, getAbsoluteLocation().y);// bounds.width,																																		// bounds.height));
 			g.setClip(oldClip);
-			
-			g.setColor(Color.black);
-			g.drawRect(x, y, getBounds().width, getBounds().height);
 		}
 		
-		super.render(g, x, y, scale);
+		super.renderControls(g, x, y, scale);
 	}
 
 	private static class Listeners extends StaticSet<IWorldViewListener>

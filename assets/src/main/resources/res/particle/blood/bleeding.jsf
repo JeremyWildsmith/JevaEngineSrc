@@ -1,0 +1,20 @@
+{
+  "scale" : 0.15,
+  "animations" : [ {
+    "frames" : [ {
+      "region" : {
+        "height" : 205,
+        "width" : 250,
+        "y" : 0,
+        "x" : 0
+      },
+      "delay" : 1000,
+      "anchor" : {
+        "y" : 152,
+        "x" : 125
+      }
+    } ],
+    "name" : "idle"
+  } ],
+  "texture" : "particle/blood/bleeding.png"
+}

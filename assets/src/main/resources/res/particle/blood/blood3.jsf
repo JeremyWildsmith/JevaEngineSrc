@@ -1,7 +1,0 @@
-source:particle/blood/blood3.png;
-scale:0.2;
-
-animation/idle/0:0,0,250,250;
-
-anchor/idle/0:125,125;
-delay/idle/0:1000;

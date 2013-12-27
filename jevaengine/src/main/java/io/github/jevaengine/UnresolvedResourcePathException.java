@@ -12,7 +12,9 @@
  ******************************************************************************/
 package io.github.jevaengine;
 
-public class UnresolvedResourcePathException extends ResourceLibraryIOException
+import io.github.jevaengine.game.ResourceLoadingException;
+
+public class UnresolvedResourcePathException extends ResourceLoadingException
 {
 
 	private static final long serialVersionUID = 1L;

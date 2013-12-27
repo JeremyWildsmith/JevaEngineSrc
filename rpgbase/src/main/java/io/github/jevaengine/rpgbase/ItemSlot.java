@@ -12,9 +12,10 @@
  ******************************************************************************/
 package io.github.jevaengine.rpgbase;
 
+import io.github.jevaengine.util.Nullable;
 import java.util.NoSuchElementException;
 
-public class ItemSlot
+public abstract class ItemSlot
 {
 	private Item m_item;
 
@@ -28,12 +29,12 @@ public class ItemSlot
 		m_item = item;
 	}
 
-	public boolean isEmpty()
+	public final boolean isEmpty()
 	{
 		return m_item == null;
 	}
 
-	public Item getItem()
+	public final Item getItem()
 	{
 		if (m_item == null)
 			throw new NoSuchElementException();
@@ -41,13 +42,39 @@ public class ItemSlot
 		return m_item;
 	}
 
-	public void setItem(Item item)
+	public @Nullable Item setItem(Item item)
 	{
+		Item prev = m_item;
+		
 		m_item = item;
+		
+		return prev;
 	}
 
 	public void clear()
 	{
 		m_item = null;
 	}
+	
+	public ItemSlotBridge getScriptBridge()
+	{
+		return new ItemSlotBridge();
+	}
+	
+	public class ItemSlotBridge
+	{
+		public void clear()
+		{
+			ItemSlot.this.clear();
+		}
+		
+		public void setItem(String itemDescriptor)
+		{
+			Item item = Item.create(itemDescriptor);
+			ItemSlot.this.setItem(item);
+		}
+	}
+	
+	public abstract String[] getSlotActions(RpgCharacter accessor);
+	public abstract void doSlotAction(RpgCharacter accessor, String action);
 }

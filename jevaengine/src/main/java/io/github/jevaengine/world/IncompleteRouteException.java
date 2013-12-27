@@ -10,10 +10,7 @@
  * Contributors:
  *     Jeremy - initial API and implementation
  ******************************************************************************/
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package io.github.jevaengine.world;
 
 public class IncompleteRouteException extends Exception

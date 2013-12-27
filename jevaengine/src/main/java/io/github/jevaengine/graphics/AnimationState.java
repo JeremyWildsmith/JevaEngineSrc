@@ -16,8 +16,7 @@ public enum AnimationState
 {
 
 	Play,
-
+	PlayWrap,
 	Stop,
-
 	PlayToEnd,
 }

@@ -17,14 +17,19 @@
 package io.github.jevaengine.rpgbase.server;
 
 import io.github.jevaengine.Core;
+import io.github.jevaengine.Core.CoreMode;
+import io.github.jevaengine.CoreScriptException;
+import io.github.jevaengine.Script;
 import io.github.jevaengine.game.Game;
-import io.github.jevaengine.rpgbase.library.StatelessResourceLibrary;
 
 import java.awt.Color;
 import java.awt.Frame;
 import java.awt.Point;
 import java.awt.Toolkit;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -36,44 +41,36 @@ public class Main
 	private static final int WINX = 800;
 	private static final int WINY = 600;
 
-	public static void main(String[] args)
-	{
-		final Frame frameBuffer = new Frame();
-
-		try
-		{
-			SwingUtilities.invokeAndWait(new Runnable()
-			{
-
-				public void run()
-				{
-					frameBuffer.setVisible(true);
-					frameBuffer.setCursor(Toolkit.getDefaultToolkit().createCustomCursor(Toolkit.getDefaultToolkit().getImage(""), new Point(), "trans"));
-					frameBuffer.setVisible(true);
-
-					frameBuffer.setIgnoreRepaint(true);
-					frameBuffer.setBackground(Color.black);
-					frameBuffer.setResizable(false);
-					frameBuffer.setTitle("JevaEngine - Underground");
-					frameBuffer.setSize(WINX, WINY);
-				}
-			});
-		} catch (InterruptedException | InvocationTargetException ex)
-		{
-			throw new RuntimeException(ex);
-		}
-
-		Core.initialize(new ServerGame(), new StatelessResourceLibrary());
-
-		Game game = Core.getService(Game.class);
-
-		game.init(frameBuffer, WINX, WINY);
+	/*
+	
+	Sorry this code is a mess and kind of hacky... I'm tired and this code is really not
+	important at all...
+	
+	*/
+	public static void main(String[] args) throws IOException
+	{	
+		boolean guiMode = Arrays.binarySearch(args,"gui") >= 0;
+		
+		Game game = new ServerGame();
+		Core.initialize(game, new ServerLibrary(), guiMode ? CoreMode.Normal : CoreMode.LogicOnly);
+		
+		if(guiMode)
+			game.init(createGui(), WINX, WINY);
+		else
+			game.init();
 
 		final int targetTime = 1000 / 60;
 
 		long lastTime = System.nanoTime() / 1000000;
 		long curTime = lastTime;
 
+		Scanner scanner = new Scanner(System.in);
+		
+		String scriptLog = "";
+		int emptyCount = 0;
+		
+		Script m_script = new Script();
+		
 		while (true)
 		{
 			curTime = System.nanoTime() / 1000000;
@@ -85,6 +82,30 @@ public class Main
 
 			lastTime = curTime;
 			
+			if(System.in.available() > 0 && scanner.hasNextLine())
+			{
+
+				String line = scanner.nextLine();
+				
+				if(line.isEmpty())
+					emptyCount++;
+				else
+					scriptLog += " " + line;
+				
+				if(emptyCount >= 2)
+				{
+					try
+					{
+						m_script.evaluate(scriptLog);
+					}catch(CoreScriptException e)
+					{
+						System.out.println("Error: " + e.toString());
+					}
+					emptyCount = 0;
+					System.out.println("Executed script.");
+					scriptLog = "";
+				}
+			}
 			try
 			{
 				Thread.sleep(Math.max(targetTime - cycleLength, 20));
@@ -93,5 +114,33 @@ public class Main
 				Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
 			}
 		}
+	}
+	
+	public static Frame createGui()
+	{
+		final Frame frame = new Frame();
+		try
+		{
+			SwingUtilities.invokeAndWait(new Runnable()
+			{
+				public void run()
+				{
+					frame.setVisible(true);
+					frame.setCursor(Toolkit.getDefaultToolkit().createCustomCursor(Toolkit.getDefaultToolkit().getImage(""), new Point(), "trans"));
+					frame.setVisible(true);
+
+					frame.setIgnoreRepaint(true);
+					frame.setBackground(Color.black);
+					frame.setResizable(false);
+					frame.setTitle("Server");
+					frame.setSize(WINX, WINY);
+				}
+			});
+		} catch (InterruptedException | InvocationTargetException ex)
+		{
+			throw new RuntimeException(ex);
+		}
+		
+		return frame;
 	}
 }

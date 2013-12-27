@@ -21,8 +21,8 @@ public class ResourceLibraryIOException extends RuntimeException
 
 	private static final long serialVersionUID = 1L;
 
-	public ResourceLibraryIOException(String resourceName)
+	public ResourceLibraryIOException(Exception cause, String resourceName)
 	{
-		super("Filesystem IO Exception: " + resourceName);
+		super("Filesystem IO Exception: " + resourceName + ", cause: " + cause.toString(), cause);
 	}
 }

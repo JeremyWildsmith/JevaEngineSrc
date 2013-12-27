@@ -19,8 +19,11 @@ import io.github.jevaengine.communication.InvalidMessageException;
 import io.github.jevaengine.communication.PolicyViolationException;
 import io.github.jevaengine.communication.ShareEntityException;
 import io.github.jevaengine.communication.tcp.RemoteSocketCommunicator;
-import io.github.jevaengine.config.VariableStore;
+import io.github.jevaengine.config.ISerializable;
+import io.github.jevaengine.config.IVariable;
 import io.github.jevaengine.game.IGameScriptProvider;
+import io.github.jevaengine.graphics.AnimationState;
+import io.github.jevaengine.graphics.Sprite;
 import io.github.jevaengine.ui.CommandMenu;
 import io.github.jevaengine.ui.IWindowManager;
 import io.github.jevaengine.ui.UIStyle;
@@ -48,7 +51,6 @@ import org.slf4j.LoggerFactory;
 
 public class ServerGame extends RpgGame implements IDisposable
 {
-	protected static final int PORT = 1554;
 
 	private final Logger m_logger = LoggerFactory.getLogger(ServerGame.class);
 
@@ -56,16 +58,26 @@ public class ServerGame extends RpgGame implements IDisposable
 	private final StaticSet<ServerWorld> m_worlds = new StaticSet<ServerWorld>();
 	
 	private CommandMenu m_commandMenu;
-	
 	private ServerListener m_listener;
+	
+	private ServerConfiguration m_config;
+	
+	private UIStyle m_style;
+	private Sprite m_cursor;
 
 	public void startup()
 	{
 		super.startup();
 
-		UIStyle styleSmall = UIStyle.create(VariableStore.create(Core.getService(IResourceLibrary.class).openResourceStream("ui/tech/small.juis")));
-
-		m_commandMenu = new CommandMenu(styleSmall, 660, 125);
+		IResourceLibrary library = Core.getService(IResourceLibrary.class);
+		
+		m_config = library.openConfiguration("server.cfg").getValue(ServerConfiguration.class);
+			
+		m_style = UIStyle.create(library.openConfiguration("ui/game.juis"));
+		m_cursor = Sprite.create(library.openConfiguration("ui/tech/cursor/cursor.jsf"));
+		m_cursor.setAnimation("idle", AnimationState.Play);
+		
+		m_commandMenu = new CommandMenu(m_style, 660, 125);
 		m_commandMenu.setLocation(new Vector2D(10, 10));
 
 		Core.getService(IWindowManager.class).addWindow(m_commandMenu);
@@ -73,7 +85,7 @@ public class ServerGame extends RpgGame implements IDisposable
 		ServerSocket serverSocket;
 		try
 		{
-			serverSocket = new ServerSocket(PORT);
+			serverSocket = new ServerSocket(m_config.port);
 
 			m_listener = new ServerListener(serverSocket);
 
@@ -317,6 +329,43 @@ public class ServerGame extends RpgGame implements IDisposable
 	{
 	}
 
+	@Override
+	public UIStyle getGameStyle()
+	{
+		return m_style;
+	}
+
+	@Override
+	protected Sprite getCursor()
+	{
+		return m_cursor;
+	}
+
+	public static class ServerConfiguration implements ISerializable
+	{
+		public String spawnWorld;
+		public String playerEntity;
+		public int port;
+		
+		public ServerConfiguration() { }
+
+		@Override
+		public void serialize(IVariable target)
+		{
+			target.addChild("server").setValue(this.spawnWorld);
+			target.addChild("playerEntity").setValue(this.playerEntity);
+			target.addChild("port").setValue(this.port);
+		}
+
+		@Override
+		public void deserialize(IVariable source)
+		{
+			spawnWorld = source.getChild("spawnWorld").getValue(String.class);
+			playerEntity = source.getChild("playerEntity").getValue(String.class);
+			port = source.getChild("port").getValue(Integer.class);
+		}
+	}
+
 	public class ServerGameScriptProvider extends RpgGameScriptProvider
 	{
 		@Override
@@ -426,17 +475,16 @@ public class ServerGame extends RpgGame implements IDisposable
 				m_isRemoteInitialized = true;
 
 				m_character = new ServerRpgCharacter(m_user.getUsername(),
-						"PLAYER_" + m_user.getUsername().toLowerCase(),
-						ServerGame.this,
-						"npcs/player.jnpc");
+														"PLAYER_" + m_user.getUsername().toLowerCase(),
+														m_config.playerEntity,
+														m_communicator);
 
 				m_character.getCharacter().addObserver(m_userHandler);
 				m_character.getCharacter().setLocation(new Vector2F(6, 6));
-				m_character.setOwner(m_communicator);
 
-				m_user.assignEntity(m_character.getCharacter().getName());
+				m_user.assignEntity(m_character.getCharacter().getInstanceName());
 
-				ServerWorld spawnWorld = getServerWorld("map/outsideClosed.jmp");
+				ServerWorld spawnWorld = getServerWorld(m_config.spawnWorld);
 
 				spawnWorld.getWorld().addEntity(m_character.getControlledEntity());
 
@@ -445,7 +493,7 @@ public class ServerGame extends RpgGame implements IDisposable
 				RpgCharacter character = m_character.getCharacter();
 
 				ServerWorld currentWorld = character.isAssociated() ? getServerWorld(character.getWorld()) : null;
-				ServerWorld spawnWorld = getServerWorld("map/outsideClosed.jmp");
+				ServerWorld spawnWorld = getServerWorld(m_config.spawnWorld);
 
 				if (currentWorld != spawnWorld)
 				{
@@ -539,6 +587,9 @@ public class ServerGame extends RpgGame implements IDisposable
 					closeConnection(RemoteClient.this, "Error occured attempting to share with client: " + e.toString());
 				}
 			}
+
+			@Override
+			public void replaced() { }
 		}
 	}
 

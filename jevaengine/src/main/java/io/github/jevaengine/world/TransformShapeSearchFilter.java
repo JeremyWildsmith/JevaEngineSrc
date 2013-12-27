@@ -16,6 +16,7 @@ import java.awt.Rectangle;
 import java.awt.Shape;
 
 import io.github.jevaengine.math.Matrix2X2;
+import io.github.jevaengine.math.Rect2D;
 import io.github.jevaengine.math.Vector2F;
 
 public class TransformShapeSearchFilter<T> implements ISearchFilter<T>
@@ -37,7 +38,7 @@ public class TransformShapeSearchFilter<T> implements ISearchFilter<T>
 	 * @see io.github.jeremywildsmith.jevaengine.world.ISearchFilter#getSearchBounds()
 	 */
 	@Override
-	public Rectangle getSearchBounds()
+	public Rect2D getSearchBounds()
 	{
 		Rectangle bounds = m_shape.getBounds();
 
@@ -48,7 +49,7 @@ public class TransformShapeSearchFilter<T> implements ISearchFilter<T>
 		Vector2F bl = inverse.dot(new Vector2F(bounds.x, bounds.y + bounds.height));
 		Vector2F br = inverse.dot(new Vector2F(bounds.x + bounds.width, bounds.y + bounds.height));
 
-		return new Rectangle((int) (tl.x), (int) (tr.y), (int) (br.x - tl.x), (int) (bl.y - tr.y));
+		return new Rect2D((int) (tl.x), (int) (tr.y), (int) (br.x - tl.x), (int) (bl.y - tr.y));
 	}
 
 	/*

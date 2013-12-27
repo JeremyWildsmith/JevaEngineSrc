@@ -19,20 +19,9 @@ import io.github.jevaengine.communication.InvalidMessageException;
 import io.github.jevaengine.communication.SharePolicy;
 import io.github.jevaengine.communication.SharedClass;
 import io.github.jevaengine.communication.SharedEntity;
-import io.github.jevaengine.config.VariableStore;
-import io.github.jevaengine.config.VariableValue;
-import io.github.jevaengine.math.Vector2F;
-import io.github.jevaengine.rpgbase.library.RpgEntityLibrary;
 import io.github.jevaengine.rpgbase.netcommon.NetWorld;
-import io.github.jevaengine.util.Nullable;
 import io.github.jevaengine.util.StaticSet;
-import io.github.jevaengine.world.Actor;
-import io.github.jevaengine.world.Entity;
 import io.github.jevaengine.world.World;
-import io.github.jevaengine.world.WorldDirection;
-import io.github.jevaengine.world.Actor.IActorObserver;
-
-import java.util.List;
 
 @SharedClass(name = "World", policy = SharePolicy.ClientR)
 public class ClientWorld extends NetWorld implements IClientShared
@@ -122,68 +111,13 @@ public class ClientWorld extends NetWorld implements IClientShared
 					@Override
 					public void run()
 					{
-						m_world = World.create(new ClientRpgEntityLibrary(), VariableStore.create(Core.getService(IResourceLibrary.class).openResourceStream(map)));
+						m_world = World.create(Core.getService(IResourceLibrary.class).openConfiguration(map));
 					}
 				}.start();
 			}
 		}
 
 		return true;
-	}
-
-	private class ClientRpgEntityLibrary extends RpgEntityLibrary
-	{
-		@Override
-		public Entity createEntity(String entityName, @Nullable String instanceName, List<VariableValue> arguments)
-		{
-			Entity e = super.createEntity(entityName, instanceName, arguments);
-
-			if (e instanceof Actor)
-				((Actor) e).addObserver(new ClientEntityObserver(e));
-
-			return e;
-		}
-	}
-
-	private class ClientEntityObserver implements IActorObserver
-	{
-		private Entity m_entity;
-
-		public ClientEntityObserver(Entity entity)
-		{
-			m_entity = entity;
-		}
-
-		@Override
-		public void onDialogEvent(Entity subject, int event)
-		{
-			send(new DialogEvent(m_entity.getName(), event, subject.getName()));
-		}
-
-		@Override
-		public void enterWorld()
-		{
-		}
-
-		@Override
-		public void leaveWorld()
-		{
-		}
-
-		@Override
-		public void directionChanged(WorldDirection direction)
-		{
-		}
-
-		@Override
-		public void placement(Vector2F location)
-		{
-		}
-
-		@Override
-		public void moved(Vector2F delta)
-		{
-		}
 	}
 
 	private static class Observers extends StaticSet<IClientWorldObserver>

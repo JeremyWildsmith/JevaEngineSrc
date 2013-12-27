@@ -78,7 +78,7 @@ public abstract class SearchForTask<T extends Entity> implements ITask
 
 			for (Entity e : m_searcher.getVisibleEntities())
 			{
-				if (m_seekingClass.isAssignableFrom(e.getClass()) && (m_searchEntityName == null ? true : e.getName().compareTo(m_searchEntityName) == 0))
+				if (m_seekingClass.isAssignableFrom(e.getClass()) && (m_searchEntityName == null ? true : e.getInstanceName().compareTo(m_searchEntityName) == 0))
 				{
 					foundEntity = true;
 					if (found((T) e))

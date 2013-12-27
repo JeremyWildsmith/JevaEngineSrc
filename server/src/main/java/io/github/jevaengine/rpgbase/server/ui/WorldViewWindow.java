@@ -16,7 +16,6 @@ package io.github.jevaengine.rpgbase.server.ui;
 import io.github.jevaengine.Core;
 import io.github.jevaengine.game.ControlledCamera;
 import io.github.jevaengine.game.Game;
-import io.github.jevaengine.graphics.Font;
 import io.github.jevaengine.ui.Button;
 import io.github.jevaengine.ui.IWindowManager;
 import io.github.jevaengine.ui.Label;
@@ -155,7 +154,7 @@ public class WorldViewWindow extends Window
 						}
 					});
 
-					m_contextStrip.setLocation(screenLocation.difference(WorldViewWindow.this.getAbsoluteLocation()));
+					m_contextStrip.setLocation(screenLocation);
 				}
 			}else if(button == MouseButton.Left)
 			{
@@ -188,7 +187,7 @@ public class WorldViewWindow extends Window
 				
 				Vector2D offset = new Vector2D(10, 15);
 				
-				m_cursorActionLabel.setLocation(screenLocation.difference(WorldViewWindow.this.m_worldView.getAbsoluteLocation()).add(offset));
+				m_cursorActionLabel.setLocation(screenLocation.add(offset));
 			
 				m_lastTarget = defaultable;
 			}else

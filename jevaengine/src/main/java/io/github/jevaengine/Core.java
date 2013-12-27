@@ -21,14 +21,33 @@ import io.github.jevaengine.ui.IWindowManager;
 
 public final class Core
 {
-
 	private static HashMap<Class<?>, Object> m_existingServices;
-
+	
+	private static CoreMode m_coreMode = CoreMode.Normal;
+	
+	public enum CoreMode
+	{
+		LogicOnly(false),
+		Normal(true);
+		
+		private boolean m_allowRender;
+		
+		CoreMode(boolean allowRender)
+		{
+			m_allowRender = allowRender;
+		}
+		
+		public boolean allowsRender()
+		{
+			return m_allowRender;
+		}
+	}
+	
 	private Core()
 	{
 	}
-
-	public static <T extends Game, Y extends IResourceLibrary, X extends IWindowManager> void initialize(T game, Y resourceLibrary, X windowManager)
+	
+	public static <T extends Game, Y extends IResourceLibrary, X extends IWindowManager> void initialize(T game, Y resourceLibrary, X windowManager, CoreMode coreMode)
 	{
 		if (m_existingServices != null)
 			throw new CoreInitializationException("Core has already been initialized. Cannot repeat initialization");
@@ -38,11 +57,18 @@ public final class Core
 		m_existingServices.put(resourceLibrary.getClass(), resourceLibrary);
 		m_existingServices.put(game.getClass(), game);
 		m_existingServices.put(windowManager.getClass(), windowManager);
+		
+		m_coreMode = coreMode;
 	}
 
 	public static <T extends Game, Y extends IResourceLibrary> void initialize(T game, Y resourceLibrary)
 	{
-		initialize(game, resourceLibrary, new BasicWindowManager());
+		initialize(game, resourceLibrary, new BasicWindowManager(), CoreMode.Normal);
+	}
+	
+	public static <T extends Game, Y extends IResourceLibrary> void initialize(T game, Y resourceLibrary, CoreMode coreMode)
+	{
+		initialize(game, resourceLibrary, new BasicWindowManager(), coreMode);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -60,21 +86,26 @@ public final class Core
 		throw new CoreInitializationException("Specified class has not been initialized");
 	}
 
+	public static CoreMode getMode()
+	{
+		return m_coreMode;
+	}
+	
 	public static ICoreScriptBridge getScriptBridge()
 	{
 		return new ICoreScriptBridge()
 		{
-			public void debugPrint(String debugMessage)
+			@Override
+			public void log(String debugMessage)
 			{
-				System.out.println("DebugPrint: " + debugMessage);
+				System.out.println("log: " + debugMessage);
 			}
 		};
 	}
 
 	public interface ICoreScriptBridge
 	{
-
-		void debugPrint(String debugMessage);
+		void log(String debugMessage);
 	}
 
 }

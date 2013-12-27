@@ -20,143 +20,39 @@ import javax.script.ScriptException;
 
 import org.mozilla.javascript.NativeArray;
 
-import io.github.jevaengine.Core;
 import io.github.jevaengine.CoreScriptException;
-import io.github.jevaengine.IResourceLibrary;
-import io.github.jevaengine.config.BasicVariable;
-import io.github.jevaengine.config.ShallowVariable;
-import io.github.jevaengine.config.UnknownVariableException;
-import io.github.jevaengine.config.Variable;
-import io.github.jevaengine.config.VariableStore;
-import io.github.jevaengine.config.VariableValue;
-import io.github.jevaengine.game.DialogPath;
-import io.github.jevaengine.game.DialogPath.Query;
+import io.github.jevaengine.config.IVariable;
 import io.github.jevaengine.graphics.IRenderable;
 import io.github.jevaengine.math.Matrix2X2;
 import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.math.Vector2F;
 import io.github.jevaengine.util.Nullable;
-import io.github.jevaengine.util.StaticSet;
 import io.github.jevaengine.world.EffectMap.TileEffects;
 import java.awt.Color;
 
 public abstract class Actor extends Entity implements IInteractable
 {
-
-	private final Observers m_observers = new Observers();
-
 	private final ActorScript m_script = new ActorScript();
+
+	private boolean m_isInteractable = false;
 	
-	private Vector2F m_location;
-
-	private WorldDirection m_direction;
-
-	private boolean m_isInteractable;
-
-	@Nullable private DialogPath m_dialog;
-
-	protected Actor()
+	public Actor()
 	{
 		this(null);
 	}
-
-	protected Actor(String name)
+	
+	public Actor(String name)
 	{
-		this(name, WorldDirection.Zero);
+		super(name);
 	}
-
-	protected Actor(@Nullable String name, WorldDirection direction)
-	{
-		this(name, new BasicVariable(), new ActorBridge<>());
-		m_direction = direction;
-	}
-
-	protected <Y extends Actor, T extends ActorBridge<Y>> Actor(@Nullable String name, Variable root, T entityContext)
+	
+	protected <Y extends Actor, T extends ActorBridge<Y>> Actor(@Nullable String name, IVariable root, T entityContext)
 	{
 		super(name, root, entityContext);
-
-		m_location = new Vector2F();
-		m_direction = WorldDirection.Zero;
-
-		Variable entityVar = getEntityVariables();
-
-		if (entityVar.variableExists("isInteractable"))
-			m_isInteractable = entityVar.getVariable("isInteractable").getValue().getBoolean();
-		else
-			m_isInteractable = false;
-
-		if (entityVar.variableExists("dialog"))
-			m_dialog = DialogPath.create(VariableStore.create(Core.getService(IResourceLibrary.class).openResourceStream(root.getVariable("dialog").getValue().getString())));
-	}
-
-	public void addObserver(IActorObserver observer)
-	{
-		m_observers.add(observer);
-		super.addObserver(observer);
-	}
-
-	public void removeObserver(IActorObserver observer)
-	{
-		m_observers.remove(observer);
-		super.removeObserver(observer);
-	}
-
-	public final int invokeDialogEvent(@Nullable Entity subject, int event)
-	{
-		try
-		{
-			m_observers.onDialogEvent(subject, event);
-
-			Object oReturn = getScript().invokeScriptFunction("onDialogEvent", subject, event);
-
-			if (oReturn instanceof Double)
-				return ((Double) oReturn).intValue();
-			else if (oReturn instanceof Integer)
-				return ((Integer) oReturn).intValue();
-			else
-				return -1;
-		} catch (ScriptException e)
-		{
-			throw new CoreScriptException("Unable to invoke entity onDialogEvent routine." + e.getMessage());
-		} catch (NoSuchMethodException e)
-		{
-			return -1;
-		}
-	}
-
-	public final Vector2F getLocation()
-	{
-		return m_location;
-	}
-
-	public final void setLocation(Vector2F location)
-	{
-		Vector2F oldLocation = m_location;
-		m_location = location;
-
-		if (!oldLocation.equals(location))
-			m_observers.placement(location);
-	}
-
-	public final void move(Vector2F delta)
-	{
-		m_location = m_location.add(delta);
-
-		m_observers.moved(delta);
-	}
-
-	public final WorldDirection getDirection()
-	{
-		return m_direction;
-	}
-
-	public final void setDirection(WorldDirection direction)
-	{
-		WorldDirection oldDirection = m_direction;
-		m_direction = direction;
-
-		if (!oldDirection.equals(direction))
-			m_observers.directionChanged(direction);
+		
+		if(root.childExists("isInteractable"))
+			m_isInteractable = root.getChild("isInteractable").getValue(Boolean.class);
+	
 	}
 
 	@Override
@@ -217,15 +113,15 @@ public abstract class Actor extends Entity implements IInteractable
 		if (!isAssociated())
 			throw new WorldAssociationException("Entity is not associated with world and can thus not be rendered.");
 
-		final IRenderable[] renderables = getGraphics();
-
-		if (renderables != null)
+		final IRenderable renderable = getGraphic();
+		final Vector2F worldLocation = getLocation();
+		
+		if (renderable != null)
 		{
 			// Optimize for most common case
 			if (getTileWidth() == 1 && getTileHeight() == 1)
 			{
-				for (IRenderable renderable : renderables)
-					getWorld().enqueueRender(renderable, new Vector2F(m_location.x, m_location.y));
+				getWorld().enqueueRender(renderable, new Vector2F(worldLocation.x, worldLocation.y));
 			} else
 			{
 				// Start with 1, since we start with 0 on x. If they both
@@ -234,53 +130,20 @@ public abstract class Actor extends Entity implements IInteractable
 				for (int y = 1; y < getTileHeight(); y++)
 				{
 					Vector2D location = new Vector2D(0, y);
-					getWorld().enqueueRender(new RenderTile(true, renderables, location), m_location.difference(location));
+					getWorld().enqueueRender(new RenderTile(true, renderable, location), worldLocation.difference(location));
 				}
 
 				for (int x = 0; x < getTileWidth(); x++)
 				{
 					Vector2D location = new Vector2D(x, 0);
-					getWorld().enqueueRender(new RenderTile(false, renderables, location), m_location.difference(location));
+					getWorld().enqueueRender(new RenderTile(false, renderable, location), worldLocation.difference(location));
 				}
 			}
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see io.github.jeremywildsmith.jevaengine.config.Variable#setChild(java.lang.String,
-	 * jeva.config.VariableValue)
-	 */
-	@Override
-	public Variable setChild(String name, VariableValue value)
-	{
-		if (name.compareTo("x") == 0)
-		{
-			m_location.x = value.getFloat();
-		} else if (name.compareTo("y") == 0)
-		{
-			m_location.y = value.getFloat();
-		} else
-		{
-			throw new UnknownVariableException(name);
-		}
-
-		return getChild(name);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see io.github.jeremywildsmith.jevaengine.config.Variable#getChildren()
-	 */
-	@Override
-	protected Variable[] getChildren()
-	{
-		return new ShallowVariable[]
-		{ new ShallowVariable(this, "x", new VariableValue(m_location.x)), new ShallowVariable(this, "y", new VariableValue(m_location.y)) };
-	}
-
+	public abstract IRenderable getGraphic();
+	
 	public abstract float getVisibilityFactor();
 
 	public abstract float getViewDistance();
@@ -297,22 +160,19 @@ public abstract class Actor extends Entity implements IInteractable
 
 	public abstract WorldDirection[] getAllowedMovements();
 
-	@Nullable
-	public abstract IRenderable[] getGraphics();
-
 	private final class RenderTile implements IRenderable
 	{
 
 		private final Vector2D m_location;
 
-		private final IRenderable[] m_renderables;
+		private final IRenderable m_renderable;
 
 		private final boolean m_isYAxis;
 
-		public RenderTile(boolean isYAxis, IRenderable[] renderables, Vector2D location)
+		public RenderTile(boolean isYAxis, IRenderable renderable, Vector2D location)
 		{
 			m_isYAxis = isYAxis;
-			m_renderables = renderables;
+			m_renderable = renderable;
 			m_location = location;
 		}
 
@@ -338,51 +198,10 @@ public abstract class Actor extends Entity implements IInteractable
 
 				g.clipRect(x - (m_isYAxis ? 0 : (int) v.x / 2), 0, (int) (m_isYAxis ? v.x / 2 : v.x), Integer.MAX_VALUE);
 
-				for (IRenderable r : m_renderables)
-					r.render(g, (int) (x + renderv.x), (int) (y + renderv.y), fScale);
+				m_renderable.render(g, (int) (x + renderv.x), (int) (y + renderv.y), fScale);
 
 				g.setClip(lastClip);
 			}
-		}
-	}
-
-	public interface IActorObserver extends IEntityObserver
-	{
-
-		void directionChanged(WorldDirection direction);
-
-		void placement(Vector2F location);
-
-		void moved(Vector2F delta);
-
-		void onDialogEvent(Entity subject, int event);
-	}
-
-	private static class Observers extends StaticSet<IActorObserver>
-	{
-
-		public void placement(Vector2F location)
-		{
-			for (IActorObserver observer : this)
-				observer.placement(location);
-		}
-
-		public void directionChanged(WorldDirection direction)
-		{
-			for (IActorObserver observer : this)
-				observer.directionChanged(direction);
-		}
-
-		public void moved(Vector2F delta)
-		{
-			for (IActorObserver observer : this)
-				observer.moved(delta);
-		}
-
-		public void onDialogEvent(Entity subject, int event)
-		{
-			for (IActorObserver observer : this)
-				observer.onDialogEvent(subject, event);
 		}
 	}
 
@@ -395,7 +214,7 @@ public abstract class Actor extends Entity implements IInteractable
 				Object jsString = getScript().invokeScriptFunction("getDefaultCommand");
 				
 				if(!(jsString instanceof String))
-					throw new CoreScriptException("Unexpected return value from doCommand script routine.");
+					throw new CoreScriptException("Unexpected return value from getDefaultCommand script routine.");
 				
 				return (String)jsString;
 			} catch (NoSuchMethodException e)
@@ -452,6 +271,7 @@ public abstract class Actor extends Entity implements IInteractable
 			}
 		}
 	}
+	
 	public static class ActorBridge<Y extends Actor> extends EntityBridge<Y>
 	{
 		private SearchForTask m_searchTask;
@@ -460,75 +280,22 @@ public abstract class Actor extends Entity implements IInteractable
 		{
 			return new ScriptLight(new Vector2F(offsetX, offsetY), radius, new Color(r, g, b, a));
 		}
-		
-		public float distance(ActorBridge<?> actor)
-		{
-			return getMe().getLocation().difference(actor.getLocation()).getLength();
-		}
-
-		public Vector2D getLocation()
-		{
-			return getMe().getLocation().round();
-		}
-
-		public void setLocation(Vector2F location)
-		{
-			getMe().setLocation(location);
-		}
-
-		public void setLocation(float x, float y)
-		{
-			getMe().setLocation(new Vector2F(x, y));
-		}
 
 		public void beginLook()
 		{
 			if(m_searchTask == null)
-				m_searchTask = new ActorSearch(getMe());
+				m_searchTask = new ActorSearch(getEntity());
 			
-			if(!getMe().isTaskActive(m_searchTask))
-				getMe().addTask(m_searchTask);
+			if(!getEntity().isTaskActive(m_searchTask))
+				getEntity().addTask(m_searchTask);
 		}
 		
 		public void endLook()
 		{
-			if(m_searchTask != null && getMe().isTaskActive(m_searchTask))
-				getMe().cancelTask(m_searchTask);
+			if(m_searchTask != null && getEntity().isTaskActive(m_searchTask))
+				getEntity().cancelTask(m_searchTask);
 		}
 
-		public final void dialog(@Nullable final EntityBridge<Entity> subject, final int dialogId)
-		{
-			final DialogPath dialog = ((Actor) getMe()).m_dialog;
-
-			if (dialog == null)
-				throw new CoreScriptException("Entity attempting to initiate dialog without defining a dialog path.");
-
-			getMe().addTask(new DialogTask(subject.getMe())
-			{
-				@Override
-				public Query onEvent(Entity subject, int eventCode)
-				{
-					int dialogOverride = getMe().invokeDialogEvent(subject, eventCode);
-
-					if (dialogOverride >= 0)
-						return dialog.getQuery(dialogOverride);
-					else
-						return null;
-				}
-
-				@Override
-				public void onDialogEnd()
-				{
-				}
-
-				@Override
-				public Query getEntryDialog()
-				{
-					return dialog.getQuery(dialogId);
-				}
-			});
-		}
-		
 		private class ActorSearch extends SearchForTask<Actor>
 		{
 			public ActorSearch(Actor me)
@@ -538,8 +305,14 @@ public abstract class Actor extends Entity implements IInteractable
 			@Override
 			public boolean found(Actor actor)
 			{
-				try {
-					return ((Boolean) getMe().getScript().invokeScriptFunction("lookFound", new FoundDetails(actor))).booleanValue();
+				try 
+				{
+					Object result = getEntity().getScript().invokeScriptFunction("lookFound", new FoundDetails(actor));
+					
+					if(!(result instanceof Boolean))
+						throw new CoreScriptException("Unexpected return from lookFound method.");
+					
+					return ((Boolean)result).booleanValue();
 
 				} catch (ScriptException e)
 				{
@@ -599,24 +372,24 @@ public abstract class Actor extends Entity implements IInteractable
 				@Override
 				public Vector2F getLocation()
 				{
-					return getMe().getLocation().add(m_offset);
+					return getEntity().getLocation().add(m_offset);
 				}
 
 				public void add()
 				{
-					if(getMe().isAssociated())
-						getMe().getWorld().getLighting().addLight(this);
+					if(getEntity().isAssociated())
+						getEntity().getWorld().getLighting().addLight(this);
 
-					getMe().addObserver(this);
+					getEntity().addObserver(this);
 				}
 
 				public void remove()
 				{
-					if(!getMe().isAssociated())
+					if(!getEntity().isAssociated())
 						throw new CoreScriptException("Entity has not been associated with a world.");
 					
-					getMe().removeObserver(this);
-					getMe().getWorld().getLighting().removeLight(this);
+					getEntity().removeObserver(this);
+					getEntity().getWorld().getLighting().removeLight(this);
 				}
 
 				@Override
@@ -628,8 +401,11 @@ public abstract class Actor extends Entity implements IInteractable
 				@Override
 				public void leaveWorld()
 				{
-					getMe().getWorld().getLighting().removeLight(this);
+					getEntity().getWorld().getLighting().removeLight(this);
 				}
+
+				@Override
+				public void replaced() { }
 			}
 		}
 		
@@ -643,7 +419,7 @@ public abstract class Actor extends Entity implements IInteractable
 
 			public FoundDetails(Actor foundEntity)
 			{
-				name = foundEntity.getName();
+				name = foundEntity.getInstanceName();
 				location = foundEntity.getLocation().round();
 				target = (ActorBridge<?>) foundEntity.getScriptBridge();
 			}

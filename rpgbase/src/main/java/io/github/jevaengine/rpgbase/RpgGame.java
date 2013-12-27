@@ -12,71 +12,43 @@
  ******************************************************************************/
 package io.github.jevaengine.rpgbase;
 
-import java.util.HashMap;
-
 import io.github.jevaengine.Core;
 import io.github.jevaengine.IResourceLibrary;
-import io.github.jevaengine.config.VariableStore;
+import java.util.HashMap;
+
 import io.github.jevaengine.game.Game;
 import io.github.jevaengine.game.IGameScriptProvider;
-import io.github.jevaengine.graphics.AnimationState;
-import io.github.jevaengine.graphics.Sprite;
-import io.github.jevaengine.ui.UIStyle;
-import io.github.jevaengine.rpgbase.library.RpgEntityLibrary;
 import io.github.jevaengine.rpgbase.quest.QuestState;
 import io.github.jevaengine.util.Nullable;
 
 public abstract class RpgGame extends Game
 {
-	private UIStyle m_gameStyle;
-
-	private Sprite m_cursor;
-
+	private DialogueController m_dialogueController = new DialogueController();
+	
 	@Override
 	protected void startup()
 	{
-		IResourceLibrary fileSystem = Core.getService(IResourceLibrary.class);
-
-		m_gameStyle = UIStyle.create(VariableStore.create(fileSystem.openResourceStream("ui/tech/small.juis")));
-
-		m_cursor = Sprite.create(VariableStore.create(fileSystem.openResourceStream("ui/tech/cursor.jsf")));
-		m_cursor.setAnimation("idle", AnimationState.Play);
-
 	}
-
-	public RpgEntityLibrary getEntityLibrary()
-	{
-		return new RpgEntityLibrary();
-	}
-
+	
 	@Override
 	public void update(int deltaTime)
 	{
-		m_cursor.update(deltaTime);
-
 		super.update(deltaTime);
+		m_dialogueController.update(deltaTime);
 	}
 
-	@Override
-	public UIStyle getGameStyle()
+	public final DialogueController getDialogueController()
 	{
-		return m_gameStyle;
+		return m_dialogueController;
 	}
-
-	@Override
-	protected Sprite getCursor()
-	{
-		return m_cursor;
-	}
-
+	
 	@Override
 	public IGameScriptProvider getScriptBridge()
 	{
 		return new RpgGameScriptProvider();
 	}
 
-	public abstract @Nullable
-	RpgCharacter getPlayer();
+	public abstract @Nullable RpgCharacter getPlayer();
 
 	public class RpgGameScriptProvider implements IGameScriptProvider
 	{
@@ -103,10 +75,17 @@ public abstract class RpgGame extends Game
 		{
 			public RpgCharacter.EntityBridge<?> getPlayer()
 			{
-				if (RpgGame.this.getPlayer() == null)
-					return null;
+				RpgCharacter character = RpgGame.this.getPlayer();
 
-				return RpgGame.this.getPlayer().getScriptBridge();
+				return character == null ? null : character.getScriptBridge();
+			}
+			
+			public void initiateDialogue(RpgCharacter.EntityBridge<?> speaker, String dialoguePath, int entry)
+			{
+				DialoguePath path = new DialoguePath();
+				path.deserialize(Core.getService(IResourceLibrary.class).openConfiguration(dialoguePath));
+				
+				m_dialogueController.enqueueDialogue(speaker.getEntity(), path, entry);
 			}
 		}
 	}

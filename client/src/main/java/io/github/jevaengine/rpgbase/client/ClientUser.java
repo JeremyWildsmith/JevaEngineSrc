@@ -17,6 +17,7 @@ import io.github.jevaengine.communication.InvalidMessageException;
 import io.github.jevaengine.communication.SharePolicy;
 import io.github.jevaengine.communication.SharedClass;
 import io.github.jevaengine.communication.SharedEntity;
+import io.github.jevaengine.rpgbase.DialogueController;
 import io.github.jevaengine.rpgbase.netcommon.NetUser;
 import io.github.jevaengine.util.Nullable;
 import io.github.jevaengine.util.StaticSet;
@@ -35,6 +36,8 @@ public class ClientUser extends NetUser implements IClientShared
 	private Observers m_observers = new Observers();
 
 	@Nullable private String m_assignedPlayerEntity = null;
+	
+	private DialogueController m_dialogueController;
 
 	public ClientUser(UserCredentials credentials)
 	{
@@ -155,7 +158,7 @@ public class ClientUser extends NetUser implements IClientShared
 	{
 		send(new ChatMessage(message));
 	}
-
+	
 	private static class Observers extends StaticSet<IClientUserObserver>
 	{
 		public void timeout()

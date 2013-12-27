@@ -1,0 +1,14 @@
+{
+  "life" : 10000,
+  "count" : 300,
+  "variation" : 0.20000000298023224,
+  "acceleration" : {
+    "y" : -60.0,
+    "x" : 0.0
+  },
+  "sprites" : [ "particle/blood/shower.jsf" ],
+  "velocity" : {
+    "y" : 300.0,
+    "x" : 20.0
+  }
+}

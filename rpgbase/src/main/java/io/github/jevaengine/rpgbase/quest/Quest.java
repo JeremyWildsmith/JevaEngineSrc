@@ -12,37 +12,23 @@
  ******************************************************************************/
 package io.github.jevaengine.rpgbase.quest;
 
-import java.util.ArrayList;
+import io.github.jevaengine.config.ISerializable;
+import io.github.jevaengine.config.IVariable;
 
-import io.github.jevaengine.config.Variable;
-
-public class Quest
+public class Quest implements ISerializable
 {
 	private String m_name;
 	private String m_description;
 
 	private QuestTask[] m_tasks;
 
+	private Quest() { }
+	
 	public Quest(String name, String description, QuestTask[] tasks)
 	{
 		m_name = name;
 		m_description = description;
 		m_tasks = tasks;
-	}
-
-	public static Quest create(Variable root)
-	{
-		String name = root.getVariable("name").getValue().getString();
-		String description = root.getVariable("description").getValue().getString();
-
-		ArrayList<QuestTask> tasks = new ArrayList<QuestTask>();
-
-		for (Variable vTask : root.getVariable("task").getVariableArray())
-		{
-			tasks.add(new QuestTask(vTask.getVariable("id").getValue().getString(), vTask.getVariable("name").getValue().getString(), vTask.getVariable("description").getValue().getString()));
-		}
-
-		return new Quest(name, description, tasks.toArray(new QuestTask[tasks.size()]));
 	}
 
 	public QuestTask getTask(String id)
@@ -82,5 +68,21 @@ public class Quest
 	public QuestTask[] getTasks()
 	{
 		return m_tasks;
+	}
+
+	@Override
+	public void serialize(IVariable target)
+	{
+		target.addChild("name").setValue(m_name);
+		target.addChild("description").setValue(m_description);
+		target.addChild("tasks").setValue(m_tasks);
+	}
+
+	@Override
+	public void deserialize(IVariable source)
+	{
+		m_name = source.getChild("name").getValue(String.class);
+		m_description = source.getChild("description").getValue(String.class);
+		m_tasks = source.getChild("tasks").getValues(QuestTask[].class);
 	}
 }

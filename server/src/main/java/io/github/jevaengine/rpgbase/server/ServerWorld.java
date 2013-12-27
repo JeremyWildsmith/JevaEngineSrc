@@ -22,17 +22,11 @@ import io.github.jevaengine.communication.ShareEntityException;
 import io.github.jevaengine.communication.SharePolicy;
 import io.github.jevaengine.communication.SharedClass;
 import io.github.jevaengine.communication.SharedEntity;
-import io.github.jevaengine.config.VariableStore;
-import io.github.jevaengine.config.VariableValue;
-import io.github.jevaengine.rpgbase.library.RpgEntityLibrary;
 import io.github.jevaengine.rpgbase.netcommon.NetWorld;
-import io.github.jevaengine.util.Nullable;
-import io.github.jevaengine.world.Entity;
 import io.github.jevaengine.world.World;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 @SharedClass(name = "World", policy = SharePolicy.ClientR)
 public class ServerWorld extends NetWorld implements IDisposable, IServerShared
@@ -55,7 +49,7 @@ public class ServerWorld extends NetWorld implements IDisposable, IServerShared
 
 		m_worldName = worldName;
 
-		m_world = World.create(new ServerEntityLibrary(), VariableStore.create(Core.getService(IResourceLibrary.class).openResourceStream(worldName)));
+		m_world = World.create(Core.getService(IResourceLibrary.class).openConfiguration(worldName));
 	}
 
 	@Override
@@ -126,8 +120,7 @@ public class ServerWorld extends NetWorld implements IDisposable, IServerShared
 			share(entity.getSharedEntity());
 		} catch (IOException | ShareEntityException | PolicyViolationException e)
 		{
-			// TODO: Log error, disconnect from server
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -140,8 +133,7 @@ public class ServerWorld extends NetWorld implements IDisposable, IServerShared
 			unshare(entity.getSharedEntity());
 		} catch (IOException e)
 		{
-			// TODO: Log error, disconnect from server
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -164,7 +156,7 @@ public class ServerWorld extends NetWorld implements IDisposable, IServerShared
 			{
 				IWorldVisitor visitor = (IWorldVisitor) recv;
 
-				if (visitor.isServerOnly())
+				if (visitor.isServerDispatchOnly())
 					throw new InvalidMessageException(sender, recv, "This visitor is server only.");
 
 				visitor.visit(sender, m_world);
@@ -177,18 +169,5 @@ public class ServerWorld extends NetWorld implements IDisposable, IServerShared
 		}
 
 		return true;
-	}
-
-	private class ServerEntityLibrary extends RpgEntityLibrary
-	{
-		@Override
-		public Entity createEntity(String entityName, @Nullable String instanceName, List<VariableValue> arguments)
-		{
-			// Override RpgCharacter implementation with networked RPG Character
-			if (entityName.compareTo("rpgCharacter") == 0)
-				return new ServerRpgCharacter(instanceName, m_server, arguments).getControlledEntity();
-			else
-				return super.createEntity(entityName, instanceName, arguments);
-		}
 	}
 }

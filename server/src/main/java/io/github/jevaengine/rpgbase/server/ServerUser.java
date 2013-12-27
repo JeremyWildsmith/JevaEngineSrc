@@ -13,10 +13,12 @@
 package io.github.jevaengine.rpgbase.server;
 
 import io.github.jevaengine.communication.Communicator;
+import io.github.jevaengine.communication.InvalidMessageException;
 import io.github.jevaengine.communication.SharePolicy;
 import io.github.jevaengine.communication.SharedClass;
 import io.github.jevaengine.communication.SharedEntity;
 import io.github.jevaengine.rpgbase.netcommon.NetUser;
+import io.github.jevaengine.util.Nullable;
 
 import java.nio.InvalidMarkException;
 
@@ -28,6 +30,8 @@ public class ServerUser extends NetUser implements IServerShared
 	private boolean m_isAuthenticated = false;
 
 	private String m_username;
+	
+	private @Nullable String m_assignedEntity;
 
 	private boolean m_dispatchedAuthenticationQuery = false;
 
@@ -61,12 +65,14 @@ public class ServerUser extends NetUser implements IServerShared
 
 	public void assignEntity(String name)
 	{
+		m_assignedEntity = name;
 		send(new CharacterAssignment(name));
 	}
 
 	public void unassignEntity()
 	{
 		send(new CharacterAssignment());
+		m_assignedEntity = null;
 	}
 
 	public void sendChatMessage(String username, String message)
@@ -75,7 +81,7 @@ public class ServerUser extends NetUser implements IServerShared
 	}
 
 	@Override
-	protected boolean onMessageRecieved(Communicator sender, Object recv) throws InvalidMarkException
+	protected boolean onMessageRecieved(Communicator sender, Object recv) throws InvalidMessageException
 	{
 		if (recv instanceof PrimitiveQuery)
 		{
@@ -99,8 +105,7 @@ public class ServerUser extends NetUser implements IServerShared
 				return false;
 
 			m_handler.recieveChatMessage(((ChatMessage) recv).getMessage());
-
-		} else
+		}else
 			m_server.disconnect("Invalid message recieved from client");
 
 		return true;

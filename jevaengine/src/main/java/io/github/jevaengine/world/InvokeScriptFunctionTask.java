@@ -19,7 +19,6 @@ import org.mozilla.javascript.Function;
  */
 public class InvokeScriptFunctionTask extends SynchronousOneShotTask
 {
-	private Script m_context;
 	private Function m_function;
 	
 	private Object[] m_arguments;
@@ -31,17 +30,11 @@ public class InvokeScriptFunctionTask extends SynchronousOneShotTask
 	}
 	
 	@Override
-	public void begin(Entity e)
-	{
-		m_context = e.getScript();
-	}
-	
-	@Override
-	public void run(Entity world)
+	public void run(Entity entity)
 	{
 		try
 		{
-			m_context.invokeScriptFunction(m_function, m_arguments);
+			entity.getScript().invokeScriptFunction(m_function, m_arguments);
 		} catch (NoSuchMethodException | ScriptException ex)
 		{
 			throw new CoreScriptException(ex);

@@ -20,7 +20,7 @@ import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.math.Vector2F;
 import io.github.jevaengine.util.Nullable;
 
-public class TraverseRouteTask extends MovementTask
+public final class TraverseRouteTask extends MovementTask
 {
 
 	private Route m_travelRoute;
@@ -28,13 +28,16 @@ public class TraverseRouteTask extends MovementTask
 	private Vector2D m_routeDestination;
 
 	private float m_fRadius;
-
-	public TraverseRouteTask(IRouteTraveler traveler, @Nullable Vector2D destination, float fRadius)
+	
+	private Entity m_entity;
+	
+	private WorldDirection[] m_allowedMovements;
+	
+	public TraverseRouteTask(@Nullable Vector2D destination, WorldDirection[] allowedMovements, float speed, float fRadius)
 	{
-		super(traveler);
-
+		super(speed);
 		m_travelRoute = new Route();
-
+		m_allowedMovements = allowedMovements;
 		m_routeDestination = destination;
 		m_fRadius = fRadius;
 	}
@@ -48,24 +51,26 @@ public class TraverseRouteTask extends MovementTask
 	public final void begin(Entity entity)
 	{
 		super.begin(entity);
-
+		
+		m_entity = entity;
+		
 		try
 		{
 			World world = entity.getWorld();
 
 			if (m_routeDestination == null)
 			{
-				m_travelRoute = Route.createRandom(new WorldNavigationRoutingRules((IRouteTraveler) getTraveler()), world, getTraveler().getSpeed(), getTraveler().getLocation().round(), (int) m_fRadius, true);
+				m_travelRoute = Route.createRandom(new WorldNavigationRoutingRules(m_allowedMovements), m_entity.getWorld(), getSpeed(), m_entity.getLocation().round(), (int) m_fRadius, true);
 			} else
 			{
-				m_travelRoute = Route.create(new WorldNavigationRoutingRules((IRouteTraveler) getTraveler()), world, getTraveler().getSpeed(), getTraveler().getLocation().round(), m_routeDestination, m_fRadius, true);
+				m_travelRoute = Route.create(new WorldNavigationRoutingRules(m_allowedMovements), world, getSpeed(), m_entity.getLocation().round(), m_routeDestination, m_fRadius, true);
 			}
 		} catch (IncompleteRouteException r)
 		{
-			m_travelRoute = new Route(getTraveler().getSpeed(), r.getIncompleteRoute());
+			m_travelRoute = new Route(getSpeed(), r.getIncompleteRoute());
 		}
 	}
-
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -75,7 +80,7 @@ public class TraverseRouteTask extends MovementTask
 	protected final Vector2F getDestination()
 	{
 		if (m_travelRoute.getCurrentTarget() == null)
-			return getTraveler().getLocation();
+			return m_entity.getLocation();
 
 		return new Vector2F(m_travelRoute.getCurrentTarget().getLocation());
 	}
@@ -100,9 +105,10 @@ public class TraverseRouteTask extends MovementTask
 	 * @see io.github.jeremywildsmith.jevaengine.world.MovementTask#blocking()
 	 */
 	@Override
-	protected final void blocking()
+	protected boolean blocking()
 	{
 		this.cancel();
+		return false;
 	}
 
 	public final void truncate(int maxSteps)
@@ -121,22 +127,5 @@ public class TraverseRouteTask extends MovementTask
 		m_travelRoute.unschedule();
 
 		super.cancel();
-	}
-
-	public interface IRouteTraveler extends ITraveler
-	{
-
-		public WorldDirection[] getAllowedMovements();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see io.github.jeremywildsmith.jevaengine.world.MovementTask#hasNext()
-	 */
-	@Override
-	protected boolean hasNext()
-	{
-		return m_travelRoute.hasNext();
 	}
 }

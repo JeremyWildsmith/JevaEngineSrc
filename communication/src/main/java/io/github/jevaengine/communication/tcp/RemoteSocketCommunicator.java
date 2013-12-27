@@ -42,7 +42,6 @@ public class RemoteSocketCommunicator extends RemoteCommunicator implements IDis
 	public RemoteSocketCommunicator(Socket remote) throws IOException
 	{
 		m_kryo = new Kryo(null);
-
 		m_remote = remote;
 		m_out = new Output(remote.getOutputStream());
 		m_dataListener = new DataListener(remote.getInputStream());

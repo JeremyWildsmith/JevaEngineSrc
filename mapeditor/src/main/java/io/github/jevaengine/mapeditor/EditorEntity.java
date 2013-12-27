@@ -12,15 +12,22 @@
  ******************************************************************************/
 package io.github.jevaengine.mapeditor;
 
-import io.github.jevaengine.config.VariableValue;
+import io.github.jevaengine.Core;
+import io.github.jevaengine.IResourceLibrary;
+import io.github.jevaengine.game.Game;
+import io.github.jevaengine.graphics.AnimationState;
+import io.github.jevaengine.graphics.Font;
+import io.github.jevaengine.graphics.IRenderable;
+import io.github.jevaengine.graphics.Sprite;
+import io.github.jevaengine.graphics.Text;
+import io.github.jevaengine.math.Vector2D;
+import io.github.jevaengine.math.Vector2F;
+import io.github.jevaengine.world.Actor;
 import io.github.jevaengine.world.Entity;
 import io.github.jevaengine.world.World;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
+import io.github.jevaengine.world.WorldDirection;
+import java.awt.Color;
+import java.awt.Graphics2D;
 
 public class EditorEntity
 {
@@ -28,20 +35,24 @@ public class EditorEntity
 
 	private String m_name;
 	private String m_className;
-	private String m_arguments;
+	private String m_config;
+	
+	private WorldDirection m_direction;
+	private Vector2F m_location;
 
-	private HashMap<String, String> m_postInitAssignment;
-
-	public EditorEntity(String name, String className, String arguments)
+	private Sprite m_tileSprite;
+	
+	public EditorEntity(String name, String className, String config)
 	{
 		m_name = name;
 		m_className = className;
-		m_arguments = arguments;
-
-		m_postInitAssignment = new HashMap<String, String>();
-		;
+		m_config = config;
+		m_location = new Vector2F();
+		m_direction = WorldDirection.Zero;
+		m_tileSprite = Sprite.create(Core.getService(IResourceLibrary.class).openConfiguration("@tile/tile.jsf"));
+		m_tileSprite.setAnimation("entity", AnimationState.Play);
 	}
-
+	
 	public void setName(String name)
 	{
 		m_name = name;
@@ -62,39 +73,40 @@ public class EditorEntity
 		return m_className;
 	}
 
-	public String getArguments()
+	public String getConfig()
 	{
-		return m_arguments;
+		return m_config;
 	}
 
-	public void setArguments(String arguments)
+	public void setConfig(String config)
 	{
-		m_arguments = arguments;
+		m_config = config;
 	}
-
-	public void setPostInitAssignment(String name, String value)
+	
+	public Vector2F getLocation()
 	{
-		m_postInitAssignment.put(name, value);
+		return m_location;
 	}
-
-	public void removePostInitAssignment(String name)
+	
+	public void setLocation(Vector2F location)
 	{
-		m_postInitAssignment.remove(name);
+		m_location = location;
+		
+		if(m_containedEntity != null)
+			m_containedEntity.setLocation(location);
 	}
-
-	public void clearPostInitAssignments()
+	
+	public WorldDirection getDirection()
 	{
-		m_postInitAssignment.clear();
+		return m_direction;
 	}
-
-	public Set<Entry<String, String>> getPostInitAssignments()
+	
+	public void setDirection(WorldDirection direction)
 	{
-		return m_postInitAssignment.entrySet();
-	}
-
-	public String getPostInitAssignment(String name)
-	{
-		return m_postInitAssignment.get(name);
+		m_direction = direction;
+		
+		if(m_containedEntity != null)
+			m_containedEntity.setDirection(direction);
 	}
 
 	public void refresh(World world)
@@ -102,13 +114,10 @@ public class EditorEntity
 		if (m_containedEntity != null)
 			world.removeEntity(m_containedEntity);
 
-		m_containedEntity = world.getEntityLibrary().createEntity(m_className, m_name, Arrays.asList((new VariableValue(m_arguments)).getObjectArguments()));
-
-		for (Map.Entry<String, String> assignment : m_postInitAssignment.entrySet())
-			m_containedEntity.setVariable(assignment.getKey(), new VariableValue(assignment.getValue()));
-
-		m_containedEntity.pause();
-
+		m_containedEntity = new EntityDummy();
+		m_containedEntity.setLocation(m_location);
+		m_containedEntity.setDirection(m_direction);
+		
 		world.addEntity(m_containedEntity);
 	}
 
@@ -121,6 +130,84 @@ public class EditorEntity
 	@Override
 	public String toString()
 	{
-		return String.format("%s of %s with %s", m_name, m_className, m_arguments);
+		return String.format("%s of %s", m_name, m_className + (m_config.length() > 0 ? " with " + m_config : ""));
+	}
+	
+	private class EntityDummy extends Actor
+	{
+		Text m_text;
+		
+		public EntityDummy()
+		{
+			Font font = Core.getService(Game.class).getGameStyle().getFont(Color.yellow);
+			m_text = new Text(EditorEntity.this.getName(), new Vector2D(), font, 1.0F);
+		}
+		
+		@Override
+		public IRenderable getGraphic()
+		{
+			return new IRenderable()
+			{
+
+				@Override
+				public void render(Graphics2D g, int x, int y, float fScale)
+				{
+					m_tileSprite.render(g, x, y, fScale);
+					m_text.render(g, x, y - 15, fScale);
+				}
+			};
+		}
+
+		@Override
+		public float getVisibilityFactor()
+		{
+			return 0;
+		}
+
+		@Override
+		public float getViewDistance()
+		{
+			return 0;
+		}
+
+		@Override
+		public float getFieldOfView()
+		{
+			return 0;
+		}
+
+		@Override
+		public float getVisualAcuity()
+		{
+			return 0;
+		}
+
+		@Override
+		public float getSpeed()
+		{
+			return 0;
+		}
+
+		@Override
+		public int getTileWidth()
+		{
+			return 1;
+		}
+
+		@Override
+		public int getTileHeight()
+		{
+			return 1;
+		}
+
+		@Override
+		public WorldDirection[] getAllowedMovements()
+		{
+			return new WorldDirection[0];
+		}
+
+		@Override
+		public void doLogic(int deltaTime) { }
+		
 	}
 }

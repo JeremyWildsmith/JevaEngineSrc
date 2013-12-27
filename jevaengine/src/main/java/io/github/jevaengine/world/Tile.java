@@ -16,78 +16,56 @@
  */
 package io.github.jevaengine.world;
 
-import io.github.jevaengine.graphics.AnimationState;
 import io.github.jevaengine.graphics.IRenderable;
 import io.github.jevaengine.graphics.Sprite;
 import io.github.jevaengine.math.Vector2F;
 import io.github.jevaengine.world.EffectMap.TileEffects;
 
-public class Tile extends Actor
+public final class Tile extends Actor
 {
-	protected Sprite m_sprite;
+	private Sprite m_sprite;
 
 	private boolean m_isTraversable;
 
-	private float m_fVisiblityObstruction;
-
 	private boolean m_enableSplitting;
+	
+	private float m_visiblityObstruction;
 
-	public Tile(String name, Sprite sprite, WorldDirection direction, String defaultAnimation, boolean isTraversable, boolean enableSplitting, float fVisibilityObstruction)
+	public Tile(String name, Sprite sprite, boolean isTraversable, boolean enableSplitting, float fVisibilityObstruction)
 	{
-		super(name, direction);
-
+		super(name);
 		m_sprite = sprite;
 		m_isTraversable = isTraversable;
 		m_enableSplitting = enableSplitting;
-
-		setAnimation(defaultAnimation);
-
-		m_fVisiblityObstruction = fVisibilityObstruction;
+		m_visiblityObstruction = fVisibilityObstruction;
 	}
 
-	public Tile(Sprite sprite, WorldDirection direction, String defaultAnimation, boolean isTraversable, boolean enableSplitting, float fVisibilityObstruction)
+	public Tile(Sprite sprite, boolean isTraversable, boolean enableSplitting, float fVisibilityObstruction)
 	{
-		super(null, direction);
-
 		m_sprite = sprite;
 		m_isTraversable = isTraversable;
 		m_enableSplitting = enableSplitting;
-
-		setAnimation(defaultAnimation);
-
-		m_fVisiblityObstruction = fVisibilityObstruction;
+		m_visiblityObstruction = fVisibilityObstruction;
 	}
 
+	public Sprite getSprite()
+	{
+		return m_sprite;
+	}
+	
+	public void setSprite(Sprite sprite)
+	{
+		m_sprite = sprite;
+	}
+	
 	protected final void setVisibilityObstruction(float fObstruction)
 	{
-		m_fVisiblityObstruction = fObstruction;
+		m_visiblityObstruction = fObstruction;
 	}
 
 	protected final float getVisibilityObstruction()
 	{
-		return m_fVisiblityObstruction;
-	}
-
-	protected final void setAnimation(String animation)
-	{
-		m_sprite.setAnimation(getDirection().toString() + animation, AnimationState.Play);
-	}
-
-	protected final void setSprite(Sprite sprite)
-	{
-		m_sprite = sprite;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see io.github.jeremywildsmith.jevaengine.world.Actor#getGraphics()
-	 */
-	@Override
-	public IRenderable[] getGraphics()
-	{
-		return new Sprite[]
-		{ m_sprite };
+		return m_visiblityObstruction;
 	}
 
 	/*
@@ -130,7 +108,7 @@ public class Tile extends Actor
 	@Override
 	public void blendEffectMap(EffectMap globalEffectMap)
 	{
-		globalEffectMap.applyOverlayEffects(this.getLocation().round(), new TileEffects(m_isTraversable).overlay(new TileEffects(m_fVisiblityObstruction)));
+		globalEffectMap.applyOverlayEffects(this.getLocation().round(), new TileEffects(m_isTraversable).overlay(new TileEffects(m_visiblityObstruction)));
 	}
 
 	/*
@@ -209,5 +187,11 @@ public class Tile extends Actor
 	{
 		return new WorldDirection[]
 		{ WorldDirection.Zero };
+	}
+
+	@Override
+	public IRenderable getGraphic()
+	{
+		return m_sprite;
 	}
 }

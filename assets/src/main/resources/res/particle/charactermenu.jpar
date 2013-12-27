@@ -1,8 +1,0 @@
-sprites/0:particle/charactermenu/charactermenu.jsf;
-particleCount:25;
-particleLife:3000;
-accleration/x:5;
-accleration/y:5;
-velocity/x:5;
-velocity/y:5;
-variation:1.0F;

@@ -18,8 +18,8 @@ import java.util.HashMap;
 import io.github.jevaengine.Core;
 import io.github.jevaengine.IResourceLibrary;
 import io.github.jevaengine.audio.Audio;
-import io.github.jevaengine.config.Variable;
-import io.github.jevaengine.config.VariableStore;
+import io.github.jevaengine.config.ISerializable;
+import io.github.jevaengine.config.IVariable;
 import io.github.jevaengine.graphics.Font;
 import io.github.jevaengine.graphics.Sprite;
 
@@ -50,16 +50,13 @@ public class UIStyle
 
 	private Sprite m_frameBottomRight;
 
-	private Sprite m_buttonSprite;
-
 	private Audio m_overButtonAudio;
 
 	private Audio m_pressButtonAudio;
 
-	public UIStyle(String srcFont, Sprite botton, Sprite frameFill, Sprite frameLeft, Sprite frameRight, Sprite frameTop, Sprite frameBottom, Sprite frameTopLeft, Sprite frameTopRight, Sprite frameBottomLeft, Sprite frameBottomRight, Audio overButton, Audio pressButton)
+	public UIStyle(String srcFont, Sprite frameFill, Sprite frameLeft, Sprite frameRight, Sprite frameTop, Sprite frameBottom, Sprite frameTopLeft, Sprite frameTopRight, Sprite frameBottomLeft, Sprite frameBottomRight, Audio overButton, Audio pressButton)
 	{
 		m_srcFont = srcFont;
-		m_buttonSprite = botton;
 
 		m_frameFill = frameFill;
 		m_frameLeft = frameLeft;
@@ -76,9 +73,22 @@ public class UIStyle
 		m_pressButtonAudio = pressButton;
 	}
 
-	public static UIStyle create(Variable root)
+	public static UIStyle create(IVariable root)
 	{
-		return new UIStyle(root.getVariable("font").getValue().getString(), getSpriteFromCache(root.getVariable("button").getValue().getString()), getSpriteFromCache(root.getVariable("frameFill").getValue().getString()), getSpriteFromCache(root.getVariable("frameLeft").getValue().getString()), getSpriteFromCache(root.getVariable("frameRight").getValue().getString()), getSpriteFromCache(root.getVariable("frameTop").getValue().getString()), getSpriteFromCache(root.getVariable("frameBottom").getValue().getString()), getSpriteFromCache(root.getVariable("frameTopLeft").getValue().getString()), getSpriteFromCache(root.getVariable("frameTopRight").getValue().getString()), getSpriteFromCache(root.getVariable("frameBottomLeft").getValue().getString()), getSpriteFromCache(root.getVariable("frameBottomRight").getValue().getString()), new Audio(root.getVariable("audioButtonOver").getValue().getString()), new Audio(root.getVariable("audioButtonPress").getValue().getString()));
+		UIStyleDeclaration styleDecl = root.getValue(UIStyleDeclaration.class);
+		
+		return new UIStyle(styleDecl.font,
+							getSpriteFromCache(styleDecl.frameFill),
+							getSpriteFromCache(styleDecl.frameLeft),
+							getSpriteFromCache(styleDecl.frameRight),
+							getSpriteFromCache(styleDecl.frameTop),
+							getSpriteFromCache(styleDecl.frameBottom),
+							getSpriteFromCache(styleDecl.frameTopLeft),
+							getSpriteFromCache(styleDecl.frameTopRight),
+							getSpriteFromCache(styleDecl.frameBottomLeft),
+							getSpriteFromCache(styleDecl.frameBottomRight),
+							new Audio(styleDecl.audioButtonOver),
+							new Audio(styleDecl.audioButtonPress));
 	}
 
 	private static Font getFontFromCache(String name, Color color)
@@ -91,7 +101,7 @@ public class UIStyle
 
 		if (!m_fontCache.get(formalName).containsKey(color))
 		{
-			m_fontCache.get(formalName).put(color, Font.create(VariableStore.create(Core.getService(IResourceLibrary.class).openResourceStream(formalName)), color));
+			m_fontCache.get(formalName).put(color, Font.create(Core.getService(IResourceLibrary.class).openConfiguration(formalName), color));
 		}
 
 		return m_fontCache.get(formalName).get(color);
@@ -103,7 +113,7 @@ public class UIStyle
 
 		if (!m_spriteCache.containsKey(formalName))
 		{
-			m_spriteCache.put(formalName, Sprite.create(VariableStore.create(Core.getService(IResourceLibrary.class).openResourceStream(formalName))));
+			m_spriteCache.put(formalName, Sprite.create(Core.getService(IResourceLibrary.class).openConfiguration(formalName)));
 		}
 
 		return m_spriteCache.get(formalName);
@@ -171,11 +181,6 @@ public class UIStyle
 		return new Sprite(m_frameBottomRight);
 	}
 
-	public Sprite createButtonSprite()
-	{
-		return new Sprite(m_buttonSprite);
-	}
-
 	public Audio getOverButtonAudio()
 	{
 		return m_overButtonAudio;
@@ -185,5 +190,72 @@ public class UIStyle
 	{
 		return m_pressButtonAudio;
 	}
+	
+	/*
+	root.getChild("font").getValue(String.class),
+							getSpriteFromCache(root.getChild("button").getValue(String.class)),
+							getSpriteFromCache(root.getVariable("frameFill").getValue().getString()),
+							getSpriteFromCache(root.getVariable("frameLeft").getValue().getString()),
+							getSpriteFromCache(root.getVariable("frameRight").getValue().getString()),
+							getSpriteFromCache(root.getVariable("frameTop").getValue().getString()),
+							getSpriteFromCache(root.getVariable("frameBottom").getValue().getString()),
+							getSpriteFromCache(root.getVariable("frameTopLeft").getValue().getString()),
+							getSpriteFromCache(root.getVariable("frameTopRight").getValue().getString()),
+							getSpriteFromCache(root.getVariable("frameBottomLeft").getValue().getString()),
+							getSpriteFromCache(root.getVariable("frameBottomRight").getValue().getString()),
+							new Audio(root.getVariable("audioButtonOver").getValue().getString()),
+							new Audio(root.getVariable("audioButtonPress").getValue().getString()));
+	*/
 
+	public static class UIStyleDeclaration implements ISerializable
+	{
+		public String font;
+		public String frameFill;
+		public String frameLeft;
+		public String frameRight;
+		public String frameTop;
+		public String frameBottom;
+		public String frameTopLeft;
+		public String frameTopRight;
+		public String frameBottomLeft;
+		public String frameBottomRight;
+		public String audioButtonOver;
+		public String audioButtonPress;
+		
+		public UIStyleDeclaration() { }
+
+		@Override
+		public void serialize(IVariable target)
+		{
+			target.addChild("font").setValue(font);
+			target.addChild("frameFill").setValue(frameFill);
+			target.addChild("frameLeft").setValue(frameLeft);
+			target.addChild("frameRight").setValue(frameRight);
+			target.addChild("frameTop").setValue(frameTop);
+			target.addChild("frameBottom").setValue(frameBottom);
+			target.addChild("frameTopLeft").setValue(frameTopLeft);
+			target.addChild("frameTopRight").setValue(frameTopRight);
+			target.addChild("frameBottomLeft").setValue(frameBottomLeft);
+			target.addChild("frameBottomRight").setValue(frameBottomRight);
+			target.addChild("audioButtonOver").setValue(audioButtonOver);
+			target.addChild("audioButtonPress").setValue(audioButtonPress);
+		}
+
+		@Override
+		public void deserialize(IVariable source)
+		{
+			font = source.getChild("font").getValue(String.class);
+			frameFill = source.getChild("frameFill").getValue(String.class);
+			frameLeft = source.getChild("frameLeft").getValue(String.class);
+			frameRight = source.getChild("frameRight").getValue(String.class);
+			frameTop = source.getChild("frameTop").getValue(String.class);
+			frameBottom = source.getChild("frameBottom").getValue(String.class);
+			frameTopLeft = source.getChild("frameTopLeft").getValue(String.class);
+			frameBottomLeft = source.getChild("frameBottomLeft").getValue(String.class);
+			frameTopRight = source.getChild("frameTopRight").getValue(String.class);
+			frameBottomRight = source.getChild("frameBottomRight").getValue(String.class);
+			audioButtonOver = source.getChild("audioButtonOver").getValue(String.class);
+			audioButtonPress = source.getChild("audioButtonPress").getValue(String.class);
+		}
+	}
 }

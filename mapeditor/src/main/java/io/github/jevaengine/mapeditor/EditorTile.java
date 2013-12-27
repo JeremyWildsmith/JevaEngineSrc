@@ -14,11 +14,12 @@ package io.github.jevaengine.mapeditor;
 
 import io.github.jevaengine.Core;
 import io.github.jevaengine.IResourceLibrary;
-import io.github.jevaengine.config.VariableStore;
+import io.github.jevaengine.graphics.AnimationState;
 import io.github.jevaengine.graphics.IRenderable;
 import io.github.jevaengine.graphics.Sprite;
 import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.math.Vector2F;
+import io.github.jevaengine.world.Actor;
 import io.github.jevaengine.world.EffectMap;
 import io.github.jevaengine.world.EffectMap.TileEffects;
 import io.github.jevaengine.world.IInteractable;
@@ -29,8 +30,6 @@ import io.github.jevaengine.world.WorldLayer;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 public class EditorTile implements IInteractable
 {
@@ -41,10 +40,15 @@ public class EditorTile implements IInteractable
 
 	private ContainedTile m_tile;
 	private String m_animation;
+	
+	private float m_visObstruction;
 
-	public EditorTile(String spriteName, WorldDirection direction, String animation, boolean isTraversable, boolean isStatic, boolean enableSplitting, float fVisiblity)
+	public EditorTile(String spriteName, String animation, boolean isTraversable, boolean isStatic, boolean enableSplitting, float fVisiblity)
 	{
-		m_tile = new ContainedTile(Sprite.create(VariableStore.create(Core.getService(IResourceLibrary.class).openResourceStream(spriteName))), direction, animation, true, fVisiblity);
+		Sprite sprite = Sprite.create(Core.getService(IResourceLibrary.class).openConfiguration(spriteName));
+		sprite.setAnimation(animation, AnimationState.Play);
+		
+		m_tile = new ContainedTile(sprite, true, fVisiblity);
 
 		m_isStatic = isStatic;
 		m_isTraversable = isTraversable;
@@ -53,25 +57,14 @@ public class EditorTile implements IInteractable
 		m_animation = animation;
 	}
 
-	public EditorTile(Sprite nullTileSprite, WorldDirection direction, String animation, boolean isTraversable, boolean isStatic, boolean enableSplitting, float fVisiblity)
-	{
-		m_tile = new ContainedTile(nullTileSprite, direction, animation, true, fVisiblity);
-
-		m_isStatic = isStatic;
-		m_isTraversable = isTraversable;
-		m_enablesSplitting = enableSplitting;
-		m_spriteName = "";
-		m_animation = animation;
-	}
-
 	public void setVisibilityObstruction(float fVisiblity)
 	{
-		m_tile.setTileVisibilityObstruction(fVisiblity);
+		m_visObstruction = fVisiblity;
 	}
 
 	public float getVisibilityObstruction()
 	{
-		return m_tile.getTileVisibilityObstruction();
+		return m_visObstruction;
 	}
 
 	public void setTraversable(boolean isTraversable)
@@ -94,10 +87,15 @@ public class EditorTile implements IInteractable
 		return m_isStatic;
 	}
 
-	public void setSpriteName(String spriteName)
+	public void setSpriteName(String spriteName, String animation)
 	{
 		m_spriteName = spriteName;
-		m_tile.setTileSprite(spriteName);
+		m_animation = animation;
+		
+		Sprite sprite = Sprite.create(Core.getService(IResourceLibrary.class).openConfiguration(spriteName));
+		sprite.setAnimation(animation, AnimationState.Play);
+		
+		m_tile.setSprite(sprite);	
 	}
 
 	public boolean enablesSplitting()
@@ -118,7 +116,7 @@ public class EditorTile implements IInteractable
 	public void setSpriteAnimation(String animation)
 	{
 		m_animation = animation;
-		m_tile.setTileAnimation(animation);
+		m_tile.getSprite().setAnimation(animation, AnimationState.Play);
 	}
 
 	public String getSpriteAnimation()
@@ -132,7 +130,8 @@ public class EditorTile implements IInteractable
 			m_tile.disassociate();
 
 		m_tile.associate(world);
-		layer.addStaticTile(m_tile);
+		
+		layer.addStatic(m_tile);
 	}
 
 	public void setLocation(Vector2D location)
@@ -143,11 +142,6 @@ public class EditorTile implements IInteractable
 	public Vector2D getLocation()
 	{
 		return m_tile.getLocation().round();
-	}
-
-	public void setDirection(WorldDirection direction)
-	{
-		m_tile._setDirection(direction);
 	}
 
 	public WorldDirection getDirection()
@@ -183,11 +177,13 @@ public class EditorTile implements IInteractable
 	@Override
 	public void doCommand(String bommand) { }
 
-	private class ContainedTile extends Tile
+	private class ContainedTile extends Actor
 	{
-		public ContainedTile(Sprite sprite, WorldDirection direction, String animation, boolean isTraversable, float fVisiblity)
+		private Tile m_contained;
+		
+		public ContainedTile(Sprite sprite, boolean isTraversable, float fVisiblity)
 		{
-			super(sprite, direction, animation, isTraversable, false, fVisiblity);
+			m_contained = new Tile(sprite, isTraversable, false, fVisiblity);
 		}
 
 		@Override
@@ -196,53 +192,84 @@ public class EditorTile implements IInteractable
 			globalEffectMap.applyOverlayEffects(getLocation().round(), new TileEffects(EditorTile.this));
 		}
 
-		protected void _setDirection(WorldDirection direction)
+		Sprite getSprite()
 		{
-			super.setDirection(direction);
+			return m_contained.getSprite();
 		}
-
-		protected void setTileAnimation(String animation)
+		
+		void setSprite(Sprite sprite)
 		{
-			super.setAnimation(animation);
-		}
-
-		protected void setTileSprite(String spriteName)
-		{
-			super.setSprite(Sprite.create(VariableStore.create(Core.getService(IResourceLibrary.class).openResourceStream(spriteName))));
-		}
-
-		protected void setTileVisibilityObstruction(float fVisiblity)
-		{
-			super.setVisibilityObstruction(fVisiblity);
-		}
-
-		protected float getTileVisibilityObstruction()
-		{
-			return super.getVisibilityObstruction();
+			m_contained.setSprite(sprite);
 		}
 
 		@Override
-		public IRenderable[] getGraphics()
+		public IRenderable getGraphic()
 		{
-			if (!m_isTraversable)
+			return new IRenderable()
 			{
-				ArrayList<IRenderable> renderables = new ArrayList<IRenderable>();
-				renderables.addAll(Arrays.asList(super.getGraphics()));
-
-				renderables.add(new IRenderable()
+				@Override
+				public void render(Graphics2D g, int x, int y, float fScale)
 				{
-
-					@Override
-					public void render(Graphics2D g, int x, int y, float fScale)
+					m_contained.getGraphic().render(g, x, y, fScale);
+					
+					if(!m_isTraversable)
 					{
 						g.setColor(Color.red);
 						g.drawRect(x - 2, y - 2, 2, 2);
 					}
-				});
-
-				return renderables.toArray(new IRenderable[renderables.size()]);
-			} else
-				return super.getGraphics();
+				}
+			};
 		}
+
+		@Override
+		public float getVisibilityFactor()
+		{
+			return 0;
+		}
+
+		@Override
+		public float getViewDistance()
+		{
+			return 0;
+		}
+
+		@Override
+		public float getFieldOfView()
+		{
+			return 0;
+		}
+
+		@Override
+		public float getVisualAcuity()
+		{
+			return 0;
+		}
+
+		@Override
+		public float getSpeed()
+		{
+			return 0;
+		}
+
+		@Override
+		public int getTileWidth()
+		{
+			return 1;
+		}
+
+		@Override
+		public int getTileHeight()
+		{
+			return 1;
+		}
+
+		@Override
+		public WorldDirection[] getAllowedMovements()
+		{
+			return new WorldDirection[0];
+		}
+
+		@Override
+		public void doLogic(int deltaTime) { }
 	}
 }

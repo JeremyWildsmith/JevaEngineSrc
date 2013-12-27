@@ -12,31 +12,22 @@
  ******************************************************************************/
 package io.github.jevaengine.graphics;
 
+import io.github.jevaengine.config.ISerializable;
+import io.github.jevaengine.config.IVariable;
+import io.github.jevaengine.graphics.Sprite.SpriteDeclaration.AnimationDeclaration;
+import io.github.jevaengine.graphics.Sprite.SpriteDeclaration.FrameDeclaration;
+import io.github.jevaengine.math.Rect2D;
+import io.github.jevaengine.math.Vector2D;
 import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
-
-import io.github.jevaengine.config.UnknownVariableException;
-import io.github.jevaengine.config.Variable;
+import java.util.Set;
 
 public final class Sprite implements IRenderable
 {
-
-	private static final String VAR_SOURCE = "source";
-
-	private static final String VAR_SCALE = "scale";
-
-	private static final String VAR_ANCHOR = "anchor";
-
-	private static final String VAR_DELAY = "delay";
-
-	private static final String VAR_ANIMATION = "animation";
-
 	private HashMap<String, Animation> m_animations;
 
 	private Animation m_currentAnimation;
@@ -67,54 +58,53 @@ public final class Sprite implements IRenderable
 		m_fNaturalScale = fNaturalScale;
 	}
 
-	public static Sprite create(Variable root)
+	public static Sprite create(IVariable root)
 	{
 		try
 		{
-			Variable source = root.getVariable(VAR_SOURCE);
-			Variable scale = root.getVariable(VAR_SCALE);
+			SpriteDeclaration spriteDecl = root.getValue(SpriteDeclaration.class);
+			
+			Graphic srcImage = Graphic.create(spriteDecl.texture);
 
-			Graphic srcImage = Graphic.create(source.getValue().getString());
+			Sprite sprite = new Sprite(srcImage, spriteDecl.scale);
 
-			Sprite sprite = new Sprite(srcImage, scale.getValue().getFloat());
-
-			for (Variable anim : root.getVariable(VAR_ANIMATION))
+			for (AnimationDeclaration anim : spriteDecl.animations)
 			{
 				Animation animBuffer = new Animation();
 
-				Variable[] anchors = root.getVariable(VAR_ANCHOR).getVariable(anim.getName()).getVariableArray();
-				Variable[] delays = root.getVariable(VAR_DELAY).getVariable(anim.getName()).getVariableArray();
-				Variable[] frames = anim.getVariableArray();
-
-				for (int i = 0; i < frames.length; i++)
+				for(FrameDeclaration frame : anim.frames)
 				{
-					animBuffer.addFrame(new Frame(frames[i].getValue().getRectangle(), delays[i].getValue().getInt(), anchors[i].getValue().getPoint()));
+					animBuffer.addFrame(new Frame(frame.region, frame.delay, frame.anchor));
 				}
 
-				sprite.addAnimation(anim.getName(), animBuffer);
+				sprite.addAnimation(anim.name, animBuffer);
 			}
 
 			return sprite;
 
-		} catch (UnknownVariableException ex)
-		{
-			throw new RuntimeException(ex);
 		} catch (IOException ex)
 		{
 			throw new RuntimeException(ex);
 		}
 	}
 
-	public Rectangle getBounds()
+	public Rect2D getBounds()
 	{
 		return m_currentAnimation.getCurrentFrame().getSourceRect();
 	}
 
-	public Point getOrigin()
+	public Vector2D getOrigin()
 	{
 		return m_currentAnimation.getCurrentFrame().getOrigin();
 	}
 
+	public String[] getAnimations()
+	{
+		Set<String> keys = m_animations.keySet();
+		
+		return keys.toArray(new String[keys.size()]);
+	}
+	
 	public void setAnimation(String animationName, AnimationState state)
 	{
 		m_currentAnimation = m_animations.get(animationName);
@@ -165,7 +155,82 @@ public final class Sprite implements IRenderable
 		Graphics2D workingGraphics = (Graphics2D) g.create();
 		workingGraphics.transform(trans);
 
-		Rectangle srcRect = currentFrame.getSourceRect();
-		workingGraphics.drawImage(m_srcImage.getImage(), 0, 0, srcRect.width, srcRect.height, srcRect.x, srcRect.y, srcRect.x + srcRect.width, srcRect.y + srcRect.height, null);
+		Rect2D srcRect = currentFrame.getSourceRect();
+	
+		m_srcImage.render(workingGraphics, 0, 0, srcRect.width, srcRect.height, srcRect.x, srcRect.y, srcRect.width, srcRect.height);
+		workingGraphics.dispose();
+	}
+	
+	public static class SpriteDeclaration implements ISerializable
+	{
+		public String texture;
+		public float scale;
+		public AnimationDeclaration[] animations;
+		public SpriteDeclaration() { }
+		
+		@Override
+		public void serialize(IVariable target)
+		{
+			target.addChild("texture").setValue(this.texture);
+			target.addChild("scale").setValue((double)this.scale);
+			target.addChild("animations").setValue(animations);
+		}
+
+		@Override
+		public void deserialize(IVariable source)
+		{
+			this.texture = source.getChild("texture").getValue(String.class);
+			this.scale = source.getChild("scale").getValue(Double.class).floatValue();
+			this.animations = source.getChild("animations").getValues(AnimationDeclaration[].class);
+		}
+		
+		public static class AnimationDeclaration implements ISerializable
+		{
+			public String name;
+			public FrameDeclaration[] frames;
+			
+			public AnimationDeclaration() { }
+
+			@Override
+			public void serialize(IVariable target)
+			{
+				target.addChild("name").setValue(this.name);
+				target.addChild("frames").setValue(this.frames);
+			}
+
+			@Override
+			public void deserialize(IVariable source)
+			{
+				this.name = source.getChild("name").getValue(String.class);
+				this.frames = source.getChild("frames").getValues(FrameDeclaration[].class);
+			}
+		}
+		
+		public static class FrameDeclaration implements ISerializable
+		{
+			public Rect2D region;
+			public Vector2D anchor;
+			public int delay;
+			
+			public FrameDeclaration() { }
+
+			@Override
+			public void serialize(IVariable target)
+			{
+				target.addChild("region").setValue(this.region);
+				target.addChild("anchor").setValue(this.anchor);
+				target.addChild("delay").setValue(this.delay);
+			}
+
+			@Override
+			public void deserialize(IVariable source)
+			{
+				this.region = source.getChild("region").getValue(Rect2D.class);
+				this.anchor = source.getChild("anchor").getValue(Vector2D.class);
+				this.delay = source.getChild("delay").getValue(Integer.class);
+			}
+			
+			
+		}
 	}
 }

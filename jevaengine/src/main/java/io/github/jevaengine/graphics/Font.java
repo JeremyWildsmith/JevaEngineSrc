@@ -14,7 +14,6 @@ package io.github.jevaengine.graphics;
 
 import java.awt.Color;
 import java.awt.Image;
-import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.image.FilteredImageSource;
 import java.awt.image.RGBImageFilter;
@@ -26,22 +25,24 @@ import javax.imageio.ImageIO;
 
 import io.github.jevaengine.Core;
 import io.github.jevaengine.IResourceLibrary;
-import io.github.jevaengine.config.Variable;
+import io.github.jevaengine.config.ISerializable;
+import io.github.jevaengine.config.IVariable;
 import io.github.jevaengine.game.ResourceLoadingException;
+import io.github.jevaengine.graphics.Font.FontDeclaration.GlyphDeclaration;
+import io.github.jevaengine.math.Rect2D;
 import io.github.jevaengine.util.Nullable;
 
 public final class Font
 {
+	private Graphic m_srcImage;
 
-	private Image m_srcImage;
-
-	private HashMap<Character, Rectangle> m_characterMap;
+	private HashMap<Character, Rect2D> m_characterMap;
 
 	private int m_width;
 
 	private int m_height;
 
-	protected Font(Image srcImage, HashMap<Character, Rectangle> characterMap, int width, int height)
+	protected Font(Graphic srcImage, HashMap<Character, Rect2D> characterMap, int width, int height)
 	{
 		m_srcImage = srcImage;
 		m_characterMap = characterMap;
@@ -50,38 +51,38 @@ public final class Font
 		m_height = height;
 	}
 
-	public static Font create(Variable root, Color color)
+	public static Font create(IVariable root, Color color)
 	{
-		Variable source = root.getVariable("source");
+		FontDeclaration fontDecl = root.getValue(FontDeclaration.class);
 
 		int maxWidth = 0;
 		int maxHeight = 0;
+		
 		try
 		{
-			Image srcImage = ImageIO.read(Core.getService(IResourceLibrary.class).openResourceStream(source.getValue().getString()));
-
+			Graphic srcImage = Graphic.create(fontDecl.texture);
+			
 			srcImage = filterImage(srcImage, color);
 
-			HashMap<Character, Rectangle> charMap = new HashMap<Character, Rectangle>();
+			HashMap<Character, Rect2D> charMap = new HashMap<Character, Rect2D>();
 
-			for (Variable charVar : root.getVariable("char"))
+			for (GlyphDeclaration glyph : fontDecl.glyphs)
 			{
-				Rectangle src = charVar.getValue().getRectangle();
-				maxWidth = Math.max(maxWidth, src.width);
-				maxHeight = Math.max(maxHeight, src.height);
+				maxWidth = Math.max(maxWidth, glyph.region.width);
+				maxHeight = Math.max(maxHeight, glyph.region.height);
 
-				charMap.put(new Character((char) Integer.parseInt(charVar.getName())), src);
+				charMap.put(glyph.character, glyph.region);
 			}
 			return new Font(srcImage, charMap, maxWidth, maxHeight);
 		} catch (IOException e)
 		{
-			throw new ResourceLoadingException(source.getValue().getString());
+			throw new ResourceLoadingException(fontDecl.texture);
 		}
 	}
 
-	private static Image filterImage(Image src, final Color color)
+	private static Graphic filterImage(Graphic src, final Color color)
 	{
-		RGBImageFilter colorFilter = new RGBImageFilter()
+		return src.filterImage(new RGBImageFilter()
 		{
 
 			@Override
@@ -98,12 +99,10 @@ public final class Font
 				}
 				return rgb;
 			}
-		};
-
-		return Toolkit.getDefaultToolkit().createImage(new FilteredImageSource(src.getSource(), colorFilter));
+		});
 	}
 
-	public Image getSource()
+	public Graphic getSource()
 	{
 		return m_srcImage;
 	}
@@ -119,7 +118,7 @@ public final class Font
 	}
 
 	@Nullable
-	public Rectangle getChar(char c)
+	public Rect2D getChar(char c)
 	{
 		if (!m_characterMap.containsKey(c))
 			return null;
@@ -132,19 +131,63 @@ public final class Font
 		return getChar(keyChar) != null;
 	}
 
-	public Rectangle[] getString(String text)
+	public Rect2D[] getString(String text)
 	{
-		ArrayList<Rectangle> stringRects = new ArrayList<Rectangle>();
+		ArrayList<Rect2D> stringRects = new ArrayList<Rect2D>();
 
 		for (int i = 0; i < text.length(); i++)
 		{
-			Rectangle charRect = getChar(text.charAt(i));
+			Rect2D charRect = getChar(text.charAt(i));
 
 			if (charRect != null)
 				stringRects.add(charRect);
 		}
 
-		return stringRects.toArray(new Rectangle[stringRects.size()]);
+		return stringRects.toArray(new Rect2D[stringRects.size()]);
+	}
+	
+	public static class FontDeclaration implements ISerializable
+	{
+		public String texture;
+		public GlyphDeclaration[] glyphs;
+		
+		public FontDeclaration() { }
+
+		@Override
+		public void serialize(IVariable target)
+		{
+			target.addChild("texture").setValue(texture);
+			target.addChild("glyphs").setValue(glyphs);
+		}
+
+		@Override
+		public void deserialize(IVariable source)
+		{
+			texture = source.getChild("texture").getValue(String.class);
+			glyphs = source.getChild("glyphs").getValues(GlyphDeclaration[].class);
+		}
+		
+		public static class GlyphDeclaration implements ISerializable
+		{
+			public char character;
+			public Rect2D region;
+
+			public GlyphDeclaration() { }
+			
+			@Override
+			public void serialize(IVariable target)
+			{
+				target.addChild("char").setValue((int)this.character);
+				target.addChild("region").setValue(this.region);
+			}
+
+			@Override
+			public void deserialize(IVariable source)
+			{
+				this.character = (char)source.getChild("char").getValue(Integer.class).intValue();
+				this.region = source.getChild("region").getValue(Rect2D.class);
+			}
+		}
 	}
 
 }

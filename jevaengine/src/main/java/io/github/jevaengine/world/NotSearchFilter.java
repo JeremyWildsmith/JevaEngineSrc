@@ -12,6 +12,7 @@
  ******************************************************************************/
 package io.github.jevaengine.world;
 
+import io.github.jevaengine.math.Rect2D;
 import java.awt.Rectangle;
 
 import io.github.jevaengine.math.Vector2F;
@@ -27,7 +28,7 @@ public class NotSearchFilter<T> implements ISearchFilter<T>
 	 * @see io.github.jeremywildsmith.jevaengine.world.ISearchFilter#getSearchBounds()
 	 */
 	@Override
-	public Rectangle getSearchBounds()
+	public Rect2D getSearchBounds()
 	{
 		return m_filter.getSearchBounds();
 	}

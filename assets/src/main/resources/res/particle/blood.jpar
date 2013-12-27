@@ -1,8 +1,0 @@
-sprites/0:particle/blood/blood0.jsf;
-particleCount:3;
-particleLife:1500;
-accleration/x:10;
-accleration/y:20;
-velocity/x:0;
-velocity/y:5;
-variation:0.4;

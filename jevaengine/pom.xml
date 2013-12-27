@@ -7,6 +7,8 @@
     <name>jevaengine</name>
     <description>JevaEngine Core</description>
 
+    <url>http://jevaengine.com/</url>
+    
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -61,6 +63,13 @@
             <version>3.8.1</version>
             <scope>test</scope>
         </dependency>
+        
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-mapper-asl</artifactId>
+            <version>1.9.13</version>
+        </dependency>
+
     </dependencies>
 
 </project>

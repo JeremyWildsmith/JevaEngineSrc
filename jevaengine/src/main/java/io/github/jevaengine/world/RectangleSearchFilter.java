@@ -12,6 +12,8 @@
  ******************************************************************************/
 package io.github.jevaengine.world;
 
+import io.github.jevaengine.math.Rect2D;
+import io.github.jevaengine.math.Rect2F;
 import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 
@@ -20,9 +22,9 @@ import io.github.jevaengine.math.Vector2F;
 public class RectangleSearchFilter<T> implements ISearchFilter<T>
 {
 
-	private Rectangle2D.Float m_srcRect;
+	private Rect2F m_srcRect;
 
-	public RectangleSearchFilter(Rectangle2D.Float rect)
+	public RectangleSearchFilter(Rect2F rect)
 	{
 		m_srcRect = rect;
 	}
@@ -33,9 +35,9 @@ public class RectangleSearchFilter<T> implements ISearchFilter<T>
 	 * @see io.github.jeremywildsmith.jevaengine.world.ISearchFilter#getSearchBounds()
 	 */
 	@Override
-	public final Rectangle getSearchBounds()
+	public final Rect2D getSearchBounds()
 	{
-		return m_srcRect.getBounds();
+		return m_srcRect.round();
 	}
 
 	/*
@@ -46,7 +48,7 @@ public class RectangleSearchFilter<T> implements ISearchFilter<T>
 	@Override
 	public boolean shouldInclude(Vector2F location)
 	{
-		return m_srcRect.contains(location.x, location.y);
+		return m_srcRect.contains(location);
 	}
 
 	/*

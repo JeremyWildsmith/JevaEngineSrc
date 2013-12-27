@@ -16,7 +16,6 @@ import io.github.jevaengine.Core;
 import io.github.jevaengine.IResourceLibrary;
 import io.github.jevaengine.audio.Audio;
 import io.github.jevaengine.communication.tcp.RemoteSocketCommunicator;
-import io.github.jevaengine.config.VariableStore;
 import io.github.jevaengine.game.ControlledCamera;
 import io.github.jevaengine.game.Game;
 import io.github.jevaengine.graphics.IRenderable;
@@ -30,7 +29,8 @@ import io.github.jevaengine.ui.Window;
 import io.github.jevaengine.ui.WorldView;
 import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.math.Vector2F;
-import io.github.jevaengine.rpgbase.library.RpgEntityLibrary;
+import io.github.jevaengine.rpgbase.RpgLibrary;
+import io.github.jevaengine.rpgbase.client.ClientGame.ClientConfiguration;
 import io.github.jevaengine.rpgbase.netcommon.NetUser.UserCredentials;
 import io.github.jevaengine.world.World;
 
@@ -45,13 +45,9 @@ import javax.imageio.ImageIO;
 public final class LoginState implements IGameState
 {
 
-	protected static final String HOST = "127.0.0.1";
-
-	protected static final int PORT = 1554;
-
 	private ClientGame m_context;
 
-	private Audio m_backgroundMusic;
+	//private Audio m_backgroundMusic;
 
 	private Window m_loginWindow;
 
@@ -71,37 +67,36 @@ public final class LoginState implements IGameState
 
 	private static String getCredits()
 	{
-		return Core.getService(IResourceLibrary.class).openResourceContents("credits.txt");
+		return Core.getService(RpgLibrary.class).openResourceContents("credits.txt");
 	}
 
 	public LoginState(String userMessage)
 	{
-		m_backgroundMusic = new Audio("audio/da/da.ogg");
+		//m_backgroundMusic = new Audio("audio/da/da.ogg");
 
-		final UIStyle styleLarge = UIStyle.create(VariableStore.create(Core.getService(IResourceLibrary.class).openResourceStream("ui/tech/large.juis")));
-		final UIStyle styleSmall = UIStyle.create(VariableStore.create(Core.getService(IResourceLibrary.class).openResourceStream("ui/tech/small.juis")));
-
-		m_loginWindow = new Window(styleLarge, 500, 400);
+		final UIStyle style = Core.getService(Game.class).getGameStyle();
+		
+		m_loginWindow = new Window(style, 500, 400);
 		m_loginWindow.setRenderBackground(false);
 		m_loginWindow.setMovable(false);
-		m_loginWindow.setLocation(new Vector2D(262, 190));
+		m_loginWindow.setLocation(new Vector2D(262, 300));
 
 		m_connectingAbout = new TextArea(Color.white, 480, 230);
 
 		m_connectingAbout.setLocation(new Vector2D(10, 10));
-		m_connectingAbout.setStyle(styleSmall);
+		m_connectingAbout.setStyle(style);
 
 		m_connectingAbout.setText(userMessage);
 
 		m_loginWindow.addControl(m_connectingAbout);
 
-		m_nickname = new TextArea(Color.white, 300, 30);
+		m_nickname = new TextArea(Color.white, 200, 80);
 		m_nickname.setEditable(true);
 		m_nickname.setText("Guest");
 		m_nickname.setRenderBackground(false);
 
-		m_loginWindow.addControl(new Label("Nickname:", Color.red), new Vector2D(10, 270));
-		m_loginWindow.addControl(m_nickname, new Vector2D(190, 270));
+		m_loginWindow.addControl(new Label("Nickname:", Color.red), new Vector2D(170, 270));
+		m_loginWindow.addControl(m_nickname, new Vector2D(220, 270));
 
 		m_loginWindow.addControl(new Button("Connect!")
 		{
@@ -111,9 +106,11 @@ public final class LoginState implements IGameState
 			{
 				try
 				{
+					ClientConfiguration config = m_context.getConfiguration();
+					
 					m_nickname.setText(m_nickname.getText().trim());
 
-					Socket clientSocket = new Socket(HOST, PORT);
+					Socket clientSocket = new Socket(config.server, config.port);
 					clientSocket.setTcpNoDelay(true);
 
 					ClientCommunicator communicator = m_context.getCommunicator();
@@ -131,19 +128,19 @@ public final class LoginState implements IGameState
 					m_connectingAbout.setText("The servers are currently inaccessible.\n\nTry again later");
 				}
 			}
-		}, new Vector2D(150, 300));
+		}, new Vector2D(200, 300));
 
 		final Image overlayImage;
 
 		try
 		{
-			overlayImage = ImageIO.read(Core.getService(IResourceLibrary.class).openResourceStream("ui/menu.png"));
+			overlayImage = ImageIO.read(Core.getService(IResourceLibrary.class).openAsset("ui/menu.png"));
 		} catch (IOException e)
 		{
 			throw new RuntimeException(e);
 		}
 
-		m_overlayWindow = new Window(styleSmall, 1024, 768);
+		m_overlayWindow = new Window(style, 1024, 768);
 		m_overlayWindow.setRenderBackground(false);
 		m_overlayWindow.setMovable(false);
 		m_overlayWindow.setFocusable(false);
@@ -161,21 +158,21 @@ public final class LoginState implements IGameState
 
 		m_overlayWindow.addControl(view);
 
-		m_backgroundMusic = new Audio("audio/da/da.ogg");
+		//m_backgroundMusic = new Audio("audio/da/da.ogg");
 
-		m_menuWorld = World.create(new RpgEntityLibrary(), VariableStore.create(Core.getService(IResourceLibrary.class).openResourceStream("map/menu.jmp")));
+		m_menuWorld = World.create(Core.getService(IResourceLibrary.class).openConfiguration("world/menu.jmp"));
 
 		Vector2D resolution = Core.getService(Game.class).getResolution();
 
 		ControlledCamera menuCamera = new ControlledCamera();
 		menuCamera.attach(m_menuWorld);
-		menuCamera.lookAt(new Vector2F(27, 33));
+		menuCamera.lookAt(new Vector2F(9, 9));
 
 		WorldView worldViewport = new WorldView(resolution.x, resolution.y);
 		worldViewport.setRenderBackground(false);
 		worldViewport.setCamera(menuCamera);
 
-		m_worldViewWindow = new Window(styleSmall, resolution.x, resolution.y);
+		m_worldViewWindow = new Window(style, resolution.x, resolution.y);
 		m_worldViewWindow.setRenderBackground(false);
 		m_worldViewWindow.setMovable(false);
 		m_worldViewWindow.setFocusable(false);
@@ -187,7 +184,7 @@ public final class LoginState implements IGameState
 	public void enter(ClientGame context)
 	{
 		m_context = context;
-		m_backgroundMusic.repeat();
+		//m_backgroundMusic.repeat();
 
 		Core.getService(IWindowManager.class).addWindow(m_loginWindow);
 		Core.getService(IWindowManager.class).addWindow(m_overlayWindow);
@@ -197,7 +194,7 @@ public final class LoginState implements IGameState
 	@Override
 	public void leave()
 	{
-		m_backgroundMusic.stop();
+		//m_backgroundMusic.stop();
 
 		Core.getService(IWindowManager.class).removeWindow(m_worldViewWindow);
 		Core.getService(IWindowManager.class).removeWindow(m_loginWindow);

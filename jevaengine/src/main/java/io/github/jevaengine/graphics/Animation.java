@@ -28,6 +28,8 @@ public final class Animation
 
 	private AnimationState m_state;
 
+	private boolean m_playWrapBackwards = false;
+	
 	public Animation(Animation src)
 	{
 		m_curIndex = 0;
@@ -56,6 +58,7 @@ public final class Animation
 	public void reset()
 	{
 		m_curIndex = 0;
+		m_playWrapBackwards = false;
 	}
 
 	public void addFrame(Frame frame)
@@ -66,6 +69,7 @@ public final class Animation
 	public void setState(AnimationState state)
 	{
 		m_state = state;
+		m_playWrapBackwards = false;
 	}
 
 	public void update(int deltaTime)
@@ -93,6 +97,19 @@ public final class Animation
 					}
 				case Play:
 					m_curIndex = (m_curIndex + 1) % m_frames.size();
+					break;
+				case PlayWrap:
+					
+					if(m_curIndex == m_frames.size() - 1)
+						m_playWrapBackwards = true;
+					else if(m_curIndex == 0)
+						m_playWrapBackwards = false;
+					
+					if(m_playWrapBackwards)
+						m_curIndex = Math.max(0, m_curIndex - 1);
+					else
+						m_curIndex = (m_curIndex + 1) % m_frames.size();
+					
 					break;
 				default:
 					throw new UnknownAnimationStateException(m_state);

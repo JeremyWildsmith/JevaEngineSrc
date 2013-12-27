@@ -1,7 +1,20 @@
-source:ui/chat.png;
-scale:1.0;
-
-animation/idle/0:0,0,432,180;
-
-anchor/idle/0:0,0;
-delay/idle/0:10000;
+{
+  "scale" : 1.0,
+  "animations" : [ {
+    "frames" : [ {
+      "region" : {
+        "height" : 180,
+        "width" : 432,
+        "y" : 0,
+        "x" : 0
+      },
+      "delay" : 10000,
+      "anchor" : {
+        "y" : 0,
+        "x" : 0
+      }
+    } ],
+    "name" : "idle"
+  } ],
+  "texture" : "ui/chat.png"
+}

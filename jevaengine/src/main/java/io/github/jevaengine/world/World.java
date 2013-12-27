@@ -20,7 +20,6 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,13 +32,14 @@ import io.github.jevaengine.CoreScriptException;
 import io.github.jevaengine.IDisposable;
 import io.github.jevaengine.IResourceLibrary;
 import io.github.jevaengine.Script;
-import io.github.jevaengine.config.Variable;
-import io.github.jevaengine.config.VariableStore;
-import io.github.jevaengine.config.VariableValue;
+import io.github.jevaengine.config.ISerializable;
+import io.github.jevaengine.config.IVariable;
 import io.github.jevaengine.game.ResourceLoadingException;
+import io.github.jevaengine.graphics.AnimationState;
 import io.github.jevaengine.graphics.IRenderable;
 import io.github.jevaengine.graphics.Sprite;
 import io.github.jevaengine.math.Matrix2X2;
+import io.github.jevaengine.math.Rect2D;
 import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.math.Vector2F;
 import io.github.jevaengine.math.Vector3F;
@@ -47,10 +47,12 @@ import io.github.jevaengine.util.Nullable;
 import io.github.jevaengine.util.StaticSet;
 import io.github.jevaengine.world.EffectMap.TileEffects;
 import io.github.jevaengine.world.Entity.EntityBridge;
+import io.github.jevaengine.world.World.WorldConfiguration.EntityDeclaration;
+import io.github.jevaengine.world.World.WorldConfiguration.LayerDeclaration;
+import io.github.jevaengine.world.World.WorldConfiguration.TileDeclaration;
 
-public class World extends Variable implements IDisposable
+public final class World implements IDisposable
 {
-
 	private static final int WORLD_TICK_INTERVAL = 500;
 
 	private static final int WORLD_CULLING_EXCCESS = 6;
@@ -58,9 +60,6 @@ public class World extends Variable implements IDisposable
 	private final Observers m_observers = new Observers();
 
 	// Read comments in update route for notes on m_additionEntities member.
-
-	private IEntityLibrary m_entityLibrary;
-
 	private ArrayList<Entity> m_additionEntities = new ArrayList<Entity>();
 
 	private StaticSet<Entity> m_entities;
@@ -99,10 +98,8 @@ public class World extends Variable implements IDisposable
 
 	private int m_timeSinceTick;
 
-	public World(IEntityLibrary library, int width, int height, int tileWidth, int tileHeight, int entityLayer, String worldScript)
+	public World(int width, int height, int tileWidth, int tileHeight, int entityLayer, @Nullable String worldScript)
 	{
-		m_entityLibrary = library;
-
 		m_layers = new ArrayList<WorldLayer>();
 		m_entities = new StaticSet<Entity>();
 
@@ -128,117 +125,82 @@ public class World extends Variable implements IDisposable
 		m_fTimeMultiplier = 1.0F;
 		m_timeSinceTick = 0;
 
-		if (worldScript.length() > 0)
-			m_worldScript = new WorldScriptManager(worldScript);
+		if (worldScript != null)
+			m_worldScript = new WorldScriptManager(Core.getService(IResourceLibrary.class).openScript(worldScript, new WorldScriptContext()));
 		else
 			m_worldScript = new WorldScriptManager();
 
 		m_worldScript.onEnter();
 	}
 
-	public World(IEntityLibrary library, int width, int height, int tileWidth, int tileHeight, int entityLayerDepth)
+	public World(int width, int height, int tileWidth, int tileHeight, int entityLayerDepth)
 	{
-		this(library, width, height, tileWidth, tileHeight, entityLayerDepth, "");
+		this(width, height, tileWidth, tileHeight, entityLayerDepth, null);
 	}
 
-	private static void initEntityProperties(Entity entity, Variable srcProperty, String parentName)
+	public static World create(IVariable source) throws ResourceLoadingException
 	{
-		if (!srcProperty.getValue().getString().isEmpty())
-		{
-			entity.setVariable(parentName, srcProperty.getValue());
-		}
+		WorldConfiguration worldConfig = source.getValue(WorldConfiguration.class);
 
-		for (Variable var : srcProperty)
-		{
-			initEntityProperties(entity, var, parentName + Variable.NAME_SPLIT + var.getName());
-		}
-	}
-
-	private static void initEntityProperties(Entity entity, Variable srcProperty)
-	{
-		initEntityProperties(entity, srcProperty, srcProperty.getName());
-	}
-
-	public static World create(IEntityLibrary library, Variable source) throws ResourceLoadingException
-	{
-		String worldScript = new String();
-
-		if (source.variableExists("script"))
-		{
-			String scriptName = source.getVariable("script").getValue().getString();
-
-			worldScript = Core.getService(IResourceLibrary.class).openResourceContents(scriptName);
-		}
-
-		World world = new World(library, source.getVariable("width").getValue().getInt(), source.getVariable("height").getValue().getInt(), source.getVariable("tileWidth").getValue().getInt(), source.getVariable("tileHeight").getValue().getInt(), source.getVariable("entityLayer").getValue().getInt(), worldScript);
-
-		if (source.variableExists("entity"))
-		{
-			for (Variable entityVar : source.getVariable("entity"))
-			{
-				Entity entity = world.getEntityLibrary().createEntity(entityVar.getValue().getObjectName(), entityVar.getName(), Arrays.asList(entityVar.getValue().getObjectArguments()));
-
-				world.addEntity(entity);
-
-				// Assign post-init assignments
-				if (source.variableExists(entity.getName()))
-				{
-					for (Variable varProperty : source.getVariable(entity.getName()))
-					{
-						initEntityProperties(entity, varProperty);
-					}
-				}
-			}
-		}
-
-		// Construct Map Layers
-		Variable[] tileDeclarations = source.getVariable("tile").getVariableArray();
-
-		Variable[] layerDeclarations = source.getVariable("layer").getVariableArray();
+		World world = new World(worldConfig.worldWidth, worldConfig.worldHeight, 
+									worldConfig.tileWidth, worldConfig.tileHeight, 
+									worldConfig.entityLayer, worldConfig.script);
 		
-		HashMap<Integer, Variable> tileDefinitions = new HashMap<Integer, Variable>();
+		HashMap<Integer, IVariable> tileSpriteDefinitions = new HashMap<Integer, IVariable>();
 			
-		for (Variable layerDeclaration : layerDeclarations)
+		for (LayerDeclaration layerDeclaration : worldConfig.layers)
 		{
 			WorldLayer worldLayer = new WorldLayer();
-			Integer[] tileDeclIndices = layerDeclaration.getValue().getIntArray();
+			int[] tileIndices = layerDeclaration.tileIndices;
 			
-			for (int tileIndex = 0; tileIndex < tileDeclIndices.length; tileIndex++)
+			int locationOffset = 0;
+			for (int i = 0; i < tileIndices.length; i++)
 			{
-				if (tileDeclIndices[tileIndex] < 0)
-					continue;
+				if (tileIndices[i] >= 0)
+				{
+					if (tileIndices[i] >= worldConfig.tiles.length)
+						throw new ResourceLoadingException("Undeclared Tile Class Index Used");
 
-				if (tileDeclIndices[tileIndex] >= tileDeclarations.length)
-					throw new ResourceLoadingException("Undeclared Tile Class Index Used");
+					TileDeclaration tileDecl = worldConfig.tiles[tileIndices[i]];
+					
+					if(!tileSpriteDefinitions.containsKey(tileIndices[i]))
+						tileSpriteDefinitions.put(tileIndices[i], Core.getService(IResourceLibrary.class).openConfiguration(tileDecl.sprite));
 
-				VariableValue[] arguments = tileDeclarations[tileDeclIndices[tileIndex]].getValue().getObjectArguments();
+					Sprite tileSprite = Sprite.create(tileSpriteDefinitions.get(tileIndices[i]));
+					tileSprite.setAnimation(tileDecl.animation, AnimationState.Play);
+					
+					Tile tile = new Tile(tileSprite, tileDecl.isTraversable,  
+										tileDecl.allowRenderSplitting, tileDecl.visibility);
+					
+					tile.associate(world);
 
-				if (arguments.length < 6)
-					throw new ResourceLoadingException("Illegal number of arguments for tile.");
+					// Location of tile must be set _BEFORE_ adding it to map layer
+					// so map layer can place the tile in the proper sector
+					// for optimizations.
+					tile.setLocation(new Vector2F((locationOffset + i) % world.m_worldWidth, (float) Math.floor((locationOffset + i) / world.m_worldWidth)));
 
-				boolean enableSplitting = false;
-
-				if (arguments.length >= 7)
-					enableSplitting = arguments[6].getBoolean();
-
-				if(!tileDefinitions.containsKey(tileDeclIndices[tileIndex]))
-					tileDefinitions.put(tileDeclIndices[tileIndex], VariableStore.create(Core.getService(IResourceLibrary.class).openResourceStream(arguments[0].getString())));
-				
-				Tile tile = new Tile(Sprite.create(tileDefinitions.get(tileDeclIndices[tileIndex])), WorldDirection.values()[arguments[1].getInt()], arguments[2].getString(), arguments[3].getBoolean(), enableSplitting, arguments[5].getFloat());
-
-				tile.associate(world);
-				
-				// Location of tile must be set _BEFORE_ adding it to map layer
-				// so map layer can properly place the tile in the proper sector
-				// for optimizations.
-				tile.setLocation(new Vector2F(tileIndex % world.m_worldWidth, (float) Math.floor(tileIndex / world.m_worldWidth)));
-
-				if (arguments[4].getBoolean()) // Is Static
-					worldLayer.addStaticTile(tile);
-				else
-					worldLayer.addDynamicTile(tile);
+					if (tileDecl.isStatic)
+						worldLayer.addStatic(tile);
+					else
+						worldLayer.addDynamic(tile);
+				}else
+					locationOffset += Math.abs(tileIndices[i]) - 1;
 			}
+			
 			world.m_layers.add(worldLayer);
+		}
+		
+		for (EntityDeclaration entityConfig : worldConfig.entities)
+		{
+			Entity entity = Core.getService(IResourceLibrary.class).createEntity(entityConfig.type, entityConfig.name, entityConfig.config);
+			
+			world.addEntity(entity);
+			
+			if(entityConfig.location != null)
+				entity.setLocation(entityConfig.location);
+			
+			if(entityConfig.direction != null)
+				entity.setDirection(entityConfig.direction);
 		}
 
 		return world;
@@ -297,11 +259,6 @@ public class World extends Variable implements IDisposable
 	public void setEntityLayer(int layer)
 	{
 		m_entityLayer = layer;
-	}
-
-	public IEntityLibrary getEntityLibrary()
-	{
-		return m_entityLibrary;
 	}
 
 	public SceneLighting getLighting()
@@ -369,7 +326,7 @@ public class World extends Variable implements IDisposable
 	{
 		ArrayList<TileEffects> tileEffects = new ArrayList<TileEffects>();
 
-		Rectangle searchBounds = filter.getSearchBounds();
+		Rect2D searchBounds = filter.getSearchBounds();
 
 		for (int x = searchBounds.x; x <= searchBounds.x + searchBounds.width; x++)
 		{
@@ -392,6 +349,18 @@ public class World extends Variable implements IDisposable
 		return m_entities.toArray(new Entity[m_entities.size()]);
 	}
 
+	@Nullable
+	public Entity getEntity(String name)
+	{
+		for(Entity e : m_entities)
+		{
+			if(e.getInstanceName().equals(name))
+				return e;
+		}
+		
+		return null;
+	}
+	
 	public Actor[] getActors(ISearchFilter<Actor> filter)
 	{
 		ArrayList<Actor> found = new ArrayList<Actor>();
@@ -575,42 +544,15 @@ public class World extends Variable implements IDisposable
 
 		renderQueue(g, viewBounds.x + x, viewBounds.y + y, fScale);
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see io.github.jeremywildsmith.jevaengine.config.Variable#getChildren()
-	 */
-	@Override
-	protected Variable[] getChildren()
-	{
-		return m_entities.toArray(new Entity[m_entities.size()]);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see io.github.jeremywildsmith.jevaengine.config.Variable#setChild(java.lang.String,
-	 * jeva.config.VariableValue)
-	 */
-	@Override
-	protected Variable setChild(String name, VariableValue value)
-	{
-		Variable child = getChild(name);
-		child.setValue(value);
-
-		return child;
-	}
-
+	
 	private class WorldScriptManager
 	{
 
 		@Nullable private Script m_worldScript;
 
-		public WorldScriptManager(String script)
+		public WorldScriptManager(Script script)
 		{
-			m_worldScript = new Script(new WorldScriptContext());
-			m_worldScript.evaluate(script);
+			m_worldScript = script;
 		}
 
 		public WorldScriptManager()
@@ -693,42 +635,36 @@ public class World extends Variable implements IDisposable
 
 	public class WorldScriptContext
 	{
-
-		public EntityBridge<?> createNamedEntity(String name, String className, String... args)
+		public EntityBridge<?> createNamedEntity(@Nullable String name, String entityTypeName, String config)
 		{
-			ArrayList<VariableValue> argVars = new ArrayList<VariableValue>();
-
-			for (String s : args)
-				argVars.add(new VariableValue(s));
-
-			Entity entity;
-
-			if (name == null || name.isEmpty())
-				entity = getEntityLibrary().createEntity(className, null, argVars);
-			else
-				entity = getEntityLibrary().createEntity(className, name, argVars);
+			String instanceName = name == null || name.length() == 0 ? null : name;
+			
+			Entity entity = Core.getService(IResourceLibrary.class).createEntity(entityTypeName, instanceName, config);
 
 			World.this.addEntity(entity);
 
 			return entity.getScriptBridge();
 		}
 
-		public EntityBridge<?> createEntity(String className, String... args)
+		public EntityBridge<?> createEntity(String className, String config)
 		{
-			return createNamedEntity(null, className, args);
+			return createNamedEntity(null, className, config);
 		}
 
 		public EntityBridge<?> getEntity(String name)
 		{
-			if (variableExists(name))
-				return ((Entity) getVariable(name)).getScriptBridge();
-
+			for(Entity e : m_entities)
+			{
+				if(e.getInstanceName().equals(name))
+					return e.getScriptBridge();
+			}
+			
 			return null;
 		}
 
 		public void addEntity(EntityBridge<Entity> entity)
 		{
-			World.this.addEntity(entity.getMe());
+			World.this.addEntity(entity.getEntity());
 		}
 
 		public int getMonth()
@@ -804,6 +740,169 @@ public class World extends Variable implements IDisposable
 		public void resume()
 		{
 			World.this.resume();
+		}
+	}
+	
+	public static class WorldConfiguration implements ISerializable
+	{	
+		@Nullable
+		public String script;
+		
+		public int tileWidth;
+		public int tileHeight;
+		public int worldWidth;
+		public int worldHeight;
+		public int entityLayer;
+		
+		public TileDeclaration[] tiles;
+		public LayerDeclaration[] layers;
+		public EntityDeclaration[] entities;
+
+		public WorldConfiguration() {}
+		
+		@Override
+		public void serialize(IVariable target)
+		{
+			if(this.script != null)
+				target.addChild("script").setValue(this.script);
+			
+			target.addChild("tileWidth").setValue(this.tileWidth);
+			target.addChild("tileHeight").setValue(this.tileHeight);
+			target.addChild("worldWidth").setValue(this.worldWidth);
+			target.addChild("worldHeight").setValue(this.worldHeight);
+			target.addChild("entityLayer").setValue(this.entityLayer);
+			target.addChild("tiles").setValue(this.tiles);
+			target.addChild("layers").setValue(this.layers);
+			target.addChild("entities").setValue(this.entities);
+		}
+
+		@Override
+		public void deserialize(IVariable source)
+		{
+			if(source.childExists("script"))
+				this.script = source.getChild("script").getValue(String.class);
+			
+			this.tileWidth = source.getChild("tileWidth").getValue(Integer.class);
+			this.tileHeight = source.getChild("tileHeight").getValue(Integer.class);
+			this.worldWidth = source.getChild("worldWidth").getValue(Integer.class);
+			this.worldHeight = source.getChild("worldHeight").getValue(Integer.class);
+			this.entityLayer = source.getChild("entityLayer").getValue(Integer.class);
+			this.tiles = source.getChild("tiles").getValues(TileDeclaration[].class);
+			this.layers = source.getChild("layers").getValues(LayerDeclaration[].class);
+			this.entities = source.getChild("entities").getValues(EntityDeclaration[].class);
+		}
+		
+		public static class TileDeclaration implements ISerializable
+		{
+			public String sprite;
+			public String animation;
+			public float visibility;
+			public boolean allowRenderSplitting;
+			public boolean isTraversable;
+			public boolean isStatic;
+
+			public TileDeclaration() { }
+			
+			@Override
+			public void serialize(IVariable target)
+			{
+				target.addChild("sprite").setValue(this.sprite);
+				target.addChild("animation").setValue(this.animation);
+				target.addChild("visiblity").setValue(this.visibility);
+				target.addChild("allowRenderSplitting").setValue(this.allowRenderSplitting);
+				target.addChild("isTraversable").setValue(this.isTraversable);
+				target.addChild("isStatic").setValue(this.isStatic);
+			}
+
+			@Override
+			public void deserialize(IVariable source)
+			{
+				this.sprite = source.getChild("sprite").getValue(String.class);
+				this.animation = source.getChild("animation").getValue(String.class);
+				this.visibility = source.getChild("visiblity").getValue(Double.class).floatValue();
+				this.allowRenderSplitting = source.getChild("allowRenderSplitting").getValue(Boolean.class);
+				this.isTraversable = source.getChild("isTraversable").getValue(Boolean.class);
+				this.isStatic = source.getChild("isStatic").getValue(Boolean.class);
+			}
+		}
+		
+		public static class LayerDeclaration implements ISerializable
+		{
+			public int[] tileIndices = new int[0];
+			
+			public LayerDeclaration() { }
+
+			@Override
+			public void serialize(IVariable target)
+			{
+				target.addChild("indice").setValue(this.tileIndices);
+			}
+
+			@Override
+			public void deserialize(IVariable source)
+			{
+				Integer indice[] = source.getChild("indice").getValues(Integer[].class);
+				
+				this.tileIndices = new int[indice.length];
+				
+				for(int i = 0; i < indice.length; i++)
+					this.tileIndices[i] = indice[i];
+			}
+		}
+		
+		public static class EntityDeclaration implements ISerializable
+		{
+			@Nullable
+			public String name;
+			
+			public String type;
+			
+			@Nullable
+			public Vector2F location;
+			
+			@Nullable
+			public WorldDirection direction;
+			
+			@Nullable
+			public String config;
+			
+			public EntityDeclaration() {}
+
+			@Override
+			public void serialize(IVariable target)
+			{
+				if(this.name != null && type.length() > 0)
+					target.addChild("name").setValue(this.name);
+				
+				target.addChild("type").setValue("type");
+				
+				if(this.location != null)
+					target.addChild("location").setValue(this.location);
+				
+				if(this.direction != null)
+					target.addChild("direction").setValue(this.direction.ordinal());
+				
+				if(this.config != null && config.length() > 0)
+					target.addChild("config").setValue(this.config);
+			}
+
+			@Override
+			public void deserialize(IVariable source)
+			{
+				if(source.childExists("name"))
+					this.name = source.getChild("name").getValue(String.class);
+				
+				type = source.getChild("type").getValue(String.class);
+				
+				if(source.childExists("location"))
+					this.location = source.getChild("location").getValue(Vector2F.class);
+				
+				if(source.childExists("direction"))
+					this.direction = WorldDirection.values()[source.getChild("direction").getValue(Integer.class)];
+				
+				if(source.childExists("config"))
+					this.config = source.getChild("config").getValue(String.class);
+			}
 		}
 	}
 }

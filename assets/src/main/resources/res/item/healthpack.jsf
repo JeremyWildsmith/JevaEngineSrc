@@ -1,7 +1,20 @@
-source:item/graphic/icons.png;
-scale:1.0;
-
-animation/idle/0:102,7,16,14;
-
-anchor/idle/0:8,7;
-delay/idle/0:1000;
+{
+  "scale" : 1.0,
+  "animations" : [ {
+    "frames" : [ {
+      "region" : {
+        "height" : 14,
+        "width" : 16,
+        "y" : 7,
+        "x" : 102
+      },
+      "delay" : 1000,
+      "anchor" : {
+        "y" : 7,
+        "x" : 8
+      }
+    } ],
+    "name" : "idle"
+  } ],
+  "texture" : "item/graphic/icons.png"
+}

@@ -12,6 +12,7 @@
  ******************************************************************************/
 package io.github.jevaengine.graphics;
 
+import io.github.jevaengine.math.Rect2D;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
@@ -55,13 +56,14 @@ public final class Text implements IRenderable
 	@Override
 	public void render(Graphics2D g, int x, int y, float fScale)
 	{
-		Rectangle[] str = m_font.getString(m_text);
+		Rect2D[] str = m_font.getString(m_text);
 
 		int xOffset = x;
 
 		for (int i = 0; i < str.length; i++)
 		{
-			g.drawImage(m_font.getSource(), -m_anchor.x + xOffset, -m_anchor.y + y, (int) (xOffset + str[i].width * fScale * m_fScale), (int) (y + str[i].height * fScale * m_fScale), str[i].x, str[i].y, str[i].x + str[i].width, str[i].y + str[i].height, null);
+			m_font.getSource().render(g, xOffset, y, (int) (str[i].width * fScale * m_fScale), (int) (str[i].height * fScale * m_fScale), str[i].x, str[i].y, str[i].width, str[i].height);
+			
 			xOffset += str[i].width * fScale * m_fScale;
 		}
 	}

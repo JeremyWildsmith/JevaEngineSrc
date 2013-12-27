@@ -17,8 +17,9 @@
 package io.github.jevaengine.rpgbase.client;
 
 import io.github.jevaengine.Core;
+import io.github.jevaengine.Core.CoreMode;
 import io.github.jevaengine.game.Game;
-import io.github.jevaengine.rpgbase.library.StatelessResourceLibrary;
+import io.github.jevaengine.rpgbase.RpgLibrary;
 
 import java.awt.Color;
 import java.awt.DisplayMode;
@@ -118,7 +119,7 @@ public class Main implements WindowListener, KeyListener
 			return;
 		}
 
-		Core.initialize(new ClientGame(), new StatelessResourceLibrary());
+		Core.initialize(new ClientGame(), new RpgLibrary());
 
 		Game game = Core.getService(Game.class);
 

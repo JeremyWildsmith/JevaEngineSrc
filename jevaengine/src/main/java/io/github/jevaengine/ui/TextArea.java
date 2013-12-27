@@ -18,7 +18,6 @@ package io.github.jevaengine.ui;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -26,6 +25,7 @@ import io.github.jevaengine.graphics.Font;
 import io.github.jevaengine.joystick.InputManager.InputKeyEvent;
 import io.github.jevaengine.joystick.InputManager.InputMouseEvent;
 import io.github.jevaengine.joystick.InputManager.InputMouseEvent.EventType;
+import io.github.jevaengine.math.Rect2D;
 
 public class TextArea extends Panel
 {
@@ -116,23 +116,23 @@ public class TextArea extends Panel
 
 		String[] text = m_renderText.split("(?<=[ \n])");
 
-		ArrayList<ArrayList<Rectangle>> lines = new ArrayList<ArrayList<Rectangle>>();
-		lines.add(new ArrayList<Rectangle>());
+		ArrayList<ArrayList<Rect2D>> lines = new ArrayList<ArrayList<Rect2D>>();
+		lines.add(new ArrayList<Rect2D>());
 
 		int offsetX = 0;
 
 		for (String s : text)
 		{
-			Rectangle[] strMap = m_font.getString(s);
+			Rect2D[] strMap = m_font.getString(s);
 
 			int wordWidth = 0;
 
-			for (Rectangle r : strMap)
+			for (Rect2D r : strMap)
 				wordWidth += r.width;
 
 			if (offsetX + wordWidth >= this.getBounds().width && offsetX != 0)
 			{
-				lines.add(new ArrayList<Rectangle>());
+				lines.add(new ArrayList<Rect2D>());
 				offsetX = 0;
 			}
 
@@ -141,7 +141,7 @@ public class TextArea extends Panel
 
 			if (s.endsWith("\n"))
 			{
-				lines.add(new ArrayList<Rectangle>());
+				lines.add(new ArrayList<Rect2D>());
 				offsetX = 0;
 			}
 		}
@@ -152,13 +152,14 @@ public class TextArea extends Panel
 
 		m_fScroll = Math.min(minScroll, Math.max(m_fScroll, 0));
 
-		for (ArrayList<Rectangle> line : lines.subList((int) m_fScroll, lines.size()))
+		for (ArrayList<Rect2D> line : lines.subList((int) m_fScroll, lines.size()))
 		{
 			offsetX = 0;
-			for (Rectangle lineChar : line)
+			
+			for (Rect2D lineChar : line)
 			{
 				if (offsetY < this.getBounds().height - m_font.getHeight())
-					g.drawImage(m_font.getSource(), x + offsetX, y + offsetY, x + offsetX + lineChar.width, y + offsetY + lineChar.height, lineChar.x, lineChar.y, lineChar.x + lineChar.width, lineChar.y + lineChar.height, null);
+					m_font.getSource().render(g, x + offsetX, y + offsetY, lineChar.width, lineChar.height, lineChar.x, lineChar.y, lineChar.width, lineChar.height);
 
 				offsetX += lineChar.width;
 			}

@@ -23,16 +23,16 @@ import java.awt.image.BufferStrategy;
 import java.awt.image.VolatileImage;
 
 import io.github.jevaengine.Core;
+import io.github.jevaengine.CoreModeViolationException;
 import io.github.jevaengine.graphics.Sprite;
 import io.github.jevaengine.joystick.*;
 import io.github.jevaengine.math.Vector2D;
+import io.github.jevaengine.util.Nullable;
 
 public abstract class Game implements IInputDeviceListener
 {
 
-	private InputManager m_inputMan;
-
-	private Sprite m_cursor;
+	private @Nullable InputManager m_inputMan;
 
 	private Vector2D m_cursorLocation = new Vector2D();
 
@@ -50,6 +50,8 @@ public abstract class Game implements IInputDeviceListener
 
 	private int m_renderHeight;
 
+	private boolean m_allowRender;
+	
 	public Game()
 	{
 	}
@@ -71,9 +73,18 @@ public abstract class Game implements IInputDeviceListener
 
 		m_inputMan = InputManager.create(target);
 
+		m_allowRender = true;
+		
 		startup();
-
-		m_cursor = getCursor();
+	}
+	
+	public final void init()
+	{
+		m_renderWidth = 0;
+		m_renderHeight = 0;
+		m_allowRender = false;
+		
+		startup();
 	}
 
 	public final Vector2D getResolution()
@@ -83,6 +94,9 @@ public abstract class Game implements IInputDeviceListener
 
 	public final void render()
 	{
+		if(!m_allowRender)
+			return;
+		
 		do
 		{
 			if (m_renderBuffer.validate(m_gfxConfig) == VolatileImage.IMAGE_INCOMPATIBLE)
@@ -98,7 +112,7 @@ public abstract class Game implements IInputDeviceListener
 
 			Core.getService(IWindowManager.class).render(g, 0, 0, 1.0F);
 
-			m_cursor.render(g, m_cursorLocation.x, m_cursorLocation.y, 1.0F);
+			getCursor().render(g, m_cursorLocation.x, m_cursorLocation.y, 1.0F);
 
 			g.dispose();
 
@@ -115,7 +129,8 @@ public abstract class Game implements IInputDeviceListener
 
 	public void update(int deltaTime)
 	{
-		m_inputMan.process(this);
+		if(m_inputMan != null)
+			m_inputMan.process(this);
 
 		Core.getService(IWindowManager.class).update(deltaTime);
 	}
@@ -128,6 +143,7 @@ public abstract class Game implements IInputDeviceListener
 	 * io.github.jeremywildsmith.jevaengine.joystick.IInputDeviceListener#mouseMoved(jeva.joystick.InputManager
 	 * .InputMouseEvent)
 	 */
+	@Override
 	public void mouseMoved(InputManager.InputMouseEvent e)
 	{
 		m_cursorLocation = new Vector2D(e.location);
@@ -142,6 +158,7 @@ public abstract class Game implements IInputDeviceListener
 	 * io.github.jeremywildsmith.jevaengine.joystick.IInputDeviceListener#mouseClicked(jeva.joystick.InputManager
 	 * .InputMouseEvent)
 	 */
+	@Override
 	public void mouseClicked(InputManager.InputMouseEvent e)
 	{
 		Core.getService(IWindowManager.class).onMouseEvent(e);
@@ -179,6 +196,7 @@ public abstract class Game implements IInputDeviceListener
 	 * io.github.jeremywildsmith.jevaengine.joystick.IInputDeviceListener#keyTyped(jeva.joystick.InputManager
 	 * .InputKeyEvent)
 	 */
+	@Override
 	public void keyTyped(InputManager.InputKeyEvent e)
 	{
 		Core.getService(IWindowManager.class).onKeyEvent(e);
@@ -191,6 +209,7 @@ public abstract class Game implements IInputDeviceListener
 	 * io.github.jeremywildsmith.jevaengine.joystick.IInputDeviceListener#mouseWheelMoved(jeva.joystick.InputManager
 	 * .InputMouseEvent)
 	 */
+	@Override
 	public void mouseWheelMoved(InputManager.InputMouseEvent e)
 	{
 		Core.getService(IWindowManager.class).onMouseEvent(e);
@@ -203,6 +222,7 @@ public abstract class Game implements IInputDeviceListener
 	 * io.github.jeremywildsmith.jevaengine.joystick.IInputDeviceListener#mouseLeft(jeva.joystick.InputManager
 	 * .InputMouseEvent)
 	 */
+	@Override
 	public void mouseLeft(InputManager.InputMouseEvent e)
 	{
 	}
@@ -214,6 +234,7 @@ public abstract class Game implements IInputDeviceListener
 	 * jeva.joystick.IInputDeviceListener#mouseEntered(jeva.joystick.InputManager
 	 * .InputMouseEvent)
 	 */
+	@Override
 	public void mouseEntered(InputManager.InputMouseEvent e)
 	{
 	}

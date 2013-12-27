@@ -15,6 +15,7 @@ package io.github.jevaengine.world;
 import java.awt.Rectangle;
 
 import io.github.jevaengine.math.Matrix2X2;
+import io.github.jevaengine.math.Rect2D;
 import io.github.jevaengine.math.Vector2F;
 
 public class TriangleSearchFilter<T> implements ISearchFilter<T>
@@ -40,7 +41,7 @@ public class TriangleSearchFilter<T> implements ISearchFilter<T>
 	 * @see io.github.jeremywildsmith.jevaengine.world.ISearchFilter#getSearchBounds()
 	 */
 	@Override
-	public final Rectangle getSearchBounds()
+	public final Rect2D getSearchBounds()
 	{
 		float xMin = Math.min(Math.min(m_vertice[0].x, m_vertice[1].x), m_vertice[2].x);
 		float xMax = Math.max(Math.max(m_vertice[0].x, m_vertice[1].x), m_vertice[2].x);
@@ -48,7 +49,7 @@ public class TriangleSearchFilter<T> implements ISearchFilter<T>
 		float yMin = Math.min(Math.min(m_vertice[0].y, m_vertice[1].y), m_vertice[2].y);
 		float yMax = Math.max(Math.max(m_vertice[0].y, m_vertice[1].y), m_vertice[2].y);
 
-		return new Rectangle((int) Math.floor(xMin), (int) Math.floor(yMin), (int) Math.ceil(xMax - xMin), (int) Math.ceil(yMax - yMin));
+		return new Rect2D((int) Math.floor(xMin), (int) Math.floor(yMin), (int) Math.ceil(xMax - xMin), (int) Math.ceil(yMax - yMin));
 
 	}
 

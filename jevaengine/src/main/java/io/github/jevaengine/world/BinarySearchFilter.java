@@ -12,6 +12,7 @@
  ******************************************************************************/
 package io.github.jevaengine.world;
 
+import io.github.jevaengine.math.Rect2D;
 import java.awt.Rectangle;
 import java.util.NoSuchElementException;
 
@@ -53,12 +54,12 @@ public class BinarySearchFilter<T> implements ISearchFilter<T>
 	 * @see io.github.jeremywildsmith.jevaengine.world.ISearchFilter#getSearchBounds()
 	 */
 	@Override
-	public Rectangle getSearchBounds()
+	public Rect2D getSearchBounds()
 	{
-		Rectangle boundsA = m_filterA.getSearchBounds();
-		Rectangle boundsB = m_filterB.getSearchBounds();
+		Rect2D boundsA = m_filterA.getSearchBounds();
+		Rect2D boundsB = m_filterB.getSearchBounds();
 
-		return new Rectangle(Math.min(boundsA.x, boundsB.x), Math.min(boundsA.y, boundsB.y), Math.max(boundsA.width, boundsB.width), Math.max(boundsA.height, boundsB.height));
+		return new Rect2D(Math.min(boundsA.x, boundsB.x), Math.min(boundsA.y, boundsB.y), Math.max(boundsA.width, boundsB.width), Math.max(boundsA.height, boundsB.height));
 
 	}
 

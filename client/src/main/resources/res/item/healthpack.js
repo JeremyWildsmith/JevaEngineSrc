@@ -1,4 +1,10 @@
-function use(consumer)
+function doCommand(user, slot, command)
 {
-	return true;
+}
+
+function getCommands()
+{
+	var commands = new Array();
+	commands[0] = "Eat";
+	return commands;
 }

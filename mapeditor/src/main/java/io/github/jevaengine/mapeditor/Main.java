@@ -18,7 +18,6 @@ package io.github.jevaengine.mapeditor;
 
 import io.github.jevaengine.Core;
 import io.github.jevaengine.game.Game;
-import io.github.jevaengine.rpgbase.library.StatelessResourceLibrary;
 
 import java.awt.Color;
 import java.awt.Frame;
@@ -35,8 +34,47 @@ public class Main
 	private static final int WINX = 1024;
 	private static final int WINY = 768;
 
-	public static void main(String[] args)
+	private static void lookAndFeel()
 	{
+		try
+		{
+			for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels())
+			{
+				if ("Nimbus".equals(info.getName()))
+				{
+					javax.swing.UIManager.setLookAndFeel(info.getClassName());
+					break;
+				}
+			}
+		} catch (ClassNotFoundException ex)
+		{
+			java.util.logging.Logger.getLogger(NewMap.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+		} catch (InstantiationException ex)
+		{
+			java.util.logging.Logger.getLogger(NewMap.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+		} catch (IllegalAccessException ex)
+		{
+			java.util.logging.Logger.getLogger(NewMap.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+		} catch (javax.swing.UnsupportedLookAndFeelException ex)
+		{
+			java.util.logging.Logger.getLogger(NewMap.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+		}
+	}
+	
+	public static void main(String[] args) throws InterruptedException
+	{
+		lookAndFeel();
+		
+		Configuration config = new Configuration(null, true);
+		
+		config.setVisible(true);
+		
+		if(!config.isLastQueryValid())
+		{
+			config.dispose();
+			return;
+		}
+		
 		final Frame frameBuffer = new Frame();
 
 		try
@@ -61,9 +99,11 @@ public class Main
 		{
 			throw new RuntimeException(ex);
 		}
+		
+		Core.initialize(new MapEditor(config.getBaseDirectory()),
+						new MapEditorLibrary(config.getBaseDirectory()));
 
-		Core.initialize(new MapEditor(), new StatelessResourceLibrary());
-
+		
 		Game game = Core.getService(Game.class);
 
 		game.init(frameBuffer, WINX, WINY);
@@ -71,7 +111,7 @@ public class Main
 		final int targetTime = 1000 / 60 + 20;
 
 		long lastTime = System.nanoTime() / 1000000;
-		long curTime = lastTime;
+		long curTime;
 
 		while (true)
 		{

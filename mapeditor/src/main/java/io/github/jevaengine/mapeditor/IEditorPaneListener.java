@@ -12,8 +12,7 @@
  ******************************************************************************/
 package io.github.jevaengine.mapeditor;
 
-import io.github.jevaengine.config.VariableStore;
-import io.github.jevaengine.world.WorldDirection;
+import io.github.jevaengine.config.IVariable;
 
 import java.io.FileOutputStream;
 import java.util.ArrayList;
@@ -21,26 +20,21 @@ import java.util.ArrayList;
 public interface IEditorPaneListener
 {
 	void setEntityLayer(int layer);
-
-	void setNullSprite(String name);
-
-	void setTile(EditorTile tile, boolean isTraversable, boolean isStatic, String sprite, String animation, WorldDirection direction, float fVisibility, boolean enableSplitting);
-
+	void setTile(EditorTile tile, boolean isTraversable, boolean isStatic, String sprite, String animation, float fVisibility, boolean enableSplitting);
+	void setScript(String script);
+	String getScript();
+	int getEntityLayer();
+	
 	void refreshEntity(EditorEntity entity);
-
 	void removeEntity(EditorEntity entity);
 
 	void initializeWorld(int worldWidth, int worldHeight, int tileWidth, int tileHeight);
 
-	void openMap(VariableStore map);
-
-	void saveMap(FileOutputStream fileOutputStream, ArrayList<EditorEntity> entities);
-
+	void openWorld(IVariable world);
+	void saveWorld(FileOutputStream fileOutputStream, EditorEntity[] entities);
+	
 	void selectLayer(int i);
-
 	void deleteSelectedLayer();
-
 	void createNewLayer();
-
-	void applyScript(String script);
+	int getLayers();
 }

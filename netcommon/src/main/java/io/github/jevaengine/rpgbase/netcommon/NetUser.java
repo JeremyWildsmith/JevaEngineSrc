@@ -12,15 +12,17 @@
  ******************************************************************************/
 package io.github.jevaengine.rpgbase.netcommon;
 
+import io.github.jevaengine.communication.Communicator;
+import io.github.jevaengine.communication.InvalidMessageException;
 import io.github.jevaengine.communication.SharedEntity;
 import io.github.jevaengine.util.Nullable;
+import io.github.jevaengine.world.World;
 
 public abstract class NetUser extends SharedEntity
 {
-
-	protected static final int PING_TIMEOUT = 15000;
+	protected static final int PING_TIMEOUT = 1500000000;
 	protected static final int PING_INTERVAL = 3000;
-
+	
 	public static class UserCredentials
 	{
 		private String m_nickname;
@@ -77,7 +79,7 @@ public abstract class NetUser extends SharedEntity
 	protected static class ChatMessage
 	{
 		@Nullable private String m_user;
-		private String m_sMessage;
+		private String m_message;
 
 		@SuppressWarnings("unused")
 		// Used by Kryo
@@ -88,7 +90,7 @@ public abstract class NetUser extends SharedEntity
 		public ChatMessage(@Nullable String user, String message)
 		{
 			m_user = user;
-			m_sMessage = message;
+			m_message = message;
 		}
 
 		public ChatMessage(String message)
@@ -104,7 +106,7 @@ public abstract class NetUser extends SharedEntity
 
 		public String getMessage()
 		{
-			return m_sMessage;
+			return m_message;
 		}
 	}
 

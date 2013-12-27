@@ -14,11 +14,13 @@ package io.github.jevaengine.mapeditor;
 
 import io.github.jevaengine.Core;
 import io.github.jevaengine.IResourceLibrary;
-import io.github.jevaengine.config.Variable;
-import io.github.jevaengine.config.VariableStore;
-import io.github.jevaengine.config.VariableValue;
+import io.github.jevaengine.config.IVariable;
+import io.github.jevaengine.config.JsonVariable;
 import io.github.jevaengine.game.ControlledCamera;
+import io.github.jevaengine.game.Game;
+import io.github.jevaengine.game.IGameScriptProvider;
 import io.github.jevaengine.game.ResourceLoadingException;
+import io.github.jevaengine.graphics.AnimationState;
 import io.github.jevaengine.graphics.Sprite;
 import io.github.jevaengine.ui.IWindowManager;
 import io.github.jevaengine.ui.Window;
@@ -27,27 +29,35 @@ import io.github.jevaengine.ui.WorldView.IWorldViewListener;
 import io.github.jevaengine.joystick.InputManager.InputKeyEvent;
 import io.github.jevaengine.joystick.InputManager.InputMouseEvent;
 import io.github.jevaengine.joystick.InputManager.InputMouseEvent.MouseButton;
+import io.github.jevaengine.mapeditor.EditorPane.Brush;
 import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.math.Vector2F;
-import io.github.jevaengine.rpgbase.RpgCharacter;
-import io.github.jevaengine.rpgbase.RpgGame;
+import io.github.jevaengine.ui.UIStyle;
 import io.github.jevaengine.util.Nullable;
 import io.github.jevaengine.world.IInteractable;
 import io.github.jevaengine.world.World;
-import io.github.jevaengine.world.WorldDirection;
+import io.github.jevaengine.world.World.WorldConfiguration;
+import io.github.jevaengine.world.World.WorldConfiguration.EntityDeclaration;
+import io.github.jevaengine.world.World.WorldConfiguration.LayerDeclaration;
+import io.github.jevaengine.world.World.WorldConfiguration.TileDeclaration;
 import io.github.jevaengine.world.WorldLayer;
 
 import java.awt.event.KeyEvent;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Map;
+import javax.swing.JOptionPane;
 
-public class MapEditor extends RpgGame implements IEditorPaneListener
+public class MapEditor extends Game implements IEditorPaneListener
 {
-	private EditorPane m_pane = new EditorPane(this);
+	private EditorPane m_pane;
 
 	private int m_selectedLayer;
-	private String m_nullTile;
+	
+	private String m_baseDirectory;
+	
+	private final String m_nullTileSprite = "@tile/tile.jsf";
+	private final String m_nullTileAnimation = "tile";
 
 	private ControlledCamera m_camera = new ControlledCamera();
 	private Vector2F m_cameraMovement = new Vector2F();
@@ -58,12 +68,24 @@ public class MapEditor extends RpgGame implements IEditorPaneListener
 
 	private WorldView m_worldView;
 
+	private Sprite m_cursor;
+	private UIStyle m_style;
+	
+	public MapEditor(String baseDirectory)
+	{
+		m_baseDirectory = baseDirectory;
+	}
+	
 	@Override
 	protected void startup()
 	{
-		super.startup();
-
-		m_pane.setVisible(true);
+		m_cursor = Sprite.create(Core.getService(IResourceLibrary.class).openConfiguration("@style/cursor/cursor.jsf"));
+		m_style = UIStyle.create(Core.getService(IResourceLibrary.class).openConfiguration("@style/editor.juis"));
+		
+		m_cursor.setAnimation("idle", AnimationState.Play);
+		
+		m_pane = new EditorPane(this, m_baseDirectory);
+	
 		m_selectedLayer = -1;
 
 		Vector2D resolution = getResolution();
@@ -80,8 +102,17 @@ public class MapEditor extends RpgGame implements IEditorPaneListener
 		Core.getService(IWindowManager.class).addWindow(worldWindow);
 
 		m_worldView.addListener(new MapViewListener());
+		
+		initializeWorld(5, 5, 64, 32);
+		m_pane.refresh();
+		m_pane.setVisible(true);
 	}
 
+	public void dispose()
+	{
+		m_pane.dispose();
+	}
+	
 	@Override
 	public synchronized void update(int deltaTime)
 	{
@@ -97,17 +128,15 @@ public class MapEditor extends RpgGame implements IEditorPaneListener
 	@Override
 	public synchronized void initializeWorld(int worldWidth, int worldHeight, int tileWidth, int tileHeight)
 	{
-		m_world = new World(getEntityLibrary(), worldWidth, worldHeight, tileWidth, tileHeight, 0);
+		m_world = new World(worldWidth, worldHeight, tileWidth, tileHeight, 0);
 
 		WorldLayer mainLayer = new WorldLayer();
-
-		Sprite nullTile = Sprite.create(VariableStore.create(Core.getService(IResourceLibrary.class).openResourceStream(m_nullTile)));
 
 		for (int y = 0; y < worldHeight; y++)
 		{
 			for (int x = 0; x < worldWidth; x++)
 			{
-				EditorTile editorTile = new EditorTile(nullTile, WorldDirection.Zero, "idle", true, true, false, 1.0F);
+				EditorTile editorTile = new EditorTile(m_nullTileSprite, m_nullTileAnimation, true, true, false, 1.0F);
 				editorTile.setLocation(new Vector2D(x, y));
 				editorTile.addToWorld(getWorld(), mainLayer);
 			}
@@ -115,24 +144,22 @@ public class MapEditor extends RpgGame implements IEditorPaneListener
 
 		m_selectedLayer = 0;
 		m_world.addLayer(mainLayer);
-		m_pane.setMapLayers(1);
+		m_pane.refresh();
 
 		m_camera.attach(m_world);
 	}
 
 	@Override
-	public synchronized void setTile(EditorTile tile, boolean isTraversable, boolean isStatic, String sprite, String animation, WorldDirection direction, float fVisibility, boolean enableSplitting)
+	public synchronized void setTile(EditorTile tile, boolean isTraversable, boolean isStatic, String sprite, String animation, float fVisibility, boolean enableSplitting)
 	{
 		tile.setTraversable(isTraversable);
 		tile.setStatic(isStatic);
 
-		if (sprite.length() != 0 && sprite.compareTo(m_nullTile) != 0)
-			tile.setSpriteName(sprite);
+		if (sprite.length() != 0 && sprite.compareTo(m_nullTileSprite) != 0)
+			tile.setSpriteName(sprite, animation);
 		else
-			tile.setSpriteName(m_nullTile);
-
-		tile.setDirection(direction);
-		tile.setSpriteAnimation(animation);
+			tile.setSpriteName(m_nullTileSprite, m_nullTileAnimation);
+		
 		tile.setVisibilityObstruction(fVisibility);
 		tile.setEnableSplitting(enableSplitting);
 	}
@@ -150,20 +177,6 @@ public class MapEditor extends RpgGame implements IEditorPaneListener
 		entity.remove(getWorld());
 	}
 
-	private static void initEntityProperties(EditorEntity entity, Variable srcProperty, String parentName)
-	{
-		if (!srcProperty.getValue().getString().isEmpty())
-			entity.setPostInitAssignment(parentName, srcProperty.getValue().getString());
-
-		for (Variable var : srcProperty)
-			initEntityProperties(entity, var, parentName + Variable.NAME_SPLIT + var.getName());
-	}
-
-	private static void initEntityProperties(EditorEntity entity, Variable srcProperty)
-	{
-		initEntityProperties(entity, srcProperty, srcProperty.getName());
-	}
-
 	@Override
 	public synchronized void setEntityLayer(int layer)
 	{
@@ -172,119 +185,97 @@ public class MapEditor extends RpgGame implements IEditorPaneListener
 	}
 
 	@Override
-	public synchronized void openMap(VariableStore source)
+	public synchronized void openWorld(IVariable source)
 	{
 		m_pane.clearEntities();
 
-		m_world = new World(getEntityLibrary(), source.getVariable("width").getValue().getInt(), source.getVariable("height").getValue().getInt(), source.getVariable("tileWidth").getValue().getInt(), source.getVariable("tileHeight").getValue().getInt(), source.getVariable("entityLayer").getValue().getInt());
-
-		if (source.variableExists("entity"))
-		{
-			for (Variable entityVar : source.getVariable("entity"))
-			{
-				// Entity entity =
-				// Entity.create(entityVar.getValue().getObjectName(),
-				// entityVar.getName(),
-				// Arrays.asList(entityVar.getValue().getObjectArguments()));
-				EditorEntity entity = new EditorEntity(entityVar.getName(), entityVar.getValue().getObjectName(), new VariableValue(entityVar.getValue().getObjectArguments()).getString());
-
-				// Assign post-init assignments
-				if (source.variableExists(entity.getName()))
-				{
-					for (Variable varProperty : source.getVariable(entity.getName()))
-					{
-						initEntityProperties(entity, varProperty);
-					}
-				}
-
-				m_pane.addEntity(entity);
-
-				entity.refresh(m_world);
-			}
-		}
-
-		// Construct Map Layers
-		Variable[] tileDeclarations = source.getVariable("tile").getVariableArray();
-
-		Variable[] layerDeclarations = source.getVariable("layer").getVariableArray();
-
-		for (int i = 0; i < layerDeclarations.length; i++)
+		WorldConfiguration worldConfig = new WorldConfiguration();
+		worldConfig.deserialize(source);
+		
+		m_world = new World(worldConfig.worldWidth, worldConfig.worldHeight, worldConfig.tileWidth, 
+							worldConfig.tileHeight, worldConfig.entityLayer, worldConfig.script);
+	
+		for (LayerDeclaration layerDeclaration : worldConfig.layers)
 		{
 			WorldLayer worldLayer = new WorldLayer();
-
-			Integer[] tileDeclIndices = layerDeclarations[i].getValue().getIntArray();
-
-			for (int tileIndex = 0; tileIndex < tileDeclIndices.length; tileIndex++)
-			{
-				if (tileDeclIndices[tileIndex] >= tileDeclarations.length)
-					throw new ResourceLoadingException("Undeclared Tile Class Index Used");
-
-				EditorTile tile;
-
-				if (tileDeclIndices[tileIndex] >= 0)
-				{
-					VariableValue[] arguments = tileDeclarations[tileDeclIndices[tileIndex]].getValue().getObjectArguments();
-
-					if (arguments.length < 6)
-						throw new ResourceLoadingException("Illegal number of arguments for tile.");
-
-					boolean enablesSplitting = false;
-
-					if (arguments.length >= 7)
-						enablesSplitting = arguments[6].getBoolean();
+			int[] tileIndices = layerDeclaration.tileIndices;
 			
-					tile = new EditorTile(arguments[0].getString(), WorldDirection.values()[arguments[1].getInt()], arguments[2].getString(), arguments[3].getBoolean(), arguments[4].getBoolean(), enablesSplitting, arguments[5].getFloat());
+			int locationOffset = 0;
+			for (int i = 0; i < tileIndices.length; i++)
+			{
+				if (tileIndices[i] >= 0)
+				{
+					if (tileIndices[i] >= worldConfig.tiles.length)
+						throw new ResourceLoadingException("Undeclared Tile Class Index Used");
+
+					EditorTile tile;
+					
+					if(tileIndices[i] < 0)
+						tile = new EditorTile(m_nullTileSprite, m_nullTileAnimation, true, true, false, 1.0F);
+					else
+					{
+						TileDeclaration tileDecl = worldConfig.tiles[tileIndices[i]];
+						tile = new EditorTile(tileDecl.sprite, tileDecl.animation, 
+												tileDecl.isStatic, tileDecl.isTraversable,
+												tileDecl.allowRenderSplitting, tileDecl.visibility);
+					}
+					
+					tile.setLocation(new Vector2D((locationOffset + i) % m_world.getWidth(), (int) Math.floor((locationOffset + i) / m_world.getHeight())));
+
+					tile.addToWorld(m_world, worldLayer);
 				} else
-					tile = new EditorTile(m_nullTile, WorldDirection.Zero, "idle", true, true, false, 1.0F);
-
-				tile.setLocation(new Vector2D(tileIndex % m_world.getWidth(), (int) Math.floor(tileIndex / m_world.getHeight())));
-
-				tile.addToWorld(m_world, worldLayer);
+					locationOffset += Math.abs(tileIndices[i]) - 1;
 			}
-
+			
 			m_world.addLayer(worldLayer);
-		}
+			
+			if(worldConfig.script != null)
+				m_worldScript = worldConfig.script;
 
-		if (source.variableExists("script"))
+			m_camera.attach(m_world);
+		}
+		
+		for (WorldConfiguration.EntityDeclaration entityConfig : worldConfig.entities)
 		{
-			m_worldScript = source.getVariable("script").getValue().getString();
-			m_pane.setScript(m_worldScript);
+			EditorEntity entity = new EditorEntity(entityConfig.name, entityConfig.type, entityConfig.config);
+			
+			if(entityConfig.location != null)
+				entity.setLocation(entityConfig.location);
+			
+			if(entityConfig.direction != null)
+				entity.setDirection(entityConfig.direction);
+			
+			m_pane.addEntity(entity);
+			entity.refresh(m_world);
 		}
-
-		if (layerDeclarations.length > 0)
-			m_selectedLayer = 0;
-		else
-			m_selectedLayer = -1;
-
-		m_pane.setMapLayers(layerDeclarations.length);
-		m_pane.setEntityLayer(m_world.getEntityLayer());
-
+		
+		m_pane.refresh();
 		m_camera.attach(m_world);
 	}
 
 	@Override
-	public synchronized void saveMap(FileOutputStream fileOutputStream, ArrayList<EditorEntity> entities)
+	public synchronized void saveWorld(FileOutputStream fileOutputStream, EditorEntity[] entities)
 	{
-		VariableStore var = new VariableStore();
-
-		var.setVariable("width", new VariableValue(getWorld().getWidth()));
-		var.setVariable("height", new VariableValue(getWorld().getHeight()));
-		var.setVariable("tileWidth", new VariableValue(getWorld().getTileWidth()));
-		var.setVariable("tileHeight", new VariableValue(getWorld().getTileHeight()));
-		var.setVariable("entityLayer", new VariableValue(getWorld().getEntityLayer()));
-
-		Variable varTiles = var.setVariable("tile", new VariableValue());
-		Variable varLayers = var.setVariable("layer", new VariableValue());
-		Variable varEntities = var.setVariable("entity", new VariableValue());
+		WorldConfiguration worldConfig = new WorldConfiguration();
+		
+		worldConfig.worldWidth = getWorld().getWidth();
+		worldConfig.worldHeight = getWorld().getHeight();
+		
+		worldConfig.tileWidth = getWorld().getTileWidth();
+		worldConfig.tileHeight = getWorld().getTileHeight();
+		
+		worldConfig.script = m_worldScript.length() == 0 ? null : m_worldScript;
+		worldConfig.entityLayer = m_world.getEntityLayer();
 
 		ArrayList<EditorTile> tiles = new ArrayList<EditorTile>();
-
-		ArrayList<Integer[]> layers = new ArrayList<Integer[]>();
+		ArrayList<ArrayList<Integer>> layers = new ArrayList<ArrayList<Integer>>();
 
 		for (WorldLayer layer : getWorld().getLayers())
 		{
-			layers.add(new Integer[getWorld().getWidth() * getWorld().getHeight()]);
-
+			layers.add(new ArrayList<Integer>());
+			
+			int accumulatedEmpty = 0;
+			
 			for (int y = 0; y < getWorld().getHeight(); y++)
 			{
 				for (int x = 0; x < getWorld().getWidth(); x++)
@@ -295,7 +286,9 @@ public class MapEditor extends RpgGame implements IEditorPaneListener
 
 					for (IInteractable i : interactables)
 					{
-						if (i instanceof EditorTile && ((EditorTile) i).getSpriteName().compareTo(m_nullTile) != 0 && ((EditorTile) i).getSpriteName().length() > 0)
+						if (i instanceof EditorTile && 
+							((EditorTile) i).getSpriteName().compareTo(m_nullTileSprite) != 0 && 
+							((EditorTile) i).getSpriteName().length() > 0)
 						{
 							editorTile = (EditorTile) i;
 							break;
@@ -305,43 +298,60 @@ public class MapEditor extends RpgGame implements IEditorPaneListener
 					if (editorTile != null && !tiles.contains(editorTile))
 						tiles.add(editorTile);
 
-					int tileIndex = (editorTile == null ? -1 : tiles.indexOf(editorTile));
-
-					layers.get(layers.size() - 1)[x + y * getWorld().getWidth()] = tileIndex;
+					if(editorTile == null)
+						accumulatedEmpty++;
+					else
+					{
+						if(accumulatedEmpty > 0)
+							layers.get(layers.size() - 1).add(-accumulatedEmpty);
+						
+						layers.get(layers.size() - 1).add(tiles.indexOf(editorTile));
+						accumulatedEmpty = 0;
+					}
 				}
 			}
 		}
 
+		worldConfig.tiles = new TileDeclaration[tiles.size()];
 		for (int i = 0; i < tiles.size(); i++)
 		{
-			varTiles.setVariable(String.valueOf(i), new VariableValue(new VariableValue(tiles.get(i).getSpriteName()), new VariableValue(tiles.get(i).getDirection().ordinal()), new VariableValue(tiles.get(i).getSpriteAnimation()), new VariableValue(tiles.get(i).isTraversable()), new VariableValue(tiles.get(i).isStatic()), new VariableValue(tiles.get(i).getVisibilityObstruction()), new VariableValue(tiles.get(i).enablesSplitting())));
+			worldConfig.tiles[i] = new TileDeclaration();
+			worldConfig.tiles[i].allowRenderSplitting = tiles.get(i).enablesSplitting();
+			worldConfig.tiles[i].animation = tiles.get(i).getSpriteAnimation();
+			worldConfig.tiles[i].sprite = tiles.get(i).getSpriteName();
+			worldConfig.tiles[i].isStatic = tiles.get(i).isStatic();
+			worldConfig.tiles[i].isTraversable = tiles.get(i).isTraversable();
+			worldConfig.tiles[i].visibility = tiles.get(i).getVisibilityObstruction();
 		}
 
+		worldConfig.layers = new LayerDeclaration[layers.size()];
 		for (int i = 0; i < layers.size(); i++)
 		{
-			varLayers.setVariable(String.valueOf(i), new VariableValue(layers.get(i)));
+			worldConfig.layers[i] = new LayerDeclaration();
+			worldConfig.layers[i].tileIndices = new int[layers.get(i).size()];
+			
+			for(int x = 0; x < worldConfig.layers[i].tileIndices.length; x++)
+				worldConfig.layers[i].tileIndices[x] = layers.get(i).get(x);
 		}
 
-		for (EditorEntity e : entities)
+		worldConfig.entities = new EntityDeclaration[entities.length];
+		for (int i = 0; i < entities.length; i++)
 		{
-			varEntities.setVariable(e.getName(), new VariableValue(e.getClassName() + e.getArguments()));
-
-			for (Map.Entry<String, String> assignment : e.getPostInitAssignments())
-			{
-				var.setVariable(e.getName() + "/" + assignment.getKey(), new VariableValue(assignment.getValue()));
-			}
+			worldConfig.entities[i] = new EntityDeclaration();
+			worldConfig.entities[i].config = entities[i].getConfig();
+			worldConfig.entities[i].direction = entities[i].getDirection();
+			worldConfig.entities[i].location = entities[i].getLocation();
+			worldConfig.entities[i].name = entities[i].getName();
+			worldConfig.entities[i].type = entities[i].getClassName();
 		}
 
-		if (m_worldScript != null && m_worldScript.length() != 0)
-			var.setVariable("script", new VariableValue(m_worldScript));
-
-		var.serialize(fileOutputStream);
-	}
-
-	@Override
-	public RpgCharacter getPlayer()
-	{
-		return null;
+		try
+		{
+			new JsonVariable(worldConfig).serialize(fileOutputStream, true);
+		}catch(IOException e)
+		{
+			JOptionPane.showMessageDialog(m_pane, "Error saving map: " + e.toString());
+		}
 	}
 
 	public World getWorld()
@@ -362,28 +372,32 @@ public class MapEditor extends RpgGame implements IEditorPaneListener
 		{
 			getWorld().removeLayer(getWorld().getLayers()[m_selectedLayer]);
 			m_selectedLayer--;
-			m_pane.setMapLayers(getWorld().getLayers().length);
 		}
 	}
 
 	@Override
 	public synchronized void createNewLayer()
 	{
-		getWorld().addLayer(new WorldLayer());
-		m_pane.setMapLayers(getWorld().getLayers().length);
+		if(m_world != null)
+			m_world.addLayer(new WorldLayer());
 	}
 
 	@Override
-	public synchronized void setNullSprite(String name)
-	{
-		m_nullTile = name;
-	}
-
-	@Override
-	public synchronized void applyScript(String script)
+	public synchronized void setScript(String script)
 	{
 		m_worldScript = script;
+	}
+	
+	@Override
+	public synchronized String getScript()
+	{
+		return m_worldScript;
+	}
 
+	@Override
+	public synchronized int getLayers()
+	{
+		return m_world == null ? 0 : m_world.getLayers().length;
 	}
 
 	@Override
@@ -427,6 +441,30 @@ public class MapEditor extends RpgGame implements IEditorPaneListener
 	{
 	}
 
+	@Override
+	public int getEntityLayer()
+	{
+		return m_world == null ? 0 : m_world.getEntityLayer();
+	}
+
+	@Override
+	public UIStyle getGameStyle()
+	{
+		return m_style;
+	}
+
+	@Override
+	protected Sprite getCursor()
+	{
+		return m_cursor;
+	}
+	
+	@Override
+	public IGameScriptProvider getScriptBridge()
+	{
+		throw new UnsupportedOperationException("Map editor does not implement a script provider.");
+	}
+
 	private class MapViewListener implements IWorldViewListener
 	{
 		@Override
@@ -452,12 +490,31 @@ public class MapEditor extends RpgGame implements IEditorPaneListener
 
 				if (selectedTile == null)
 				{
-					selectedTile = new EditorTile(m_nullTile, WorldDirection.Zero, "idle", true, true, false, 1.0F);
+					selectedTile = new EditorTile(m_nullTileSprite, m_nullTileAnimation, true, true, false, 1.0F);
 					selectedTile.setLocation(worldLocation);
 					selectedTile.addToWorld(getWorld(), getWorld().getLayers()[m_selectedLayer]);
 				}
 
-				m_pane.selectedTile(selectedTile);
+				Brush brush = m_pane.getBrush();
+				
+				if(brush.isSelection)
+				{
+					m_pane.selectedTile(selectedTile.getSpriteName(),
+										selectedTile.getSpriteAnimation(),
+										selectedTile.getLocation().x,
+										selectedTile.getLocation().y,
+										selectedTile.isStatic(),
+										selectedTile.isTraversable(),
+										selectedTile.enablesSplitting(),
+										selectedTile.getVisibilityObstruction());
+				}else
+				{
+					selectedTile.setSpriteName(brush.sprite, brush.animation);
+					selectedTile.setTraversable(brush.isTraversable);
+					selectedTile.setStatic(brush.isStatic);
+					selectedTile.setEnableSplitting(brush.allowSplitting);
+					selectedTile.setVisibilityObstruction(brush.visibility);
+				}
 			}
 		}
 

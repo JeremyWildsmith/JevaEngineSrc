@@ -19,43 +19,44 @@ import io.github.jevaengine.communication.InvalidMessageException;
 import io.github.jevaengine.communication.SharePolicy;
 import io.github.jevaengine.communication.SharedClass;
 import io.github.jevaengine.communication.SharedEntity;
-import io.github.jevaengine.config.Variable;
-import io.github.jevaengine.config.VariableStore;
-import io.github.jevaengine.game.Game;
-import io.github.jevaengine.graphics.IRenderable;
-import io.github.jevaengine.graphics.Text;
 import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.math.Vector2F;
-import io.github.jevaengine.rpgbase.ItemSlot;
+import io.github.jevaengine.rpgbase.AttackTask;
+import io.github.jevaengine.rpgbase.DialogueController;
+import io.github.jevaengine.rpgbase.Inventory;
+import io.github.jevaengine.rpgbase.Item;
 import io.github.jevaengine.rpgbase.RpgCharacter;
-import io.github.jevaengine.rpgbase.Item.ItemDescriptor;
-import io.github.jevaengine.rpgbase.Item.ItemType;
+import io.github.jevaengine.rpgbase.RpgGame;
 import io.github.jevaengine.rpgbase.netcommon.NetRpgCharacter;
 import io.github.jevaengine.util.Nullable;
+import io.github.jevaengine.world.Entity;
 import io.github.jevaengine.world.IWorldAssociation;
+import io.github.jevaengine.world.MovementTask;
 import io.github.jevaengine.world.World;
-
-import java.awt.Color;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 @SharedClass(name = "RpgCharacter", policy = SharePolicy.ClientR)
 public final class ClientRpgCharacter extends NetRpgCharacter implements IWorldAssociation, IClientShared
 {
 	private static final int SYNC_INTERVAL = 10;
 
-	private volatile ClientControlledRpgCharacter m_character;
-
+	private volatile RpgCharacter m_character;
 	private volatile boolean m_isLoading = false;
-
-	private boolean dispatchedInit = false;
-
+	
+	private boolean m_dispatchedInit = false;
+	
 	private int m_tickCount = 0;
 
 	private World m_world;
+	
+	private @Nullable ClientRpgCharacterTaskFactory m_taskFactory;
 
+	private boolean m_isOwned = false;
+	
+	private DialogueController m_dialogueController;
+	
 	public ClientRpgCharacter()
 	{
+		m_dialogueController = Core.getService(RpgGame.class).getDialogueController();
 	}
 
 	@Override
@@ -99,9 +100,9 @@ public final class ClientRpgCharacter extends NetRpgCharacter implements IWorldA
 	@Override
 	public void update(int deltaTime)
 	{
-		if (!dispatchedInit)
+		if (!m_dispatchedInit)
 		{
-			dispatchedInit = true;
+			m_dispatchedInit = true;
 			send(PrimitiveQuery.Initialize);
 		}
 
@@ -138,10 +139,21 @@ public final class ClientRpgCharacter extends NetRpgCharacter implements IWorldA
 				@Override
 				public void run()
 				{
+					m_isOwned = args.isClientOwned();
+					
+					if(args.isClientOwned())
+						m_dialogueController.addObserver(new DialogueEventDispatcher());
+					
+					m_taskFactory = new ClientRpgCharacterTaskFactory();
+					
 					if (args.getName() == null)
-						m_character = new ClientControlledRpgCharacter(VariableStore.create(Core.getService(IResourceLibrary.class).openResourceStream(args.getStore())), args.getTitleName());
+						m_character = new RpgCharacter(Core.getService(IResourceLibrary.class).openConfiguration(args.getConfiguration()),
+														m_taskFactory);
 					else
-						m_character = new ClientControlledRpgCharacter(args.getName(), VariableStore.create(Core.getService(IResourceLibrary.class).openResourceStream(args.getStore())), args.getTitleName());
+						m_character = new RpgCharacter(args.getName(), Core.getService(IResourceLibrary.class).openConfiguration(args.getConfiguration()),
+											m_taskFactory);
+					
+					m_character.getInventory().addObserver(new ServerRpgCharacterInventoryObserver());
 				}
 			}.start();
 
@@ -159,163 +171,125 @@ public final class ClientRpgCharacter extends NetRpgCharacter implements IWorldA
 					throw new InvalidMessageException(sender, message, "Unrecognized message recieved from server.");
 			}
 		} else if (message instanceof IRpgCharacterVisitor)
-			((IRpgCharacterVisitor) message).visit(sender, m_character);
+		{
+			IRpgCharacterVisitor visitor = (IRpgCharacterVisitor) message;
+			
+			m_taskFactory.visitLocally(sender, visitor);
+		}
 		else
 			throw new InvalidMessageException(sender, message, "Unrecognized message recieved from server.");
 
 		return true;
 	}
 
-	public interface ClientRpgCharacterObserver
+	private class DialogueEventDispatcher implements DialogueController.IDialogueControlObserver
 	{
+		@Override
+		public void dialogueEvent(int event)
+		{
+			Entity speaker = m_dialogueController.getSpeaker();
+			
+			send(new DialogueEvent(event, speaker == null ? null : speaker.getInstanceName()));
+		}
+		
+		@Override
+		public void beginDialogue() { }
 
+		@Override
+		public void endDialogue() { }
+
+		@Override
+		public void speakerSaid(String message) { }
+
+		@Override
+		public void listenerSaid(String message) { }
+		
 	}
-
-	public class ClientControlledRpgCharacter extends ControlledRpgCharacter
+	
+	private class ServerRpgCharacterInventoryObserver implements Inventory.IInventoryObserver
 	{
-		private Text m_titleText;
-
-		public ClientControlledRpgCharacter(@Nullable String name, Variable root, @Nullable String titleName)
-		{
-			super(name, root);
-
-			if (titleName != null)
-				m_titleText = new Text(titleName, new Vector2D(0, 0), Core.getService(Game.class).getGameStyle().getFont(Color.red), 1.0F);
-		}
-
-		public ClientControlledRpgCharacter(Variable root, @Nullable String titleName)
-		{
-			this(null, root, titleName);
-		}
 
 		@Override
-		public IRenderable[] getGraphics()
-		{
-			if (m_titleText == null)
-				return super.getGraphics();
-
-			ArrayList<IRenderable> graphics = new ArrayList<IRenderable>();
-
-			graphics.addAll(Arrays.asList(super.getGraphics()));
-
-			graphics.add(m_titleText);
-
-			return graphics.toArray(new IRenderable[graphics.size()]);
-		}
+		public void addItem(int slotIndex, Item.ItemIdentifer item) { }
 
 		@Override
-		public Inventory getInventory()
-		{
-			return new ServerInventory(super.getInventory());
-		}
+		public void removeItem(int slotIndex, Item.ItemIdentifer item) { }
 
 		@Override
-		public void moveTo(Vector2D destination)
+		public void itemAction(int slotIndex, RpgCharacter accessor, String action)
 		{
-			send(new MoveTo(new Vector2F(destination)));
+			send(new InventoryAction(accessor, action, slotIndex));
 		}
-
+	}
+	
+	private class ClientRpgCharacterTaskFactory extends RpgCharacter.RpgCharacterTaskFactory
+	{
+		private boolean m_localMutation = false;
 		@Override
-		public void attack(RpgCharacter target)
+		public MovementTask createMovementTask(final RpgCharacter host, final @Nullable Vector2D dest, final float fRadius)
 		{
-			send(new Attack(target.getName()));
+			if(m_localMutation)
+			{
+				return new MovementTask(host.getSpeed())
+				{
+					
+					@Override
+					protected boolean blocking() { return true; }
+					
+					@Override
+					protected Vector2F getDestination()
+					{
+						return new Vector2F(dest);
+					}
+					
+					@Override
+					protected boolean atDestination()
+					{
+						return host.getLocation().floor().equals(dest);
+					}
+				};
+			}
+			
+			if(dest != null)
+				send(new QueryMoveTo(dest));
+			
+			return new MovementTask(fRadius)
+			{
+				@Override
+				protected boolean blocking()
+				{
+					return true;
+				}
+				
+				@Override
+				protected Vector2F getDestination() { return host.getLocation(); }
+				
+				@Override
+				protected boolean atDestination() { return true; }
+			};
 		}
-
-		public class ServerInventory extends Inventory
+		
+		@Override
+		public AttackTask createAttackTask(final RpgCharacter host, final @Nullable RpgCharacter target)
 		{
-			private Inventory m_inventory;
-
-			public ServerInventory(Inventory inventory)
+			if(m_localMutation)
+				return super.createAttackTask(host, target);
+			
+			if(target != null)
+				send(new Attack(target.getInstanceName()));
+			
+			return new AttackTask(target)
 			{
-				m_inventory = inventory;
-			}
-
-			@Override
-			public ItemSlot[] getSlots()
-			{
-				return m_inventory.getSlots();
-			}
-
-			@Override
-			public boolean isFull()
-			{
-				return m_inventory.isFull();
-			}
-
-			@Override
-			public ItemSlot getGearSlot(ItemType gearType)
-			{
-				return m_inventory.getGearSlot(gearType);
-			}
-
-			@Override
-			public int getSlotIndex(ItemSlot slot)
-			{
-				return m_inventory.getSlotIndex(slot);
-			}
-
-			@Override
-			public boolean addItem(ItemDescriptor item)
-			{
-				if (isFull())
-					return false;
-
-				ClientRpgCharacter.this.send(new AddItem(item));
-
-				return true;
-			}
-
-			@Override
-			public boolean removeItem(ItemDescriptor item)
-			{
-				if (!hasItem(item))
-					return false;
-
-				send(new RemoveItem(item));
-				return true;
-			}
-
-			@Override
-			public void equip(ItemSlot slot)
-			{
-				send(new EquipItem(getSlotIndex(slot)));
-			}
-
-			@Override
-			public boolean unequip(ItemType gearType)
-			{
-				ItemSlot gearSlot = getGearSlot(gearType);
-
-				if (gearSlot.isEmpty() || isFull())
-					return false;
-
-				send(new UnequipItem(gearType));
-
-				return true;
-			}
-
-			@Override
-			public void consume(ItemSlot slot)
-			{
-				send(new ConsumeItem(getSlotIndex(slot)));
-			}
-
-			@Override
-			public boolean loot(RpgCharacter accessor, ItemSlot slot)
-			{
-				if (slot.isEmpty() || accessor.getInventory().isFull())
-					return false;
-
-				send(new LootItem(accessor.getName(), getSlotIndex(slot)));
-
-				return true;
-			}
-
-			@Override
-			public void drop(ItemSlot slot)
-			{
-				send(new DropItem(getSlotIndex(slot)));
-			}
+				@Override
+				public boolean doAttack(RpgCharacter attackee) { return true; }
+			};
+		}
+		
+		public void visitLocally(Communicator sender, IRpgCharacterVisitor visitor) throws InvalidMessageException
+		{
+			m_localMutation = true;
+			visitor.visit(sender, m_character);
+			m_localMutation = false;
 		}
 	}
 }

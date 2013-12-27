@@ -23,7 +23,7 @@ public abstract class SynchronousOneShotTask implements ITask
 	 * @see io.github.jeremywildsmith.jevaengine.world.ITask#cancel()
 	 */
 	@Override
-	public void cancel()
+	public final void cancel()
 	{
 	}
 
@@ -33,7 +33,7 @@ public abstract class SynchronousOneShotTask implements ITask
 	 * @see jeva.world.ITask#begin(jeva.world.Entity)
 	 */
 	@Override
-	public void begin(Entity entity)
+	public final void begin(Entity entity)
 	{
 		m_entity = entity;
 	}
@@ -44,7 +44,7 @@ public abstract class SynchronousOneShotTask implements ITask
 	 * @see io.github.jeremywildsmith.jevaengine.world.ITask#end()
 	 */
 	@Override
-	public void end()
+	public final void end()
 	{
 	}
 
@@ -54,7 +54,7 @@ public abstract class SynchronousOneShotTask implements ITask
 	 * @see jeva.world.ITask#doCycle(int)
 	 */
 	@Override
-	public boolean doCycle(int deltaTime)
+	public final boolean doCycle(int deltaTime)
 	{
 		run(m_entity);
 		return true;
@@ -66,7 +66,7 @@ public abstract class SynchronousOneShotTask implements ITask
 	 * @see io.github.jeremywildsmith.jevaengine.world.ITask#isParallel()
 	 */
 	@Override
-	public boolean isParallel()
+	public final boolean isParallel()
 	{
 		return false;
 	}
@@ -77,7 +77,7 @@ public abstract class SynchronousOneShotTask implements ITask
 	 * @see io.github.jeremywildsmith.jevaengine.world.ITask#ignoresPause()
 	 */
 	@Override
-	public boolean ignoresPause()
+	public final boolean ignoresPause()
 	{
 		return false;
 	}

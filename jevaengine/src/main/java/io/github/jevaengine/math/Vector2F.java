@@ -16,15 +16,17 @@
  */
 package io.github.jevaengine.math;
 
-public class Vector2F implements Comparable<Vector2F>
-{
+import io.github.jevaengine.config.ISerializable;
+import io.github.jevaengine.config.IVariable;
 
+public class Vector2F implements Comparable<Vector2F>, ISerializable
+{
 	public static final float TOLERANCE = 0.00000001F;
 
 	public float x;
 
 	public float y;
-
+	
 	public Vector2F(Vector2F v)
 	{
 		x = v.x;
@@ -177,5 +179,19 @@ public class Vector2F implements Comparable<Vector2F>
 			return -1;
 		else
 			return 1;
+	}
+
+	@Override
+	public void serialize(IVariable target)
+	{
+		target.addChild("x").setValue(x);
+		target.addChild("y").setValue(y);
+	}
+
+	@Override
+	public void deserialize(IVariable source)
+	{
+		x = source.getChild("x").getValue(Double.class).floatValue();
+		y = source.getChild("y").getValue(Double.class).floatValue();
 	}
 }

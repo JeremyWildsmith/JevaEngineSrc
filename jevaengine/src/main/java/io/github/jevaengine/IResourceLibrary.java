@@ -12,20 +12,16 @@
  ******************************************************************************/
 package io.github.jevaengine;
 
+import io.github.jevaengine.config.IVariable;
+import io.github.jevaengine.util.Nullable;
+import io.github.jevaengine.world.Entity;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.ByteBuffer;
 
 public interface IResourceLibrary
 {
-
-	InputStream openResourceStream(String path);
-
-	String openResourceContents(String path);
-
-	ByteBuffer openResourceRaw(String path);
-
-	OutputStream createState(String path) throws StatelessEnvironmentException;
-
-	InputStream openState(String path) throws StatelessEnvironmentException;
+	IVariable openConfiguration(String path);
+	Script openScript(String path, Object context);
+	Entity createEntity(String entityName, @Nullable String instanceName, String config);
+	InputStream openAsset(String path);
+	//IRenderable openTexture(String path);
 }

@@ -13,108 +13,68 @@
 package io.github.jevaengine.rpgbase;
 
 import io.github.jevaengine.util.Nullable;
+import io.github.jevaengine.util.StaticSet;
 import io.github.jevaengine.world.Entity;
-import io.github.jevaengine.world.ITask;
+import io.github.jevaengine.world.InvalidTaskHostException;
+import io.github.jevaengine.world.SynchronousOneShotTask;
 import io.github.jevaengine.world.WorldDirection;
 
-public class AttackTask implements ITask
+public abstract class AttackTask extends SynchronousOneShotTask
 {
-	private static final int ATTACK_TICK_INTERVAL = 75;
-
 	private RpgCharacter m_attackee;
-	private IAttacker m_attacker;
-
-	private WorldDirection m_lastWorldDirection;
-
-	private int m_attackTimeout;
-
-	private boolean m_queryCancel;
-
-	public AttackTask(IAttacker attacker, @Nullable RpgCharacter attackee)
-	{
-		m_attacker = attacker;
-		m_attackee = attackee;
-		m_attackTimeout = 0;
-		m_lastWorldDirection = WorldDirection.Zero;
-
-		m_queryCancel = false;
-	}
-
-	@Override
-	public void cancel()
-	{
-		m_queryCancel = true;
-	}
-
-	@Override
-	public void begin(Entity entity)
-	{
-		m_queryCancel = false;
-	}
-
-	@Override
-	public void end()
-	{
-	}
-
-	public void setTarget(RpgCharacter attackee)
+	
+	private Observers m_observers = new Observers();
+	
+	public AttackTask(@Nullable RpgCharacter attackee)
 	{
 		m_attackee = attackee;
 	}
+	
+	public void addObserver(IAttackObserver observer)
+	{
+		m_observers.add(observer);
+	}
+	
+	public void removeObserver(IAttackObserver observer)
+	{
+		m_observers.remove(observer);
+	}
 
 	@Override
-	public boolean doCycle(int deltaTime)
+	public void run(Entity entity)
 	{
-		if (m_queryCancel ||
-				m_attackee == null ||
-				m_attacker.getCharacter().isDead() ||
-				m_attackee.isDead() ||
-				!m_attacker.getCharacter().isAssociated() ||
-				!m_attackee.isAssociated() ||
-				m_attackee.getWorld() != m_attacker.getCharacter().getWorld())
+		RpgCharacter attacker;
+		
+		if(entity instanceof RpgCharacter)
+			attacker = (RpgCharacter)entity;
+		else
+			throw new InvalidTaskHostException("Task host must be an instanceof RpgCharacter.");
+	
+		if (m_attackee == null ||
+			attacker.isDead() ||
+			m_attackee.isDead() ||
+			!attacker.isAssociated() ||
+			!m_attackee.isAssociated() ||
+			m_attackee.getWorld() != attacker.getWorld())
+				return;
+		
+		if (doAttack(m_attackee))
+			m_observers.attack(m_attackee);
+	}
+
+	public abstract boolean doAttack(RpgCharacter attackee);
+	
+	public interface IAttackObserver
+	{
+		void attack(RpgCharacter attackee);
+	}
+	
+	private static class Observers extends StaticSet<IAttackObserver>
+	{
+		public void attack(RpgCharacter attackee)
 		{
-			return true;
+			for(IAttackObserver o : this)
+				o.attack(attackee);
 		}
-
-		m_attackTimeout += deltaTime;
-
-		for (; m_attackTimeout >= ATTACK_TICK_INTERVAL; m_attackTimeout -= ATTACK_TICK_INTERVAL)
-		{
-			WorldDirection attackDirection = WorldDirection.fromVector(m_attackee.getLocation().difference(m_attacker.getCharacter().getLocation()));
-
-			if (m_attacker.attack(m_attackee))
-			{
-				if (m_lastWorldDirection != attackDirection)
-					m_attacker.getCharacter().setDirection(attackDirection);
-
-				m_lastWorldDirection = attackDirection;
-			} else
-			{
-				return true;
-			}
-		}
-
-		return false;
 	}
-
-	@Override
-	public boolean isParallel()
-	{
-		return false;
-	}
-
-	@Override
-	public boolean ignoresPause()
-	{
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	public interface IAttacker
-	{
-		boolean attack(RpgCharacter target);
-
-		RpgCharacter getCharacter();
-	}
-
 }
