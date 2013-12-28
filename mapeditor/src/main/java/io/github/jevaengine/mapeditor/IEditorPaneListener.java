@@ -15,7 +15,6 @@ package io.github.jevaengine.mapeditor;
 import io.github.jevaengine.config.IVariable;
 
 import java.io.FileOutputStream;
-import java.util.ArrayList;
 
 public interface IEditorPaneListener
 {

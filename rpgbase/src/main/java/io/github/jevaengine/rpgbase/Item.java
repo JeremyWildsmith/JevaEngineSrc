@@ -23,9 +23,6 @@ import io.github.jevaengine.graphics.AnimationState;
 import io.github.jevaengine.graphics.IRenderable;
 import io.github.jevaengine.graphics.Sprite;
 import io.github.jevaengine.util.Nullable;
-import io.github.jevaengine.world.IInteractable;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.script.ScriptException;
 import org.mozilla.javascript.NativeArray;
 

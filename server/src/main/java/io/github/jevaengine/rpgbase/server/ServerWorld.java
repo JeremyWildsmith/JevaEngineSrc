@@ -41,12 +41,8 @@ public class ServerWorld extends NetWorld implements IDisposable, IServerShared
 
 	private int m_tickCount = 0;
 
-	private ServerGame m_server;
-
-	public ServerWorld(ServerGame server, String worldName)
+	public ServerWorld(String worldName)
 	{
-		m_server = server;
-
 		m_worldName = worldName;
 
 		m_world = World.create(Core.getService(IResourceLibrary.class).openConfiguration(worldName));

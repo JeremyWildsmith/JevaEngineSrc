@@ -13,18 +13,11 @@
 package io.github.jevaengine.graphics;
 
 import java.awt.Color;
-import java.awt.Image;
-import java.awt.Toolkit;
-import java.awt.image.FilteredImageSource;
 import java.awt.image.RGBImageFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import javax.imageio.ImageIO;
-
-import io.github.jevaengine.Core;
-import io.github.jevaengine.IResourceLibrary;
 import io.github.jevaengine.config.ISerializable;
 import io.github.jevaengine.config.IVariable;
 import io.github.jevaengine.game.ResourceLoadingException;

@@ -20,7 +20,6 @@ import io.github.jevaengine.graphics.Font;
 import io.github.jevaengine.graphics.IRenderable;
 import io.github.jevaengine.graphics.Sprite;
 import io.github.jevaengine.graphics.Text;
-import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.math.Vector2F;
 import io.github.jevaengine.world.Actor;
 import io.github.jevaengine.world.Entity;
@@ -140,7 +139,7 @@ public class EditorEntity
 		public EntityDummy()
 		{
 			Font font = Core.getService(Game.class).getGameStyle().getFont(Color.yellow);
-			m_text = new Text(EditorEntity.this.getName(), new Vector2D(), font, 1.0F);
+			m_text = new Text(EditorEntity.this.getName(), font, 1.0F);
 		}
 		
 		@Override

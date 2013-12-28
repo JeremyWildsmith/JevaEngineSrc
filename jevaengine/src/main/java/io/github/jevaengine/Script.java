@@ -153,6 +153,11 @@ public class Script
 	
 	private static class ProtectedNativeJavaObject extends NativeJavaObject
 	{
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
 		private static final HashMap<Class<?>, ArrayList<String>> CLASS_PROTECTION_CACHE = new HashMap<Class<?>, ArrayList<String>>();
 		
 		private ArrayList<String> m_protectedMembers;

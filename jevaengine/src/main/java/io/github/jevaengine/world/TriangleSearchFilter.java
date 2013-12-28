@@ -12,8 +12,6 @@
  ******************************************************************************/
 package io.github.jevaengine.world;
 
-import java.awt.Rectangle;
-
 import io.github.jevaengine.math.Matrix2X2;
 import io.github.jevaengine.math.Rect2D;
 import io.github.jevaengine.math.Vector2F;

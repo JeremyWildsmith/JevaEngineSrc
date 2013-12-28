@@ -23,7 +23,6 @@ import java.awt.image.BufferStrategy;
 import java.awt.image.VolatileImage;
 
 import io.github.jevaengine.Core;
-import io.github.jevaengine.CoreModeViolationException;
 import io.github.jevaengine.graphics.Sprite;
 import io.github.jevaengine.joystick.*;
 import io.github.jevaengine.math.Vector2D;

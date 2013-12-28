@@ -20,8 +20,6 @@ import io.github.jevaengine.communication.SharedEntity;
 import io.github.jevaengine.rpgbase.netcommon.NetUser;
 import io.github.jevaengine.util.Nullable;
 
-import java.nio.InvalidMarkException;
-
 @SharedClass(name = "User", policy = SharePolicy.ClientR)
 public class ServerUser extends NetUser implements IServerShared
 {

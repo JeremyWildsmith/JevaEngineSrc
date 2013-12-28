@@ -274,7 +274,7 @@ public abstract class Actor extends Entity implements IInteractable
 	
 	public static class ActorBridge<Y extends Actor> extends EntityBridge<Y>
 	{
-		private SearchForTask m_searchTask;
+		private SearchForTask<?> m_searchTask;
 
 		public ScriptLight bindLight(float offsetX, float offsetY, float radius, int r, int g, int b, int a)
 		{

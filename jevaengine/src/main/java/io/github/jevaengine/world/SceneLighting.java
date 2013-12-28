@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.github.jevaengine.graphics.IRenderable;
-import io.github.jevaengine.math.Matrix2X2;
 import io.github.jevaengine.math.Vector2F;
 
 public class SceneLighting
@@ -42,7 +41,7 @@ public class SceneLighting
 
 	public SceneLighting(int renderTargetWidth, int renderTargetHeight)
 	{
-		m_lightSources = new ArrayList();
+		m_lightSources = new ArrayList<ILight>();
 		m_renderTargetBounds = new Rectangle(0, 0, renderTargetWidth, renderTargetHeight);
 
 		m_ambientLight = new Color(0, 0, 0, 0);
@@ -50,7 +49,7 @@ public class SceneLighting
 
 	public SceneLighting()
 	{
-		m_lightSources = new ArrayList();
+		m_lightSources = new ArrayList<ILight>();
 		m_renderTargetBounds = new Rectangle(0, 0, 0, 0);
 		m_ambientLight = new Color(0, 0, 0, 0);
 	}
@@ -107,7 +106,7 @@ public class SceneLighting
 			g.setBackground(new Color(0, 0, 0, 0));
 			g.clearRect(0, 0, m_renderTargetBounds.width, m_renderTargetBounds.height);
 
-			HashMap<ILight, Area> lightAreaMap = new HashMap();
+			HashMap<ILight, Area> lightAreaMap = new HashMap<ILight, Area>();
 
 			for (ILight source : m_lightSources)
 			{

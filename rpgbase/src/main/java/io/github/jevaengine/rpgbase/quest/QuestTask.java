@@ -22,6 +22,8 @@ public class QuestTask implements ISerializable
 	private String m_name;
 	private String m_description;
 
+	//Used by ISerializable
+	@SuppressWarnings("unused")
 	private QuestTask() { }
 	
 	public QuestTask(String id, String name, String description)

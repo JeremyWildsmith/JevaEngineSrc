@@ -13,7 +13,6 @@
 package io.github.jevaengine.world;
 
 import io.github.jevaengine.math.Rect2D;
-import java.awt.Rectangle;
 
 import io.github.jevaengine.math.Vector2F;
 

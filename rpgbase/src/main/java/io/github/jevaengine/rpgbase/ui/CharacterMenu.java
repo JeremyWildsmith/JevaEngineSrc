@@ -35,12 +35,10 @@ import io.github.jevaengine.joystick.InputManager.InputMouseEvent;
 import io.github.jevaengine.joystick.InputManager.InputMouseEvent.EventType;
 import io.github.jevaengine.joystick.InputManager.InputMouseEvent.MouseButton;
 import io.github.jevaengine.math.Vector2D;
-import io.github.jevaengine.rpgbase.IItemStore;
 import io.github.jevaengine.rpgbase.RpgCharacter;
 import io.github.jevaengine.rpgbase.Item.ItemType;
 import io.github.jevaengine.rpgbase.ItemSlot;
 import io.github.jevaengine.rpgbase.Loadout;
-
 
 public class CharacterMenu extends Window
 {

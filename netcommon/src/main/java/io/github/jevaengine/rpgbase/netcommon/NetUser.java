@@ -12,11 +12,8 @@
  ******************************************************************************/
 package io.github.jevaengine.rpgbase.netcommon;
 
-import io.github.jevaengine.communication.Communicator;
-import io.github.jevaengine.communication.InvalidMessageException;
 import io.github.jevaengine.communication.SharedEntity;
 import io.github.jevaengine.util.Nullable;
-import io.github.jevaengine.world.World;
 
 public abstract class NetUser extends SharedEntity
 {

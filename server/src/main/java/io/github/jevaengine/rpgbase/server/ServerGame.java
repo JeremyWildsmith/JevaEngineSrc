@@ -120,7 +120,7 @@ public class ServerGame extends RpgGame implements IDisposable
 				}
 			}
 
-			ServerWorld newWorld = new ServerWorld(this, formalName);
+			ServerWorld newWorld = new ServerWorld(formalName);
 
 			m_worlds.add(newWorld);
 

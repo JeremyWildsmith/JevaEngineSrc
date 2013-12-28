@@ -17,7 +17,6 @@
 package io.github.jevaengine.rpgbase.client;
 
 import io.github.jevaengine.Core;
-import io.github.jevaengine.Core.CoreMode;
 import io.github.jevaengine.game.Game;
 import io.github.jevaengine.rpgbase.RpgLibrary;
 

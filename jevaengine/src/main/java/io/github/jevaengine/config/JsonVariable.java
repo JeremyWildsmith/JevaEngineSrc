@@ -13,6 +13,7 @@
 package io.github.jevaengine.config;
 
 import io.github.jevaengine.util.Nullable;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -25,6 +26,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
+
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 
@@ -84,11 +86,6 @@ public final class JsonVariable implements IVariable
 	}
 	
 	public JsonVariable(boolean[] value)
-	{
-		m_value = value;
-	}
-	
-	private JsonVariable(Object value)
 	{
 		m_value = value;
 	}
@@ -188,6 +185,7 @@ public final class JsonVariable implements IVariable
 	}
 
 	@Override
+	@SuppressWarnings("unchecked") //Safe to assume Map is Map<String, JsonVariable> as used internally
 	public boolean childExists(String name)
 	{
 		if(m_value instanceof JsonVariable)
@@ -201,6 +199,7 @@ public final class JsonVariable implements IVariable
 	}
 	
 	@Override
+	@SuppressWarnings("unchecked") //Safe to assume Map is Map<String, JsonVariable> as used internally
 	public JsonVariable getChild(String name)
 	{
 		if(m_value instanceof JsonVariable)
@@ -218,6 +217,7 @@ public final class JsonVariable implements IVariable
 	}
 	
 	@Override
+	@SuppressWarnings("unchecked") //Safe to assume Map is Map<String, JsonVariable> as used internally.
 	public JsonVariable addChild(String name)
 	{
 		if(m_value instanceof JsonVariable)
@@ -235,6 +235,7 @@ public final class JsonVariable implements IVariable
 		}
 	}
 
+	@SuppressWarnings("unchecked") //Safe to assume Map is Map<String, JsonVariable> as used internally
 	@Override
 	public void removeChild(String name)
 	{
@@ -244,6 +245,7 @@ public final class JsonVariable implements IVariable
 		((Map<String, JsonVariable>)m_value).remove(name);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T getValue(Class<T> cls)
 	{
@@ -254,12 +256,14 @@ public final class JsonVariable implements IVariable
 		{
 			try
 			{
-				Constructor constructor = cls.getDeclaredConstructor();
+				Constructor<T> constructor = cls.getDeclaredConstructor();
 				constructor.setAccessible(true);
 				
-				ISerializable bean = (ISerializable)constructor.newInstance();
-				bean.deserialize((JsonVariable)m_value);
-				return (T)bean;
+				T instance = constructor.newInstance();
+				
+				((ISerializable)instance).deserialize((JsonVariable)m_value);
+				
+				return instance;
 			} catch (NoSuchMethodException | 
 						SecurityException | 
 						IllegalAccessException |
@@ -295,6 +299,7 @@ public final class JsonVariable implements IVariable
 			value.equals(Float.class));
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T[] getValues(Class<T[]> dest)
 	{
@@ -318,7 +323,7 @@ public final class JsonVariable implements IVariable
 						deserializedValues.add((T)rawValue);
 					}else if(rawValue instanceof JsonVariable)
 					{
-						Constructor constructor = dest.getComponentType().getDeclaredConstructor();
+						Constructor<?> constructor = dest.getComponentType().getDeclaredConstructor();
 						constructor.setAccessible(true);
 
 						ISerializable bean = (ISerializable)constructor.newInstance();
@@ -406,6 +411,7 @@ public final class JsonVariable implements IVariable
 		return root;
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public void serialize(IVariable target)
 	{
@@ -429,6 +435,7 @@ public final class JsonVariable implements IVariable
 		m_value = source;
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Nullable
 	private Object serialize(JsonVariable variable)
 	{
@@ -461,6 +468,7 @@ public final class JsonVariable implements IVariable
 			return variable.m_value;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void serialize(OutputStream out, boolean pretty) throws IOException
 	{
 		ObjectMapper mapper = new ObjectMapper();

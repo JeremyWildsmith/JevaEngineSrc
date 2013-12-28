@@ -14,11 +14,9 @@ package io.github.jevaengine.rpgbase.client;
 
 import io.github.jevaengine.Core;
 import io.github.jevaengine.IDisposable;
-import io.github.jevaengine.IResourceLibrary;
 import io.github.jevaengine.game.Game;
 import io.github.jevaengine.ui.IWindowManager;
 import io.github.jevaengine.ui.Label;
-import io.github.jevaengine.ui.UIStyle;
 import io.github.jevaengine.ui.Window;
 import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.rpgbase.client.ClientCommunicator.IClientCommunicatorObserver;

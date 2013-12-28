@@ -14,25 +14,18 @@ package io.github.jevaengine.graphics;
 
 import io.github.jevaengine.math.Rect2D;
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
-
-import io.github.jevaengine.math.Vector2D;
 
 public final class Text implements IRenderable
 {
-
-	private Vector2D m_anchor;
-
 	private Font m_font;
 
 	private String m_text;
 
 	private float m_fScale;
 
-	public Text(String text, Vector2D anchor, Font font, float fScale)
+	public Text(String text, Font font, float fScale)
 	{
 		m_text = text;
-		m_anchor = anchor;
 		m_font = font;
 		m_fScale = fScale;
 	}

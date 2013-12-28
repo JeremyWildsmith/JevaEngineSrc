@@ -33,8 +33,10 @@ import io.github.jevaengine.ui.WorldView.IWorldViewListener;
 import io.github.jevaengine.world.Entity;
 import io.github.jevaengine.world.IInteractable;
 import io.github.jevaengine.world.World;
+
 import java.awt.Color;
 import java.util.ArrayList;
+
 import javax.script.ScriptException;
 
 /**

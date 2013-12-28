@@ -69,7 +69,7 @@ public final class DialogueController
 	
 	public void enqueueDialogue(@Nullable Entity speaker, DialoguePath path, int entry)
 	{
-		m_dialogueQueue.add(new DialoguePathEntry(speaker, entry, path, entry));
+		m_dialogueQueue.add(new DialoguePathEntry(speaker, path, entry));
 	}
 	
 	public boolean say(String message)
@@ -191,15 +191,13 @@ public final class DialogueController
 	private class DialoguePathEntry
 	{
 		public @Nullable Entity speaker;
-		public int entryQuery;
 		public DialoguePath path;
 		public Query currentQuery;
 		public int initialQuery;
 		
-		public DialoguePathEntry(Entity _speaker, int _entryQuery, DialoguePath _path, int _initialQuery)
+		public DialoguePathEntry(Entity _speaker, DialoguePath _path, int _initialQuery)
 		{
 			speaker = _speaker;
-			entryQuery = _entryQuery;
 			path = _path;
 			initialQuery = _initialQuery;
 		}

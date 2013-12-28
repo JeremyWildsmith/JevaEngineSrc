@@ -19,6 +19,11 @@ package io.github.jevaengine;
  */
 public class CoreModeViolationException extends RuntimeException
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public CoreModeViolationException(String message)
 	{
 		super(message);

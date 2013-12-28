@@ -17,7 +17,6 @@ import io.github.jevaengine.util.StaticSet;
 import io.github.jevaengine.world.Entity;
 import io.github.jevaengine.world.InvalidTaskHostException;
 import io.github.jevaengine.world.SynchronousOneShotTask;
-import io.github.jevaengine.world.WorldDirection;
 
 public abstract class AttackTask extends SynchronousOneShotTask
 {

@@ -49,8 +49,6 @@ public final class ClientRpgCharacter extends NetRpgCharacter implements IWorldA
 	private World m_world;
 	
 	private @Nullable ClientRpgCharacterTaskFactory m_taskFactory;
-
-	private boolean m_isOwned = false;
 	
 	private DialogueController m_dialogueController;
 	
@@ -139,8 +137,6 @@ public final class ClientRpgCharacter extends NetRpgCharacter implements IWorldA
 				@Override
 				public void run()
 				{
-					m_isOwned = args.isClientOwned();
-					
 					if(args.isClientOwned())
 						m_dialogueController.addObserver(new DialogueEventDispatcher());
 					

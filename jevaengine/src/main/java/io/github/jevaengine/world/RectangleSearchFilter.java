@@ -14,8 +14,6 @@ package io.github.jevaengine.world;
 
 import io.github.jevaengine.math.Rect2D;
 import io.github.jevaengine.math.Rect2F;
-import java.awt.Rectangle;
-import java.awt.geom.Rectangle2D;
 
 import io.github.jevaengine.math.Vector2F;
 

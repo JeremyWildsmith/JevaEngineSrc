@@ -38,6 +38,10 @@ import javax.swing.filechooser.FileFilter;
  */
 public class EditorPane extends javax.swing.JFrame
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private IEditorPaneListener m_listener;
 	private String m_baseDirectory;
 	/**

@@ -12,6 +12,11 @@ package io.github.jevaengine.config;
  */
 public class InvalidValueFormatException extends RuntimeException
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public InvalidValueFormatException()
 	{
 	}

@@ -130,7 +130,7 @@ public final class RpgCharacter extends Actor
 		m_health = m_maxHealth;
 
 		m_inventory = new Inventory(this, decl.inventorySize);
-		m_loadout = new Loadout(this);
+		m_loadout = new Loadout();
 		
 		m_model = new CharacterModel(Sprite.create(Core.getService(IResourceLibrary.class).openConfiguration(decl.sprite)));
 		addActionObserver(m_model);

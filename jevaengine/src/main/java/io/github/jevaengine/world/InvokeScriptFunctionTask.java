@@ -7,9 +7,6 @@
 package io.github.jevaengine.world;
 
 import io.github.jevaengine.CoreScriptException;
-import io.github.jevaengine.Script;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.script.ScriptException;
 import org.mozilla.javascript.Function;
 

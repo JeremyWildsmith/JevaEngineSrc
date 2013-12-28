@@ -27,13 +27,10 @@ public final class Loadout
 {
 	private ArrayList<GearSlot> m_slots = new ArrayList<GearSlot>();
 	
-	private RpgCharacter m_owner;
-	
 	private Observers m_observers = new Observers();
 	
-	public Loadout(RpgCharacter owner)
+	public Loadout()
 	{
-		m_owner = owner;
 		m_slots.add(new GearSlot(ItemType.Weapon));
 		m_slots.add(new GearSlot(ItemType.Accessory));
 		m_slots.add(new GearSlot(ItemType.BodyArmor));

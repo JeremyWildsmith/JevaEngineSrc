@@ -26,8 +26,6 @@ import io.github.jevaengine.rpgbase.ItemSlot;
 import io.github.jevaengine.rpgbase.Loadout;
 import io.github.jevaengine.util.Nullable;
 import io.github.jevaengine.world.Entity;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.script.ScriptException;
 
 public abstract class NetRpgCharacter extends SharedEntity

@@ -15,6 +15,11 @@ package io.github.jevaengine.config;
 
 public class VariableNotAnObjectException extends RuntimeException
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public VariableNotAnObjectException(String reason)
 	{
 		super(reason);

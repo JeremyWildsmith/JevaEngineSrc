@@ -22,6 +22,8 @@ public class Quest implements ISerializable
 
 	private QuestTask[] m_tasks;
 
+	//Used by ISerializable
+	@SuppressWarnings("unused")
 	private Quest() { }
 	
 	public Quest(String name, String description, QuestTask[] tasks)

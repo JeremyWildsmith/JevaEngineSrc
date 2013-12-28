@@ -64,54 +64,56 @@ public class Main
 		long lastTime = System.nanoTime() / 1000000;
 		long curTime = lastTime;
 
-		Scanner scanner = new Scanner(System.in);
-		
-		String scriptLog = "";
-		int emptyCount = 0;
-		
-		Script m_script = new Script();
-		
-		while (true)
+		try(Scanner scanner = new Scanner(System.in))
 		{
-			curTime = System.nanoTime() / 1000000;
-
-			game.update((int) ((curTime - lastTime)));
-			game.render();
-
-			int cycleLength = (int) (curTime - lastTime);
-
-			lastTime = curTime;
+		
+			String scriptLog = "";
+			int emptyCount = 0;
 			
-			if(System.in.available() > 0 && scanner.hasNextLine())
+			Script m_script = new Script();
+			
+			while (true)
 			{
-
-				String line = scanner.nextLine();
+				curTime = System.nanoTime() / 1000000;
+	
+				game.update((int) ((curTime - lastTime)));
+				game.render();
+	
+				int cycleLength = (int) (curTime - lastTime);
+	
+				lastTime = curTime;
 				
-				if(line.isEmpty())
-					emptyCount++;
-				else
-					scriptLog += " " + line;
-				
-				if(emptyCount >= 2)
+				if(System.in.available() > 0 && scanner.hasNextLine())
 				{
-					try
+	
+					String line = scanner.nextLine();
+					
+					if(line.isEmpty())
+						emptyCount++;
+					else
+						scriptLog += " " + line;
+					
+					if(emptyCount >= 2)
 					{
-						m_script.evaluate(scriptLog);
-					}catch(CoreScriptException e)
-					{
-						System.out.println("Error: " + e.toString());
+						try
+						{
+							m_script.evaluate(scriptLog);
+						}catch(CoreScriptException e)
+						{
+							System.out.println("Error: " + e.toString());
+						}
+						emptyCount = 0;
+						System.out.println("Executed script.");
+						scriptLog = "";
 					}
-					emptyCount = 0;
-					System.out.println("Executed script.");
-					scriptLog = "";
 				}
-			}
-			try
-			{
-				Thread.sleep(Math.max(targetTime - cycleLength, 20));
-			} catch (InterruptedException ex)
-			{
-				Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+				try
+				{
+					Thread.sleep(Math.max(targetTime - cycleLength, 20));
+				} catch (InterruptedException ex)
+				{
+					Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+				}
 			}
 		}
 	}

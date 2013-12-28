@@ -12,8 +12,6 @@
  ******************************************************************************/
 package io.github.jevaengine.config;
 
-import io.github.jevaengine.util.Nullable;
-
 public interface IVariable extends ISerializable
 {
 	void setValue(ISerializable value);

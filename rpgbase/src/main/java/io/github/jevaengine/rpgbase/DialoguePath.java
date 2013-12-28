@@ -14,7 +14,6 @@ package io.github.jevaengine.rpgbase;
 
 import io.github.jevaengine.config.ISerializable;
 import io.github.jevaengine.config.IVariable;
-import io.github.jevaengine.util.Nullable;
 
 /**
  *

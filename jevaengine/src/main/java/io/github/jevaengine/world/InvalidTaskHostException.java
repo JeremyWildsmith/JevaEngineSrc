@@ -19,6 +19,11 @@ package io.github.jevaengine.world;
  */
 public class InvalidTaskHostException extends RuntimeException
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public InvalidTaskHostException(String message)
 	{
 		super(message);

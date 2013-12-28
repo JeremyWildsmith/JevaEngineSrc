@@ -13,7 +13,6 @@
 package io.github.jevaengine.game;
 
 import io.github.jevaengine.math.Vector2D;
-import io.github.jevaengine.math.Vector2F;
 import io.github.jevaengine.world.Entity;
 import io.github.jevaengine.world.World;
 import io.github.jevaengine.world.Entity.IEntityObserver;
