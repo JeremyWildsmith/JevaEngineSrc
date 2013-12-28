@@ -1,0 +1,20 @@
+{
+  "scale" : 0.25,
+  "animations" : [ {
+    "frames" : [ {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 0,
+        "x" : 0
+      },
+      "delay" : 1000,
+      "anchor" : {
+        "y" : 64,
+        "x" : 64
+      }
+    } ],
+    "name" : "idle"
+  } ],
+  "texture" : "particle/characterMenu/characterMenu.png"
+}
