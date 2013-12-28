@@ -137,9 +137,9 @@ public class WorldViewWindow extends Window
 		private IInteractable m_lastTarget = null;
 		
 		@Override
-		public void worldSelection(Vector2D screenLocation, Vector2D worldLocation, MouseButton button)
+		public void worldSelection(Vector2D screenLocation, Vector2F worldLocation, MouseButton button)
 		{
-			final IInteractable[] interactables = m_camera.getWorld().getTileEffects(worldLocation).interactables.toArray(new IInteractable[0]);
+			final IInteractable[] interactables = m_camera.getWorld().getTileEffects(worldLocation.round()).interactables.toArray(new IInteractable[0]);
 
 			if (button == MouseButton.Right)
 			{
@@ -168,9 +168,9 @@ public class WorldViewWindow extends Window
 		}
 
 		@Override
-		public void worldMove(Vector2D screenLocation, Vector2D worldLocation)
+		public void worldMove(Vector2D screenLocation, Vector2F worldLocation)
 		{
-			final IInteractable[] interactables = m_camera.getWorld().getTileEffects(worldLocation).interactables.toArray(new IInteractable[0]);
+			final IInteractable[] interactables = m_camera.getWorld().getTileEffects(worldLocation.round()).interactables.toArray(new IInteractable[0]);
 			
 			IInteractable defaultable = null;
 			

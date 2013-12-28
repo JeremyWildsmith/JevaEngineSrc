@@ -16,7 +16,6 @@ import io.github.jevaengine.CoreScriptException;
 import io.github.jevaengine.communication.Communicator;
 import io.github.jevaengine.communication.InvalidMessageException;
 import io.github.jevaengine.communication.SharedEntity;
-import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.math.Vector2F;
 import io.github.jevaengine.rpgbase.Item;
 import io.github.jevaengine.rpgbase.RpgCharacter;
@@ -175,7 +174,7 @@ public abstract class NetRpgCharacter extends SharedEntity
 			if (character.getLocation().difference(getLocation()).getLength() > 0.8F)
 				character.setLocation(getLocation());
 			else
-				character.moveTo(getDestination().floor());
+				character.moveTo(getDestination());
 		}
 
 		@Override
@@ -490,7 +489,7 @@ public abstract class NetRpgCharacter extends SharedEntity
 
 	protected static class QueryMoveTo implements IRpgCharacterVisitor
 	{
-		private Vector2D m_destination;
+		private Vector2F m_destination;
 
 		@SuppressWarnings("unused")
 		// Used by Kryo
@@ -498,12 +497,12 @@ public abstract class NetRpgCharacter extends SharedEntity
 		{
 		}
 
-		public QueryMoveTo(Vector2D destination)
+		public QueryMoveTo(Vector2F destination)
 		{
 			m_destination = destination;
 		}
 
-		public Vector2D getDestination()
+		public Vector2F getDestination()
 		{
 			return m_destination;
 		}

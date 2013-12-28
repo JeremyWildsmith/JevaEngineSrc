@@ -112,6 +112,11 @@ public class Vector2F implements Comparable<Vector2F>, ISerializable
 	{
 		return new Vector2F(x + a.x, y + a.y);
 	}
+	
+	public Vector2F add(Vector2D a)
+	{
+		return new Vector2F(x + a.x, y + a.y);
+	}
 
 	public Vector2F multiply(float fScale)
 	{

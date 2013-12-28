@@ -165,13 +165,13 @@ public class Demo2 implements IState
 		private IInteractable m_lastTarget = null;
 		
 		@Override
-		public void worldSelection(Vector2D screenLocation, Vector2D worldLocation, MouseButton button)
+		public void worldSelection(Vector2D screenLocation, Vector2F worldLocation, MouseButton button)
 		{
 			//If we're in the middle of dialogue, block world interaction...
 			if(m_dialogueController.isBusy())
 				return;
 			
-			final IInteractable[] interactables = m_world.getTileEffects(worldLocation).interactables.toArray(new IInteractable[0]);
+			final IInteractable[] interactables = m_world.getTileEffects(worldLocation.round()).interactables.toArray(new IInteractable[0]);
 
 			if (button == MouseButton.Right)
 			{
@@ -201,9 +201,9 @@ public class Demo2 implements IState
 		}
 
 		@Override
-		public void worldMove(Vector2D screenLocation, Vector2D worldLocation)
+		public void worldMove(Vector2D screenLocation, Vector2F worldLocation)
 		{
-			final IInteractable[] interactables = m_world.getTileEffects(worldLocation).interactables.toArray(new IInteractable[0]);
+			final IInteractable[] interactables = m_world.getTileEffects(worldLocation.round()).interactables.toArray(new IInteractable[0]);
 			
 			IInteractable defaultable = null;
 			

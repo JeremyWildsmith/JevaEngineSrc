@@ -16,7 +16,6 @@
  */
 package io.github.jevaengine.world;
 
-import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.math.Vector2F;
 import io.github.jevaengine.util.Nullable;
 
@@ -25,7 +24,7 @@ public final class TraverseRouteTask extends MovementTask
 
 	private Route m_travelRoute;
 
-	private Vector2D m_routeDestination;
+	private Vector2F m_routeDestination;
 
 	private float m_fRadius;
 	
@@ -33,7 +32,7 @@ public final class TraverseRouteTask extends MovementTask
 	
 	private WorldDirection[] m_allowedMovements;
 	
-	public TraverseRouteTask(@Nullable Vector2D destination, WorldDirection[] allowedMovements, float speed, float fRadius)
+	public TraverseRouteTask(@Nullable Vector2F destination, WorldDirection[] allowedMovements, float speed, float fRadius)
 	{
 		super(speed);
 		m_travelRoute = new Route();
@@ -59,16 +58,19 @@ public final class TraverseRouteTask extends MovementTask
 			World world = entity.getWorld();
 
 			if (m_routeDestination == null)
-			{
 				m_travelRoute = Route.createRandom(new WorldNavigationRoutingRules(m_allowedMovements), m_entity.getWorld(), getSpeed(), m_entity.getLocation().round(), (int) m_fRadius, true);
-			} else
-			{
-				m_travelRoute = Route.create(new WorldNavigationRoutingRules(m_allowedMovements), world, getSpeed(), m_entity.getLocation().round(), m_routeDestination, m_fRadius, true);
-			}
+			else
+				m_travelRoute = Route.create(new WorldNavigationRoutingRules(m_allowedMovements), world, getSpeed(), m_entity.getLocation().round(), m_routeDestination.round(), m_fRadius, true);
 		} catch (IncompleteRouteException r)
 		{
 			m_travelRoute = new Route(getSpeed(), r.getIncompleteRoute());
+			
+			//Destination no longer valid, if unable to reach it.
+			m_routeDestination = null;
 		}
+		
+		if(m_routeDestination == null)
+			m_routeDestination = new Vector2F(m_travelRoute.peek(m_travelRoute.length() - 1).getLocation());
 	}
 	
 	/*
@@ -80,8 +82,12 @@ public final class TraverseRouteTask extends MovementTask
 	protected final Vector2F getDestination()
 	{
 		if (m_travelRoute.getCurrentTarget() == null)
-			return m_entity.getLocation();
-
+			return m_routeDestination;
+		else if(m_travelRoute.getCurrentTarget().getLocation().equals(m_routeDestination.round()))
+		{
+			m_travelRoute.nextTarget();
+			return m_routeDestination;
+		}
 		return new Vector2F(m_travelRoute.getCurrentTarget().getLocation());
 	}
 
@@ -96,7 +102,7 @@ public final class TraverseRouteTask extends MovementTask
 		if (m_travelRoute.getCurrentTarget() != null)
 			m_travelRoute.getCurrentTarget().unschedule(m_travelRoute);
 
-		return !m_travelRoute.nextTarget();
+		return !(m_travelRoute.nextTarget() || !m_routeDestination.equals(m_entity.getLocation()));
 	}
 
 	/*

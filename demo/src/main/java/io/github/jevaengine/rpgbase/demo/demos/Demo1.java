@@ -94,7 +94,7 @@ public class Demo1 implements IState
 	
 	private class WorldViewListener implements IWorldViewListener
 	{
-		public void worldSelection(Vector2D screenLocation, Vector2D worldLocation, MouseButton button)
+		public void worldSelection(Vector2D screenLocation, Vector2F worldLocation, MouseButton button)
 		{
 			if(button != MouseButton.Left)
 				return;
@@ -102,7 +102,7 @@ public class Demo1 implements IState
 			m_player.moveTo(worldLocation);
 		}
 
-		public void worldMove(Vector2D screenLocation, Vector2D worldLocation)
+		public void worldMove(Vector2D screenLocation, Vector2F worldLocation)
 		{
 		}
 	}

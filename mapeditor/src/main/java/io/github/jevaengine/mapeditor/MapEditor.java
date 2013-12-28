@@ -468,14 +468,14 @@ public class MapEditor extends Game implements IEditorPaneListener
 	private class MapViewListener implements IWorldViewListener
 	{
 		@Override
-		public void worldSelection(Vector2D screenLocation, Vector2D worldLocation, MouseButton button)
+		public void worldSelection(Vector2D screenLocation, Vector2F worldLocation, MouseButton button)
 		{
 			if (button != MouseButton.Left)
 				return;
 
 			if (m_selectedLayer >= 0 && m_selectedLayer < getWorld().getLayers().length)
 			{
-				ArrayList<IInteractable> interactables = getWorld().getLayers()[m_selectedLayer].getTileEffects(worldLocation).interactables;
+				ArrayList<IInteractable> interactables = getWorld().getLayers()[m_selectedLayer].getTileEffects(worldLocation.round()).interactables;
 
 				EditorTile selectedTile = null;
 
@@ -491,7 +491,7 @@ public class MapEditor extends Game implements IEditorPaneListener
 				if (selectedTile == null)
 				{
 					selectedTile = new EditorTile(m_nullTileSprite, m_nullTileAnimation, true, true, false, 1.0F);
-					selectedTile.setLocation(worldLocation);
+					selectedTile.setLocation(worldLocation.round());
 					selectedTile.addToWorld(getWorld(), getWorld().getLayers()[m_selectedLayer]);
 				}
 
@@ -519,6 +519,6 @@ public class MapEditor extends Game implements IEditorPaneListener
 		}
 
 		@Override
-		public void worldMove(Vector2D screenLocation, Vector2D worldLocation) { }
+		public void worldMove(Vector2D screenLocation, Vector2F worldLocation) { }
 	}
 }

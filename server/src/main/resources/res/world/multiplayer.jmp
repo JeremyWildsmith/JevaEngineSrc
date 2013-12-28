@@ -152,14 +152,5 @@
   "tileWidth" : 64,
   "tileHeight" : 32,
   "worldWidth" : 10,
-  "entities" : [ {
-    "location" : {
-      "y" : 3.0,
-      "x" : 3.0
-    },
-    "direction" : 3,
-    "name" : "monster1",
-    "config" : "artifact/entity/skeletonWarrior/npc.jec",
-    "type" : "character"
-  } ]
+  "entities" : [ ]
 }

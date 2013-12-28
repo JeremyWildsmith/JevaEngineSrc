@@ -17,6 +17,7 @@ import io.github.jevaengine.game.FollowCamera;
 import io.github.jevaengine.game.Game;
 import io.github.jevaengine.joystick.InputManager.InputMouseEvent.MouseButton;
 import io.github.jevaengine.math.Vector2D;
+import io.github.jevaengine.math.Vector2F;
 import io.github.jevaengine.rpgbase.RpgCharacter;
 import io.github.jevaengine.rpgbase.client.ClientCommunicator.IClientCommunicatorObserver;
 import io.github.jevaengine.rpgbase.client.ClientUser.IClientUserObserver;
@@ -37,6 +38,7 @@ import io.github.jevaengine.world.Entity;
 import io.github.jevaengine.world.IInteractable;
 import io.github.jevaengine.world.World;
 import io.github.jevaengine.world.World.IWorldObserver;
+
 import java.awt.Color;
 
 public class PlayingState implements IGameState
@@ -208,9 +210,9 @@ public class PlayingState implements IGameState
 		private IInteractable m_lastTarget;
 		
 		@Override
-		public void worldSelection(Vector2D screenLocation, Vector2D worldLocation, MouseButton button)
+		public void worldSelection(Vector2D screenLocation, Vector2F worldLocation, MouseButton button)
 		{
-			final IInteractable[] interactables = m_world.getTileEffects(worldLocation).interactables.toArray(new IInteractable[0]);
+			final IInteractable[] interactables = m_world.getTileEffects(worldLocation.round()).interactables.toArray(new IInteractable[0]);
 
 			if (button == MouseButton.Left)
 			{
@@ -242,9 +244,9 @@ public class PlayingState implements IGameState
 		}
 
 		@Override
-		public void worldMove(Vector2D screenLocation, Vector2D worldLocation)
+		public void worldMove(Vector2D screenLocation, Vector2F worldLocation)
 		{
-			final IInteractable[] interactables = m_world.getTileEffects(worldLocation).interactables.toArray(new IInteractable[0]);
+			final IInteractable[] interactables = m_world.getTileEffects(worldLocation.round()).interactables.toArray(new IInteractable[0]);
 			
 			IInteractable defaultable = null;
 			

@@ -23,9 +23,11 @@ import io.github.jevaengine.joystick.InputManager.InputMouseEvent;
 import io.github.jevaengine.joystick.InputManager.InputMouseEvent.EventType;
 import io.github.jevaengine.joystick.InputManager.InputMouseEvent.MouseButton;
 import io.github.jevaengine.math.Vector2D;
+import io.github.jevaengine.math.Vector2F;
 import io.github.jevaengine.util.Nullable;
 import io.github.jevaengine.util.StaticSet;
 import io.github.jevaengine.world.World;
+
 import java.awt.Color;
 
 public final class WorldView extends Panel
@@ -81,9 +83,9 @@ public final class WorldView extends Panel
 			
 			if (world != null)
 			{
-				Vector2D tilePos = world.translateScreenToWorld(new Vector2D(relativePos.x, relativePos.y).difference(getCameraOffset()), m_camera.getScale());
+				Vector2F tilePos = world.translateScreenToWorld(new Vector2D(relativePos.x, relativePos.y).difference(getCameraOffset()), m_camera.getScale());
 
-				if (world.getMapBounds().contains(new Point(tilePos.x, tilePos.y)))
+				if (world.getMapBounds().contains(new Point((int)tilePos.x, (int)tilePos.y)))
 				{
 					if(mouseEvent.type == EventType.MouseClicked)
 						m_listeners.worldSelection(relativePos, tilePos, mouseEvent.mouseButton);
@@ -121,13 +123,13 @@ public final class WorldView extends Panel
 
 	private static class Listeners extends StaticSet<IWorldViewListener>
 	{
-		public void worldSelection(Vector2D screenLocation, Vector2D worldLocation, MouseButton button)
+		public void worldSelection(Vector2D screenLocation, Vector2F worldLocation, MouseButton button)
 		{
 			for (IWorldViewListener l : this)
 				l.worldSelection(screenLocation, worldLocation, button);
 		}
 		
-		public void worldMove(Vector2D screenLocation, Vector2D worldLocation)
+		public void worldMove(Vector2D screenLocation, Vector2F worldLocation)
 		{
 			for (IWorldViewListener l : this)
 				l.worldMove(screenLocation, worldLocation);
@@ -136,7 +138,7 @@ public final class WorldView extends Panel
 
 	public interface IWorldViewListener
 	{
-		void worldSelection(Vector2D screenLocation, Vector2D worldLocation, MouseButton button);
-		void worldMove(Vector2D screenLocation, Vector2D worldLocation);
+		void worldSelection(Vector2D screenLocation, Vector2F worldLocation, MouseButton button);
+		void worldMove(Vector2D screenLocation, Vector2F worldLocation);
 	}
 }

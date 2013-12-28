@@ -262,7 +262,7 @@ public final class RpgCharacter extends Actor
 		return m_speed;
 	}
 	
-	private MovementTask createMoveTask(@Nullable Vector2D dest, float fRadius)
+	private MovementTask createMoveTask(@Nullable Vector2F dest, float fRadius)
 	{
 		MovementTask task = m_taskFactory.createMovementTask(this, dest, fRadius);
 		task.addObserver(m_observers);
@@ -278,7 +278,7 @@ public final class RpgCharacter extends Actor
 		return task;
 	}
 	
-	public void moveTo(Vector2D destination)
+	public void moveTo(Vector2F destination)
 	{
 		cancelTasks();
 		addTask(createMoveTask(destination, m_speed));
@@ -537,7 +537,7 @@ public final class RpgCharacter extends Actor
 	
 	public static class RpgCharacterTaskFactory
 	{
-		public MovementTask createMovementTask(final RpgCharacter host, final @Nullable Vector2D dest, final float fRadius)
+		public MovementTask createMovementTask(final RpgCharacter host, final @Nullable Vector2F dest, final float fRadius)
 		{
 			return new TraverseRouteTask(dest, host.getAllowedMovements(), host.getSpeed(), fRadius);
 		}
@@ -660,12 +660,12 @@ public final class RpgCharacter extends Actor
 
 		public void moveTo(int x, int y, float fRadius)
 		{
-			getEntity().addTask(((RpgCharacter) getEntity()).createMoveTask(new Vector2D(x, y), fRadius));
+			getEntity().addTask(((RpgCharacter) getEntity()).createMoveTask(new Vector2F(x, y), fRadius));
 		}
 
 		public void moveTo(int x, int y, float fRadius, int maxSteps)
 		{
-			MovementTask moveTask = ((RpgCharacter) getEntity()).createMoveTask(new Vector2D(x, y), fRadius);
+			MovementTask moveTask = ((RpgCharacter) getEntity()).createMoveTask(new Vector2F(x, y), fRadius);
 
 			getEntity().addTask(moveTask);
 		}

@@ -19,7 +19,6 @@ import io.github.jevaengine.communication.InvalidMessageException;
 import io.github.jevaengine.communication.SharePolicy;
 import io.github.jevaengine.communication.SharedClass;
 import io.github.jevaengine.communication.SharedEntity;
-import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.math.Vector2F;
 import io.github.jevaengine.rpgbase.AttackTask;
 import io.github.jevaengine.rpgbase.DialogueController;
@@ -222,7 +221,7 @@ public final class ClientRpgCharacter extends NetRpgCharacter implements IWorldA
 	{
 		private boolean m_localMutation = false;
 		@Override
-		public MovementTask createMovementTask(final RpgCharacter host, final @Nullable Vector2D dest, final float fRadius)
+		public MovementTask createMovementTask(final RpgCharacter host, final @Nullable Vector2F dest, final float fRadius)
 		{
 			if(m_localMutation)
 			{
@@ -241,7 +240,7 @@ public final class ClientRpgCharacter extends NetRpgCharacter implements IWorldA
 					@Override
 					protected boolean atDestination()
 					{
-						return host.getLocation().floor().equals(dest);
+						return host.getLocation().equals(dest);
 					}
 				};
 			}

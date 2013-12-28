@@ -225,8 +225,9 @@ public class ServerRpgCharacter extends NetRpgCharacter implements IServerEntity
 		@Override
 		public void attack(@Nullable RpgCharacter attackee)
 		{
+			m_movementState = new Movement(m_character.getLocation());
 			m_attackState = new Attack(attackee == null ? null : attackee.getInstanceName());
-
+			send(m_movementState);
 			send(m_attackState);
 		}
 

@@ -179,7 +179,7 @@ public class Route
 
 	public int getArrivalTime()
 	{
-		return (int) Math.round((1 / m_fSpeed) * getRouteLength());
+		return (int) Math.round((1 / m_fSpeed) * length());
 	}
 
 	public float getAverageTraverseSpeed()
@@ -187,7 +187,7 @@ public class Route
 		return m_fSpeed;
 	}
 
-	public float getRouteLength()
+	public int length()
 	{
 		return m_path.size();
 	}
@@ -211,6 +211,11 @@ public class Route
 	public boolean hasNext()
 	{
 		return m_path.size() > 1;
+	}
+	
+	public RouteNode peek(int ahead)
+	{
+		return m_path.get(ahead);
 	}
 
 	public void addTarget(RouteNode node)

@@ -236,9 +236,9 @@ public final class World implements IDisposable
 		m_observers.remove(o);
 	}
 
-	public Vector2D translateScreenToWorld(Vector2D location, float fScale)
+	public Vector2F translateScreenToWorld(Vector2D location, float fScale)
 	{
-		return m_worldToScreenMatrix.scale(fScale).inverse().dot(location).round();
+		return m_worldToScreenMatrix.scale(fScale).inverse().dot(location);
 	}
 
 	public Vector2D translateWorldToScreen(Vector2F location, float fScale)
@@ -508,10 +508,10 @@ public final class World implements IDisposable
 
 	public void render(Graphics2D g, float fScale, Rectangle viewBounds, int x, int y)
 	{
-		Vector2D tlWorldBounds = translateScreenToWorld(new Vector2D(-viewBounds.x, -viewBounds.y), fScale);
-		Vector2D trWorldBounds = translateScreenToWorld(new Vector2D(-viewBounds.x + viewBounds.width, -viewBounds.y), fScale);
-		Vector2D blWorldBounds = translateScreenToWorld(new Vector2D(-viewBounds.x, -viewBounds.y + viewBounds.height), fScale);
-		Vector2D brWorldBounds = translateScreenToWorld(new Vector2D(-viewBounds.x + viewBounds.width, -viewBounds.y + viewBounds.height), fScale);
+		Vector2D tlWorldBounds = translateScreenToWorld(new Vector2D(-viewBounds.x, -viewBounds.y), fScale).round();
+		Vector2D trWorldBounds = translateScreenToWorld(new Vector2D(-viewBounds.x + viewBounds.width, -viewBounds.y), fScale).round();
+		Vector2D blWorldBounds = translateScreenToWorld(new Vector2D(-viewBounds.x, -viewBounds.y + viewBounds.height), fScale).round();
+		Vector2D brWorldBounds = translateScreenToWorld(new Vector2D(-viewBounds.x + viewBounds.width, -viewBounds.y + viewBounds.height), fScale).round();
 
 		Rectangle worldViewBounds = new Rectangle(tlWorldBounds.x, trWorldBounds.y, brWorldBounds.x - tlWorldBounds.x, blWorldBounds.y - trWorldBounds.y);
 
