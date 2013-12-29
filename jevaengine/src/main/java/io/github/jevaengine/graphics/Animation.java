@@ -12,6 +12,8 @@
  ******************************************************************************/
 package io.github.jevaengine.graphics;
 
+import io.github.jevaengine.util.Nullable;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -29,6 +31,8 @@ public final class Animation
 	private AnimationState m_state;
 
 	private boolean m_playWrapBackwards = false;
+	
+	private @Nullable Runnable m_eventHandler;
 	
 	public Animation(Animation src)
 	{
@@ -54,6 +58,12 @@ public final class Animation
 
 		m_frames.addAll(Arrays.asList(frames));
 	}
+	
+	private void triggerEvent()
+	{
+		if(m_eventHandler != null)
+			m_eventHandler.run();
+	}
 
 	public void reset()
 	{
@@ -68,8 +78,14 @@ public final class Animation
 
 	public void setState(AnimationState state)
 	{
+		setState(state, null);
+	}
+	
+	public void setState(AnimationState state, @Nullable Runnable eventHandler)
+	{
 		m_state = state;
 		m_playWrapBackwards = false;
+		m_eventHandler = eventHandler;
 	}
 
 	public void update(int deltaTime)
@@ -93,17 +109,23 @@ public final class Animation
 					if (m_curIndex == m_frames.size() - 1)
 					{
 						m_state = AnimationState.Stop;
+						triggerEvent();
 						break;
 					}
 				case Play:
 					m_curIndex = (m_curIndex + 1) % m_frames.size();
 					break;
 				case PlayWrap:
-					
 					if(m_curIndex == m_frames.size() - 1)
+					{
 						m_playWrapBackwards = true;
+						triggerEvent();
+					}
 					else if(m_curIndex == 0)
+					{
 						m_playWrapBackwards = false;
+						triggerEvent();
+					}
 					
 					if(m_playWrapBackwards)
 						m_curIndex = Math.max(0, m_curIndex - 1);

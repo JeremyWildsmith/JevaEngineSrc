@@ -18,6 +18,8 @@ import io.github.jevaengine.graphics.Sprite.SpriteDeclaration.AnimationDeclarati
 import io.github.jevaengine.graphics.Sprite.SpriteDeclaration.FrameDeclaration;
 import io.github.jevaengine.math.Rect2D;
 import io.github.jevaengine.math.Vector2D;
+import io.github.jevaengine.util.Nullable;
+
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.io.IOException;
@@ -104,8 +106,13 @@ public final class Sprite implements IRenderable
 		
 		return keys.toArray(new String[keys.size()]);
 	}
-	
+
 	public void setAnimation(String animationName, AnimationState state)
+	{
+		setAnimation(animationName, state, null);
+	}
+	
+	public void setAnimation(String animationName, AnimationState state, @Nullable Runnable animationEventHandler)
 	{
 		m_currentAnimation = m_animations.get(animationName);
 
@@ -113,7 +120,7 @@ public final class Sprite implements IRenderable
 			throw new NoSuchElementException();
 
 		m_currentAnimation.reset();
-		m_currentAnimation.setState(state);
+		m_currentAnimation.setState(state, animationEventHandler);
 	}
 
 	public void addAnimation(String name, Animation anim)

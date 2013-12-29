@@ -67,9 +67,11 @@ function onAttacked(attackee)
 
 function onAttack(attackee)
 {
-	if (me.distance(attackee) > 1.7)
+	if (me.distance(attackee) > 1.2)
+	{
+		__commonEnemy.attackTarget = null;
 		return false;
-	
+	}
 	attackee.setHealth(attackee.getHealth() - 5);
 	return true;
 }

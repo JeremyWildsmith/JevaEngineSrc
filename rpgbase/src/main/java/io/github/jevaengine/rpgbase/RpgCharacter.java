@@ -393,7 +393,7 @@ public final class RpgCharacter extends Actor
 
 	protected final class CharacterModel implements IConditionObserver, IActionObserver, IRenderable
 	{
-		private static final int ATTACK_TIMEOUT = 2000;
+		private static final int MOVEMENT_TIMEOUT = 150;
 		
 		private Sprite m_sprite;
 		private String m_lastDirectionalAnimation = "idle";
@@ -405,7 +405,7 @@ public final class RpgCharacter extends Actor
 		
 		private int m_bleedTimeout = 0;
 		private int m_showHealthTimeout = 0;
-		private int m_attackTimeout = 0;
+		private int m_moveTimeout = 0;
 		
 		private CharacterModel(Sprite sprite)
 		{
@@ -414,15 +414,26 @@ public final class RpgCharacter extends Actor
 			idle();
 		}
 
-		private void setDirectionalAnimation(String animationName, AnimationState state)
+		private void setDirectionalAnimation(String animationName, AnimationState state, @Nullable Runnable animationEventHandler)
 		{
+			WorldDirection newDirection = getDirection() == WorldDirection.Zero ? m_lastDirection : getDirection();
+			
+			if(m_lastDirectionalAnimation == animationName &&
+					m_lastDirection == newDirection &&
+					m_lastDirectionalState == state)
+				return;
+			
+			m_lastDirection = newDirection;
+			
 			m_lastDirectionalAnimation = animationName;
 			m_lastDirectionalState = state;
-
-			m_lastDirection = getDirection() == WorldDirection.Zero ? m_lastDirection : getDirection();
-
-			m_sprite.setAnimation(m_lastDirection.toString() + animationName, 
-								  state);
+			
+			m_sprite.setAnimation(m_lastDirection.toString() + animationName, state, animationEventHandler);
+		}
+		
+		private void setDirectionalAnimation(String animationName, AnimationState state)
+		{
+			setDirectionalAnimation(animationName, state, null);
 		}
 
 		public void updateDirectional()
@@ -446,8 +457,12 @@ public final class RpgCharacter extends Actor
 			setDirection(attackDirection);
 			updateDirectional();
 			
-			m_attackTimeout = ATTACK_TIMEOUT;
-			setDirectionalAnimation("attack", AnimationState.PlayWrap);
+			setDirectionalAnimation("attack", AnimationState.PlayToEnd, new Runnable() {
+				@Override
+				public void run()
+				{
+					idle();
+				}});
 		}
 
 		@Override
@@ -469,13 +484,14 @@ public final class RpgCharacter extends Actor
 		@Override
 		public void beginMoving()
 		{
+			m_moveTimeout = 0;
 			setDirectionalAnimation("walk", AnimationState.Play);
 		}
 		
 		@Override
 		public void endMoving()
 		{
-			idle();
+			m_moveTimeout = MOVEMENT_TIMEOUT;
 		}
 		
 		public void update(int delta)
@@ -495,11 +511,11 @@ public final class RpgCharacter extends Actor
 			} else
 				m_bloodEmitter.setEmit(false);
 			
-			if(m_attackTimeout > 0)
+			if(m_moveTimeout > 0 && m_lastDirectionalAnimation.equals("walk"))
 			{
-				m_attackTimeout -= delta;
+				m_moveTimeout -= delta;
 				
-				if(m_attackTimeout <= 0 && m_lastDirectionalAnimation.equals("attack"))
+				if(m_moveTimeout <= 0)
 					idle();
 			}
 		}

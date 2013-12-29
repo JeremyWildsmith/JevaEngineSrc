@@ -276,7 +276,7 @@ public final class ClientRpgCharacter extends NetRpgCharacter implements IWorldA
 			return new AttackTask(target)
 			{
 				@Override
-				public boolean doAttack(RpgCharacter attackee) { return true; }
+				public boolean doAttack(RpgCharacter attackee) { return false; }
 			};
 		}
 		

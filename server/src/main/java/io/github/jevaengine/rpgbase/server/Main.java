@@ -91,7 +91,10 @@ public class Main
 					if(line.isEmpty())
 						emptyCount++;
 					else
+					{
+						emptyCount = 0;
 						scriptLog += " " + line;
+					}
 					
 					if(emptyCount >= 2)
 					{

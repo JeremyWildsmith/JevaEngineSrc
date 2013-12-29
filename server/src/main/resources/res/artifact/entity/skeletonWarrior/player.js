@@ -62,9 +62,15 @@ function onAttacked(attackee)
 
 function onAttack(attackee)
 {
-	if (me.distance(attackee) > 1.7)
+	if (me.distance(attackee) > 1.2)
+	{
+		attackTarget = null;
 		return false;
-	
+	}else
+	{
+		attackTarget = attackee;
+		constructTasks();
+	}
 	attackee.setHealth(attackee.getHealth() - 5);
 	return true;
 }

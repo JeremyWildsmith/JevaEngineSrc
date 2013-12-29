@@ -9,6 +9,6 @@
   "script" : "artifact/entity/skeletonWarrior/player.js",
   "allegiance" : 0,
   "blood" : "particle/blood/bleeding.jpar",
-  "health" : 50,
+  "health" : 100,
   "viewDistance" : 8.0
 }
