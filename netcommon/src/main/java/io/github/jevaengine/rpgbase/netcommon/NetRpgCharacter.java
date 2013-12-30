@@ -463,7 +463,7 @@ public abstract class NetRpgCharacter extends SharedEntity
 		{
 			Entity accessor = m_accessor == null ? controller : controller.getWorld().getEntity(m_accessor);
 
-			if(accessor == null || !(accessor instanceof RpgCharacter))
+			if(!(accessor instanceof RpgCharacter))
 				throw new InvalidMessageException(sender, this, "Invalid accessor.");
 			
 			ItemSlot[] slots = controller.getInventory().getSlots();
