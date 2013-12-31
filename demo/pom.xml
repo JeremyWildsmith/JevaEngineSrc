@@ -31,7 +31,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>io.github.jevaengine.rpgbase.client.Main</mainClass>
+							<mainClass>io.github.jevaengine.rpgbase.demo.Main</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
