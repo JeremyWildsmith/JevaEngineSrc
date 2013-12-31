@@ -20,6 +20,7 @@ import io.github.jevaengine.CoreScriptException;
 import io.github.jevaengine.config.ISerializable;
 import io.github.jevaengine.config.IVariable;
 import io.github.jevaengine.math.Rect2F;
+import io.github.jevaengine.math.Vector2F;
 import io.github.jevaengine.util.Nullable;
 import io.github.jevaengine.world.Actor;
 import io.github.jevaengine.world.EffectMap;
@@ -30,21 +31,39 @@ public class AreaTrigger extends Entity
 {
 	private static final int SCAN_INTERVAL = 400;
 
-	private Rect2F m_bounds;
-
 	private int m_lastScan;
 
 	private TriggerScript m_script = new TriggerScript();
 
 	private ArrayList<RpgCharacter> m_includedEntities = new ArrayList<RpgCharacter>();
 
+	private float m_width;
+	private float m_height;
+	
 	public AreaTrigger(@Nullable String name, IVariable arguments)
 	{
 		super(name, arguments, new AreaTriggerBridge<>());
 
-		m_bounds = arguments.getValue(AreaTriggerDeclaration.class).region;
+		AreaTriggerDeclaration decl = arguments.getValue(AreaTriggerDeclaration.class);
+	
+		m_width = decl.width;
+		m_height = decl.height;
+	
 	}
 
+	private Rect2F getContainingBounds()
+	{
+		Vector2F location = getLocation();
+		
+		//The bounds for an area trigger are meant to be interpreted as containing
+		//whole tiles. I.e, a width of 1, and height of 1, located at 0,0 should contain the tile 0,0.
+		//The way the engine interprets a rect located at 0,0 with a width 1 and height 1 is to have it start
+		//from the origin of 0,0 (the center of the tile at 0,0). In this case, we want it to start
+		//from the corner, thus containing the entire tile...
+
+		return new Rect2F(location.x - 0.5F, location.y - 0.5F, m_width, m_height);
+	}
+	
 	@Override
 	public void doLogic(int deltaTime)
 	{
@@ -54,7 +73,7 @@ public class AreaTrigger extends Entity
 		{
 			m_lastScan = SCAN_INTERVAL;
 
-			Actor[] entities = getWorld().getActors(new RectangleSearchFilter<Actor>(m_bounds));
+			Actor[] entities = getWorld().getActors(new RectangleSearchFilter<Actor>(getContainingBounds()));
 
 			ArrayList<RpgCharacter> unfoundCharacters = new ArrayList<RpgCharacter>(m_includedEntities);
 
@@ -137,20 +156,23 @@ public class AreaTrigger extends Entity
 	
 	public static class AreaTriggerDeclaration implements ISerializable
 	{
-		public Rect2F region;
+		public float width;
+		public float height;
 		
 		public AreaTriggerDeclaration() { }
 		
 		@Override
 		public void serialize(IVariable target)
 		{
-			target.addChild("region").setValue(this.region);
+			target.addChild("width").setValue(this.width);
+			target.addChild("height").setValue(this.height);
 		}
 
 		@Override
 		public void deserialize(IVariable source)
 		{
-			this.region = source.getChild("region").getValue(Rect2F.class);
+			this.width = source.getChild("width").getValue(Integer.class);
+			this.height = source.getChild("height").getValue(Integer.class);
 		}
 	}
 }

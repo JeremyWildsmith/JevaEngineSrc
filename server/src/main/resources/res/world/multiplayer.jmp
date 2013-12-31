@@ -152,5 +152,14 @@
   "tileWidth" : 64,
   "tileHeight" : 32,
   "worldWidth" : 10,
-  "entities" : [ ]
+  "entities" : [ {
+    "location" : {
+      "y" : 4.0,
+      "x" : 4.0
+    },
+    "direction" : 0,
+    "name" : "testAreaTrigger",
+    "config" : "artifact/entity/testAreaTrigger/echo.jec",
+    "type" : "areaTrigger"
+  } ]
 }

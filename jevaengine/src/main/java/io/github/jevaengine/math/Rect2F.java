@@ -46,9 +46,9 @@ public class Rect2F implements ISerializable
 	public boolean contains(Vector2F location)
 	{
 		return (location.x > x &&
-				location.x - x > width &&
+				location.x - x < width &&
 				location.y > y &&
-				location.y - y > height);
+				location.y - y < height);
 	}
 	
 	@Override

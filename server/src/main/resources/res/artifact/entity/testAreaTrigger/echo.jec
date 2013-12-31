@@ -1,0 +1,5 @@
+{
+  "script" : "artifact/entity/testAreaTrigger/echo.js",
+  "height" : 1,
+  "width" : 1
+}
