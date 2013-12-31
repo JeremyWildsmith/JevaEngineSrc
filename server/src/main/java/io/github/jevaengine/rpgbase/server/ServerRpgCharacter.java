@@ -175,7 +175,7 @@ public class ServerRpgCharacter extends NetRpgCharacter implements IServerEntity
 		return true;
 	}
 	
-	public static class ServerCharacterBridge extends RpgCharacter.RpgCharacterBridge<RpgCharacter>
+	public static class ServerCharacterBridge extends RpgCharacter.RpgCharacterBridge
 	{
 		public void setWorld(String worldName)
 		{

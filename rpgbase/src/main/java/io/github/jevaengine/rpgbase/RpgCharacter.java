@@ -30,7 +30,6 @@ import io.github.jevaengine.util.StaticSet;
 import io.github.jevaengine.world.Actor;
 import io.github.jevaengine.world.EffectMap;
 import io.github.jevaengine.world.EffectMap.TileEffects;
-import io.github.jevaengine.world.Entity;
 import io.github.jevaengine.world.MovementTask;
 import io.github.jevaengine.world.TraverseRouteTask;
 import io.github.jevaengine.world.WorldDirection;
@@ -64,7 +63,7 @@ public final class RpgCharacter extends Actor
 
 	private RpgCharacterTaskFactory m_taskFactory;
 	
-	public <Y extends RpgCharacter, T extends RpgCharacterBridge<Y>> RpgCharacter(@Nullable String name, IVariable root, T entityContext, @Nullable RpgCharacterTaskFactory taskFactory)
+	public <T extends RpgCharacterBridge> RpgCharacter(@Nullable String name, IVariable root, T entityContext, @Nullable RpgCharacterTaskFactory taskFactory)
 	{
 		super(name, root, entityContext);
 		m_taskFactory = (taskFactory == null ? new RpgCharacterTaskFactory() : taskFactory);
@@ -72,31 +71,31 @@ public final class RpgCharacter extends Actor
 		init();
 	}
 
-	public <Y extends RpgCharacter, T extends RpgCharacterBridge<Y>> RpgCharacter(@Nullable String name, IVariable root, @Nullable RpgCharacterTaskFactory taskFactory)
+	public RpgCharacter(@Nullable String name, IVariable root, @Nullable RpgCharacterTaskFactory taskFactory)
 	{
-		super(name, root, new RpgCharacterBridge<>());
+		super(name, root, new RpgCharacterBridge());
 		m_taskFactory = (taskFactory == null ? new RpgCharacterTaskFactory() : taskFactory);
 		
 		init();
 	}
 	
-	public <Y extends RpgCharacter, T extends RpgCharacterBridge<Y>> RpgCharacter(@Nullable String name, IVariable root, T entityContext)
+	public <T extends RpgCharacterBridge> RpgCharacter(@Nullable String name, IVariable root, T entityContext)
 	{
 		this(name, root, entityContext, null);
 	}
 	
 	
-	public <Y extends RpgCharacter, T extends RpgCharacterBridge<Y>> RpgCharacter(@Nullable String name, IVariable root)
+	public RpgCharacter(@Nullable String name, IVariable root)
 	{
-		this(name, root, new RpgCharacterBridge<>());
+		this(name, root, new RpgCharacterBridge());
 	}
 	
-	public <Y extends RpgCharacter, T extends RpgCharacterBridge<Y>> RpgCharacter(IVariable root, T entityContext, @Nullable RpgCharacterTaskFactory taskFactory)
+	public <T extends RpgCharacterBridge> RpgCharacter(IVariable root, T entityContext, @Nullable RpgCharacterTaskFactory taskFactory)
 	{
 		this(null, root, entityContext, taskFactory);
 	}
 	
-	public <Y extends RpgCharacter, T extends RpgCharacterBridge<Y>> RpgCharacter(IVariable root, T entityContext)
+	public <T extends RpgCharacterBridge> RpgCharacter(IVariable root, T entityContext)
 	{
 		this(null, root, entityContext, null);
 	}
@@ -367,26 +366,6 @@ public final class RpgCharacter extends Actor
 			} catch (ScriptException e)
 			{
 				throw new CoreScriptException("Error occured executing onAttack: " + e.toString());
-			}
-		}
-		
-		public int handleDialogueEvent(Entity listener, int event)
-		{
-			try
-			{
-				Object o = getScript().invokeScriptFunction("handleDialogueEvent", listener.getScriptBridge(), event);
-				
-				if(o instanceof Integer)
-					return ((Integer)o).intValue();
-				else
-					return -1;
-				
-			} catch (NoSuchMethodException e)
-			{
-				return -1;
-			} catch (ScriptException e)
-			{
-				throw new CoreScriptException("Error invoking RpgCharacter handleDialogueEvent: " + e.toString());
 			}
 		}
 	}
@@ -667,7 +646,7 @@ public final class RpgCharacter extends Actor
 		}
 	}
 
-	public static class RpgCharacterBridge<Y extends RpgCharacter> extends ActorBridge<Y>
+	public static class RpgCharacterBridge extends ActorBridge<RpgCharacter>
 	{
 		public void wonder(float fRadius)
 		{
@@ -686,29 +665,32 @@ public final class RpgCharacter extends Actor
 			getEntity().addTask(moveTask);
 		}
 				
-		public void attack(EntityBridge<Entity> entity)
+		public void attack(EntityBridge<?> entity)
 		{
-			if (!(entity instanceof RpgCharacter.ActorBridge<?>))
+			if (!(entity instanceof RpgCharacterBridge))
 				return;
 
-			RpgCharacter character = ((RpgCharacter.RpgCharacterBridge<?>) entity).getEntity();
+			RpgCharacter character = ((RpgCharacterBridge) entity).getEntity();
 
 			getEntity().attack(character);
 		}
 
-		public boolean isConflictingAllegiance(EntityBridge<Entity> entity)
+		public boolean isConflictingAllegiance(EntityBridge<?> entity)
 		{
-			if (!(entity instanceof RpgCharacter.RpgCharacterBridge<?>))
+			if (!(entity instanceof RpgCharacterBridge))
 				return false;
 
-			RpgCharacter character = ((RpgCharacter.RpgCharacterBridge<?>) entity).getEntity();
+			RpgCharacter character = ((RpgCharacterBridge) entity).getEntity();
 
 			return character.m_allegiance.conflictsWith(((RpgCharacter) getEntity()).m_allegiance);
 		}
 		
-		public void loot(RpgCharacterBridge<RpgCharacter> target)
+		public void loot(EntityBridge<?> entity)
 		{
-			getEntity().addTask(new LootTask(getEntity(), target.getEntity().getInventory()));
+			if (!(entity instanceof RpgCharacterBridge))
+				return;
+			
+			getEntity().addTask(new LootTask(getEntity(), ((RpgCharacterBridge)entity).getEntity().getInventory()));
 		}
 				
 		public InventoryBridge getInventory()
