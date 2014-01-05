@@ -16,12 +16,11 @@ import io.github.jevaengine.communication.Communicator;
 import io.github.jevaengine.communication.InvalidMessageException;
 import io.github.jevaengine.communication.SharePolicy;
 import io.github.jevaengine.communication.SharedClass;
-import io.github.jevaengine.communication.SharedEntity;
 import io.github.jevaengine.rpgbase.netcommon.NetUser;
 import io.github.jevaengine.util.Nullable;
 
 @SharedClass(name = "User", policy = SharePolicy.ClientR)
-public class ServerUser extends NetUser implements IServerShared
+public final class ServerUser extends NetUser
 {
 	private ServerCommunicator m_server;
 
@@ -43,12 +42,6 @@ public class ServerUser extends NetUser implements IServerShared
 	{
 		m_handler = handler;
 		m_server = server;
-	}
-
-	@Override
-	public SharedEntity getSharedEntity()
-	{
-		return this;
 	}
 
 	public boolean isAuthenticated()
@@ -109,7 +102,6 @@ public class ServerUser extends NetUser implements IServerShared
 		return true;
 	}
 
-	@Override
 	public void update(int deltaTime)
 	{
 		if (!m_dispatchedAuthenticationQuery)

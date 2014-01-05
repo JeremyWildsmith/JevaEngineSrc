@@ -30,7 +30,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import io.github.jevaengine.Core;
 import io.github.jevaengine.IDisposable;
-import io.github.jevaengine.IResourceLibrary;
+import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.ResourceLibraryIOException;
 import io.github.jevaengine.util.Nullable;
 import java.io.ByteArrayOutputStream;
@@ -178,7 +178,7 @@ public final class Audio
 		{
 			m_clipPath = path;
 
-			InputStream srcStream = Core.getService(IResourceLibrary.class).openAsset(path);
+			InputStream srcStream = Core.getService(ResourceLibrary.class).openAsset(path);
 
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
 

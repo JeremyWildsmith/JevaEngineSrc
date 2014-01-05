@@ -13,7 +13,7 @@
 package io.github.jevaengine.rpgbase.client;
 
 import io.github.jevaengine.Core;
-import io.github.jevaengine.IResourceLibrary;
+import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.config.ISerializable;
 import io.github.jevaengine.config.IVariable;
 import io.github.jevaengine.game.IGameScriptProvider;
@@ -45,7 +45,7 @@ public class ClientGame extends RpgGame
 	{
 		super.startup();
 
-		IResourceLibrary library = Core.getService(IResourceLibrary.class);
+		ResourceLibrary library = Core.getService(ResourceLibrary.class);
 		
 		m_configuration = library.openConfiguration("client.cfg").getValue(ClientConfiguration.class);
 		

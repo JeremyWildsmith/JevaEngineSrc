@@ -37,6 +37,14 @@ public class Rect2D implements ISerializable
 				location.y > y &&
 				location.y - y > height);
 	}
+	
+	public boolean contains(Vector2D location)
+	{
+		return (location.x > x &&
+				location.x - x > width &&
+				location.y > y &&
+				location.y - y > height);
+	}
 		
 	@Override
 	public void serialize(IVariable target)

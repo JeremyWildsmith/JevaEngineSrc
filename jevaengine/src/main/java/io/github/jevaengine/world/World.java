@@ -30,7 +30,7 @@ import javax.script.ScriptException;
 import io.github.jevaengine.Core;
 import io.github.jevaengine.CoreScriptException;
 import io.github.jevaengine.IDisposable;
-import io.github.jevaengine.IResourceLibrary;
+import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.Script;
 import io.github.jevaengine.config.ISerializable;
 import io.github.jevaengine.config.IVariable;
@@ -66,7 +66,7 @@ public final class World implements IDisposable
 
 	private int m_entityLayer;
 
-	private TreeMap<Vector3F, ArrayList<IRenderable>> m_renderQueue;
+	private TreeMap<Vector3F, ArrayList<WorldRenderEntry>> m_renderQueue;
 
 	private float m_fRenderQueueDepth;
 
@@ -103,7 +103,7 @@ public final class World implements IDisposable
 		m_layers = new ArrayList<WorldLayer>();
 		m_entities = new StaticSet<Entity>();
 
-		m_renderQueue = new TreeMap<Vector3F, ArrayList<IRenderable>>();
+		m_renderQueue = new TreeMap<Vector3F, ArrayList<WorldRenderEntry>>();
 		m_fRenderQueueDepth = 0.0F;
 
 		m_routeNodes = new HashMap<Vector2D, RouteNode>();
@@ -126,7 +126,7 @@ public final class World implements IDisposable
 		m_timeSinceTick = 0;
 
 		if (worldScript != null)
-			m_worldScript = new WorldScriptManager(Core.getService(IResourceLibrary.class).openScript(worldScript, new WorldScriptContext()));
+			m_worldScript = new WorldScriptManager(Core.getService(ResourceLibrary.class).openScript(worldScript, new WorldScriptContext()));
 		else
 			m_worldScript = new WorldScriptManager();
 
@@ -164,7 +164,7 @@ public final class World implements IDisposable
 					TileDeclaration tileDecl = worldConfig.tiles[tileIndices[i]];
 					
 					if(!tileSpriteDefinitions.containsKey(tileIndices[i]))
-						tileSpriteDefinitions.put(tileIndices[i], Core.getService(IResourceLibrary.class).openConfiguration(tileDecl.sprite));
+						tileSpriteDefinitions.put(tileIndices[i], Core.getService(ResourceLibrary.class).openConfiguration(tileDecl.sprite));
 
 					Sprite tileSprite = Sprite.create(tileSpriteDefinitions.get(tileIndices[i]));
 					tileSprite.setAnimation(tileDecl.animation, AnimationState.Play);
@@ -192,7 +192,9 @@ public final class World implements IDisposable
 		
 		for (EntityDeclaration entityConfig : worldConfig.entities)
 		{
-			Entity entity = Core.getService(IResourceLibrary.class).createEntity(entityConfig.type, entityConfig.name, entityConfig.config);
+			ResourceLibrary resourceLib = Core.getService(ResourceLibrary.class);
+			
+			Entity entity = resourceLib.createEntity(resourceLib.lookupEntity(entityConfig.type), entityConfig.name, entityConfig.config);
 			
 			world.addEntity(entity);
 			
@@ -475,39 +477,72 @@ public final class World implements IDisposable
 
 	private void renderQueue(Graphics2D g, int offsetX, int offsetY, float fScale)
 	{
-		for (Map.Entry<Vector3F, ArrayList<IRenderable>> entry : m_renderQueue.entrySet())
+		for (Map.Entry<Vector3F, ArrayList<WorldRenderEntry>> entry : m_renderQueue.entrySet())
 		{
 			Vector2D renderLocation = translateWorldToScreen(new Vector2F(entry.getKey().x, entry.getKey().y), fScale).add(new Vector2D(offsetX, offsetY));
 
-			for (IRenderable renderable : entry.getValue())
+			for (WorldRenderEntry renderable : entry.getValue())
 			{
-				renderable.render(g, renderLocation.x, renderLocation.y, fScale);
+				renderable.graphic.render(g, renderLocation.x, renderLocation.y, fScale);
 			}
 		}
-
+	}
+	
+	private void clearQueue()
+	{
 		m_renderQueue.clear();
-
 	}
 
-	protected void enqueueRender(IRenderable renderable, Vector2F location)
+	protected void enqueueRender(IRenderable renderable, Actor dispatcher, Vector2F location)
 	{
 		Vector3F location3 = new Vector3F(location, m_fRenderQueueDepth);
 
 		if (!m_renderQueue.containsKey(location3))
 		{
-			m_renderQueue.put(location3, new ArrayList<IRenderable>());
+			m_renderQueue.put(location3, new ArrayList<WorldRenderEntry>());
 		}
 
-		m_renderQueue.get(location3).add(renderable);
+		m_renderQueue.get(location3).add(new WorldRenderEntry(renderable, dispatcher));
 	}
-
+	
+	protected void enqueueRender(IRenderable renderable, Vector2F location)
+	{
+		enqueueRender(renderable, null, location);
+	}
+	
 	private void setRenderQueueLayerDepth(float fDepth)
 	{
 		m_fRenderQueueDepth = fDepth;
 	}
-
+	
+	@SuppressWarnings("unchecked")
+	@Nullable
+	public <T extends Actor> T pick(Class<T> clazz, int x, int y, int offsetX, int offsetY, float scale)
+	{
+		for (Map.Entry<Vector3F, ArrayList<WorldRenderEntry>> entry : m_renderQueue.descendingMap().entrySet())
+		{
+			Vector2D renderLocation = translateWorldToScreen(new Vector2F(entry.getKey().x, entry.getKey().y), scale).add(new Vector2D(offsetX, offsetY));
+			
+			Vector2D relativePick = new Vector2D(x - renderLocation.x, y - renderLocation.y);
+			
+			for (WorldRenderEntry renderable : entry.getValue())
+			{
+				Actor dispatcher = renderable.dispatcher;
+					
+				if(dispatcher != null &&
+					clazz.isAssignableFrom(dispatcher.getClass()) &&
+					dispatcher.testPick(relativePick.x, relativePick.y, scale))
+					return (T)dispatcher;
+			}
+		}
+		
+		return null;
+	}
+	
 	public void render(Graphics2D g, float fScale, Rectangle viewBounds, int x, int y)
 	{
+		clearQueue();
+		
 		Vector2D tlWorldBounds = translateScreenToWorld(new Vector2D(-viewBounds.x, -viewBounds.y), fScale).round();
 		Vector2D trWorldBounds = translateScreenToWorld(new Vector2D(-viewBounds.x + viewBounds.width, -viewBounds.y), fScale).round();
 		Vector2D blWorldBounds = translateScreenToWorld(new Vector2D(-viewBounds.x, -viewBounds.y + viewBounds.height), fScale).round();
@@ -538,6 +573,7 @@ public final class World implements IDisposable
 
 		if (m_worldLighting.getTargetWidth() != viewBounds.width ||
 				m_worldLighting.getTargetHeight() != viewBounds.height)
+			
 			m_worldLighting.setTargetBounds(viewBounds.width, viewBounds.height);
 
 		m_worldLighting.enqueueRender(this, g.getDeviceConfiguration(), viewBounds, x, y, fScale);
@@ -547,7 +583,6 @@ public final class World implements IDisposable
 	
 	private class WorldScriptManager
 	{
-
 		@Nullable private Script m_worldScript;
 
 		public WorldScriptManager(Script script)
@@ -632,14 +667,30 @@ public final class World implements IDisposable
 
 		void removedEntity(Entity e);
 	}
-
+	
+	private static class WorldRenderEntry
+	{
+		IRenderable graphic;
+		
+		@Nullable
+		Actor dispatcher;
+		
+		public WorldRenderEntry(IRenderable _graphic, Actor _dispatcher)
+		{
+			graphic = _graphic;
+			dispatcher = _dispatcher;
+		}
+	}
+	
 	public class WorldScriptContext
 	{
 		public EntityBridge<?> createNamedEntity(@Nullable String name, String entityTypeName, String config)
 		{
 			String instanceName = name == null || name.length() == 0 ? null : name;
+
+			ResourceLibrary resourceLib = Core.getService(ResourceLibrary.class);
 			
-			Entity entity = Core.getService(IResourceLibrary.class).createEntity(entityTypeName, instanceName, config);
+			Entity entity = resourceLib.createEntity(resourceLib.lookupEntity(entityTypeName), instanceName, config);
 
 			World.this.addEntity(entity);
 

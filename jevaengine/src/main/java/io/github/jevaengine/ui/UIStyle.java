@@ -16,7 +16,7 @@ import java.awt.Color;
 import java.util.HashMap;
 
 import io.github.jevaengine.Core;
-import io.github.jevaengine.IResourceLibrary;
+import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.audio.Audio;
 import io.github.jevaengine.config.ISerializable;
 import io.github.jevaengine.config.IVariable;
@@ -101,7 +101,7 @@ public class UIStyle
 
 		if (!m_fontCache.get(formalName).containsKey(color))
 		{
-			m_fontCache.get(formalName).put(color, Font.create(Core.getService(IResourceLibrary.class).openConfiguration(formalName), color));
+			m_fontCache.get(formalName).put(color, Font.create(Core.getService(ResourceLibrary.class).openConfiguration(formalName), color));
 		}
 
 		return m_fontCache.get(formalName).get(color);
@@ -113,7 +113,7 @@ public class UIStyle
 
 		if (!m_spriteCache.containsKey(formalName))
 		{
-			m_spriteCache.put(formalName, Sprite.create(Core.getService(IResourceLibrary.class).openConfiguration(formalName)));
+			m_spriteCache.put(formalName, Sprite.create(Core.getService(ResourceLibrary.class).openConfiguration(formalName)));
 		}
 
 		return m_spriteCache.get(formalName);

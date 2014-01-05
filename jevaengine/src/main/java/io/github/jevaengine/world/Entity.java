@@ -17,7 +17,10 @@
 package io.github.jevaengine.world;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -27,7 +30,7 @@ import org.mozilla.javascript.Scriptable;
 
 import io.github.jevaengine.Core;
 import io.github.jevaengine.CoreScriptException;
-import io.github.jevaengine.IResourceLibrary;
+import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.Script;
 import io.github.jevaengine.Script.ScriptHiddenMember;
 import io.github.jevaengine.audio.Audio;
@@ -37,6 +40,7 @@ import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.math.Vector2F;
 import io.github.jevaengine.util.Nullable;
 import io.github.jevaengine.util.StaticSet;
+
 import org.mozilla.javascript.Function;
 
 public abstract class Entity implements IWorldAssociation
@@ -44,7 +48,6 @@ public abstract class Entity implements IWorldAssociation
 	private static AtomicInteger m_unnamedCount = new AtomicInteger(0);
 
 	private ArrayList<ITask> m_pendingTasks = new ArrayList<ITask>();
-
 	private ArrayList<ITask> m_runningTasks = new ArrayList<ITask>();
 
 	private String m_name;
@@ -54,6 +57,8 @@ public abstract class Entity implements IWorldAssociation
 	
 	private boolean m_isPaused = false;
 
+	private HashMap<String, Integer> m_flags = new HashMap<String, Integer>();
+	
 	private EntityBridge<?> m_bridge;
 
 	private IVariable m_config;
@@ -101,7 +106,7 @@ public abstract class Entity implements IWorldAssociation
 		
 		if (entityConfig.script != null && entityConfig.script.length() > 0)
 		{
-			m_script = Core.getService(IResourceLibrary.class).openScript(entityConfig.script, m_bridge);
+			m_script = Core.getService(ResourceLibrary.class).openScript(entityConfig.script, m_bridge);
 			m_observers.add(new EntityScriptObserver());
 		}else
 			m_script = new Script(entityContext);
@@ -116,7 +121,49 @@ public abstract class Entity implements IWorldAssociation
 	{
 		m_observers.remove(observer);
 	}
-
+	
+	public final void setFlag(String name, int value)
+	{
+		m_flags.put(name, value);
+		m_observers.flagSet(name, value);
+	}
+	
+	public final void setFlag(String name)
+	{
+		setFlag(name, 0);
+	}
+	
+	public final void clearFlag(String name)
+	{
+		m_flags.remove(name);
+		m_observers.flagCleared(name);
+	}
+	
+	public final void clearFlags()
+	{
+		m_flags.clear();
+	}
+	
+	public Map<String, Integer> getFlags()
+	{
+		return Collections.unmodifiableMap(m_flags);
+	}
+	
+	public final int getFlag(String name)
+	{
+		Integer i = m_flags.get(name);
+		
+		if(i == null)
+			throw new NoSuchElementException();
+		
+		return i;
+	}
+	
+	public final boolean isFlagSet(String name)
+	{
+		return m_flags.containsKey(name);
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -330,6 +377,8 @@ public abstract class Entity implements IWorldAssociation
 		void enterWorld();
 		void leaveWorld();
 		void replaced();
+		void flagSet(String name, int value);
+		void flagCleared(String name);
 	}
 
 	private class Observers extends StaticSet<IEntityObserver>
@@ -351,6 +400,18 @@ public abstract class Entity implements IWorldAssociation
 		{
 			for (IEntityObserver observer : this)
 				observer.replaced();
+		}
+		
+		public void flagSet(String name, int value)
+		{
+			for (IEntityObserver observer : this)
+				observer.flagSet(name, value);
+		}
+		
+		public void flagCleared(String name)
+		{
+			for (IEntityObserver observer : this)
+				observer.flagCleared(name);
 		}
 	}
 
@@ -399,6 +460,12 @@ public abstract class Entity implements IWorldAssociation
 
 		@Override
 		public void replaced() { }
+
+		@Override
+		public void flagSet(String name, int value) { }
+
+		@Override
+		public void flagCleared(String name) { }
 	}
 
 	public static class EntityDeclaration implements ISerializable
@@ -504,6 +571,31 @@ public abstract class Entity implements IWorldAssociation
 			});
 		}
 
+		public void setFlag(String name, int value)
+		{
+			getEntity().setFlag(name, value);
+		}
+		
+		public int getFlag(String name)
+		{
+			return getEntity().getFlag(name);
+		}
+		
+		public void clearFlag(String name)
+		{
+			getEntity().clearFlag(name);
+		}
+		
+		public void clearFlags()
+		{
+			getEntity().clearFlags();
+		}
+		
+		public boolean isFlagSet(String name)
+		{
+			return getEntity().isFlagSet(name);
+		}
+		
 		public Scriptable getScript()
 		{
 			return getEntity().getScript().getScriptedInterface();

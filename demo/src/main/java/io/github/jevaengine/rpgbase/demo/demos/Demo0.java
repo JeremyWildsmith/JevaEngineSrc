@@ -7,7 +7,7 @@
 package io.github.jevaengine.rpgbase.demo.demos;
 
 import io.github.jevaengine.Core;
-import io.github.jevaengine.IResourceLibrary;
+import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.game.ControlledCamera;
 import io.github.jevaengine.game.Game;
 import io.github.jevaengine.math.Vector2D;
@@ -35,7 +35,7 @@ public class Demo0 implements IState
 	
 	public Demo0()
 	{
-		m_world = World.create(Core.getService(IResourceLibrary.class).openConfiguration(DEMO_MAP));
+		m_world = World.create(Core.getService(ResourceLibrary.class).openConfiguration(DEMO_MAP));
 
 		m_window = new Window(Core.getService(Game.class).getGameStyle(), 420, 500);
 		m_window.setLocation(new Vector2D(100, 100));

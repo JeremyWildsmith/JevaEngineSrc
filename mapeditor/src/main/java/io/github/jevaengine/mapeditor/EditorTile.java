@@ -13,7 +13,7 @@
 package io.github.jevaengine.mapeditor;
 
 import io.github.jevaengine.Core;
-import io.github.jevaengine.IResourceLibrary;
+import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.graphics.AnimationState;
 import io.github.jevaengine.graphics.IRenderable;
 import io.github.jevaengine.graphics.Sprite;
@@ -45,7 +45,7 @@ public class EditorTile implements IInteractable
 
 	public EditorTile(String spriteName, String animation, boolean isTraversable, boolean isStatic, boolean enableSplitting, float fVisiblity)
 	{
-		Sprite sprite = Sprite.create(Core.getService(IResourceLibrary.class).openConfiguration(spriteName));
+		Sprite sprite = Sprite.create(Core.getService(ResourceLibrary.class).openConfiguration(spriteName));
 		sprite.setAnimation(animation, AnimationState.Play);
 		
 		m_tile = new ContainedTile(sprite, true, fVisiblity);
@@ -92,7 +92,7 @@ public class EditorTile implements IInteractable
 		m_spriteName = spriteName;
 		m_animation = animation;
 		
-		Sprite sprite = Sprite.create(Core.getService(IResourceLibrary.class).openConfiguration(spriteName));
+		Sprite sprite = Sprite.create(Core.getService(ResourceLibrary.class).openConfiguration(spriteName));
 		sprite.setAnimation(animation, AnimationState.Play);
 		
 		m_tile.setSprite(sprite);	

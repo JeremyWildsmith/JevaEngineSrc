@@ -11,7 +11,7 @@ import io.github.jevaengine.rpgbase.demo.IStateContext;
 import io.github.jevaengine.rpgbase.demo.IState;
 import io.github.jevaengine.Core;
 import io.github.jevaengine.CoreScriptException;
-import io.github.jevaengine.IResourceLibrary;
+import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.game.FollowCamera;
 import io.github.jevaengine.game.Game;
 import io.github.jevaengine.joystick.InputManager.InputMouseEvent.MouseButton;
@@ -65,7 +65,7 @@ public class Demo2 implements IState
 	
 	public Demo2()
 	{
-		IResourceLibrary resourceLibrary = Core.getService(IResourceLibrary.class);
+		ResourceLibrary resourceLibrary = Core.getService(ResourceLibrary.class);
 		
 		m_world = World.create(resourceLibrary.openConfiguration(DEMO_MAP));
 
@@ -165,7 +165,7 @@ public class Demo2 implements IState
 		private IInteractable m_lastTarget = null;
 		
 		@Override
-		public void worldSelection(Vector2D screenLocation, Vector2F worldLocation, MouseButton button)
+		public void worldSelection(Vector2D location, Vector2F worldLocation, MouseButton button)
 		{
 			//If we're in the middle of dialogue, block world interaction...
 			if(m_dialogueController.isBusy())
@@ -186,7 +186,7 @@ public class Demo2 implements IState
 						}
 					});
 
-					m_contextStrip.setLocation(screenLocation);
+					m_contextStrip.setLocation(location);
 				}
 			}else if(button == MouseButton.Left)
 			{
@@ -201,7 +201,7 @@ public class Demo2 implements IState
 		}
 
 		@Override
-		public void worldMove(Vector2D screenLocation, Vector2F worldLocation)
+		public void worldMove(Vector2D location, Vector2F worldLocation)
 		{
 			final IInteractable[] interactables = m_world.getTileEffects(worldLocation.round()).interactables.toArray(new IInteractable[0]);
 			
@@ -220,7 +220,7 @@ public class Demo2 implements IState
 				
 				Vector2D offset = new Vector2D(10, 15);
 				
-				m_cursorActionLabel.setLocation(screenLocation.add(offset));
+				m_cursorActionLabel.setLocation(location.add(offset));
 			
 				m_lastTarget = defaultable;
 			}else

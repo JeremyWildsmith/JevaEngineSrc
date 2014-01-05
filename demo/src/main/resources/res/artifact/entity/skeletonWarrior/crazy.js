@@ -16,7 +16,7 @@ function getCommands()
 function doCommand(command)
 {
 	if(command === "Talk")
-		game.initiateDialogue(me, "artifact/entity/skeletonWarrior/crazy.jdf", 0);
+		game.initiateDialogue(me, "artifact/entity/skeletonWarrior/crazy.jdf");
 }
 
 function dialogueEvent(event)

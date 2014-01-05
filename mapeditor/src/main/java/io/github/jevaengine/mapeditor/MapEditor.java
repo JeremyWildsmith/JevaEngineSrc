@@ -13,7 +13,7 @@
 package io.github.jevaengine.mapeditor;
 
 import io.github.jevaengine.Core;
-import io.github.jevaengine.IResourceLibrary;
+import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.config.IVariable;
 import io.github.jevaengine.config.JsonVariable;
 import io.github.jevaengine.game.ControlledCamera;
@@ -79,8 +79,8 @@ public class MapEditor extends Game implements IEditorPaneListener
 	@Override
 	protected void startup()
 	{
-		m_cursor = Sprite.create(Core.getService(IResourceLibrary.class).openConfiguration("@style/cursor/cursor.jsf"));
-		m_style = UIStyle.create(Core.getService(IResourceLibrary.class).openConfiguration("@style/editor.juis"));
+		m_cursor = Sprite.create(Core.getService(ResourceLibrary.class).openConfiguration("@style/cursor/cursor.jsf"));
+		m_style = UIStyle.create(Core.getService(ResourceLibrary.class).openConfiguration("@style/editor.juis"));
 		
 		m_cursor.setAnimation("idle", AnimationState.Play);
 		

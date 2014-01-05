@@ -14,7 +14,7 @@
 package io.github.jevaengine.mapeditor;
 
 import io.github.jevaengine.Core;
-import io.github.jevaengine.IResourceLibrary;
+import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.config.JsonVariable;
 import io.github.jevaengine.game.ResourceLoadingException;
 import io.github.jevaengine.graphics.Sprite;
@@ -133,7 +133,7 @@ public class EditorPane extends javax.swing.JFrame
 	{
 		try
 		{
-			Sprite sprite = Sprite.create(Core.getService(IResourceLibrary.class).openConfiguration(txtBrushSprite.getText()));
+			Sprite sprite = Sprite.create(Core.getService(ResourceLibrary.class).openConfiguration(txtBrushSprite.getText()));
 
 			String[] animations = sprite.getAnimations();
 

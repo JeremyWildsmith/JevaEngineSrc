@@ -34,6 +34,7 @@ import io.github.jevaengine.ui.Window;
 import io.github.jevaengine.ui.WorldView;
 import io.github.jevaengine.ui.WorldView.IWorldViewListener;
 import io.github.jevaengine.util.Nullable;
+import io.github.jevaengine.world.Actor;
 import io.github.jevaengine.world.Entity;
 import io.github.jevaengine.world.IInteractable;
 import io.github.jevaengine.world.World;
@@ -210,10 +211,8 @@ public class PlayingState implements IGameState
 		private IInteractable m_lastTarget;
 		
 		@Override
-		public void worldSelection(Vector2D screenLocation, Vector2F worldLocation, MouseButton button)
+		public void worldSelection(Vector2D location, Vector2F worldLocation, MouseButton button)
 		{
-			final IInteractable[] interactables = m_world.getTileEffects(worldLocation.round()).interactables.toArray(new IInteractable[0]);
-
 			if (button == MouseButton.Left)
 			{
 				if(m_lastTarget != null)
@@ -227,45 +226,44 @@ public class PlayingState implements IGameState
 				m_contextStrip.setVisible(false);
 			} else if (button == MouseButton.Right)
 			{
-				if (interactables.length > 0 && interactables[0].getCommands().length > 0)
+				final Actor interactable = m_worldView.pick(Actor.class, location);
+
+				if (interactable != null)
 				{
-					m_contextStrip.setContext(interactables[0].getCommands(), new IMenuStripListener()
+					m_contextStrip.setContext(interactable.getCommands(), new IMenuStripListener()
 					{
 						@Override
 						public void onCommand(String command)
 						{
-							interactables[0].doCommand(command);
+							interactable.doCommand(command);
 						}
 					});
 
-					m_contextStrip.setLocation(screenLocation.difference(m_contextStrip.getParent().getAbsoluteLocation()));
+					m_contextStrip.setLocation(location.difference(m_contextStrip.getParent().getAbsoluteLocation()));
 				}
 			}
 		}
 
 		@Override
-		public void worldMove(Vector2D screenLocation, Vector2F worldLocation)
+		public void worldMove(Vector2D location, Vector2F worldLocation)
 		{
-			final IInteractable[] interactables = m_world.getTileEffects(worldLocation.round()).interactables.toArray(new IInteractable[0]);
-			
-			IInteractable defaultable = null;
-			
-			for(int i = 0; i < interactables.length && defaultable == null; i++)
+			final Actor interactable = m_worldView.pick(Actor.class, location);
+
+			if(interactable != null)
 			{
-				if(interactables[i].getDefaultCommand() != null)
-					defaultable = interactables[i];
-			}
-			
-			if(defaultable != null)
-			{
-				m_cursorActionLabel.setText(defaultable.getDefaultCommand());
-				m_cursorActionLabel.setVisible(true);
+				String defaultCommand = interactable.getDefaultCommand();
 				
-				Vector2D offset = new Vector2D(10, 15);
+				if(defaultCommand != null)
+				{
+					m_cursorActionLabel.setText(defaultCommand);
+					m_cursorActionLabel.setVisible(true);
+					
+					Vector2D offset = new Vector2D(10, 15);
+					
+					m_cursorActionLabel.setLocation(location.difference(PlayingState.this.m_worldView.getAbsoluteLocation()).add(offset));
 				
-				m_cursorActionLabel.setLocation(screenLocation.difference(PlayingState.this.m_worldView.getAbsoluteLocation()).add(offset));
-			
-				m_lastTarget = defaultable;
+					m_lastTarget = interactable;
+				}
 			}else
 			{
 				m_lastTarget = null;

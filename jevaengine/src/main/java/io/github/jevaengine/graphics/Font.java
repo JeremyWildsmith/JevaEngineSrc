@@ -85,9 +85,9 @@ public final class Font
 				{
 					if ((rgb & 0x00FF0000) >> 16 == (rgb & 0x0000FF00) >> 8 && (rgb & 0x0000FF00) >> 8 == (rgb & 0x000000FF))
 					{
-						float fScale = ((float) (rgb & 0x000000FF)) / (float) 0xFF;
+						float scale = ((float) (rgb & 0x000000FF)) / (float) 0xFF;
 
-						rgb = (rgb & 0xFF000000) | ((int) (color.getRed() * fScale)) << 16 | ((int) (color.getGreen() * fScale) << 8) | ((int) (color.getBlue() * fScale));
+						rgb = (rgb & 0xFF000000) | ((int) (color.getRed() * scale)) << 16 | ((int) (color.getGreen() * scale) << 8) | ((int) (color.getBlue() * scale));
 					}
 				}
 				return rgb;

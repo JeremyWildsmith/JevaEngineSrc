@@ -13,7 +13,7 @@
 package io.github.jevaengine.rpgbase.demo;
 
 import io.github.jevaengine.Core;
-import io.github.jevaengine.IResourceLibrary;
+import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.graphics.AnimationState;
 import io.github.jevaengine.graphics.Sprite;
 import io.github.jevaengine.joystick.InputManager.InputMouseEvent;
@@ -36,7 +36,7 @@ public class DemoGame extends RpgGame implements IStateContext
 	{
 		super.startup();
 		
-		IResourceLibrary library = Core.getService(IResourceLibrary.class);
+		ResourceLibrary library = Core.getService(ResourceLibrary.class);
 		
 		m_style = UIStyle.create(library.openConfiguration("ui/game.juis"));
 		

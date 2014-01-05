@@ -15,7 +15,6 @@ package io.github.jevaengine.rpgbase.netcommon;
 import io.github.jevaengine.CoreScriptException;
 import io.github.jevaengine.communication.Communicator;
 import io.github.jevaengine.communication.InvalidMessageException;
-import io.github.jevaengine.communication.SharedEntity;
 import io.github.jevaengine.math.Vector2F;
 import io.github.jevaengine.rpgbase.Item;
 import io.github.jevaengine.rpgbase.RpgCharacter;
@@ -23,98 +22,50 @@ import io.github.jevaengine.rpgbase.Item.ItemIdentifer;
 import io.github.jevaengine.rpgbase.Item.ItemType;
 import io.github.jevaengine.rpgbase.ItemSlot;
 import io.github.jevaengine.rpgbase.Loadout;
+import io.github.jevaengine.rpgbase.netcommon.NetEntity.IEntityVisitor;
 import io.github.jevaengine.util.Nullable;
 import io.github.jevaengine.world.Entity;
+
 import javax.script.ScriptException;
 
-public abstract class NetRpgCharacter extends SharedEntity
-{
-	protected static enum PrimitiveQuery
+public final class NetRpgCharacter
+{	
+	private static final RpgCharacter getCharacter(Entity e, Communicator sender, Object message) throws InvalidMessageException
 	{
-		Initialize,
-	}
-
-	protected static class InitializationArguments
-	{
-		private String m_configuration;
-
-		private String m_name;
-
-		private String m_titleName;
-
-		private boolean m_isClientOwned;
+		if(!(e instanceof RpgCharacter))
+			throw new InvalidMessageException(sender, message, "This visitor must operate on an rpg character.");
 		
-		@SuppressWarnings("unused")
-		// Used by Kryo
-		private InitializationArguments() { }
-
-		public InitializationArguments(String config, @Nullable String name, @Nullable String titleName, boolean isClientOwned)
-		{
-			m_configuration = config;
-			m_name = name;
-			m_titleName = titleName;
-			m_isClientOwned = isClientOwned;
-		}
-
-		@Nullable
-		public String getTitleName()
-		{
-			return m_titleName;
-		}
-
-		@Nullable
-		public String getName()
-		{
-			return m_name;
-		}
-
-		public String getConfiguration()
-		{
-			return m_configuration;
-		}
-		
-		public boolean isClientOwned()
-		{
-			return m_isClientOwned;
-		}
-	}
-
-	protected interface IRpgCharacterVisitor
-	{
-		void visit(Communicator sender, RpgCharacter character) throws InvalidMessageException;
-
-		boolean isServerDispatchOnly();
-		boolean requiresOwnership();
+		return (RpgCharacter)e;
 	}
 	
-	protected static final class DialogueEvent implements IRpgCharacterVisitor
+	public static final class DialogueEvent implements IEntityVisitor
 	{
 		private int m_eventCode;
-		private @Nullable String m_speakerEntity;
+		private @Nullable String m_listenerEntity;
 		
 		@SuppressWarnings("unused")
 		// Used by Kryo
 		private DialogueEvent() { }
 		
-		public DialogueEvent(int eventCode, @Nullable String speakerEntity)
+		public DialogueEvent(int eventCode, @Nullable String listenerEntity)
 		{
 			m_eventCode = eventCode;
-			m_speakerEntity = speakerEntity;
+			m_listenerEntity = listenerEntity;
 		}
 
 		@Override
-		public void visit(Communicator sender, RpgCharacter character) throws InvalidMessageException
+		public void visit(Communicator sender, Entity entity) throws InvalidMessageException
 		{
+			RpgCharacter character = getCharacter(entity, sender, this);
+			
 			if(!character.isAssociated())
 				throw new InvalidMessageException(sender, this, "Unassociated entity cannot invoke dialogue event.");
 		
-			Entity speaker = m_speakerEntity == null ? null : character.getWorld().getEntity(m_speakerEntity);
+			Entity listener = m_listenerEntity == null ? null : character.getWorld().getEntity(m_listenerEntity);
 			
-			if(speaker == null)
-				throw new InvalidMessageException(sender, this, "Unknown speaker entity.");
 			try
 			{
-				speaker.getScript().invokeScriptFunction("remoteDialogueEvent", character.getScriptBridge(), m_eventCode);
+				character.getScript().invokeScriptFunction("remoteDialogueEvent", character.getScriptBridge(), m_eventCode, listener == null ? null : listener.getScriptBridge());
 			} catch (NoSuchMethodException ex){
 			} catch (ScriptException ex)
 			{
@@ -135,7 +86,7 @@ public abstract class NetRpgCharacter extends SharedEntity
 		}
 	}
 	
-	protected static final class Movement implements IRpgCharacterVisitor
+	public static final class Movement implements IEntityVisitor
 	{
 		private Vector2F m_location;
 		private Vector2F m_destination;
@@ -169,8 +120,10 @@ public abstract class NetRpgCharacter extends SharedEntity
 		}
 
 		@Override
-		public void visit(Communicator sender, RpgCharacter character)
+		public void visit(Communicator sender, Entity entity) throws InvalidMessageException
 		{
+			RpgCharacter character = getCharacter(entity, sender, this);
+			
 			if (character.getLocation().difference(getLocation()).getLength() > 0.8F)
 				character.setLocation(getLocation());
 			else
@@ -190,7 +143,7 @@ public abstract class NetRpgCharacter extends SharedEntity
 		}
 	}
 
-	protected static final class Attack implements IRpgCharacterVisitor
+	public static final class Attack implements IEntityVisitor
 	{
 		private String m_target;
 
@@ -214,14 +167,16 @@ public abstract class NetRpgCharacter extends SharedEntity
 		}
 
 		@Override
-		public void visit(Communicator sender, RpgCharacter controller) throws InvalidMessageException
+		public void visit(Communicator sender, Entity entity) throws InvalidMessageException
 		{
-			Entity target = controller.getWorld().getEntity(m_target);
+			RpgCharacter character = getCharacter(entity, sender, this);
+			
+			Entity target = character.getWorld().getEntity(m_target);
 			
 			if (target != null)
 			{
 				if (target instanceof RpgCharacter)
-					controller.attack((RpgCharacter) target);
+					character.attack((RpgCharacter) target);
 				else
 					throw new InvalidMessageException(sender, this, "Server ordered client character to attack non-character target");
 			} else
@@ -242,7 +197,7 @@ public abstract class NetRpgCharacter extends SharedEntity
 		}
 	}
 
-	protected static final class HealthSet implements IRpgCharacterVisitor
+	public final static class HealthSet implements IEntityVisitor
 	{
 		private int m_health;
 
@@ -262,9 +217,11 @@ public abstract class NetRpgCharacter extends SharedEntity
 		}
 
 		@Override
-		public void visit(Communicator sender, RpgCharacter controller) throws InvalidMessageException
+		public void visit(Communicator sender, Entity entity) throws InvalidMessageException
 		{
-			controller.setHealth(m_health);
+			RpgCharacter character = getCharacter(entity, sender, this);
+			
+			character.setHealth(m_health);
 		}
 
 		@Override
@@ -280,7 +237,7 @@ public abstract class NetRpgCharacter extends SharedEntity
 		}
 	}
 
-	protected static class AddInventoryItem implements IRpgCharacterVisitor
+	public final static class AddInventoryItem implements IEntityVisitor
 	{
 		private String m_item;
 		private int m_slot;
@@ -298,9 +255,11 @@ public abstract class NetRpgCharacter extends SharedEntity
 		}
 
 		@Override
-		public void visit(Communicator sender, RpgCharacter controller) throws InvalidMessageException
+		public void visit(Communicator sender, Entity entity) throws InvalidMessageException
 		{
-			ItemSlot[] slots = controller.getInventory().getSlots();
+			RpgCharacter character = getCharacter(entity, sender, this);
+			
+			ItemSlot[] slots = character.getInventory().getSlots();
 			
 			if (m_slot >= slots.length || m_slot < 0)
 				throw new InvalidMessageException(sender, this, "Inventory slot index is not valid.");
@@ -321,7 +280,7 @@ public abstract class NetRpgCharacter extends SharedEntity
 		}
 	}
 
-	protected static class RemoveInventoryItem implements IRpgCharacterVisitor
+	public final static class RemoveInventoryItem implements IEntityVisitor
 	{
 		private int m_slot;
 		
@@ -337,9 +296,11 @@ public abstract class NetRpgCharacter extends SharedEntity
 		}
 
 		@Override
-		public void visit(Communicator sender, RpgCharacter controller) throws InvalidMessageException
+		public void visit(Communicator sender, Entity entity) throws InvalidMessageException
 		{
-			ItemSlot[] slots = controller.getInventory().getSlots();
+			RpgCharacter character = getCharacter(entity, sender, this);
+			
+			ItemSlot[] slots = character.getInventory().getSlots();
 			
 			if (m_slot >= slots.length || m_slot < 0)
 				throw new InvalidMessageException(sender, this, "Inventory slot index is not valid.");
@@ -360,7 +321,7 @@ public abstract class NetRpgCharacter extends SharedEntity
 		}
 	}
 
-	protected static class EquipItem implements IRpgCharacterVisitor
+	public final static class EquipItem implements IEntityVisitor
 	{
 		private String m_item;
 
@@ -376,9 +337,11 @@ public abstract class NetRpgCharacter extends SharedEntity
 		}
 
 		@Override
-		public void visit(Communicator sender, RpgCharacter controller) throws InvalidMessageException
+		public void visit(Communicator sender, Entity entity) throws InvalidMessageException
 		{
-			controller.getLoadout().equip(Item.create(m_item));
+			RpgCharacter character = getCharacter(entity, sender, this);
+			
+			character.getLoadout().equip(Item.create(m_item));
 		}
 
 		@Override
@@ -394,7 +357,7 @@ public abstract class NetRpgCharacter extends SharedEntity
 		}
 	}
 
-	protected static class UnequipItem implements IRpgCharacterVisitor
+	public final static class UnequipItem implements IEntityVisitor
 	{
 		private ItemType m_slot;
 
@@ -415,9 +378,11 @@ public abstract class NetRpgCharacter extends SharedEntity
 		}
 
 		@Override
-		public void visit(Communicator sender, RpgCharacter controller) throws InvalidMessageException
+		public void visit(Communicator sender, Entity entity) throws InvalidMessageException
 		{
-			Loadout loadout = controller.getLoadout();
+			RpgCharacter character = getCharacter(entity, sender, this);
+			
+			Loadout loadout = character.getLoadout();
 			loadout.unequip(m_slot);
 		}
 
@@ -434,7 +399,7 @@ public abstract class NetRpgCharacter extends SharedEntity
 		}
 	}
 	
-	protected static class InventoryAction implements IRpgCharacterVisitor
+	public final static class InventoryAction implements IEntityVisitor
 	{
 		private String m_accessor;
 		private String m_action;
@@ -459,14 +424,16 @@ public abstract class NetRpgCharacter extends SharedEntity
 		}
 
 		@Override
-		public void visit(Communicator sender, RpgCharacter controller) throws InvalidMessageException
+		public void visit(Communicator sender, Entity entity) throws InvalidMessageException
 		{
-			Entity accessor = m_accessor == null ? controller : controller.getWorld().getEntity(m_accessor);
+			RpgCharacter character = getCharacter(entity, sender, this);
+			
+			Entity accessor = m_accessor == null ? character : character.getWorld().getEntity(m_accessor);
 
 			if(!(accessor instanceof RpgCharacter))
 				throw new InvalidMessageException(sender, this, "Invalid accessor.");
 			
-			ItemSlot[] slots = controller.getInventory().getSlots();
+			ItemSlot[] slots = character.getInventory().getSlots();
 			
 			if(m_slotIndex > slots.length || m_slotIndex < 0)
 				throw new InvalidMessageException(sender, this, "Invalid slot index");
@@ -487,7 +454,7 @@ public abstract class NetRpgCharacter extends SharedEntity
 		}
 	}
 
-	protected static class QueryMoveTo implements IRpgCharacterVisitor
+	public final static class QueryMoveTo implements IEntityVisitor
 	{
 		private Vector2F m_destination;
 
@@ -508,9 +475,11 @@ public abstract class NetRpgCharacter extends SharedEntity
 		}
 
 		@Override
-		public void visit(Communicator sender, RpgCharacter controller) throws InvalidMessageException
+		public void visit(Communicator sender, Entity entity) throws InvalidMessageException
 		{
-			controller.moveTo(m_destination);
+			RpgCharacter character = getCharacter(entity, sender, this);
+			
+			character.moveTo(m_destination);
 		}
 
 		@Override

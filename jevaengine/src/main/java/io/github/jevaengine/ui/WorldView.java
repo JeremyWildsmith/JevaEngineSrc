@@ -26,6 +26,7 @@ import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.math.Vector2F;
 import io.github.jevaengine.util.Nullable;
 import io.github.jevaengine.util.StaticSet;
+import io.github.jevaengine.world.Actor;
 import io.github.jevaengine.world.World;
 
 import java.awt.Color;
@@ -69,6 +70,19 @@ public final class WorldView extends Panel
 		setCamera(null);
 	}
 
+	@Nullable
+	public <T extends Actor> T pick(Class<T> clazz, Vector2D location)
+	{
+		World world = m_camera == null ? null : m_camera.getWorld();
+		
+		if (world != null)
+		{
+			Vector2D offset = getCameraOffset();
+			return world.pick(clazz, location.x, location.y, offset.x, offset.y, m_camera.getScale());
+		}else
+			return null;
+	}
+	
 	@Override
 	public void onMouseEvent(InputMouseEvent mouseEvent)
 	{
@@ -83,7 +97,7 @@ public final class WorldView extends Panel
 			
 			if (world != null)
 			{
-				Vector2F tilePos = world.translateScreenToWorld(new Vector2D(relativePos.x, relativePos.y).difference(getCameraOffset()), m_camera.getScale());
+				Vector2F tilePos = world.translateScreenToWorld(relativePos.difference(getCameraOffset()), m_camera.getScale());
 
 				if (world.getMapBounds().contains(new Point((int)tilePos.x, (int)tilePos.y)))
 				{
@@ -123,22 +137,22 @@ public final class WorldView extends Panel
 
 	private static class Listeners extends StaticSet<IWorldViewListener>
 	{
-		public void worldSelection(Vector2D screenLocation, Vector2F worldLocation, MouseButton button)
+		public void worldSelection(Vector2D interactable, Vector2F worldLocation, MouseButton button)
 		{
 			for (IWorldViewListener l : this)
-				l.worldSelection(screenLocation, worldLocation, button);
+				l.worldSelection(interactable, worldLocation, button);
 		}
 		
-		public void worldMove(Vector2D screenLocation, Vector2F worldLocation)
+		public void worldMove(Vector2D interactable, Vector2F worldLocation)
 		{
 			for (IWorldViewListener l : this)
-				l.worldMove(screenLocation, worldLocation);
+				l.worldMove(interactable, worldLocation);
 		}
 	}
 
 	public interface IWorldViewListener
 	{
-		void worldSelection(Vector2D screenLocation, Vector2F worldLocation, MouseButton button);
-		void worldMove(Vector2D screenLocation, Vector2F worldLocation);
+		void worldSelection(Vector2D interactable, Vector2F worldLocation, MouseButton button);
+		void worldMove(Vector2D interactable, Vector2F worldLocation);
 	}
 }

@@ -13,12 +13,16 @@
  */
 package io.github.jevaengine.rpgbase;
 
+import io.github.jevaengine.Script;
 import io.github.jevaengine.rpgbase.DialoguePath.Answer;
 import io.github.jevaengine.rpgbase.DialoguePath.Query;
 import io.github.jevaengine.util.Nullable;
 import io.github.jevaengine.util.StaticSet;
 import io.github.jevaengine.world.Entity;
+
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.NoSuchElementException;
 import java.util.Queue;
 
 public final class DialogueController
@@ -26,6 +30,7 @@ public final class DialogueController
 	private Queue<DialoguePathEntry> m_dialogueQueue = new LinkedList<DialoguePathEntry>();
 	
 	private DialoguePathEntry m_currentDialogue;
+	private Answer[] m_currentAnswers = new Answer[0];
 	
 	private boolean m_isBusy = false;
 	
@@ -35,12 +40,45 @@ public final class DialogueController
 	{
 		
 	}
+	
+	private Script createConditionTestEnvironment(DialoguePathEntry entry)
+	{
+		Script workingScript = new Script();
+		
+		workingScript.putConst("speaker", entry.speaker == null ? null : entry.speaker.getScriptBridge());
+		workingScript.putConst("listener", entry.listener == null ? null : entry.listener.getScriptBridge());
+		
+		return workingScript;
+	}
+	
+	private int findInitialQuery(DialoguePathEntry entry)
+	{
+		Script workingScript = createConditionTestEnvironment(entry);
+		
+		workingScript.putConst("speaker", entry.speaker == null ? null : entry.speaker.getScriptBridge());
+		workingScript.putConst("listener", entry.listener == null ? null : entry.listener.getScriptBridge());
+		
+		Query queries[] = entry.path.queries;
+		
+		for(int i = 0; i < queries.length; i++)
+		{
+			if(queries[i].entryCondition != null)
+			{
+				Object o = workingScript.evaluate(queries[i].entryCondition);
+				
+				if(o instanceof Boolean && ((Boolean)o).booleanValue())
+					return i;
+			}
+		}
+		
+		throw new NoSuchElementException();
+	}
 
 	private void beginDialogue(DialoguePathEntry entry)
 	{
 		m_isBusy = true;
 		m_currentDialogue = entry;
-		inquire(entry.path.queries[entry.initialQuery]);
+		inquire(entry.path.queries[findInitialQuery(entry)]);
 		m_observers.beginDialogue();
 	}
 	
@@ -48,12 +86,30 @@ public final class DialogueController
 	{
 		m_isBusy = false;
 		m_currentDialogue = null;
+		m_currentAnswers = new Answer[0];
 		m_observers.endDialogue();
 	}
 	
 	private void inquire(Query query)
 	{
-		m_currentDialogue.currentQuery = query;
+		Script workingScript = createConditionTestEnvironment(m_currentDialogue);
+		ArrayList<Answer> availibleAnswers = new ArrayList<Answer>();
+		
+		for(Answer a : query.answers)
+		{
+			if(a.condition != null)
+			{
+				Object o = workingScript.evaluate(a.condition);
+
+				if(o instanceof Boolean && !((Boolean)o).booleanValue())
+					continue;
+			}
+			
+			availibleAnswers.add(a);
+		}
+		
+		m_currentAnswers = availibleAnswers.toArray(new Answer[availibleAnswers.size()]);
+		
 		m_observers.speakerInquired(query.query);
 	}
 	
@@ -67,9 +123,9 @@ public final class DialogueController
 		m_observers.remove(observer);
 	}
 	
-	public void enqueueDialogue(@Nullable Entity speaker, DialoguePath path, int entry)
+	public void enqueueDialogue(@Nullable Entity speaker, @Nullable Entity listener, DialoguePath path)
 	{
-		m_dialogueQueue.add(new DialoguePathEntry(speaker, path, entry));
+		m_dialogueQueue.add(new DialoguePathEntry(speaker, listener, path));
 	}
 	
 	public boolean say(String message)
@@ -81,7 +137,7 @@ public final class DialogueController
 	
 		Answer answer = null;
 			
-		for(Answer a : m_currentDialogue.currentQuery.answers)
+		for(Answer a : m_currentAnswers)
 		{
 			if(a.answer.equals(message))
 				answer = a;
@@ -114,9 +170,16 @@ public final class DialogueController
 		return m_isBusy;
 	}
 
-	public @Nullable Entity getSpeaker()
+	@Nullable
+	public Entity getSpeaker()
 	{
 		return m_currentDialogue == null ? null : m_currentDialogue.speaker;
+	}
+	
+	@Nullable
+	public Entity getListener()
+	{
+		return m_currentDialogue == null ? null : m_currentDialogue.listener;
 	}
 	
 	public String[] getAnswers()
@@ -124,11 +187,10 @@ public final class DialogueController
 		if(!m_isBusy)
 			return new String[] {};
 		
-		Answer[] answers = m_currentDialogue.currentQuery.answers;
-		String[] strAnswers = new String[answers.length];
+		String[] strAnswers = new String[m_currentAnswers.length];
 		
-		for(int i = 0; i < answers.length; i++)
-			strAnswers[i] = answers[i].answer;
+		for(int i = 0; i < m_currentAnswers.length; i++)
+			strAnswers[i] = m_currentAnswers[i].answer;
 		
 		return strAnswers;
 	}
@@ -191,15 +253,14 @@ public final class DialogueController
 	private class DialoguePathEntry
 	{
 		public @Nullable Entity speaker;
+		public @Nullable Entity listener;
 		public DialoguePath path;
-		public Query currentQuery;
-		public int initialQuery;
 		
-		public DialoguePathEntry(Entity _speaker, DialoguePath _path, int _initialQuery)
+		public DialoguePathEntry(Entity _speaker, Entity _listener, DialoguePath _path)
 		{
 			speaker = _speaker;
+			listener = _listener;
 			path = _path;
-			initialQuery = _initialQuery;
 		}
 	}
 }

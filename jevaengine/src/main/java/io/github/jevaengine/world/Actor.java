@@ -28,6 +28,7 @@ import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.math.Vector2F;
 import io.github.jevaengine.util.Nullable;
 import io.github.jevaengine.world.EffectMap.TileEffects;
+
 import java.awt.Color;
 
 public abstract class Actor extends Entity implements IInteractable
@@ -56,6 +57,7 @@ public abstract class Actor extends Entity implements IInteractable
 	}
 
 	@Override
+	@Nullable
 	public String getDefaultCommand()
 	{
 		return m_script.getDefaultCommand();
@@ -121,7 +123,7 @@ public abstract class Actor extends Entity implements IInteractable
 			// Optimize for most common case
 			if (getTileWidth() == 1 && getTileHeight() == 1)
 			{
-				getWorld().enqueueRender(renderable, new Vector2F(worldLocation.x, worldLocation.y));
+				getWorld().enqueueRender(renderable, Actor.this, new Vector2F(worldLocation.x, worldLocation.y));
 			} else
 			{
 				// Start with 1, since we start with 0 on x. If they both
@@ -130,16 +132,22 @@ public abstract class Actor extends Entity implements IInteractable
 				for (int y = 1; y < getTileHeight(); y++)
 				{
 					Vector2D location = new Vector2D(0, y);
-					getWorld().enqueueRender(new RenderTile(true, renderable, location), worldLocation.difference(location));
+					getWorld().enqueueRender(new RenderTile(true, renderable, location), Actor.this, worldLocation.difference(location));
 				}
 
 				for (int x = 0; x < getTileWidth(); x++)
 				{
 					Vector2D location = new Vector2D(x, 0);
-					getWorld().enqueueRender(new RenderTile(false, renderable, location), worldLocation.difference(location));
+					getWorld().enqueueRender(new RenderTile(false, renderable, location), Actor.this, worldLocation.difference(location));
 				}
 			}
 		}
+	}
+	
+	@Nullable
+	public boolean testPick(int x, int y, float scale)
+	{
+		return false;
 	}
 
 	public abstract IRenderable getGraphic();
@@ -162,7 +170,6 @@ public abstract class Actor extends Entity implements IInteractable
 
 	private final class RenderTile implements IRenderable
 	{
-
 		private final Vector2D m_location;
 
 		private final IRenderable m_renderable;
@@ -207,6 +214,7 @@ public abstract class Actor extends Entity implements IInteractable
 
 	private class ActorScript
 	{
+		@Nullable
 		public String getDefaultCommand()
 		{
 			try
@@ -406,6 +414,12 @@ public abstract class Actor extends Entity implements IInteractable
 
 				@Override
 				public void replaced() { }
+
+				@Override
+				public void flagSet(String name, int value) { }
+
+				@Override
+				public void flagCleared(String name) { }
 			}
 		}
 		

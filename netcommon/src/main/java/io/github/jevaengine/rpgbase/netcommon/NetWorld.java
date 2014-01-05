@@ -21,26 +21,26 @@ public abstract class NetWorld extends SharedEntity
 {
 	protected static final class InitializationArguments
 	{
-		private String m_varStore;
+		private String m_worldName;
 
 		@SuppressWarnings("unused")
 		// Used by Kryo
 		private InitializationArguments() { }
 
-		public InitializationArguments(String varStore)
+		public InitializationArguments(String worldName)
 		{
-			m_varStore = varStore;
+			m_worldName = worldName;
 		}
 
-		public String getStore()
+		public String getWorldName()
 		{
-			return m_varStore;
+			return m_worldName;
 		}
 	}
 
-	protected static enum PrimitiveQuery
+	protected static final class InitializeRequest
 	{
-		Initialize,
+		public InitializeRequest() {}
 	}
 
 	protected interface IWorldVisitor

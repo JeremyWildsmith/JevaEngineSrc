@@ -15,7 +15,7 @@ package io.github.jevaengine.graphics;
 import java.awt.Graphics2D;
 
 import io.github.jevaengine.Core;
-import io.github.jevaengine.IResourceLibrary;
+import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.config.ISerializable;
 import io.github.jevaengine.config.IVariable;
 import io.github.jevaengine.math.Vector2F;
@@ -63,7 +63,7 @@ public final class ParticleEmitter implements IRenderable
 		Sprite[] spriteMaps = new Sprite[decl.sprites.length];
 
 		for (int i = 0; i < decl.sprites.length; i++)
-			spriteMaps[i] = Sprite.create(Core.getService(IResourceLibrary.class).openConfiguration(decl.sprites[i]));
+			spriteMaps[i] = Sprite.create(Core.getService(ResourceLibrary.class).openConfiguration(decl.sprites[i]));
 
 		return new ParticleEmitter(spriteMaps, 
 									decl.acceleration, 

@@ -19,17 +19,17 @@ package io.github.jevaengine.rpgbase;
 import java.io.InputStream;
 import java.util.Scanner;
 
-import io.github.jevaengine.IResourceLibrary;
+import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.Script;
 import io.github.jevaengine.UnresolvedResourcePathException;
 import io.github.jevaengine.config.IVariable;
 import io.github.jevaengine.config.JsonVariable;
 import io.github.jevaengine.game.ResourceLoadingException;
-import io.github.jevaengine.world.Entity;
+
 import java.io.File;
 import java.io.IOException;
 
-public class RpgLibrary implements IResourceLibrary
+public class RpgLibrary extends ResourceLibrary
 {
 
 	protected String m_base;
@@ -39,6 +39,20 @@ public class RpgLibrary implements IResourceLibrary
 	{
 		m_base = "res";
 		m_allowStateResource = true;
+		
+		registerEntity("character", RpgCharacter.class, new IEntityFactory<RpgCharacter>() {
+			@Override
+			public RpgCharacter create(IParentEntityFactory<RpgCharacter> parent, String instanceName, String config) {
+				return new RpgCharacter(instanceName, openConfiguration(config));
+			}
+		});
+		
+		registerEntity("areaTrigger", AreaTrigger.class, new IEntityFactory<AreaTrigger>() {
+			@Override
+			public AreaTrigger create(IParentEntityFactory<AreaTrigger> parent, String instanceName, String config) {
+				return new AreaTrigger(instanceName, openConfiguration(config));
+			}
+		});
 	}
 
 	public RpgLibrary(boolean allowStates)
@@ -97,16 +111,5 @@ public class RpgLibrary implements IResourceLibrary
 		script.evaluate(openResourceContents(path));
 		
 		return script;
-	}
-
-	@Override
-	public Entity createEntity(String entityName, String instanceName, String config)
-	{
-		if (entityName.compareTo("character") == 0)
-			return new RpgCharacter(instanceName, openConfiguration(config));
-		else if (entityName.compareTo("areaTrigger") == 0)
-			return new AreaTrigger(instanceName, openConfiguration(config));
-		else
-			throw new ResourceLoadingException("Error constructing entity: " + entityName + " not found in asset library");
 	}
 }

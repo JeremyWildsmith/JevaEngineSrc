@@ -124,6 +124,12 @@ public final class FollowCamera implements ICamera
 
 		@Override
 		public void replaced() { }
+
+		@Override
+		public void flagSet(String name, int value) { }
+
+		@Override
+		public void flagCleared(String name) { }
 	}
 
 }

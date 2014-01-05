@@ -14,26 +14,26 @@ package io.github.jevaengine.rpgbase.server;
 
 import io.github.jevaengine.Core;
 import io.github.jevaengine.IDisposable;
-import io.github.jevaengine.IResourceLibrary;
+import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.communication.Communicator;
 import io.github.jevaengine.communication.InvalidMessageException;
 import io.github.jevaengine.communication.PolicyViolationException;
 import io.github.jevaengine.communication.ShareEntityException;
 import io.github.jevaengine.communication.SharePolicy;
 import io.github.jevaengine.communication.SharedClass;
-import io.github.jevaengine.communication.SharedEntity;
 import io.github.jevaengine.rpgbase.netcommon.NetWorld;
+import io.github.jevaengine.world.Entity;
 import io.github.jevaengine.world.World;
 
 import java.io.IOException;
 import java.util.ArrayList;
 
 @SharedClass(name = "World", policy = SharePolicy.ClientR)
-public class ServerWorld extends NetWorld implements IDisposable, IServerShared
+public final class ServerWorld extends NetWorld implements IDisposable
 {
 	private static final int SYNC_INTERVAL = 200;
 
-	private ArrayList<IServerEntity> m_serverEntities = new ArrayList<IServerEntity>();
+	private ArrayList<ServerEntity<? extends Entity>> m_serverEntities = new ArrayList<ServerEntity<? extends Entity>>();
 
 	private String m_worldName;
 
@@ -45,7 +45,7 @@ public class ServerWorld extends NetWorld implements IDisposable, IServerShared
 	{
 		m_worldName = worldName;
 
-		m_world = World.create(Core.getService(IResourceLibrary.class).openConfiguration(worldName));
+		m_world = World.create(Core.getService(ResourceLibrary.class).openConfiguration(worldName));
 	}
 
 	@Override
@@ -54,11 +54,11 @@ public class ServerWorld extends NetWorld implements IDisposable, IServerShared
 		m_world.dispose();
 	}
 
-	private void resyncEntity(IServerEntity entity)
+	private void resyncEntity(ServerEntity<? extends Entity> entity)
 	{
 		try
 		{
-			entity.getSharedEntity().synchronize();
+			entity.synchronize();
 		} catch (InvalidMessageException e)
 		{
 			ServerCommunicator sender = (ServerCommunicator) e.getSender();
@@ -71,14 +71,13 @@ public class ServerWorld extends NetWorld implements IDisposable, IServerShared
 		}
 	}
 
-	@Override
 	public void update(int deltaTime)
 	{
 		m_tickCount += deltaTime;
 
 		m_world.update(deltaTime);
 
-		for (IServerEntity entity : m_serverEntities)
+		for (ServerEntity<? extends Entity> entity : m_serverEntities)
 		{
 			resyncEntity(entity);
 			entity.update(deltaTime);
@@ -91,12 +90,6 @@ public class ServerWorld extends NetWorld implements IDisposable, IServerShared
 		}
 	}
 
-	@Override
-	public SharedEntity getSharedEntity()
-	{
-		return this;
-	}
-
 	public String getName()
 	{
 		return m_worldName;
@@ -107,26 +100,26 @@ public class ServerWorld extends NetWorld implements IDisposable, IServerShared
 		return m_world;
 	}
 
-	protected synchronized void entityEnter(IServerEntity entity)
+	protected synchronized void entityEnter(ServerEntity<? extends Entity>  entity)
 	{
 		m_serverEntities.add(entity);
 
 		try
 		{
-			share(entity.getSharedEntity());
+			share(entity);
 		} catch (IOException | ShareEntityException | PolicyViolationException e)
 		{
 			throw new RuntimeException(e);
 		}
 	}
 
-	protected synchronized void entityLeave(IServerEntity entity)
+	protected synchronized void entityLeave(ServerEntity<? extends Entity>  entity)
 	{
 		m_serverEntities.remove(entity);
 
 		try
 		{
-			unshare(entity.getSharedEntity());
+			unshare(entity);
 		} catch (IOException e)
 		{
 			throw new RuntimeException(e);
@@ -138,16 +131,9 @@ public class ServerWorld extends NetWorld implements IDisposable, IServerShared
 	{
 		try
 		{
-			if (recv instanceof PrimitiveQuery)
+			if (recv instanceof InitializeRequest)
 			{
-				switch ((PrimitiveQuery) recv)
-				{
-					case Initialize:
-						send(sender, new InitializationArguments(m_worldName));
-						break;
-					default:
-						throw new InvalidMessageException(sender, recv, "Unrecognize message recieved from server");
-				}
+				send(sender, new InitializationArguments(m_worldName));
 			} else if (recv instanceof IWorldVisitor)
 			{
 				IWorldVisitor visitor = (IWorldVisitor) recv;

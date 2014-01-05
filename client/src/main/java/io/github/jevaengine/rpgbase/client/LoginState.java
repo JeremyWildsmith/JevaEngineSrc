@@ -13,7 +13,7 @@
 package io.github.jevaengine.rpgbase.client;
 
 import io.github.jevaengine.Core;
-import io.github.jevaengine.IResourceLibrary;
+import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.communication.tcp.RemoteSocketCommunicator;
 import io.github.jevaengine.game.ControlledCamera;
 import io.github.jevaengine.game.Game;
@@ -133,7 +133,7 @@ public final class LoginState implements IGameState
 
 		try
 		{
-			overlayImage = ImageIO.read(Core.getService(IResourceLibrary.class).openAsset("ui/menu.png"));
+			overlayImage = ImageIO.read(Core.getService(ResourceLibrary.class).openAsset("ui/menu.png"));
 		} catch (IOException e)
 		{
 			throw new RuntimeException(e);
@@ -159,7 +159,7 @@ public final class LoginState implements IGameState
 
 		//m_backgroundMusic = new Audio("audio/da/da.ogg");
 
-		m_menuWorld = World.create(Core.getService(IResourceLibrary.class).openConfiguration("world/menu.jmp"));
+		m_menuWorld = World.create(Core.getService(ResourceLibrary.class).openConfiguration("world/menu.jmp"));
 
 		Vector2D resolution = Core.getService(Game.class).getResolution();
 

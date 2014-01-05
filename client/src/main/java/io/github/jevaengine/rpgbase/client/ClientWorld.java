@@ -13,18 +13,17 @@
 package io.github.jevaengine.rpgbase.client;
 
 import io.github.jevaengine.Core;
-import io.github.jevaengine.IResourceLibrary;
+import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.communication.Communicator;
 import io.github.jevaengine.communication.InvalidMessageException;
 import io.github.jevaengine.communication.SharePolicy;
 import io.github.jevaengine.communication.SharedClass;
-import io.github.jevaengine.communication.SharedEntity;
 import io.github.jevaengine.rpgbase.netcommon.NetWorld;
 import io.github.jevaengine.util.StaticSet;
 import io.github.jevaengine.world.World;
 
 @SharedClass(name = "World", policy = SharePolicy.ClientR)
-public class ClientWorld extends NetWorld implements IClientShared
+public final class ClientWorld extends NetWorld
 {
 	private static final int SYNC_INTERVAL = 200;
 
@@ -52,12 +51,6 @@ public class ClientWorld extends NetWorld implements IClientShared
 		m_observers.remove(observer);
 	}
 
-	@Override
-	public SharedEntity getSharedEntity()
-	{
-		return this;
-	}
-
 	public boolean isReady()
 	{
 		return m_world != null;
@@ -68,7 +61,6 @@ public class ClientWorld extends NetWorld implements IClientShared
 		return m_world;
 	}
 
-	@Override
 	public void update(int deltaTime)
 	{
 		if (m_world != null && m_isWorldLoading)
@@ -80,7 +72,7 @@ public class ClientWorld extends NetWorld implements IClientShared
 		if (!m_dispatchedInit)
 		{
 			m_dispatchedInit = true;
-			send(PrimitiveQuery.Initialize);
+			send(new InitializeRequest());
 		}
 
 		m_tickCount += deltaTime;
@@ -104,14 +96,14 @@ public class ClientWorld extends NetWorld implements IClientShared
 			{
 				m_isWorldLoading = true;
 
-				final String map = ((InitializationArguments) message).getStore();
+				final String map = ((InitializationArguments) message).getWorldName();
 
 				new Thread()
 				{
 					@Override
 					public void run()
 					{
-						m_world = World.create(Core.getService(IResourceLibrary.class).openConfiguration(map));
+						m_world = World.create(Core.getService(ResourceLibrary.class).openConfiguration(map));
 					}
 				}.start();
 			}

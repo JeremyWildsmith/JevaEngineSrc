@@ -21,6 +21,7 @@ import io.github.jevaengine.rpgbase.client.ClientWorld.IClientWorldObserver;
 import io.github.jevaengine.rpgbase.netcommon.NetUser.UserCredentials;
 import io.github.jevaengine.util.Nullable;
 import io.github.jevaengine.util.StaticSet;
+import io.github.jevaengine.world.Entity;
 import io.github.jevaengine.world.IWorldAssociation;
 import io.github.jevaengine.world.World;
 
@@ -39,14 +40,12 @@ public class ClientCommunicator extends Communicator
 	@Nullable private ClientWorld m_world;
 	
 	private int m_tickCount = 0;
-
-	private StaticSet<IClientShared> m_sharedEntities = new StaticSet<IClientShared>();
-
-	private ArrayList<IWorldAssociation> m_associatedEntities = new ArrayList<IWorldAssociation>();
+	
+	private ArrayList<ClientEntity<?>> m_associatedEntities = new ArrayList<ClientEntity<?>>();
 
 	private UserCredentials m_credentials;
 
-	@Nullable private ClientUser m_servedUser;
+	@Nullable private ClientUser m_user;
 
 	private WorldObserver m_worldObserver = new WorldObserver();
 
@@ -115,11 +114,24 @@ public class ClientCommunicator extends Communicator
 				}
 			}
 
-			for (IClientShared entity : m_sharedEntities)
+			for (ClientEntity<? extends Entity> entity : m_associatedEntities)
 			{
-				entity.getSharedEntity().synchronize();
+				entity.synchronize();
 				entity.update(deltaTime);
 			}
+			
+			if(m_world != null)
+			{
+				m_world.synchronize();
+				m_world.update(deltaTime);
+			}
+			
+			if(m_user != null)
+			{
+				m_user.synchronize();
+				m_user.update(deltaTime);
+			}
+			
 		} catch (InvalidMessageException e)
 		{
 			String error = String.format("Recieved invalid message from server: %s", e.getMessage());
@@ -152,66 +164,54 @@ public class ClientCommunicator extends Communicator
 		@Override
 		public void entityUnshared(SharedEntity entity)
 		{
-			if (!(entity instanceof IClientShared))
-				disconnect("Server shared unrecognized entity.");
-			else
+			if (entity instanceof ClientWorld)
 			{
-				m_sharedEntities.remove((IClientShared) entity);
+				unserveWorld();
+			} else if (entity instanceof ClientEntity)
+			{
+				ClientEntity<?> clientEntity = (ClientEntity<?>) entity;
 
-				if (entity instanceof ClientWorld)
-				{
-					unserveWorld();
-				} else if (entity instanceof ClientRpgCharacter)
-				{
-					ClientRpgCharacter character = (ClientRpgCharacter) entity;
+				m_associatedEntities.remove(clientEntity);
 
-					m_associatedEntities.remove(character);
+				if (clientEntity.isAssociated())
+					clientEntity.disassociate();
 
-					if (character.isAssociated())
-						character.disassociate();
-
-				} else if (entity instanceof ClientUser)
-				{
-					m_observers.unservedUser();
-					m_servedUser = null;
-				}
-			}
+			} else if (entity instanceof ClientUser)
+			{
+				m_observers.unservedUser();
+				m_user = null;
+			}else
+				disconnect("Server shared unrecognized entity.");
 		}
 
 		@Override
 		public void entityShared(SharedEntity entity)
 		{
-			if (!(entity instanceof IClientShared))
-				disconnect("Server shared unrecognized entity.");
-			else
+			if (entity instanceof ClientWorld)
 			{
-				m_sharedEntities.add((IClientShared) entity);
-
-				if (entity instanceof ClientWorld)
+				if (m_world != null)
+					disconnect("Server shared world when world has already been initialized");
+				else
 				{
-					if (m_world != null)
-						disconnect("Server shared world when world has already been initialized");
-					else
-					{
-						ClientWorld world = (ClientWorld) entity;
+					ClientWorld world = (ClientWorld) entity;
 
-						m_world = world;
-						m_world.addObserver(m_worldObserver);
-					}
-				} else if (entity instanceof ClientRpgCharacter)
-				{
-					ClientRpgCharacter character = (ClientRpgCharacter) entity;
-					m_associatedEntities.add(character);
-
-					if (m_world != null && m_world.isReady())
-						character.associate(m_world.getWorld());
-
-				} else if (entity instanceof ClientUser)
-				{
-					m_servedUser = (ClientUser) entity;
-					m_observers.servedUser((ClientUser) entity);
+					m_world = world;
+					m_world.addObserver(m_worldObserver);
 				}
-			}
+			} else if (entity instanceof ClientEntity)
+			{
+				ClientEntity<?> clientEntity = (ClientEntity<?>)entity;
+				m_associatedEntities.add(clientEntity);
+
+				if (m_world != null && m_world.isReady())
+					clientEntity.associate(m_world.getWorld());
+				
+			} else if (entity instanceof ClientUser)
+			{
+				m_user = (ClientUser) entity;
+				m_observers.servedUser((ClientUser) entity);
+			}else
+				disconnect("Server shared unrecognized entity.");
 		}
 	}
 

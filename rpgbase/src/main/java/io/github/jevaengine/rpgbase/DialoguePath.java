@@ -14,6 +14,7 @@ package io.github.jevaengine.rpgbase;
 
 import io.github.jevaengine.config.ISerializable;
 import io.github.jevaengine.config.IVariable;
+import io.github.jevaengine.util.Nullable;
 
 /**
  *
@@ -40,6 +41,10 @@ public class DialoguePath implements ISerializable
 	public static class Query implements ISerializable
 	{
 		public String query;
+		
+		@Nullable
+		public String entryCondition;
+		
 		public Answer[] answers;
 
 		public Query() { }
@@ -49,6 +54,9 @@ public class DialoguePath implements ISerializable
 		{
 			target.addChild("query").setValue(query);
 			target.addChild("answers").setValue(answers);
+			
+			if(entryCondition != null)
+				target.addChild("entryCondition").setValue(entryCondition);
 		}
 
 		@Override
@@ -56,12 +64,18 @@ public class DialoguePath implements ISerializable
 		{
 			query = source.getChild("query").getValue(String.class);
 			answers = source.getChild("answers").getValues(Answer[].class);
+			
+			if(source.childExists("entryCondition"))
+				entryCondition = source.getChild("entryCondition").getValue(String.class);
 		}
 	}
 	
 	public static class Answer implements ISerializable
 	{
 		public String answer;
+		
+		@Nullable
+		public String condition;
 		
 		public int next;
 		public int event;
@@ -78,6 +92,9 @@ public class DialoguePath implements ISerializable
 			
 			if(event >= 0)
 				target.addChild("event").setValue(event);
+			
+			if(condition != null)
+				target.addChild("condition").setValue(condition);
 		}
 
 		@Override
@@ -93,6 +110,9 @@ public class DialoguePath implements ISerializable
 			
 			if(source.childExists("event"))
 				event = source.getChild("event").getValue(Integer.class);
+			
+			if(source.childExists("condition"))
+				condition = source.getChild("condition").getValue(String.class);
 		}
 	}
 }

@@ -8,7 +8,7 @@ package io.github.jevaengine.rpgbase.demo.demos;
 
 
 import io.github.jevaengine.Core;
-import io.github.jevaengine.IResourceLibrary;
+import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.game.ControlledCamera;
 import io.github.jevaengine.game.Game;
 import io.github.jevaengine.joystick.InputManager.InputMouseEvent.MouseButton;
@@ -38,16 +38,18 @@ public class Demo1 implements IState
 	
 	private World m_world;
 	private Window m_window;
+	private WorldView m_worldViewport;
 	
 	private RpgCharacter m_player;
 	
 	public Demo1()
 	{
-		IResourceLibrary resourceLibrary = Core.getService(IResourceLibrary.class);
+		ResourceLibrary resourceLibrary = Core.getService(ResourceLibrary.class);
 		
 		m_world = World.create(resourceLibrary.openConfiguration(DEMO_MAP));
 
 		m_player = new RpgCharacter(resourceLibrary.openConfiguration(PLAYER));
+		m_player.setLocation(new Vector2F(4,4));
 		m_world.addEntity(m_player);
 		
 		m_window = new Window(Core.getService(Game.class).getGameStyle(), 420, 500);
@@ -56,13 +58,13 @@ public class Demo1 implements IState
 		ControlledCamera camera = new ControlledCamera(new Vector2F(2.5F, 2.5F));
 		camera.attach(m_world);
 		
-		WorldView worldViewport = new WorldView(400, 400);
-		worldViewport.setRenderBackground(false);
-		worldViewport.setCamera(camera);
-		worldViewport.addListener(new WorldViewListener());
+		m_worldViewport = new WorldView(400, 400);
+		m_worldViewport.setRenderBackground(false);
+		m_worldViewport.setCamera(camera);
+		m_worldViewport.addListener(new WorldViewListener());
 		
 		
-		m_window.addControl(worldViewport, new Vector2D(10,70));
+		m_window.addControl(m_worldViewport, new Vector2D(10,70));
 		
 		m_window.addControl(new Button("Go Back")
 		{
@@ -94,7 +96,7 @@ public class Demo1 implements IState
 	
 	private class WorldViewListener implements IWorldViewListener
 	{
-		public void worldSelection(Vector2D screenLocation, Vector2F worldLocation, MouseButton button)
+		public void worldSelection(Vector2D location, Vector2F worldLocation, MouseButton button)
 		{
 			if(button != MouseButton.Left)
 				return;
@@ -102,7 +104,7 @@ public class Demo1 implements IState
 			m_player.moveTo(worldLocation);
 		}
 
-		public void worldMove(Vector2D screenLocation, Vector2F worldLocation)
+		public void worldMove(Vector2D location, Vector2F worldLocation)
 		{
 		}
 	}

@@ -13,12 +13,8 @@
 package io.github.jevaengine.rpgbase.client;
 
 import io.github.jevaengine.Core;
-import io.github.jevaengine.IResourceLibrary;
-import io.github.jevaengine.communication.Communicator;
-import io.github.jevaengine.communication.InvalidMessageException;
 import io.github.jevaengine.communication.SharePolicy;
 import io.github.jevaengine.communication.SharedClass;
-import io.github.jevaengine.communication.SharedEntity;
 import io.github.jevaengine.math.Vector2F;
 import io.github.jevaengine.rpgbase.AttackTask;
 import io.github.jevaengine.rpgbase.DialogueController;
@@ -29,23 +25,11 @@ import io.github.jevaengine.rpgbase.RpgGame;
 import io.github.jevaengine.rpgbase.netcommon.NetRpgCharacter;
 import io.github.jevaengine.util.Nullable;
 import io.github.jevaengine.world.Entity;
-import io.github.jevaengine.world.IWorldAssociation;
 import io.github.jevaengine.world.MovementTask;
-import io.github.jevaengine.world.World;
 
 @SharedClass(name = "RpgCharacter", policy = SharePolicy.ClientR)
-public final class ClientRpgCharacter extends NetRpgCharacter implements IWorldAssociation, IClientShared
+public final class ClientRpgCharacter extends ClientEntity<RpgCharacter>
 {
-	private static final int SYNC_INTERVAL = 10;
-
-	private volatile RpgCharacter m_character;
-	private volatile boolean m_isLoading = false;
-	
-	private boolean m_dispatchedInit = false;
-	
-	private int m_tickCount = 0;
-
-	private World m_world;
 	
 	private @Nullable ClientRpgCharacterTaskFactory m_taskFactory;
 	
@@ -53,138 +37,44 @@ public final class ClientRpgCharacter extends NetRpgCharacter implements IWorldA
 	
 	public ClientRpgCharacter()
 	{
+		super(RpgCharacter.class);
+		m_taskFactory = new ClientRpgCharacterTaskFactory();
 		m_dialogueController = Core.getService(RpgGame.class).getDialogueController();
 	}
 
-	@Override
-	public SharedEntity getSharedEntity()
-	{
-		return this;
-	}
 
-	protected RpgCharacter getCharacter()
+	@Override
+	public void beginVisit()
 	{
-		return m_character;
+		m_taskFactory.setLocalMutation(false);
+		
 	}
 
 	@Override
-	public boolean isAssociated()
-	{
-		if (m_character != null)
-			return m_character.isAssociated();
-		else
-			return false;
+	public void endVisit() {
+		m_taskFactory.setLocalMutation(true);
 	}
 
 	@Override
-	public void disassociate()
+	public void entityCreated()
 	{
-		if (m_character != null && m_character.isAssociated())
-			m_character.getWorld().removeEntity(m_character);
-
-		m_world = null;
+		RpgCharacter character = getEntity();
+		character.getInventory().addObserver(new ServerRpgCharacterInventoryObserver());
+		
+		m_dialogueController.addObserver(new DialogueEventDispatcher());
 	}
-
-	@Override
-	public void associate(World world)
-	{
-		m_world = world;
-
-		if (m_character != null)
-			m_world.addEntity(m_character);
-	}
-
-	@Override
-	public void update(int deltaTime)
-	{
-		if (!m_dispatchedInit)
-		{
-			m_dispatchedInit = true;
-			send(PrimitiveQuery.Initialize);
-		}
-
-		if (m_isLoading && m_character != null)
-		{
-			if (m_world != null)
-				m_world.addEntity(m_character);
-
-			m_isLoading = false;
-		}
-
-		m_tickCount += deltaTime;
-		if (m_tickCount >= SYNC_INTERVAL)
-		{
-			m_tickCount = 0;
-			snapshot();
-		}
-	}
-
-	@Override
-	protected boolean onMessageRecieved(Communicator sender, Object message) throws InvalidMessageException
-	{
-		if (message instanceof InitializationArguments)
-		{
-			final InitializationArguments args = (InitializationArguments) message;
-
-			if (m_isLoading || m_character != null)
-				throw new InvalidMessageException(sender, message, "Server dispatched initilization twice");
-
-			m_isLoading = true;
-
-			new Thread()
-			{
-				@Override
-				public void run()
-				{
-					if(args.isClientOwned())
-						m_dialogueController.addObserver(new DialogueEventDispatcher());
-					
-					m_taskFactory = new ClientRpgCharacterTaskFactory();
-					
-					if (args.getName() == null)
-						m_character = new RpgCharacter(Core.getService(IResourceLibrary.class).openConfiguration(args.getConfiguration()),
-														m_taskFactory);
-					else
-						m_character = new RpgCharacter(args.getName(), Core.getService(IResourceLibrary.class).openConfiguration(args.getConfiguration()),
-											m_taskFactory);
-					
-					m_character.getInventory().addObserver(new ServerRpgCharacterInventoryObserver());
-				}
-			}.start();
-
-			return true;
-		} else if (m_character == null || !isAssociated())
-			return false;
-
-		if (message instanceof PrimitiveQuery)
-		{
-			switch ((PrimitiveQuery) message)
-			{
-				case Initialize:
-					throw new InvalidMessageException(sender, message, "Invalid message recieved from server.");
-				default:
-					throw new InvalidMessageException(sender, message, "Unrecognized message recieved from server.");
-			}
-		} else if (message instanceof IRpgCharacterVisitor)
-		{
-			IRpgCharacterVisitor visitor = (IRpgCharacterVisitor) message;
-			
-			m_taskFactory.visitLocally(sender, visitor);
-		}
-		else
-			throw new InvalidMessageException(sender, message, "Unrecognized message recieved from server.");
-
-		return true;
-	}
-
+	
 	private class DialogueEventDispatcher implements DialogueController.IDialogueControlObserver
 	{
 		@Override
 		public void dialogueEvent(int event)
 		{
 			Entity speaker = m_dialogueController.getSpeaker();
+			Entity listener = m_dialogueController.getListener();
 			
-			send(new DialogueEvent(event, speaker == null ? null : speaker.getInstanceName()));
+			//Am I the speaker?
+			if(speaker == getEntity())
+				send(new NetRpgCharacter.DialogueEvent(event, listener.getInstanceName()));
 		}
 		
 		@Override
@@ -213,7 +103,7 @@ public final class ClientRpgCharacter extends NetRpgCharacter implements IWorldA
 		@Override
 		public void itemAction(int slotIndex, RpgCharacter accessor, String action)
 		{
-			send(new InventoryAction(accessor, action, slotIndex));
+			send(new NetRpgCharacter.InventoryAction(accessor, action, slotIndex));
 		}
 	}
 	
@@ -246,7 +136,7 @@ public final class ClientRpgCharacter extends NetRpgCharacter implements IWorldA
 			}
 			
 			if(dest != null)
-				send(new QueryMoveTo(dest));
+				send(new NetRpgCharacter.QueryMoveTo(dest));
 			
 			return new MovementTask(fRadius)
 			{
@@ -271,7 +161,7 @@ public final class ClientRpgCharacter extends NetRpgCharacter implements IWorldA
 				return super.createAttackTask(host, target);
 			
 			if(target != null)
-				send(new Attack(target.getInstanceName()));
+				send(new NetRpgCharacter.Attack(target.getInstanceName()));
 			
 			return new AttackTask(target)
 			{
@@ -280,11 +170,9 @@ public final class ClientRpgCharacter extends NetRpgCharacter implements IWorldA
 			};
 		}
 		
-		public void visitLocally(Communicator sender, IRpgCharacterVisitor visitor) throws InvalidMessageException
+		public void setLocalMutation(boolean isLocal)
 		{
-			m_localMutation = true;
-			visitor.visit(sender, m_character);
-			m_localMutation = false;
+			m_localMutation = isLocal;
 		}
 	}
 }

@@ -76,11 +76,13 @@ public class Script
 	
 	public final Scriptable getScriptedInterface()
 	{
+		initEngine();
 		return m_scope;
 	}
 
 	public void putConst(String name, Object o)
 	{
+		initEngine();
 		m_scope.putConst(name, m_scope, o);
 	}
 	
@@ -221,7 +223,7 @@ public class Script
 	{
 		public void evaluate(String path)
 		{
-			Script script = Core.getService(IResourceLibrary.class).openScript(path, m_context);
+			Script script = Core.getService(ResourceLibrary.class).openScript(path, m_context);
 			
 			script.m_scope.setParentScope(getScriptedInterface());
 			m_scope = script.m_scope;

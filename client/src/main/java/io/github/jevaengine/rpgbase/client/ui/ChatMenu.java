@@ -13,7 +13,7 @@
 package io.github.jevaengine.rpgbase.client.ui;
 
 import io.github.jevaengine.Core;
-import io.github.jevaengine.IResourceLibrary;
+import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.graphics.AnimationState;
 import io.github.jevaengine.graphics.IRenderable;
 import io.github.jevaengine.graphics.Sprite;
@@ -38,7 +38,7 @@ public abstract class ChatMenu extends Window
 		super(style, 432, 180);
 		this.setRenderBackground(false);
 
-		final Sprite backgroundImage = Sprite.create(Core.getService(IResourceLibrary.class).openConfiguration("ui/chat.jsf"));
+		final Sprite backgroundImage = Sprite.create(Core.getService(ResourceLibrary.class).openConfiguration("ui/chat.jsf"));
 
 		backgroundImage.setAnimation("idle", AnimationState.Play);
 

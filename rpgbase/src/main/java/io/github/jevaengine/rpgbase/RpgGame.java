@@ -13,12 +13,11 @@
 package io.github.jevaengine.rpgbase;
 
 import io.github.jevaengine.Core;
-import io.github.jevaengine.IResourceLibrary;
+import io.github.jevaengine.ResourceLibrary;
 import java.util.HashMap;
 
 import io.github.jevaengine.game.Game;
 import io.github.jevaengine.game.IGameScriptProvider;
-import io.github.jevaengine.rpgbase.quest.QuestState;
 import io.github.jevaengine.util.Nullable;
 
 public abstract class RpgGame extends Game
@@ -61,14 +60,7 @@ public abstract class RpgGame extends Game
 		@Override
 		public HashMap<String, Object> getGlobals()
 		{
-			HashMap<String, Object> vars = new HashMap<String, Object>();
-
-			vars.put("quest_notStarted", QuestState.NotStarted);
-			vars.put("quest_failed", QuestState.Failed);
-			vars.put("quest_completed", QuestState.Completed);
-			vars.put("quest_inProgress", QuestState.InProgress);
-
-			return vars;
+			return new HashMap<String, Object>();
 		}
 
 		public class GameBridge
@@ -80,12 +72,12 @@ public abstract class RpgGame extends Game
 				return character == null ? null : character.getScriptBridge();
 			}
 			
-			public void initiateDialogue(RpgCharacter.EntityBridge<?> speaker, String dialoguePath, int entry)
+			public void initiateDialogue(RpgCharacter.EntityBridge<?> speaker, String dialoguePath)
 			{
 				DialoguePath path = new DialoguePath();
-				path.deserialize(Core.getService(IResourceLibrary.class).openConfiguration(dialoguePath));
+				path.deserialize(Core.getService(ResourceLibrary.class).openConfiguration(dialoguePath));
 				
-				m_dialogueController.enqueueDialogue(speaker.getEntity(), path, entry);
+				m_dialogueController.enqueueDialogue(speaker.getEntity(), RpgGame.this.getPlayer(), path);
 			}
 		}
 	}

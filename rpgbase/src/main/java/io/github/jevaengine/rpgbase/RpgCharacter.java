@@ -14,7 +14,7 @@ package io.github.jevaengine.rpgbase;
 
 import io.github.jevaengine.Core;
 import io.github.jevaengine.CoreScriptException;
-import io.github.jevaengine.IResourceLibrary;
+import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.config.IVariable;
 import io.github.jevaengine.graphics.AnimationState;
 import io.github.jevaengine.graphics.IRenderable;
@@ -33,8 +33,10 @@ import io.github.jevaengine.world.EffectMap.TileEffects;
 import io.github.jevaengine.world.MovementTask;
 import io.github.jevaengine.world.TraverseRouteTask;
 import io.github.jevaengine.world.WorldDirection;
+
 import java.awt.Color;
 import java.awt.Graphics2D;
+
 import javax.script.ScriptException;
 
 public final class RpgCharacter extends Actor
@@ -116,7 +118,7 @@ public final class RpgCharacter extends Actor
 		
 		setDirection(WorldDirection.values()[(int)Math.round(Math.random() * (float)WorldDirection.Zero.ordinal())]);
 		
-		m_bloodEmitter = ParticleEmitter.create(Core.getService(IResourceLibrary.class).openConfiguration(decl.blood));
+		m_bloodEmitter = ParticleEmitter.create(Core.getService(ResourceLibrary.class).openConfiguration(decl.blood));
 		m_name = decl.name;
 		m_allegiance = decl.allegiance;
 		m_visibility = decl.visibility;
@@ -131,7 +133,7 @@ public final class RpgCharacter extends Actor
 		m_inventory = new Inventory(this, decl.inventorySize);
 		m_loadout = new Loadout();
 		
-		m_model = new CharacterModel(Sprite.create(Core.getService(IResourceLibrary.class).openConfiguration(decl.sprite)));
+		m_model = new CharacterModel(Sprite.create(Core.getService(ResourceLibrary.class).openConfiguration(decl.sprite), true));
 		addActionObserver(m_model);
 		addConditionObserver(m_model);
 		addConditionObserver(m_script);
@@ -300,6 +302,12 @@ public final class RpgCharacter extends Actor
 	}
 	
 	@Override
+	public boolean testPick(int x, int y, float scale)
+	{
+		return m_model.testPick(x, y, scale);
+	}
+	
+	@Override
 	public void blendEffectMap(EffectMap globalEffectMap)
 	{
 		globalEffectMap.applyOverlayEffects(getLocation().round(), new TileEffects(this.isDead()));
@@ -413,6 +421,11 @@ public final class RpgCharacter extends Actor
 		private void setDirectionalAnimation(String animationName, AnimationState state)
 		{
 			setDirectionalAnimation(animationName, state, null);
+		}
+		
+		public boolean testPick(int x, int y, float scale)
+		{
+			return m_sprite.testPick(x, y, scale);
 		}
 
 		public void updateDirectional()

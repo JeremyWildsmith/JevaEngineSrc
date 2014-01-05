@@ -13,13 +13,12 @@
 
 package io.github.jevaengine.mapeditor;
 
-import io.github.jevaengine.IResourceLibrary;
+import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.ResourceLibraryIOException;
 import io.github.jevaengine.Script;
 import io.github.jevaengine.UnresolvedResourcePathException;
 import io.github.jevaengine.config.IVariable;
 import io.github.jevaengine.config.JsonVariable;
-import io.github.jevaengine.world.Entity;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -30,7 +29,7 @@ import java.io.InputStream;
  *
  * @author Jeremy
  */
-public class MapEditorLibrary implements IResourceLibrary
+public class MapEditorLibrary extends ResourceLibrary
 {
 	private File m_root;
 	
@@ -62,12 +61,6 @@ public class MapEditorLibrary implements IResourceLibrary
 	public Script openScript(String path, Object context)
 	{
 		throw new UnsupportedOperationException("This resource library cannot create scripts");
-	}
-
-	@Override
-	public Entity createEntity(String entityName, String instanceName, String config)
-	{
-		throw new UnsupportedOperationException("This resource library cannot create entities");
 	}
 
 	@Override

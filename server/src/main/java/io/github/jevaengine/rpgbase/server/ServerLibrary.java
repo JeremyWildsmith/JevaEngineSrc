@@ -12,19 +12,23 @@
  ******************************************************************************/
 package io.github.jevaengine.rpgbase.server;
 
+import io.github.jevaengine.rpgbase.RpgCharacter;
 import io.github.jevaengine.rpgbase.RpgLibrary;
-import io.github.jevaengine.util.Nullable;
-import io.github.jevaengine.world.Entity;
 
 public class ServerLibrary extends RpgLibrary
 {
-	@Override
-	public Entity createEntity(String entityName, @Nullable String instanceName, String config)
+	public ServerLibrary()
 	{
-		// Override RpgCharacter implementation with networked RPG Character
-		if (entityName.compareTo("character") == 0)
-			return new ServerRpgCharacter(instanceName, instanceName, config).getControlledEntity();
-		else
-			return super.createEntity(entityName, instanceName, config);
+		registerEntity("character", RpgCharacter.class, new IEntityFactory<RpgCharacter>() {
+			@Override
+			public RpgCharacter create(IParentEntityFactory<RpgCharacter> parent, String instanceName, String config) {
+				RpgCharacter c = parent.create(instanceName, config);
+				
+				//Wrap entity with server observer.
+				new ServerRpgCharacter(c, instanceName, config);
+				
+				return c;
+			}
+		});
 	}
 }

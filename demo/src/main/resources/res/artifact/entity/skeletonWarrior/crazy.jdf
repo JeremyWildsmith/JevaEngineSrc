@@ -1,5 +1,6 @@
 {
   "queries" : [ {
+  	"entryCondition" : "true",
     "query" : "Welcome fair traveler, to the world of demo!",
     "answers" : [ {
       "event" : -1,

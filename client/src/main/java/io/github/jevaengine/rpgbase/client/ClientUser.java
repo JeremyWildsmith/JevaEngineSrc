@@ -16,13 +16,12 @@ import io.github.jevaengine.communication.Communicator;
 import io.github.jevaengine.communication.InvalidMessageException;
 import io.github.jevaengine.communication.SharePolicy;
 import io.github.jevaengine.communication.SharedClass;
-import io.github.jevaengine.communication.SharedEntity;
 import io.github.jevaengine.rpgbase.netcommon.NetUser;
 import io.github.jevaengine.util.Nullable;
 import io.github.jevaengine.util.StaticSet;
 
 @SharedClass(name = "User", policy = SharePolicy.ClientR)
-public class ClientUser extends NetUser implements IClientShared
+public final class ClientUser extends NetUser
 {
 	private UserCredentials m_credentials;
 
@@ -49,12 +48,6 @@ public class ClientUser extends NetUser implements IClientShared
 	public void removeObserver(IClientUserObserver o)
 	{
 		m_observers.remove(o);
-	}
-
-	@Override
-	public SharedEntity getSharedEntity()
-	{
-		return this;
 	}
 
 	public boolean isAuthenticated()
@@ -130,7 +123,6 @@ public class ClientUser extends NetUser implements IClientShared
 		return true;
 	}
 
-	@Override
 	public void update(int deltaTime)
 	{
 		m_pingDispatch += deltaTime;

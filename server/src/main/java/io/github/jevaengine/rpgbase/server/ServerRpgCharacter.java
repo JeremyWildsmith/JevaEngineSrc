@@ -12,14 +12,9 @@
  ******************************************************************************/
 package io.github.jevaengine.rpgbase.server;
 
-import io.github.jevaengine.Core;
-import io.github.jevaengine.IResourceLibrary;
 import io.github.jevaengine.communication.Communicator;
-import io.github.jevaengine.communication.InvalidMessageException;
 import io.github.jevaengine.communication.SharePolicy;
 import io.github.jevaengine.communication.SharedClass;
-import io.github.jevaengine.communication.SharedEntity;
-import io.github.jevaengine.config.IVariable;
 import io.github.jevaengine.math.Vector2F;
 import io.github.jevaengine.rpgbase.Inventory;
 import io.github.jevaengine.rpgbase.Inventory.InventorySlot;
@@ -31,164 +26,60 @@ import io.github.jevaengine.rpgbase.Item.ItemType;
 import io.github.jevaengine.rpgbase.Loadout;
 import io.github.jevaengine.rpgbase.netcommon.NetRpgCharacter;
 import io.github.jevaengine.util.Nullable;
-import io.github.jevaengine.world.Entity;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 @SharedClass(name = "RpgCharacter", policy = SharePolicy.ClientR)
-public class ServerRpgCharacter extends NetRpgCharacter implements IServerEntity
+public final class ServerRpgCharacter extends ServerEntity<RpgCharacter>
 {
-	private static final int SYNC_INTERVAL = 50;
-
-	private RpgCharacter m_character;
-	
-	private String m_config;
-
-	private Movement m_movementState;
-	private Attack m_attackState;
-
-	private int m_tickCount = 0;
+	private NetRpgCharacter.Movement m_movementState;
+	private NetRpgCharacter.Attack m_attackState;
 
 	private static AtomicInteger m_characterCount = new AtomicInteger();
-
-	private String m_titleName;
 	
-	private ServerCommunicator m_owningCommunicator = null;
-
-	public ServerRpgCharacter(@Nullable String titleName, @Nullable String instanceName, String store, @Nullable ServerCommunicator owningCommunicator)
+	public ServerRpgCharacter(RpgCharacter character, @Nullable String instanceName, String configuration, @Nullable ServerCommunicator owner)
 	{
-		m_titleName = titleName;
-		m_config = store;
-		m_owningCommunicator = owningCommunicator;
-
-		IVariable root = Core.getService(IResourceLibrary.class).openConfiguration(m_config);
-
-		m_character = new RpgCharacter("__SERVERCHARACTER__" + (instanceName == null ? m_characterCount.getAndIncrement() : instanceName),
-										root,
-										new ServerCharacterBridge());
+		super(character,
+				"__SERVERCHARACTER__" + (instanceName == null ? m_characterCount.getAndIncrement() : instanceName),
+				configuration,
+				owner);
 
 		ServerRpgCharacterObserver observer = new ServerRpgCharacterObserver();
 		
-		m_character.addObserver(observer);
-		m_character.addActionObserver(observer);
-		m_character.addConditionObserver(observer);
+		character.addObserver(observer);
+		character.addActionObserver(observer);
+		character.addConditionObserver(observer);
 		
-		m_character.getInventory().addObserver(new ServerRpgCharacterInventoryObserver());
-		m_character.getLoadout().addObserver(new ServerRpgCharacterLoadoutObserver());
+		character.getInventory().addObserver(new ServerRpgCharacterInventoryObserver());
+		character.getLoadout().addObserver(new ServerRpgCharacterLoadoutObserver());
 
-		m_movementState = new Movement(m_character.getLocation());
-		m_attackState = new Attack(null);
+		m_movementState = new NetRpgCharacter.Movement(character.getLocation());
+		m_attackState = new NetRpgCharacter.Attack(null);
 	}
 	
-	public ServerRpgCharacter(@Nullable String titleName, @Nullable String instanceName, String store)
+	public ServerRpgCharacter(RpgCharacter character, @Nullable String instanceName, String configuration)
 	{
-		this(titleName, instanceName, store, null);
+		this(character, instanceName, configuration, null);
 	}
 	
-	public ServerRpgCharacter(@Nullable String instanceName, String store)
-	{
-		this(null, instanceName, store, null);
-	}
-	
-	public void setOwner(ServerCommunicator owner)
-	{
-		m_owningCommunicator = owner;
-	}
-
 	@Override
-	public void update(int deltaTime)
+	public void initializeRemote(Communicator sender)
 	{
-		m_tickCount += deltaTime;
+		RpgCharacter character = getEntity();
+		
+		send(sender, m_movementState);
+		send(sender, new NetRpgCharacter.HealthSet(character.getHealth()));
 
-		if (m_tickCount >= SYNC_INTERVAL)
+		for (InventorySlot slot : character.getInventory().getSlots())
 		{
-			m_tickCount = 0;
-			snapshot();
+			if (!slot.isEmpty())
+				send(sender, new NetRpgCharacter.AddInventoryItem(slot.getIndex(), slot.getItem().getDescriptor()));
 		}
-	}
 
-	@Override
-	public Entity getControlledEntity()
-	{
-		return m_character;
-	}
-
-	@Override
-	public SharedEntity getSharedEntity()
-	{
-		return this;
-	}
-
-	public RpgCharacter getCharacter()
-	{
-		return m_character;
-	}
-
-	@Override
-	protected synchronized boolean onMessageRecieved(Communicator sender, Object message) throws InvalidMessageException
-	{
-		ServerCommunicator communicator = (ServerCommunicator) sender;
-
-		if (message instanceof PrimitiveQuery)
+		for (ItemSlot slot : character.getLoadout().getSlots())
 		{
-			switch ((PrimitiveQuery) message)
-			{
-				case Initialize:
-					send(sender, new InitializationArguments(m_config, m_character.getInstanceName(), m_titleName, m_owningCommunicator == sender));
-					send(sender, m_movementState);
-					send(sender, new HealthSet(m_character.getHealth()));
-
-					for (InventorySlot slot : m_character.getInventory().getSlots())
-					{
-						if (!slot.isEmpty())
-							send(sender, new AddInventoryItem(slot.getIndex(), slot.getItem().getDescriptor()));
-					}
-
-					for (ItemSlot slot : m_character.getLoadout().getSlots())
-					{
-						if (!slot.isEmpty())
-							send(sender, new EquipItem(slot.getItem().getDescriptor().toString()));
-					}
-					
-					break;
-				default:
-					throw new InvalidMessageException(sender, message, "Unrecognized message");
-			}
-		} else if (message instanceof IRpgCharacterVisitor)
-		{
-			IRpgCharacterVisitor visitor = (IRpgCharacterVisitor) message;
-
-			if ((!visitor.requiresOwnership() || sender == m_owningCommunicator) && !visitor.isServerDispatchOnly())
-			{
-				try
-				{
-					((IRpgCharacterVisitor) message).visit(sender, m_character);
-				} catch (InvalidMessageException e)
-				{
-					communicator.disconnect("Visitor synchronization error: " + e.toString());
-				}
-			} else
-				communicator.disconnect("Attempted to mutate entity without sufficient access.");
-		} else
-			throw new InvalidMessageException(sender, message, "Unrecognized message");
-
-		return true;
-	}
-	
-	public static class ServerCharacterBridge extends RpgCharacter.RpgCharacterBridge
-	{
-		public void setWorld(String worldName)
-		{
-			ServerWorld world = Core.getService(ServerGame.class).getServerWorld(worldName);
-			Entity entity = getEntity();
-
-			if (entity.isAssociated())
-			{
-				cancelTasks();
-				entity.getWorld().removeEntity(entity);
-			}
-
-			world.getWorld().addEntity(entity);
+			if (!slot.isEmpty())
+				send(sender, new NetRpgCharacter.EquipItem(slot.getItem().getDescriptor().toString()));
 		}
 	}
 
@@ -199,34 +90,30 @@ public class ServerRpgCharacter extends NetRpgCharacter implements IServerEntity
 		@Override
 		public void healthChanged(int delta)
 		{
-			send(new HealthSet(m_character.getHealth()));
+			send(new NetRpgCharacter.HealthSet(getEntity().getHealth()));
 		}
 
 		@Override
 		public void replaced()
 		{
-			m_movementState = new Movement(getCharacter().getLocation());
+			m_movementState = new NetRpgCharacter.Movement(getEntity().getLocation());
 			send(m_movementState);
 		}
 
 		@Override
 		public void enterWorld()
 		{
-			m_movementState = new Movement(ServerRpgCharacter.this.getCharacter().getLocation());
-			Core.getService(ServerGame.class).entityEnter(ServerRpgCharacter.this);
+			m_movementState = new NetRpgCharacter.Movement(getEntity().getLocation());
 		}
 
 		@Override
-		public void leaveWorld()
-		{
-			Core.getService(ServerGame.class).entityLeave(ServerRpgCharacter.this);
-		}
+		public void leaveWorld() { }
 
 		@Override
 		public void attack(@Nullable RpgCharacter attackee)
 		{
-			m_movementState = new Movement(m_character.getLocation());
-			m_attackState = new Attack(attackee == null ? null : attackee.getInstanceName());
+			m_movementState = new NetRpgCharacter.Movement(getEntity().getLocation());
+			m_attackState = new NetRpgCharacter.Attack(attackee == null ? null : attackee.getInstanceName());
 			send(m_movementState);
 			send(m_attackState);
 		}
@@ -234,17 +121,29 @@ public class ServerRpgCharacter extends NetRpgCharacter implements IServerEntity
 		@Override
 		public void endMoving()
 		{
-			m_movementState = new Movement(getCharacter().getLocation());
+			m_movementState = new NetRpgCharacter.Movement(getEntity().getLocation());
 			send(m_movementState);
 		}
 
 		@Override
 		public void movingTowards(Vector2F target)
 		{
-			m_movementState = new Movement(m_character.getLocation(), target);
+			m_movementState = new NetRpgCharacter.Movement(getEntity().getLocation(), target);
 			send(m_movementState);
 		}
 
+		@Override
+		public void flagSet(String name, int value)
+		{
+			
+		}
+
+		@Override
+		public void flagCleared(String name)
+		{
+			
+		}
+		
 		@Override
 		public void beginMoving() { }
 
@@ -257,13 +156,13 @@ public class ServerRpgCharacter extends NetRpgCharacter implements IServerEntity
 		@Override
 		public void addItem(int iSlot, ItemIdentifer item)
 		{
-			send(new AddInventoryItem(iSlot, item));
+			send(new NetRpgCharacter.AddInventoryItem(iSlot, item));
 		}
 
 		@Override
 		public void removeItem(int iSlot, ItemIdentifer item)
 		{
-			send(new RemoveInventoryItem(iSlot));
+			send(new NetRpgCharacter.RemoveInventoryItem(iSlot));
 		}
 
 		@Override
@@ -275,13 +174,13 @@ public class ServerRpgCharacter extends NetRpgCharacter implements IServerEntity
 		@Override
 		public void unequip(ItemType gearType)
 		{
-			send(new UnequipItem(gearType));
+			send(new NetRpgCharacter.UnequipItem(gearType));
 		}
 
 		@Override
 		public void equip(Item item)
 		{
-			send(new EquipItem(item.getDescriptor().toString()));
+			send(new NetRpgCharacter.EquipItem(item.getDescriptor().toString()));
 		}
 		
 	}

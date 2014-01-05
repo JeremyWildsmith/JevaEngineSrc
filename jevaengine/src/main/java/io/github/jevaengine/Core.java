@@ -47,7 +47,7 @@ public final class Core
 	{
 	}
 	
-	public static <T extends Game, Y extends IResourceLibrary, X extends IWindowManager> void initialize(T game, Y resourceLibrary, X windowManager, CoreMode coreMode)
+	public static <T extends Game, Y extends ResourceLibrary, X extends IWindowManager> void initialize(T game, Y resourceLibrary, X windowManager, CoreMode coreMode)
 	{
 		if (m_existingServices != null)
 			throw new CoreInitializationException("Core has already been initialized. Cannot repeat initialization");
@@ -61,12 +61,12 @@ public final class Core
 		m_coreMode = coreMode;
 	}
 
-	public static <T extends Game, Y extends IResourceLibrary> void initialize(T game, Y resourceLibrary)
+	public static <T extends Game, Y extends ResourceLibrary> void initialize(T game, Y resourceLibrary)
 	{
 		initialize(game, resourceLibrary, new BasicWindowManager(), CoreMode.Normal);
 	}
 	
-	public static <T extends Game, Y extends IResourceLibrary> void initialize(T game, Y resourceLibrary, CoreMode coreMode)
+	public static <T extends Game, Y extends ResourceLibrary> void initialize(T game, Y resourceLibrary, CoreMode coreMode)
 	{
 		initialize(game, resourceLibrary, new BasicWindowManager(), coreMode);
 	}

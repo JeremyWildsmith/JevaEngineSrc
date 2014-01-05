@@ -17,7 +17,7 @@ import java.awt.Graphics2D;
 import java.lang.ref.WeakReference;
 
 import io.github.jevaengine.Core;
-import io.github.jevaengine.IResourceLibrary;
+import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.game.Game;
 import io.github.jevaengine.graphics.IRenderable;
 import io.github.jevaengine.graphics.ParticleEmitter;
@@ -57,7 +57,7 @@ public class CharacterMenu extends Window
 	{
 		super(style, 300, 330);
 
-		m_characterEmitter = ParticleEmitter.create(Core.getService(IResourceLibrary.class).openConfiguration("particle/characterMenu/characterMenu.jpar"));
+		m_characterEmitter = ParticleEmitter.create(Core.getService(ResourceLibrary.class).openConfiguration("particle/characterMenu/characterMenu.jpar"));
 
 		m_characterEmitter.setEmit(true);
 

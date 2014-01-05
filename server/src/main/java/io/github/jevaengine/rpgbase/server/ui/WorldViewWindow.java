@@ -30,10 +30,11 @@ import io.github.jevaengine.joystick.InputManager.InputMouseEvent;
 import io.github.jevaengine.joystick.InputManager.InputMouseEvent.MouseButton;
 import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.math.Vector2F;
+import io.github.jevaengine.world.Actor;
 import io.github.jevaengine.world.IInteractable;
 import io.github.jevaengine.world.World;
-import java.awt.Color;
 
+import java.awt.Color;
 import java.awt.event.KeyEvent;
 
 public class WorldViewWindow extends Window
@@ -137,7 +138,7 @@ public class WorldViewWindow extends Window
 		private IInteractable m_lastTarget = null;
 		
 		@Override
-		public void worldSelection(Vector2D screenLocation, Vector2F worldLocation, MouseButton button)
+		public void worldSelection(Vector2D location, Vector2F worldLocation, MouseButton button)
 		{
 			final IInteractable[] interactables = m_camera.getWorld().getTileEffects(worldLocation.round()).interactables.toArray(new IInteractable[0]);
 
@@ -154,7 +155,7 @@ public class WorldViewWindow extends Window
 						}
 					});
 
-					m_contextStrip.setLocation(screenLocation);
+					m_contextStrip.setLocation(location);
 				}
 			}else if(button == MouseButton.Left)
 			{
@@ -168,28 +169,25 @@ public class WorldViewWindow extends Window
 		}
 
 		@Override
-		public void worldMove(Vector2D screenLocation, Vector2F worldLocation)
+		public void worldMove(Vector2D location, Vector2F worldLocation)
 		{
-			final IInteractable[] interactables = m_camera.getWorld().getTileEffects(worldLocation.round()).interactables.toArray(new IInteractable[0]);
-			
-			IInteractable defaultable = null;
-			
-			for(int i = 0; i < interactables.length && defaultable == null; i++)
+			final Actor interactable = m_worldView.pick(Actor.class, location);
+
+			if(interactable != null)
 			{
-				if(interactables[i].getDefaultCommand() != null)
-					defaultable = interactables[i];
-			}
-			
-			if(defaultable != null)
-			{
-				m_cursorActionLabel.setText(defaultable.getDefaultCommand());
-				m_cursorActionLabel.setVisible(true);
+				String defaultCommand = interactable.getDefaultCommand();
 				
-				Vector2D offset = new Vector2D(10, 15);
+				if(defaultCommand != null)
+				{
+					m_cursorActionLabel.setText(defaultCommand);
+					m_cursorActionLabel.setVisible(true);
+					
+					Vector2D offset = new Vector2D(10, 15);
+					
+					m_cursorActionLabel.setLocation(location.add(offset));
 				
-				m_cursorActionLabel.setLocation(screenLocation.add(offset));
-			
-				m_lastTarget = defaultable;
+					m_lastTarget = interactable;
+				}
 			}else
 			{
 				m_lastTarget = null;

@@ -62,11 +62,16 @@ public final class Sprite implements IRenderable
 
 	public static Sprite create(IVariable root)
 	{
+		return create(root, false);
+	}
+	
+	public static Sprite create(IVariable root, boolean enablePickTesting)
+	{
 		try
 		{
 			SpriteDeclaration spriteDecl = root.getValue(SpriteDeclaration.class);
 			
-			Graphic srcImage = Graphic.create(spriteDecl.texture);
+			Graphic srcImage = Graphic.create(spriteDecl.texture, enablePickTesting);
 
 			Sprite sprite = new Sprite(srcImage, spriteDecl.scale);
 
@@ -168,6 +173,22 @@ public final class Sprite implements IRenderable
 		workingGraphics.dispose();
 	}
 	
+	public boolean testPick(int x, int y, float scale)
+	{
+		if(m_currentAnimation == null)
+			return false;
+		
+		int xTest = Math.round(x * (1.0F / (m_fNaturalScale * scale))) + m_currentAnimation.getCurrentFrame().getSourceRect().x;
+		int yTest = Math.round(y * (1.0F / (m_fNaturalScale * scale))) + m_currentAnimation.getCurrentFrame().getSourceRect().y;
+		
+		xTest += m_currentAnimation.getCurrentFrame().getOrigin().x;
+		yTest += m_currentAnimation.getCurrentFrame().getOrigin().y;
+		
+		return m_currentAnimation.getCurrentFrame().getSourceRect().contains(new Vector2D(xTest, yTest)) && 
+				m_srcImage.pickTest(xTest, yTest);
+	
+	}
+	
 	public static class SpriteDeclaration implements ISerializable
 	{
 		public String texture;
@@ -236,8 +257,6 @@ public final class Sprite implements IRenderable
 				this.anchor = source.getChild("anchor").getValue(Vector2D.class);
 				this.delay = source.getChild("delay").getValue(Integer.class);
 			}
-			
-			
 		}
 	}
 }

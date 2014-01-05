@@ -14,7 +14,7 @@ package io.github.jevaengine.rpgbase;
 
 import io.github.jevaengine.Core;
 import io.github.jevaengine.CoreScriptException;
-import io.github.jevaengine.IResourceLibrary;
+import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.Script;
 import io.github.jevaengine.audio.Audio;
 import io.github.jevaengine.config.ISerializable;
@@ -62,7 +62,7 @@ public class Item
 		{
 			m_isWieldable = isWieldable;
 			m_behaviour = behaviour;
-			m_icon = Sprite.create(Core.getService(IResourceLibrary.class).openConfiguration(backgroundSpritePath));
+			m_icon = Sprite.create(Core.getService(ResourceLibrary.class).openConfiguration(backgroundSpritePath));
 			m_icon.setAnimation("idle", AnimationState.Play);
 		}
 
@@ -100,18 +100,18 @@ public class Item
 
 	public static Item create(ItemIdentifer identifier)
 	{
-		ItemDeclaration itemDecl = Core.getService(IResourceLibrary.class)
+		ItemDeclaration itemDecl = Core.getService(ResourceLibrary.class)
 									.openConfiguration(identifier.m_descriptor)
 									.getValue(ItemDeclaration.class);
 
 		Sprite graphic = Sprite.create(
-							Core.getService(IResourceLibrary.class)
+							Core.getService(ResourceLibrary.class)
 								.openConfiguration(itemDecl.sprite));
 		
 		Script script;
 
 		if (itemDecl.script != null)
-			script = Core.getService(IResourceLibrary.class).openScript(itemDecl.script, new ItemBridge());
+			script = Core.getService(ResourceLibrary.class).openScript(itemDecl.script, new ItemBridge());
 		else
 			script = new Script();
 		

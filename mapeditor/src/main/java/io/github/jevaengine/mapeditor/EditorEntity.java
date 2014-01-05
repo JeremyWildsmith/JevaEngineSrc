@@ -13,7 +13,7 @@
 package io.github.jevaengine.mapeditor;
 
 import io.github.jevaengine.Core;
-import io.github.jevaengine.IResourceLibrary;
+import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.game.Game;
 import io.github.jevaengine.graphics.AnimationState;
 import io.github.jevaengine.graphics.Font;
@@ -48,7 +48,7 @@ public class EditorEntity
 		m_config = config;
 		m_location = new Vector2F();
 		m_direction = WorldDirection.Zero;
-		m_tileSprite = Sprite.create(Core.getService(IResourceLibrary.class).openConfiguration("@tile/tile.jsf"));
+		m_tileSprite = Sprite.create(Core.getService(ResourceLibrary.class).openConfiguration("@tile/tile.jsf"));
 		m_tileSprite.setAnimation("entity", AnimationState.Play);
 	}
 	

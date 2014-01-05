@@ -14,7 +14,7 @@ package io.github.jevaengine.rpgbase.server;
 
 import io.github.jevaengine.Core;
 import io.github.jevaengine.IDisposable;
-import io.github.jevaengine.IResourceLibrary;
+import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.communication.InvalidMessageException;
 import io.github.jevaengine.communication.PolicyViolationException;
 import io.github.jevaengine.communication.ShareEntityException;
@@ -38,6 +38,7 @@ import io.github.jevaengine.rpgbase.server.ServerUser.IUserHandler;
 import io.github.jevaengine.rpgbase.server.ui.WorldViewWindow;
 import io.github.jevaengine.util.Nullable;
 import io.github.jevaengine.util.StaticSet;
+import io.github.jevaengine.world.Entity;
 import io.github.jevaengine.world.World;
 import io.github.jevaengine.world.Entity.IEntityObserver;
 
@@ -69,7 +70,7 @@ public class ServerGame extends RpgGame implements IDisposable
 	{
 		super.startup();
 
-		IResourceLibrary library = Core.getService(IResourceLibrary.class);
+		ResourceLibrary library = Core.getService(ResourceLibrary.class);
 		
 		m_config = library.openConfiguration("server.cfg").getValue(ServerConfiguration.class);
 			
@@ -200,15 +201,15 @@ public class ServerGame extends RpgGame implements IDisposable
 	{
 		return null;
 	}
-
-	public void entityEnter(ServerRpgCharacter character)
+	
+	public void entityEnter(ServerEntity<? extends Entity> entity)
 	{
-		getServerWorld(character.getCharacter().getWorld()).entityEnter(character);
+		getServerWorld(entity.getEntity().getWorld()).entityEnter(entity);
 	}
 
-	public void entityLeave(ServerRpgCharacter character)
+	public void entityLeave(ServerEntity<? extends Entity> entity)
 	{
-		getServerWorld(character.getCharacter().getWorld()).entityLeave(character);
+		getServerWorld(entity.getEntity().getWorld()).entityLeave(entity);
 	}
 
 	@Nullable
@@ -419,7 +420,7 @@ public class ServerGame extends RpgGame implements IDisposable
 		private RemoteSocketCommunicator m_remote;
 		private ServerUser m_user;
 
-		@Nullable private ServerRpgCharacter m_character;
+		@Nullable private RpgCharacter m_character;
 
 		private boolean m_isRemoteInitialized = false;
 
@@ -447,10 +448,10 @@ public class ServerGame extends RpgGame implements IDisposable
 		@Override
 		public void dispose()
 		{
-			if (m_character != null && m_character.getCharacter().isAssociated())
+			if (m_character != null && m_character.isAssociated())
 			{
-				m_character.getCharacter().getWorld().removeEntity(m_character.getControlledEntity());
-				m_character.getCharacter().removeObserver(m_userHandler);
+				m_character.getWorld().removeEntity(m_character);
+				m_character.removeObserver(m_userHandler);
 			}
 			m_communicator.unbind();
 			m_remote.dispose();
@@ -474,23 +475,20 @@ public class ServerGame extends RpgGame implements IDisposable
 			{
 				m_isRemoteInitialized = true;
 
-				m_character = new ServerRpgCharacter(m_user.getUsername(),
-														"PLAYER_" + m_user.getUsername().toLowerCase(),
-														m_config.playerEntity,
-														m_communicator);
+				m_character = Core.getService(ResourceLibrary.class).createEntity(RpgCharacter.class, "PLAYER_" + m_user.getUsername().toLowerCase(), m_config.playerEntity);
+				
+				m_character.addObserver(m_userHandler);
+				m_character.setLocation(new Vector2F(6, 6));
 
-				m_character.getCharacter().addObserver(m_userHandler);
-				m_character.getCharacter().setLocation(new Vector2F(6, 6));
-
-				m_user.assignEntity(m_character.getCharacter().getInstanceName());
+				m_user.assignEntity(m_character.getInstanceName());
 
 				ServerWorld spawnWorld = getServerWorld(m_config.spawnWorld);
 
-				spawnWorld.getWorld().addEntity(m_character.getControlledEntity());
+				spawnWorld.getWorld().addEntity(m_character);
 
-			} else if (m_character != null && m_character.getCharacter().isDead())
+			} else if (m_character != null && m_character.isDead())
 			{
-				RpgCharacter character = m_character.getCharacter();
+				RpgCharacter character = m_character;
 
 				ServerWorld currentWorld = character.isAssociated() ? getServerWorld(character.getWorld()) : null;
 				ServerWorld spawnWorld = getServerWorld(m_config.spawnWorld);
@@ -517,7 +515,7 @@ public class ServerGame extends RpgGame implements IDisposable
 
 		public RpgCharacter getCharacter()
 		{
-			return m_character.getCharacter();
+			return m_character;
 		}
 
 		public ServerUser getUser()
@@ -569,7 +567,7 @@ public class ServerGame extends RpgGame implements IDisposable
 			{
 				try
 				{
-					m_communicator.shareEntity(getServerWorld(m_character.getCharacter().getWorld()));
+					m_communicator.shareEntity(getServerWorld(m_character.getWorld()));
 				} catch (ShareEntityException | IOException e)
 				{
 					closeConnection(RemoteClient.this, "Error occured attempting to share with client: " + e.toString());
@@ -581,7 +579,7 @@ public class ServerGame extends RpgGame implements IDisposable
 			{
 				try
 				{
-					m_communicator.unshareEntity(getServerWorld(m_character.getCharacter().getWorld()));
+					m_communicator.unshareEntity(getServerWorld(m_character.getWorld()));
 				} catch (IOException e)
 				{
 					closeConnection(RemoteClient.this, "Error occured attempting to share with client: " + e.toString());
@@ -590,6 +588,12 @@ public class ServerGame extends RpgGame implements IDisposable
 
 			@Override
 			public void replaced() { }
+
+			@Override
+			public void flagSet(String name, int value) { }
+
+			@Override
+			public void flagCleared(String name) { }
 		}
 	}
 
