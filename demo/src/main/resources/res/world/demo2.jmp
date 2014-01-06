@@ -159,7 +159,16 @@
     },
     "direction" : 0,
     "name" : "crazyOldMan0",
-    "config" : "artifact/entity/skeletonWarrior/crazy.jec",
+    "config" : "artifact/entity/tutorial/coinFlipper.jec",
     "type" : "character"
+  }, {
+    "location" : {
+      "y" : 3.0,
+      "x" : 1.0
+    },
+    "direction" : 0,
+    "name" : "pickupCoin",
+    "config" : "artifact/entity/tutorial/coinPickup.jec",
+    "type" : "areaTrigger"
   } ]
 }

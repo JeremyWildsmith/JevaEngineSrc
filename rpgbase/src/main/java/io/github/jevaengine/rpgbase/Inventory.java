@@ -65,7 +65,7 @@ public final class Inventory implements IItemStore
 	{
 		for (ItemSlot slot : m_inventory)
 		{
-			if (!slot.isEmpty() && slot.getItem().getDescription().equals(item))
+			if (!slot.isEmpty() && slot.getItem().getDescriptor().equals(item))
 				return true;
 		}
 
@@ -95,7 +95,7 @@ public final class Inventory implements IItemStore
 		{
 			ItemSlot slot = m_inventory.get(i);
 
-			if (!slot.isEmpty() && slot.getItem().getDescription().equals(item))
+			if (!slot.isEmpty() && slot.getItem().getDescriptor().equals(item))
 			{
 				m_observers.removeItem(i, item);
 				slot.clear();

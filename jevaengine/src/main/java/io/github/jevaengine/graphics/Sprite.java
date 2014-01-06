@@ -178,14 +178,18 @@ public final class Sprite implements IRenderable
 		if(m_currentAnimation == null)
 			return false;
 		
-		int xTest = Math.round(x * (1.0F / (m_fNaturalScale * scale))) + m_currentAnimation.getCurrentFrame().getSourceRect().x;
-		int yTest = Math.round(y * (1.0F / (m_fNaturalScale * scale))) + m_currentAnimation.getCurrentFrame().getSourceRect().y;
+		Rect2D bounds = m_currentAnimation.getCurrentFrame().getSourceRect();
 		
-		xTest += m_currentAnimation.getCurrentFrame().getOrigin().x;
-		yTest += m_currentAnimation.getCurrentFrame().getOrigin().y;
+		int xTest = Math.round(x * (1.0F / (m_fNaturalScale * scale))) + m_currentAnimation.getCurrentFrame().getOrigin().x;
+		int yTest = Math.round(y * (1.0F / (m_fNaturalScale * scale))) + m_currentAnimation.getCurrentFrame().getOrigin().y;
 		
-		return m_currentAnimation.getCurrentFrame().getSourceRect().contains(new Vector2D(xTest, yTest)) && 
-				m_srcImage.pickTest(xTest, yTest);
+		if(xTest < 0 || yTest < 0 || xTest > bounds.width || yTest > bounds.height)
+			return false;
+		
+		xTest += bounds.x;
+		yTest += bounds.y;
+		
+		return  m_srcImage.pickTest(xTest, yTest);
 	
 	}
 	

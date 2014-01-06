@@ -55,6 +55,7 @@ public class Demo2 implements IState
 	
 	private World m_world;
 	private Window m_window;
+	private WorldView m_worldView;
 	private TextArea m_dialogue;
 	private final MenuStrip m_contextStrip = new MenuStrip();
 	private final Label m_cursorActionLabel = new Label("None", Color.yellow);
@@ -95,19 +96,19 @@ public class Demo2 implements IState
 		* be added to a Panel\Window that renders the world through a provided
 		* camera.
 		*/
-		WorldView worldViewport = new WorldView(680, 400);
-		worldViewport.setRenderBackground(false);
-		worldViewport.setCamera(camera);
-		worldViewport.addListener(new WorldViewListener());
-		m_window.addControl(worldViewport, new Vector2D(10,70));
+		m_worldView = new WorldView(680, 400);
+		m_worldView.setRenderBackground(false);
+		m_worldView.setCamera(camera);
+		m_worldView.addListener(new WorldViewListener());
+		m_window.addControl(m_worldView, new Vector2D(10,70));
 		
 		/*
 		* Now we need to add our label and our context menu to our worldViewport,
 		* so we can display them over the world viewport. These controls are used by the
 		* world view listener below to display HUD menus to the user.
 		*/
-		worldViewport.addControl(m_contextStrip);
-		worldViewport.addControl(m_cursorActionLabel);
+		m_worldView.addControl(m_contextStrip);
+		m_worldView.addControl(m_cursorActionLabel);
 		m_contextStrip.setVisible(false);
 		m_cursorActionLabel.setVisible(false);
 		
@@ -203,26 +204,23 @@ public class Demo2 implements IState
 		@Override
 		public void worldMove(Vector2D location, Vector2F worldLocation)
 		{
-			final IInteractable[] interactables = m_world.getTileEffects(worldLocation.round()).interactables.toArray(new IInteractable[0]);
+			final IInteractable interactable = m_worldView.pick(RpgCharacter.class, location);
 			
-			IInteractable defaultable = null;
-			
-			for(int i = 0; i < interactables.length && defaultable == null; i++)
+			if(interactable != null)
 			{
-				if(interactables[i].getDefaultCommand() != null)
-					defaultable = interactables[i];
-			}
-			
-			if(defaultable != null)
-			{
-				m_cursorActionLabel.setText(defaultable.getDefaultCommand());
-				m_cursorActionLabel.setVisible(true);
+				String defaultCommand = interactable.getDefaultCommand();
 				
-				Vector2D offset = new Vector2D(10, 15);
+				if(defaultCommand != null)
+				{
+					m_cursorActionLabel.setText(defaultCommand);
+					m_cursorActionLabel.setVisible(true);
+					
+					Vector2D offset = new Vector2D(10, 15);
+					
+					m_cursorActionLabel.setLocation(location.add(offset));
 				
-				m_cursorActionLabel.setLocation(location.add(offset));
-			
-				m_lastTarget = defaultable;
+					m_lastTarget = interactable;
+				}
 			}else
 			{
 				m_lastTarget = null;
@@ -289,12 +287,13 @@ public class Demo2 implements IState
 			//invoked has raised an event.
 			
 			Entity speaker = m_dialogueController.getSpeaker();
+			Entity listener = m_dialogueController.getListener();
 			
 			if(speaker != null)
 			{
 				try
 				{
-					speaker.getScript().invokeScriptFunction("dialogueEvent", event);
+					speaker.getScript().invokeScriptFunction("dialogueEvent", listener == null ? null : listener.getScriptBridge(), event);
 				} catch (NoSuchMethodException ex) { }
 				catch (ScriptException ex)
 				{

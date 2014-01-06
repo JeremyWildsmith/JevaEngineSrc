@@ -1,0 +1,100 @@
+{
+  "queries" :
+  [
+    {
+  	  "entryCondition" : "!listener.isFlagSet(\"FOUND_COIN\")",
+      "query" : "Welcome fair traveler, to the world of demo!",
+      "answers" :
+      [
+        {
+          "event" : -1,
+          "next" : 1,
+          "answer" : "Hello, you seem worried. Is everything alright?"
+        }
+      ]
+    },
+    {
+      "query" : "I lost my lucky coin and I cannot seem to find it!",
+      "answers" :
+      [
+        {
+          "event" : -1,
+          "next" : 2,
+          "answer" : "Where did you last see it?"
+        }
+      ]
+    },
+    {
+      "query" : "Somewhere by that bloody door, could you go take a look for me?",
+      "answers" :
+      [
+        {
+          "event" : 1,
+          "next" : -1,
+          "answer" : "Sure..."
+        }
+      ]
+    },
+  
+  
+  
+  
+    {
+  	  "entryCondition" : "listener.getFlag(\"FOUND_COIN\") < 2",
+      "query" : "Have you found that coin yet?",
+      "answers" :
+      [
+        {
+          "event" : 0,
+          "next" : 4,
+          "answer" : "Nope."
+        },
+        {
+          "condition": "listener.getInventory().hasItem(\"item/coin.jitm\", 1)",
+          "event" : 2,
+          "next" : 5,
+          "answer" : "Yes."
+        }
+      ]
+    },
+    {
+      "query" : "Alright, well keep looking will you?",
+      "answers" :
+      [
+        {
+          "event" : -1,
+          "next" : -1,
+          "answer" : "Ofcourse."
+        }
+      ]
+    },
+    {
+      "query" : "Amazing! Come back any day and try your luck with me any my coin!",
+      "answers" :
+      [
+        {
+          "event" : -1,
+          "next" : -1,
+          "answer" : "Sure thing."
+        }
+      ]
+    }, 
+    
+    
+    
+    
+    
+    {
+      "entryCondition" : "listener.getFlag(\"FOUND_COIN\") == 2", 
+      "query" : "Thanks for finding that coin.",
+      "answers" :
+      [
+        {
+          "event" : -1,
+          "next" : -1,
+          "answer" : "No problem."
+        }
+      ]
+    }
+  ]
+}
