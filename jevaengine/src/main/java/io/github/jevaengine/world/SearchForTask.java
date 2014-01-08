@@ -14,7 +14,6 @@ package io.github.jevaengine.world;
 
 public abstract class SearchForTask<T extends Entity> implements ITask
 {
-
 	private static final int SEARCH_INTERVAL = 400;
 
 	Actor m_searcher;
@@ -123,7 +122,7 @@ public abstract class SearchForTask<T extends Entity> implements ITask
 	@Override
 	public void begin(Entity entity)
 	{
-
+		m_isQueryCancel = false;
 	}
 
 	/*

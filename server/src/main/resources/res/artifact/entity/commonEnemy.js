@@ -1,5 +1,6 @@
 __commonEnemy = {
-	attackTarget: null
+	attackTarget: null,
+	attackRange: 1.7
 };
 
 function onEnter()
@@ -38,19 +39,34 @@ function doCommand(command)
 
 function constructTasks()
 {
+	me.cancelTasks();
+	
 	if (me.getHealth() > 0)
 	{
-		if(__commonEnemy.attackTarget === null || __commonEnemy.attackTarget.getHealth() <= 0)
+		if(__commonEnemy.attackTarget === null ||
+			__commonEnemy.attackTarget.getHealth() <= 0 ||
+			__commonEnemy.attackTarget.distance(me) > 4)
 		{
 			__commonEnemy.attackTarget = null;
+			me.beginLook();
 			me.idle(500);
 			me.wonder(3);
+			core.log("Looking...");
 		}else
 		{
-			me.idle(1200);
-			me.attack(__commonEnemy.attackTarget);
+
+			core.log("Found!");
+			if(__commonEnemy.attackTarget.distance(me) <= __commonEnemy.attackRange)
+			{
+				me.idle(1200);
+				me.attack(__commonEnemy.attackTarget);
+			}else
+			{
+				var targetLocation = __commonEnemy.attackTarget.getLocation();
+				me.invokeTimeout(2000, constructTasks);
+				me.moveTo(targetLocation.x, targetLocation.y, 1);
+			}
 		}
-		
 		me.invoke(constructTasks);
 	}
 }
@@ -67,9 +83,8 @@ function onAttacked(attackee)
 
 function onAttack(attackee)
 {
-	if (me.distance(attackee) > 1.2)
+	if (me.distance(attackee) >= __commonEnemy.attackRange)
 	{
-		__commonEnemy.attackTarget = null;
 		return false;
 	}
 	attackee.setHealth(attackee.getHealth() - 5);
@@ -78,12 +93,13 @@ function onAttack(attackee)
 
 function lookFound(target)
 {
-	if (me.isConflictingAllegiance(target.target))
+	core.log("found a guy...")
+	if (me.isConflictingAllegiance(target.target) && __commonEnemy.attackTarget == null)
 	{
+		core.log("Try Attack!");
+		__commonEnemy.attackTarget = target.target;
 		me.cancelTasks();
-		me.moveTo(target.location.x, target.location.y, 1);
-		me.attack(target.target);
-		me.invoke(constructTasks);
+		constructTasks();
 		return true;
 	}
 

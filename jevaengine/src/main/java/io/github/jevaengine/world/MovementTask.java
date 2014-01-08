@@ -80,7 +80,6 @@ public abstract class MovementTask implements ITask
 	{
 		if (m_queryCancel)
 		{
-			m_queryCancel = false;
 			m_observers.updateMovement(new Vector2F());
 			return true;
 		}

@@ -10,5 +10,5 @@
   "allegiance" : 0,
   "blood" : "particle/blood/bleeding.jpar",
   "health" : 100,
-  "viewDistance" : 8.0
+  "viewDistance" : 2.6
 }

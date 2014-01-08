@@ -54,6 +54,11 @@ public class Vector2D implements Comparable<Vector2D>, ISerializable
 		return x * x + y * y;
 	}
 
+	public float getAngle()
+	{
+		return (float)Math.atan2(y, x);
+	}
+	
 	public float getLength()
 	{
 		return (float) Math.sqrt(getLengthSquared());

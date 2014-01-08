@@ -83,6 +83,11 @@ public class Vector2F implements Comparable<Vector2F>, ISerializable
 		return new Vector2F(-x, -y);
 	}
 
+	public float getAngle()
+	{
+		return (float)Math.atan2(y, x);
+	}
+	
 	public float getLengthSquared()
 	{
 		return x * x + y * y;

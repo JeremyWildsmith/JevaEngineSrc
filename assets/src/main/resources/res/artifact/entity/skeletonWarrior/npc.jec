@@ -10,5 +10,5 @@
   "blood" : "particle/blood/bleeding.jpar",
   "script" : "artifact/entity/skeletonWarrior/npc.js",
   "health" : 50,
-  "viewDistance" : 8.0
+  "viewDistance" : 4.0
 }

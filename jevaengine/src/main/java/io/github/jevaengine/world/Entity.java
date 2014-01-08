@@ -328,20 +328,22 @@ public abstract class Entity implements IWorldAssociation
 
 		LinkedList<ITask> reassignList = new LinkedList<ITask>();
 
+		boolean isBlocking = isTaskBlocking();
+		
 		for (ITask task : m_pendingTasks)
 		{
-			if ((task.ignoresPause() && isPaused()) || !isPaused() && ((task.isParallel() && isTaskBlocking()) || !isTaskBlocking()))
+			if (task.isParallel())
+				reassignList.add(task);
+			else if(!isBlocking)
 			{
-				if (reassignList.peekLast() == null || reassignList.peekLast().isParallel())
-				{
-					task.begin(this);
-					reassignList.add(task);
-				}
+				isBlocking = true;
+				reassignList.add(task);
 			}
 		}
 
 		for (ITask task : reassignList)
 		{
+			task.begin(this);
 			m_runningTasks.add(task);
 			m_pendingTasks.remove(task);
 		}
@@ -354,9 +356,6 @@ public abstract class Entity implements IWorldAssociation
 				{
 					if (task.doCycle(deltaTime))
 						garbageTasks.add(task);
-
-					if (!task.isParallel())
-						break;
 				}
 			}
 		}
@@ -552,6 +551,11 @@ public abstract class Entity implements IWorldAssociation
 		public void invoke(Function target, Object ... parameters)
 		{
 			getEntity().addTask(new InvokeScriptFunctionTask(target, parameters));
+		}
+		
+		public void invokeTimeout(int timeout, Function target, Object ... parameters)
+		{
+			getEntity().addTask(new InvokeScriptTimeoutFunctionTask(timeout, target, parameters));
 		}
 
 		public void idle(int length)

@@ -16,7 +16,8 @@ public abstract class SynchronousOneShotTask implements ITask
 {
 
 	private Entity m_entity;
-
+	private boolean m_queryCancel = false;
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -25,6 +26,7 @@ public abstract class SynchronousOneShotTask implements ITask
 	@Override
 	public final void cancel()
 	{
+		m_queryCancel = true;
 	}
 
 	/*
@@ -56,7 +58,9 @@ public abstract class SynchronousOneShotTask implements ITask
 	@Override
 	public final boolean doCycle(int deltaTime)
 	{
-		run(m_entity);
+		if(!m_queryCancel)
+			run(m_entity);
+		
 		return true;
 	}
 

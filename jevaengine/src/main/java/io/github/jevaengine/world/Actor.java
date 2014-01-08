@@ -87,23 +87,23 @@ public abstract class Actor extends Entity implements IInteractable
 
 	public Entity[] getVisibleEntities()
 	{
-		Vector2F viewAt = new Vector2F(this.getDirection().getDirectionVector()).normalize().multiply(getViewDistance());
-		Vector2F viewSrcA = viewAt.rotate(-getFieldOfView() / 2.0F).add(this.getLocation());
-		Vector2F viewSrcB = viewAt.rotate(getFieldOfView() / 2.0F).add(this.getLocation());
-
-		Actor[] actorsInFov = getWorld().getActors(new TriangleSearchFilter<Actor>(this.getLocation(), viewSrcA, viewSrcB));
+		Actor[] actorsInFov = getWorld().getActors(new RadialSearchFilter<Actor>(getLocation(), getFieldOfView()));
 
 		ArrayList<Entity> visibleEntities = new ArrayList<Entity>();
 
+		float viewAngle = getDirection().getDirectionVector().getAngle();
+		
 		for (Actor e : actorsInFov)
 		{
-			if (e != this)
-			{
-				float fPathSight = TileEffects.merge(getWorld().getTileEffects(new TriangleSearchFilter<TileEffects>(this.getLocation(), e.getLocation(), e.getLocation()))).sightEffect;
+			if (e == this)
+				continue;
+			
+			float differenceAngle = Math.abs(viewAngle - e.getLocation().difference(getLocation()).getAngle());
+			
+			float pathSight = TileEffects.merge(getWorld().getTileEffects(new TriangleSearchFilter<TileEffects>(this.getLocation(), e.getLocation(), e.getLocation()))).sightEffect;
 
-				if (getVisualAcuity() >= fPathSight)
-					visibleEntities.add(e);
-			}
+			if (getVisualAcuity() >= pathSight && differenceAngle <= getFieldOfView() / 2)
+				visibleEntities.add(e);
 		}
 
 		return visibleEntities.toArray(new Entity[visibleEntities.size()]);
