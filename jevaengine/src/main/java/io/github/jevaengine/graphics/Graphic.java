@@ -25,7 +25,6 @@ import java.awt.image.FilteredImageSource;
 import java.awt.image.RGBImageFilter;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.util.BitSet;
 import java.util.HashMap;
 
 import javax.imageio.ImageIO;
@@ -33,28 +32,15 @@ import javax.imageio.ImageIO;
 public final class Graphic
 {
 	private static final HashMap<String, WeakReference<BufferedImage>> m_imageCache = new HashMap<String, WeakReference<BufferedImage>>();
-	private static final HashMap<String, WeakReference<BitSet>> m_pickingCache = new HashMap<String, WeakReference<BitSet>>();
 
-	private @Nullable Image m_sourceImage;
-	private @Nullable BitSet m_picking;
+	private @Nullable BufferedImage m_sourceImage;
+
+	private Graphic(@Nullable BufferedImage sourceImage)
+	{
+		m_sourceImage = sourceImage;
+	}
 	
-	private Graphic(@Nullable Image sourceImage)
-	{
-		m_sourceImage = sourceImage;
-	}
-
-	private Graphic(@Nullable Image sourceImage, @Nullable BitSet picking)
-	{
-		m_sourceImage = sourceImage;
-		m_picking = picking;
-	}
-
 	public static Graphic create(String name) throws IOException
-	{
-		return create(name, false);
-	}
-	
-	public static Graphic create(String name, boolean enablePickTesting) throws IOException
 	{
 		if(!Core.getMode().allowsRender())
 			return new Graphic(null);
@@ -64,10 +50,9 @@ public final class Graphic
 		if (formal.startsWith("/"))
 			formal = formal.substring(1);
 		
-		BufferedImage img;
 		synchronized (m_imageCache)
 		{
-			img = (m_imageCache.containsKey(formal) ? m_imageCache.get(formal).get() : null);
+			BufferedImage img = (m_imageCache.containsKey(formal) ? m_imageCache.get(formal).get() : null);
 			
 			if (img == null)
 			{
@@ -75,36 +60,7 @@ public final class Graphic
 				m_imageCache.put(formal, new WeakReference<BufferedImage>(img));
 			}
 			
-			if(!enablePickTesting)
-				return new Graphic(img);
-		}
-		
-		synchronized(m_pickingCache)
-		{
-			int width = img.getWidth();
-			int height = img.getHeight();
-			
-			
-			BitSet picking = m_pickingCache.containsKey(formal) ? m_pickingCache.get(formal).get() : null;
-			
-			if (picking == null)
-			{
-				picking = new BitSet(height * width);
-				
-				for(int y = 0; y < height; y++)
-				{
-					for(int x = 0; x < width; x++)
-					{
-						int alpha = (img.getRGB(x, y) >> 24) & 0xff;
-						
-						if(alpha != 0)
-							picking.set(y * width + x);
-					}
-				}
-				
-				m_pickingCache.put(formal, new WeakReference<BitSet>(picking));
-			}
-			return new Graphic(img, picking);
+			return new Graphic(img);
 		}
 	}
 	
@@ -121,16 +77,23 @@ public final class Graphic
 		if(m_sourceImage == null)
 			return new Graphic(null);
 		else
-			return new Graphic(Toolkit.getDefaultToolkit().createImage(new FilteredImageSource(m_sourceImage.getSource(), filter)));
+		{
+			Image srcImage = Toolkit.getDefaultToolkit().createImage(new FilteredImageSource(m_sourceImage.getSource(), filter));
+			BufferedImage bufferedImage = new BufferedImage(srcImage.getWidth(null), srcImage.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+			
+			Graphics2D g = bufferedImage.createGraphics();
+			g.drawImage(srcImage, 0, 0, null);
+			g.dispose();
+			
+			return new Graphic(bufferedImage);
+		}
 	}
 	
 	public boolean pickTest(int x, int y)
 	{
-		int index = y * m_sourceImage.getWidth(null) + x;
-		
-		if(m_picking == null || index < 0 || index >= m_picking.size())
+		if(x < 0 || y < 0 || x >= m_sourceImage.getWidth(null) || y > m_sourceImage.getHeight(null))
 			return false;
 		else
-			return m_picking.get(index);
+			return ((m_sourceImage.getRGB(x, y) >> 24) & 0xff) != 0;
 	}
 }

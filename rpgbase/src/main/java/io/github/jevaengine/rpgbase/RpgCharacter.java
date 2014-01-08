@@ -133,7 +133,7 @@ public final class RpgCharacter extends Actor
 		m_inventory = new Inventory(this, decl.inventorySize);
 		m_loadout = new Loadout();
 		
-		m_model = new CharacterModel(Sprite.create(Core.getService(ResourceLibrary.class).openConfiguration(decl.sprite), true));
+		m_model = new CharacterModel(Sprite.create(Core.getService(ResourceLibrary.class).openConfiguration(decl.sprite)));
 		addActionObserver(m_model);
 		addConditionObserver(m_model);
 		addConditionObserver(m_script);

@@ -59,19 +59,14 @@ public final class Sprite implements IRenderable
 
 		m_fNaturalScale = fNaturalScale;
 	}
-
-	public static Sprite create(IVariable root)
-	{
-		return create(root, false);
-	}
 	
-	public static Sprite create(IVariable root, boolean enablePickTesting)
+	public static Sprite create(IVariable root)
 	{
 		try
 		{
 			SpriteDeclaration spriteDecl = root.getValue(SpriteDeclaration.class);
 			
-			Graphic srcImage = Graphic.create(spriteDecl.texture, enablePickTesting);
+			Graphic srcImage = Graphic.create(spriteDecl.texture);
 
 			Sprite sprite = new Sprite(srcImage, spriteDecl.scale);
 
