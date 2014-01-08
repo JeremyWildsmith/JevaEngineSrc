@@ -9,11 +9,11 @@ import io.github.jevaengine.communication.Communicator;
 import io.github.jevaengine.communication.InvalidMessageException;
 import io.github.jevaengine.world.Entity;
 
-public final class NetEntity
-{	
+public class NetEntity
+{
 	public interface IEntityVisitor
 	{
-		void visit(Communicator sender, Entity entity) throws InvalidMessageException;
+		void visit(Communicator sender, Entity entity, boolean onServer) throws InvalidMessageException;
 		boolean isServerDispatchOnly();
 		boolean requiresOwnership();
 	}
@@ -28,20 +28,27 @@ public final class NetEntity
 	{
 		private String m_className;
 		private String m_configuration;
-		private String m_name;
-
+		private NetEntityName m_name;
+		private boolean m_isOwned;
+		
 		@SuppressWarnings("unused")
 		// Used by Kryo
 		private InitializeEntity() { }
 		
-		public InitializeEntity(String className, String configuration, String name)
+		public InitializeEntity(String className, String configuration, String name, boolean isOwned)
 		{
 			m_className = className;
 			m_configuration = configuration;
-			m_name = name;
+			m_name = new NetEntityName(name);
+			m_isOwned = isOwned;
 		}
 		
-		public <T extends Entity> T create(Communicator sender, Class<T> entityClass) throws InvalidMessageException
+		public boolean isOwned()
+		{
+			return m_isOwned;
+		}
+		
+		public <T extends Entity> T create(Communicator sender, Class<T> entityClass, boolean onServer) throws InvalidMessageException
 		{
 			ResourceLibrary lib = Core.getService(ResourceLibrary.class);
 			
@@ -50,14 +57,13 @@ public final class NetEntity
 			if(!entity.equals(entityClass))
 				throw new InvalidMessageException(sender, this, "Specified class name not translate to expected entity.");
 			
-			return (T)lib.createEntity(entityClass, m_name, m_configuration);
+			return (T)lib.createEntity(entityClass, m_name.get(onServer), m_configuration);
 		}
 	}
-
+	
 	public static final class FlagSet implements IEntityVisitor
 	{
 		public String m_name;
-		
 		public Integer m_value;
 		
 		@SuppressWarnings("unused")
@@ -71,10 +77,9 @@ public final class NetEntity
 		}
 
 		@Override
-		public void visit(Communicator sender, Entity entity) throws InvalidMessageException
+		public void visit(Communicator sender, Entity entity, boolean onServer) throws InvalidMessageException
 		{
 			entity.setFlag(m_name, m_value);
-		
 		}
 
 		@Override
@@ -104,7 +109,7 @@ public final class NetEntity
 		}
 
 		@Override
-		public void visit(Communicator sender, Entity entity) throws InvalidMessageException
+		public void visit(Communicator sender, Entity entity, boolean onServer) throws InvalidMessageException
 		{
 			entity.clearFlag(m_name);
 		}
@@ -136,7 +141,7 @@ public final class NetEntity
 		}
 		
 		@Override
-		public void visit(Communicator sender, Entity entity) throws InvalidMessageException
+		public void visit(Communicator sender, Entity entity, boolean onServer) throws InvalidMessageException
 		{
 			entity.clearFlags();
 			

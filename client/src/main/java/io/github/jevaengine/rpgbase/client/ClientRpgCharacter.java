@@ -25,20 +25,22 @@ import io.github.jevaengine.rpgbase.RpgGame;
 import io.github.jevaengine.rpgbase.netcommon.NetRpgCharacter;
 import io.github.jevaengine.util.Nullable;
 import io.github.jevaengine.world.Entity;
+import io.github.jevaengine.world.Entity.IEntityObserver;
 import io.github.jevaengine.world.MovementTask;
 
 @SharedClass(name = "RpgCharacter", policy = SharePolicy.ClientR)
 public final class ClientRpgCharacter extends ClientEntity<RpgCharacter>
 {
-	
 	private @Nullable ClientRpgCharacterTaskFactory m_taskFactory;
 	
 	private DialogueController m_dialogueController;
 	
+	private DialogueEventDispatcher m_dialogueEventDispatcher = new DialogueEventDispatcher();
+	
 	public ClientRpgCharacter()
 	{
 		super(RpgCharacter.class);
-		m_taskFactory = new ClientRpgCharacterTaskFactory();
+		
 		m_dialogueController = Core.getService(RpgGame.class).getDialogueController();
 	}
 
@@ -46,13 +48,16 @@ public final class ClientRpgCharacter extends ClientEntity<RpgCharacter>
 	@Override
 	public void beginVisit()
 	{
-		m_taskFactory.setLocalMutation(false);
-		
+		if(m_taskFactory != null)
+			m_taskFactory.setVisitorMutation(true);
 	}
 
 	@Override
-	public void endVisit() {
-		m_taskFactory.setLocalMutation(true);
+	public void endVisit()
+	{
+
+		if(m_taskFactory != null)
+			m_taskFactory.setVisitorMutation(false);
 	}
 
 	@Override
@@ -60,8 +65,38 @@ public final class ClientRpgCharacter extends ClientEntity<RpgCharacter>
 	{
 		RpgCharacter character = getEntity();
 		character.getInventory().addObserver(new ServerRpgCharacterInventoryObserver());
+		character.addObserver(new EntityObserver());
 		
-		m_dialogueController.addObserver(new DialogueEventDispatcher());
+		m_taskFactory = new ClientRpgCharacterTaskFactory();
+		
+		if(isOwner())
+			getEntity().setTaskFactory(m_taskFactory);
+	}
+	
+	private class EntityObserver implements IEntityObserver
+	{
+
+		@Override
+		public void enterWorld()
+		{
+			m_dialogueController.addObserver(m_dialogueEventDispatcher);
+		}
+
+		@Override
+		public void leaveWorld()
+		{
+			m_dialogueController.removeObserver(m_dialogueEventDispatcher);
+		}
+
+		@Override
+		public void replaced() { }
+
+		@Override
+		public void flagSet(String name, int value) { }
+
+		@Override
+		public void flagCleared(String name) { }
+		
 	}
 	
 	private class DialogueEventDispatcher implements DialogueController.IDialogueControlObserver
@@ -109,11 +144,12 @@ public final class ClientRpgCharacter extends ClientEntity<RpgCharacter>
 	
 	private class ClientRpgCharacterTaskFactory extends RpgCharacter.RpgCharacterTaskFactory
 	{
-		private boolean m_localMutation = false;
+		private boolean m_visitorMutation = false;
+		
 		@Override
 		public MovementTask createMovementTask(final RpgCharacter host, final @Nullable Vector2F dest, final float fRadius)
 		{
-			if(m_localMutation)
+			if(m_visitorMutation)
 			{
 				return new MovementTask(host.getSpeed())
 				{
@@ -157,7 +193,7 @@ public final class ClientRpgCharacter extends ClientEntity<RpgCharacter>
 		@Override
 		public AttackTask createAttackTask(final RpgCharacter host, final @Nullable RpgCharacter target)
 		{
-			if(m_localMutation)
+			if(m_visitorMutation)
 				return super.createAttackTask(host, target);
 			
 			if(target != null)
@@ -170,9 +206,9 @@ public final class ClientRpgCharacter extends ClientEntity<RpgCharacter>
 			};
 		}
 		
-		public void setLocalMutation(boolean isLocal)
+		public void setVisitorMutation(boolean isVisitor)
 		{
-			m_localMutation = isLocal;
+			m_visitorMutation = isVisitor;
 		}
 	}
 }

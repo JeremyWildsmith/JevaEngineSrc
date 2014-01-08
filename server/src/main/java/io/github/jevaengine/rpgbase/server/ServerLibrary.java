@@ -22,12 +22,7 @@ public class ServerLibrary extends RpgLibrary
 		registerEntity("character", RpgCharacter.class, new IEntityFactory<RpgCharacter>() {
 			@Override
 			public RpgCharacter create(IParentEntityFactory<RpgCharacter> parent, String instanceName, String config) {
-				RpgCharacter c = parent.create(instanceName, config);
-				
-				//Wrap entity with server observer.
-				new ServerRpgCharacter(c, instanceName, config);
-				
-				return c;
+				return new ServerRpgCharacter(instanceName, config, null).getEntity();
 			}
 		});
 	}

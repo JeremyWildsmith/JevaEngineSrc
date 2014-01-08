@@ -22,13 +22,12 @@ import io.github.jevaengine.rpgbase.Item.ItemIdentifer;
 import io.github.jevaengine.rpgbase.Item.ItemType;
 import io.github.jevaengine.rpgbase.ItemSlot;
 import io.github.jevaengine.rpgbase.Loadout;
-import io.github.jevaengine.rpgbase.netcommon.NetEntity.IEntityVisitor;
 import io.github.jevaengine.util.Nullable;
 import io.github.jevaengine.world.Entity;
 
 import javax.script.ScriptException;
 
-public final class NetRpgCharacter
+public final class NetRpgCharacter extends NetEntity
 {	
 	private static final RpgCharacter getCharacter(Entity e, Communicator sender, Object message) throws InvalidMessageException
 	{
@@ -41,7 +40,7 @@ public final class NetRpgCharacter
 	public static final class DialogueEvent implements IEntityVisitor
 	{
 		private int m_eventCode;
-		private @Nullable String m_listenerEntity;
+		private @Nullable NetEntityName m_listenerEntity;
 		
 		@SuppressWarnings("unused")
 		// Used by Kryo
@@ -50,18 +49,18 @@ public final class NetRpgCharacter
 		public DialogueEvent(int eventCode, @Nullable String listenerEntity)
 		{
 			m_eventCode = eventCode;
-			m_listenerEntity = listenerEntity;
+			m_listenerEntity = new NetEntityName(listenerEntity);
 		}
 
 		@Override
-		public void visit(Communicator sender, Entity entity) throws InvalidMessageException
+		public void visit(Communicator sender, Entity entity, boolean onServer) throws InvalidMessageException
 		{
 			RpgCharacter character = getCharacter(entity, sender, this);
 			
 			if(!character.isAssociated())
 				throw new InvalidMessageException(sender, this, "Unassociated entity cannot invoke dialogue event.");
 		
-			Entity listener = m_listenerEntity == null ? null : character.getWorld().getEntity(m_listenerEntity);
+			Entity listener = m_listenerEntity == null ? null : character.getWorld().getEntity(m_listenerEntity.get(onServer));
 			
 			try
 			{
@@ -120,7 +119,7 @@ public final class NetRpgCharacter
 		}
 
 		@Override
-		public void visit(Communicator sender, Entity entity) throws InvalidMessageException
+		public void visit(Communicator sender, Entity entity, boolean onServer) throws InvalidMessageException
 		{
 			RpgCharacter character = getCharacter(entity, sender, this);
 			
@@ -145,7 +144,7 @@ public final class NetRpgCharacter
 
 	public static final class Attack implements IEntityVisitor
 	{
-		private String m_target;
+		private NetEntityName m_target;
 
 		public Attack()
 		{
@@ -153,12 +152,7 @@ public final class NetRpgCharacter
 
 		public Attack(String target)
 		{
-			m_target = target;
-		}
-
-		public String getTarget()
-		{
-			return m_target;
+			m_target = new NetEntityName(target);
 		}
 
 		public boolean isAttacking()
@@ -167,11 +161,11 @@ public final class NetRpgCharacter
 		}
 
 		@Override
-		public void visit(Communicator sender, Entity entity) throws InvalidMessageException
+		public void visit(Communicator sender, Entity entity, boolean onServer) throws InvalidMessageException
 		{
 			RpgCharacter character = getCharacter(entity, sender, this);
 			
-			Entity target = character.getWorld().getEntity(m_target);
+			Entity target = character.getWorld().getEntity(m_target.get(onServer));
 			
 			if (target != null)
 			{
@@ -217,7 +211,7 @@ public final class NetRpgCharacter
 		}
 
 		@Override
-		public void visit(Communicator sender, Entity entity) throws InvalidMessageException
+		public void visit(Communicator sender, Entity entity, boolean onServer) throws InvalidMessageException
 		{
 			RpgCharacter character = getCharacter(entity, sender, this);
 			
@@ -255,7 +249,7 @@ public final class NetRpgCharacter
 		}
 
 		@Override
-		public void visit(Communicator sender, Entity entity) throws InvalidMessageException
+		public void visit(Communicator sender, Entity entity, boolean onServer) throws InvalidMessageException
 		{
 			RpgCharacter character = getCharacter(entity, sender, this);
 			
@@ -296,7 +290,7 @@ public final class NetRpgCharacter
 		}
 
 		@Override
-		public void visit(Communicator sender, Entity entity) throws InvalidMessageException
+		public void visit(Communicator sender, Entity entity, boolean onServer) throws InvalidMessageException
 		{
 			RpgCharacter character = getCharacter(entity, sender, this);
 			
@@ -337,7 +331,7 @@ public final class NetRpgCharacter
 		}
 
 		@Override
-		public void visit(Communicator sender, Entity entity) throws InvalidMessageException
+		public void visit(Communicator sender, Entity entity, boolean onServer) throws InvalidMessageException
 		{
 			RpgCharacter character = getCharacter(entity, sender, this);
 			
@@ -378,7 +372,7 @@ public final class NetRpgCharacter
 		}
 
 		@Override
-		public void visit(Communicator sender, Entity entity) throws InvalidMessageException
+		public void visit(Communicator sender, Entity entity, boolean onServer) throws InvalidMessageException
 		{
 			RpgCharacter character = getCharacter(entity, sender, this);
 			
@@ -424,7 +418,7 @@ public final class NetRpgCharacter
 		}
 
 		@Override
-		public void visit(Communicator sender, Entity entity) throws InvalidMessageException
+		public void visit(Communicator sender, Entity entity, boolean onServer) throws InvalidMessageException
 		{
 			RpgCharacter character = getCharacter(entity, sender, this);
 			
@@ -475,7 +469,7 @@ public final class NetRpgCharacter
 		}
 
 		@Override
-		public void visit(Communicator sender, Entity entity) throws InvalidMessageException
+		public void visit(Communicator sender, Entity entity, boolean onServer) throws InvalidMessageException
 		{
 			RpgCharacter character = getCharacter(entity, sender, this);
 			

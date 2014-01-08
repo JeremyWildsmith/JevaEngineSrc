@@ -109,7 +109,7 @@ public final class ClientUser extends NetUser
 				if (m_assignedPlayerEntity != null)
 					throw new InvalidMessageException(sender, recv, "Server attempted to assign player entity when one was already assigned.");
 
-				m_assignedPlayerEntity = assignment.getEntityName();
+				m_assignedPlayerEntity = assignment.getEntityName(false);
 
 				m_observers.assignedPlayer(m_assignedPlayerEntity);
 			}

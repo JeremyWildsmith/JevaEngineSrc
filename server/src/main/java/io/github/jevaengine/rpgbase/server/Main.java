@@ -47,6 +47,7 @@ public class Main
 	important at all...
 	
 	*/
+	
 	public static void main(String[] args) throws IOException
 	{	
 		boolean guiMode = Arrays.binarySearch(args,"gui") >= 0;

@@ -12,6 +12,8 @@
  ******************************************************************************/
 package io.github.jevaengine.rpgbase.server;
 
+import io.github.jevaengine.Core;
+import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.communication.Communicator;
 import io.github.jevaengine.communication.SharePolicy;
 import io.github.jevaengine.communication.SharedClass;
@@ -24,26 +26,21 @@ import io.github.jevaengine.rpgbase.RpgCharacter;
 import io.github.jevaengine.rpgbase.Item.ItemIdentifer;
 import io.github.jevaengine.rpgbase.Item.ItemType;
 import io.github.jevaengine.rpgbase.Loadout;
+import io.github.jevaengine.rpgbase.RpgCharacter.RpgCharacterBridge;
 import io.github.jevaengine.rpgbase.netcommon.NetRpgCharacter;
 import io.github.jevaengine.util.Nullable;
-
-import java.util.concurrent.atomic.AtomicInteger;
 
 @SharedClass(name = "RpgCharacter", policy = SharePolicy.ClientR)
 public final class ServerRpgCharacter extends ServerEntity<RpgCharacter>
 {
 	private NetRpgCharacter.Movement m_movementState;
 	private NetRpgCharacter.Attack m_attackState;
-
-	private static AtomicInteger m_characterCount = new AtomicInteger();
 	
-	public ServerRpgCharacter(RpgCharacter character, @Nullable String instanceName, String configuration, @Nullable ServerCommunicator owner)
+	//For Factory only...
+	ServerRpgCharacter(RpgCharacter character, String configuration, @Nullable ServerCommunicator owner)
 	{
-		super(character,
-				"__SERVERCHARACTER__" + (instanceName == null ? m_characterCount.getAndIncrement() : instanceName),
-				configuration,
-				owner);
-
+		super(character, configuration, owner);
+		
 		ServerRpgCharacterObserver observer = new ServerRpgCharacterObserver();
 		
 		character.addObserver(observer);
@@ -57,9 +54,14 @@ public final class ServerRpgCharacter extends ServerEntity<RpgCharacter>
 		m_attackState = new NetRpgCharacter.Attack(null);
 	}
 	
-	public ServerRpgCharacter(RpgCharacter character, @Nullable String instanceName, String configuration)
+	public ServerRpgCharacter(String instanceName, String config, ServerCommunicator owner)
 	{
-		this(character, instanceName, configuration, null);
+		this(new RpgCharacter(instanceName, Core.getService(ResourceLibrary.class).openConfiguration(config)), config, owner);
+	}
+	
+	public ServerRpgCharacter(String config, ServerCommunicator owner)
+	{
+		this(new RpgCharacter(Core.getService(ResourceLibrary.class).openConfiguration(config)), config, owner);	
 	}
 	
 	@Override
@@ -182,6 +184,24 @@ public final class ServerRpgCharacter extends ServerEntity<RpgCharacter>
 		{
 			send(new NetRpgCharacter.EquipItem(item.getDescriptor().toString()));
 		}
-		
 	}
+	
+	public class ServerRpgCharacterScriptBridge extends RpgCharacterBridge
+	{
+		public void setWorld(String worldName)
+		{
+			ServerWorld world = Core.getService(ServerGame.class).getServerWorld(worldName);
+			
+			RpgCharacter entity = getEntity();
+
+			if (entity.isAssociated())
+			{
+				cancelTasks();
+				entity.getWorld().removeEntity(entity);
+			}
+
+			world.getWorld().addEntity(entity);
+		}
+	}
+	
 }

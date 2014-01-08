@@ -158,6 +158,11 @@ public final class RpgCharacter extends Actor
 	{
 		m_observers.remove(observer);
 	}
+	
+	public void setTaskFactory(RpgCharacterTaskFactory taskFactory)
+	{
+		m_taskFactory = taskFactory;
+	}
 
 	public String getCharacterName()
 	{

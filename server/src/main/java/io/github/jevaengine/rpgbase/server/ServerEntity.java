@@ -21,12 +21,11 @@ public abstract class ServerEntity<T extends Entity> extends SharedEntity
 	
 	private String m_className;
 	private @Nullable String m_configuration;
-
 	private int m_tickCount = 0;
 	
 	private T m_entity;
 	
-	public ServerEntity(T entity, @Nullable String instanceName, @Nullable String configuration, @Nullable ServerCommunicator owner)
+	public ServerEntity(T entity, @Nullable String configuration, @Nullable ServerCommunicator owner)
 	{
 		m_configuration = configuration;
 		m_owner = owner;
@@ -36,9 +35,9 @@ public abstract class ServerEntity<T extends Entity> extends SharedEntity
 		m_className = Core.getService(ResourceLibrary.class).lookupEntity(entity.getClass());
 	}
 	
-	public ServerEntity(T entity, @Nullable String instanceName)
+	public ServerEntity(T entity)
 	{
-		this(entity, instanceName, null, null);
+		this(entity, null, null);
 	}
 	
 	public final ServerCommunicator getOwner()
@@ -75,7 +74,7 @@ public abstract class ServerEntity<T extends Entity> extends SharedEntity
 			{
 				try
 				{
-					visitor.visit(sender, getEntity());
+					visitor.visit(sender, getEntity(), true);
 				} catch (InvalidMessageException e)
 				{
 					communicator.disconnect("Visitor synchronization error: " + e.toString());
@@ -95,7 +94,7 @@ public abstract class ServerEntity<T extends Entity> extends SharedEntity
 	
 	private void dispatchInitialization(Communicator sender)
 	{
-		send(sender, new InitializeEntity(m_className, m_configuration, getEntity().getInstanceName()));
+		send(sender, new InitializeEntity(m_className, m_configuration, getEntity().getInstanceName(), m_owner == sender));
 		send(sender, new InitializeFlags(getEntity().getFlags()));
 		
 		initializeRemote(sender);

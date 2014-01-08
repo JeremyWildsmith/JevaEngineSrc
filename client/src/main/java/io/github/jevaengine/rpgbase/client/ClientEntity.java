@@ -23,12 +23,19 @@ public abstract class ClientEntity<T extends Entity> extends SharedEntity implem
 
 	private World m_world;
 	
+	private boolean m_isOwner = false;
+	
 	@Nullable
 	private T m_entity;
 	
 	public ClientEntity(Class<T> clazz)
 	{
 		m_class = clazz;
+	}
+	
+	public boolean isOwner()
+	{
+		return m_isOwner;
 	}
 	
 	@Override
@@ -88,7 +95,7 @@ public abstract class ClientEntity<T extends Entity> extends SharedEntity implem
 			IEntityVisitor visitor = (IEntityVisitor)recv;
 			
 			beginVisit();
-			visitor.visit(sender, getEntity());
+			visitor.visit(sender, getEntity(), false);
 			endVisit();
 		}else if(recv instanceof InitializeEntity)
 		{
@@ -96,8 +103,11 @@ public abstract class ClientEntity<T extends Entity> extends SharedEntity implem
 			
 			if(m_entity != null)
 				throw new InvalidMessageException(sender, recv, "Attempted to initialize entity when it was already initialized.");
+
 			
-			m_entity = init.create(sender, m_class);
+			m_isOwner = init.isOwned();
+			
+			m_entity = init.create(sender, m_class, false);
 
 			if (m_world != null)
 				m_world.addEntity(m_entity);

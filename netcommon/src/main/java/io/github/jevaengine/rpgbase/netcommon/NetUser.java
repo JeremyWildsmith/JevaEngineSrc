@@ -48,7 +48,7 @@ public abstract class NetUser extends SharedEntity
 
 	protected static class CharacterAssignment
 	{
-		@Nullable private String m_entityName;
+		@Nullable private NetEntityName m_entityName;
 
 		public CharacterAssignment()
 		{
@@ -56,7 +56,7 @@ public abstract class NetUser extends SharedEntity
 
 		public CharacterAssignment(String entityName)
 		{
-			m_entityName = entityName;
+			m_entityName = new NetEntityName(entityName);
 		}
 
 		public boolean isUnassignment()
@@ -64,12 +64,12 @@ public abstract class NetUser extends SharedEntity
 			return m_entityName == null;
 		}
 
-		public String getEntityName()
+		public String getEntityName(boolean onServer)
 		{
 			if (m_entityName == null)
 				throw new IllegalStateException("Cannot retrive name of entity player is not being assigned to.");
 
-			return m_entityName;
+			return m_entityName.get(onServer);
 		}
 	}
 

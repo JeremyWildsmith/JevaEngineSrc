@@ -416,6 +416,8 @@ public class ServerGame extends RpgGame implements IDisposable
 
 	private class RemoteClient implements IDisposable
 	{
+		private static final String PLAYER_CONFIG = "artifact/entity/skeletonWarrior/player.jec";
+		
 		private ServerCommunicator m_communicator;
 		private RemoteSocketCommunicator m_remote;
 		private ServerUser m_user;
@@ -475,7 +477,9 @@ public class ServerGame extends RpgGame implements IDisposable
 			{
 				m_isRemoteInitialized = true;
 
-				m_character = Core.getService(ResourceLibrary.class).createEntity(RpgCharacter.class, "PLAYER_" + m_user.getUsername().toLowerCase(), m_config.playerEntity);
+				ServerRpgCharacter serverCharacter = new ServerRpgCharacter("PLAYER_" + m_user.getUsername().toLowerCase(), PLAYER_CONFIG, m_communicator);
+				
+				m_character = serverCharacter.getEntity();
 				
 				m_character.addObserver(m_userHandler);
 				m_character.setLocation(new Vector2F(6, 6));

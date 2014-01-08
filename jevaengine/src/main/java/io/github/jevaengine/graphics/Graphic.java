@@ -91,7 +91,7 @@ public final class Graphic
 	
 	public boolean pickTest(int x, int y)
 	{
-		if(x < 0 || y < 0 || x >= m_sourceImage.getWidth(null) || y > m_sourceImage.getHeight(null))
+		if(x < 0 || y < 0 || x >= m_sourceImage.getWidth(null) || y >= m_sourceImage.getHeight(null))
 			return false;
 		else
 			return ((m_sourceImage.getRGB(x, y) >> 24) & 0xff) != 0;
