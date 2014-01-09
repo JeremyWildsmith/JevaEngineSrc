@@ -14,7 +14,6 @@
 package io.github.jevaengine.ui;
 
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Shape;
 
@@ -99,7 +98,7 @@ public final class WorldView extends Panel
 			{
 				Vector2F tilePos = world.translateScreenToWorld(relativePos.difference(getCameraOffset()), m_camera.getScale());
 
-				if (world.getMapBounds().contains(new Point((int)tilePos.x, (int)tilePos.y)))
+				if (world.getBounds().contains(tilePos))
 				{
 					if(mouseEvent.type == EventType.MouseClicked)
 						m_listeners.worldSelection(relativePos, tilePos, mouseEvent.mouseButton);

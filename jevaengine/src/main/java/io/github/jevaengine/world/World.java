@@ -418,9 +418,9 @@ public final class World implements IDisposable
 		return new WorldScriptContext();
 	}
 
-	public Rectangle getMapBounds()
+	public Rect2D getBounds()
 	{
-		return new Rectangle(0, 0, m_worldWidth, m_worldHeight);
+		return new Rect2D(0, 0, m_worldWidth, m_worldHeight);
 	}
 
 	public void update(int delta)
