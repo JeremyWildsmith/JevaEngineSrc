@@ -93,12 +93,17 @@ public final class WorldView extends Panel
 			Vector2D relativePos = mouseEvent.location.difference(getAbsoluteLocation());
 
 			World world = m_camera == null ? null : m_camera.getWorld();
+
+			if(mouseEvent.type != EventType.MouseClicked)
+				return;
 			
+			
+			 
 			if (world != null)
 			{
 				Vector2F tilePos = world.translateScreenToWorld(relativePos.difference(getCameraOffset()), m_camera.getScale());
 
-				if (world.getBounds().contains(tilePos))
+				if (world.getBounds().contains(tilePos.round()))
 				{
 					if(mouseEvent.type == EventType.MouseClicked)
 						m_listeners.worldSelection(relativePos, tilePos, mouseEvent.mouseButton);

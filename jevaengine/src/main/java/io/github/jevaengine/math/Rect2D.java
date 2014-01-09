@@ -32,18 +32,18 @@ public class Rect2D implements ISerializable
 	
 	public boolean contains(Vector2F location)
 	{
-		return (location.x > x &&
-				location.x - x < width &&
-				location.y > y &&
-				location.y - y < height);
+		return (location.x >= x &&
+				location.x - x <= width &&
+				location.y >= y &&
+				location.y - y <= height);
 	}
 	
 	public boolean contains(Vector2D location)
 	{
-		return (location.x > x &&
-				location.x - x < width &&
-				location.y > y &&
-				location.y - y < height);
+		return (location.x >= x &&
+				location.x - x <= width &&
+				location.y >= y &&
+				location.y - y <= height);
 	}
 		
 	@Override
