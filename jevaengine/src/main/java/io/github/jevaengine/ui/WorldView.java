@@ -93,11 +93,6 @@ public final class WorldView extends Panel
 			Vector2D relativePos = mouseEvent.location.difference(getAbsoluteLocation());
 
 			World world = m_camera == null ? null : m_camera.getWorld();
-
-			if(mouseEvent.type != EventType.MouseClicked)
-				return;
-			
-			
 			 
 			if (world != null)
 			{
