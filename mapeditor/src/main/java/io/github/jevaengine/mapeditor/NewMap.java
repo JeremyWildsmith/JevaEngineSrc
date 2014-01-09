@@ -93,13 +93,9 @@ public class NewMap extends javax.swing.JDialog
         setType(java.awt.Window.Type.UTILITY);
 
         jLabel1.setText("Tile Width:");
-
-        txtTileWidth.setEditable(false);
         txtTileWidth.setText("64");
 
         jLabel2.setText("Tile Height:");
-
-        txtTileHeight.setEditable(false);
         txtTileHeight.setText("32");
 
         jLabel3.setText("World Width:");
