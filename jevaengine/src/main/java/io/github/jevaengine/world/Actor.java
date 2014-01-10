@@ -24,6 +24,7 @@ import io.github.jevaengine.CoreScriptException;
 import io.github.jevaengine.config.IVariable;
 import io.github.jevaengine.graphics.IRenderable;
 import io.github.jevaengine.math.Matrix2X2;
+import io.github.jevaengine.math.Rect2F;
 import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.math.Vector2F;
 import io.github.jevaengine.util.Nullable;
@@ -150,20 +151,17 @@ public abstract class Actor extends Entity implements IInteractable
 		return false;
 	}
 
+	public abstract Rect2F getGraphicBounds(float scale);
 	public abstract IRenderable getGraphic();
 	
 	public abstract float getVisibilityFactor();
-
 	public abstract float getViewDistance();
-
 	public abstract float getFieldOfView();
-
 	public abstract float getVisualAcuity();
 
 	public abstract float getSpeed();
 
 	public abstract int getTileWidth();
-
 	public abstract int getTileHeight();
 
 	public abstract WorldDirection[] getAllowedMovements();

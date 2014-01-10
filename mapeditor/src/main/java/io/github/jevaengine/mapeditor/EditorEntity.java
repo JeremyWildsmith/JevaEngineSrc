@@ -20,11 +20,13 @@ import io.github.jevaengine.graphics.Font;
 import io.github.jevaengine.graphics.IRenderable;
 import io.github.jevaengine.graphics.Sprite;
 import io.github.jevaengine.graphics.Text;
+import io.github.jevaengine.math.Rect2F;
 import io.github.jevaengine.math.Vector2F;
 import io.github.jevaengine.world.Actor;
 import io.github.jevaengine.world.Entity;
 import io.github.jevaengine.world.World;
 import io.github.jevaengine.world.WorldDirection;
+
 import java.awt.Color;
 import java.awt.Graphics2D;
 
@@ -140,6 +142,12 @@ public class EditorEntity
 		{
 			Font font = Core.getService(Game.class).getGameStyle().getFont(Color.yellow);
 			m_text = new Text(EditorEntity.this.getName(), font, 1.0F);
+		}
+
+		@Override
+		public Rect2F getGraphicBounds(float scale)
+		{
+			return m_tileSprite.getBounds(scale);
 		}
 		
 		@Override

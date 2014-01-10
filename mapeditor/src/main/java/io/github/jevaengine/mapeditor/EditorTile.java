@@ -17,6 +17,7 @@ import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.graphics.AnimationState;
 import io.github.jevaengine.graphics.IRenderable;
 import io.github.jevaengine.graphics.Sprite;
+import io.github.jevaengine.math.Rect2F;
 import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.math.Vector2F;
 import io.github.jevaengine.world.Actor;
@@ -200,6 +201,12 @@ public class EditorTile implements IInteractable
 		void setSprite(Sprite sprite)
 		{
 			m_contained.setSprite(sprite);
+		}
+
+		@Override
+		public Rect2F getGraphicBounds(float scale)
+		{
+			return m_contained.getGraphicBounds(scale);
 		}
 
 		@Override

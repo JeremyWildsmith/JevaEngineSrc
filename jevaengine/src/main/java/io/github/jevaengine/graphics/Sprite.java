@@ -17,7 +17,9 @@ import io.github.jevaengine.config.IVariable;
 import io.github.jevaengine.graphics.Sprite.SpriteDeclaration.AnimationDeclaration;
 import io.github.jevaengine.graphics.Sprite.SpriteDeclaration.FrameDeclaration;
 import io.github.jevaengine.math.Rect2D;
+import io.github.jevaengine.math.Rect2F;
 import io.github.jevaengine.math.Vector2D;
+import io.github.jevaengine.math.Vector2F;
 import io.github.jevaengine.util.Nullable;
 
 import java.awt.Graphics2D;
@@ -92,12 +94,28 @@ public final class Sprite implements IRenderable
 
 	public Rect2D getBounds()
 	{
-		return m_currentAnimation.getCurrentFrame().getSourceRect();
+		Rect2D source = m_currentAnimation.getCurrentFrame().getSourceRect();
+	
+		return new Rect2D(0, 0, source.width, source.height).difference(getOrigin());
+	}
+	
+	public Rect2F getBounds(float scale)
+	{
+		Rect2D bounds = getBounds();
+		
+		return new Rect2F(0, 0, bounds.width, bounds.height).difference(getOrigin(scale));
 	}
 
 	public Vector2D getOrigin()
 	{
 		return m_currentAnimation.getCurrentFrame().getOrigin();
+	}
+	
+	public Vector2F getOrigin(float scale)
+	{
+		Vector2D srcOrigin = getOrigin();
+		
+		return new Vector2F((float)srcOrigin.x * scale, (float)srcOrigin.y * scale);
 	}
 
 	public String[] getAnimations()

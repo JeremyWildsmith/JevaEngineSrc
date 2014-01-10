@@ -61,34 +61,27 @@ public final class World implements IDisposable
 
 	// Read comments in update route for notes on m_additionEntities member.
 	private ArrayList<Entity> m_additionEntities = new ArrayList<Entity>();
-
 	private StaticSet<Entity> m_entities;
 
-	private int m_entityLayer;
-
 	private TreeMap<Vector3F, ArrayList<WorldRenderEntry>> m_renderQueue;
-
-	private float m_fRenderQueueDepth;
+	private ArrayList<IActorRenderFilter> m_renderFilters;
+	private float m_renderQueueDepth;
 
 	private HashMap<Vector2D, RouteNode> m_routeNodes;
-
-	private EffectMap m_entityEffectMap;
-
+	
 	private ArrayList<WorldLayer> m_layers;
-
+	private int m_entityLayer;
+	
 	private SceneLighting m_worldLighting;
+	private EffectMap m_entityEffectMap;
+	private WorldScriptManager m_worldScript;
 
 	private int m_worldWidth;
-
 	private int m_worldHeight;
-
 	private int m_tileWidth;
-
 	private int m_tileHeight;
 
 	private final Matrix2X2 m_worldToScreenMatrix;
-
-	private WorldScriptManager m_worldScript;
 
 	private boolean m_isPaused = false;
 
@@ -102,9 +95,9 @@ public final class World implements IDisposable
 	{
 		m_layers = new ArrayList<WorldLayer>();
 		m_entities = new StaticSet<Entity>();
-
+		m_renderFilters = new ArrayList<IActorRenderFilter>();
 		m_renderQueue = new TreeMap<Vector3F, ArrayList<WorldRenderEntry>>();
-		m_fRenderQueueDepth = 0.0F;
+		m_renderQueueDepth = 0.0F;
 
 		m_routeNodes = new HashMap<Vector2D, RouteNode>();
 
@@ -236,6 +229,16 @@ public final class World implements IDisposable
 	public void removeObserver(IWorldObserver o)
 	{
 		m_observers.remove(o);
+	}
+	
+	public void addActorRenderFilter(IActorRenderFilter filter)
+	{
+		m_renderFilters.add(filter);
+	}
+	
+	public void removeActorRenderFilter(IActorRenderFilter filter)
+	{
+		m_renderFilters.remove(filter);
 	}
 
 	public Vector2F translateScreenToWorld(Vector2D location, float fScale)
@@ -475,17 +478,29 @@ public final class World implements IDisposable
 		}
 	}
 
-	private void renderQueue(Graphics2D g, int offsetX, int offsetY, float fScale)
+	private void renderQueue(Graphics2D g, int offsetX, int offsetY, float scale)
 	{
+		for(IActorRenderFilter f : m_renderFilters)
+			f.beginBatch(g, scale);
+		
 		for (Map.Entry<Vector3F, ArrayList<WorldRenderEntry>> entry : m_renderQueue.entrySet())
-		{
-			Vector2D renderLocation = translateWorldToScreen(new Vector2F(entry.getKey().x, entry.getKey().y), fScale).add(new Vector2D(offsetX, offsetY));
+		{	
+			Vector2D renderLocation = translateWorldToScreen(new Vector2F(entry.getKey().x, entry.getKey().y), scale).add(new Vector2D(offsetX, offsetY));
 
 			for (WorldRenderEntry renderable : entry.getValue())
 			{
-				renderable.graphic.render(g, renderLocation.x, renderLocation.y, fScale);
+				for(IActorRenderFilter f : m_renderFilters)
+					f.begin(renderable);
+				
+				renderable.graphic.render(g, renderLocation.x, renderLocation.y, scale);
+
+				for(IActorRenderFilter f : m_renderFilters)
+					f.end();
 			}
 		}
+		
+		for(IActorRenderFilter f : m_renderFilters)
+			f.endBatch();
 	}
 	
 	private void clearQueue()
@@ -495,14 +510,14 @@ public final class World implements IDisposable
 
 	protected void enqueueRender(IRenderable renderable, Actor dispatcher, Vector2F location)
 	{
-		Vector3F location3 = new Vector3F(location, m_fRenderQueueDepth);
+		Vector3F location3 = new Vector3F(location, m_renderQueueDepth);
 
 		if (!m_renderQueue.containsKey(location3))
 		{
 			m_renderQueue.put(location3, new ArrayList<WorldRenderEntry>());
 		}
 
-		m_renderQueue.get(location3).add(new WorldRenderEntry(renderable, dispatcher));
+		m_renderQueue.get(location3).add(new WorldRenderEntry(dispatcher, renderable, m_renderQueueDepth));
 	}
 	
 	protected void enqueueRender(IRenderable renderable, Vector2F location)
@@ -512,7 +527,7 @@ public final class World implements IDisposable
 	
 	private void setRenderQueueLayerDepth(float fDepth)
 	{
-		m_fRenderQueueDepth = fDepth;
+		m_renderQueueDepth = fDepth;
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -579,6 +594,14 @@ public final class World implements IDisposable
 		m_worldLighting.enqueueRender(this, g.getDeviceConfiguration(), viewBounds, x, y, fScale);
 
 		renderQueue(g, viewBounds.x + x, viewBounds.y + y, fScale);
+	}
+	
+	public interface IActorRenderFilter
+	{
+		void beginBatch(Graphics2D g, float scale);
+		void begin(WorldRenderEntry e);
+		void end();
+		void endBatch();
 	}
 	
 	private class WorldScriptManager
@@ -668,17 +691,31 @@ public final class World implements IDisposable
 		void removedEntity(Entity e);
 	}
 	
-	private static class WorldRenderEntry
+	public static class WorldRenderEntry
 	{
-		IRenderable graphic;
+		private IRenderable graphic;
 		
 		@Nullable
-		Actor dispatcher;
+		private Actor dispatcher;
 		
-		public WorldRenderEntry(IRenderable _graphic, Actor _dispatcher)
+		private float layer;
+		
+		public WorldRenderEntry(Actor _dispatcher, IRenderable _graphic, float _layer)
 		{
 			graphic = _graphic;
 			dispatcher = _dispatcher;
+			layer = _layer;
+		}
+		
+		@Nullable
+		public Actor getDispatcher()
+		{
+			return dispatcher;
+		}
+		
+		public float getLayer()
+		{
+			return layer;
 		}
 	}
 	

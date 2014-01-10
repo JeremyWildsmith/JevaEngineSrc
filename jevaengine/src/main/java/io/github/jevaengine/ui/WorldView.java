@@ -93,7 +93,7 @@ public final class WorldView extends Panel
 			Vector2D relativePos = mouseEvent.location.difference(getAbsoluteLocation());
 
 			World world = m_camera == null ? null : m_camera.getWorld();
-			 
+ 
 			if (world != null)
 			{
 				Vector2F tilePos = world.translateScreenToWorld(relativePos.difference(getCameraOffset()), m_camera.getScale());

@@ -38,9 +38,38 @@ public class Rect2F implements ISerializable
 		this.height = height;
 	}
 	
+	public Rect2F difference(Vector2F src)
+	{
+		return new Rect2F(x - src.x, y - src.y, width, height);
+	}
+
+	public Rect2F add(Vector2F v)
+	{
+		return new Rect2F(x + v.x, y + v.y, width, height);
+	}
+	
+
+	public Rect2F add(Vector2D v)
+	{
+		return new Rect2F(x + v.x, y + v.y, width, height);
+	}
+	
 	public Rect2D round()
 	{
 		return new Rect2D(Math.round(x), Math.round(y), Math.round(width), Math.round(height));
+	}
+	
+	public boolean intersects(Rect2F rect)
+	{
+		float xMax0 = x + width;
+		float yMax0 = y + height;
+		float xMax1 = rect.x + rect.width;
+		float yMax1 = rect.y + rect.height;
+		
+		return (xMax0 > rect.x &&
+				yMax0 > rect.y &&
+				x < xMax1 &&
+				y < yMax1);
 	}
 	
 	public boolean contains(Vector2F location)

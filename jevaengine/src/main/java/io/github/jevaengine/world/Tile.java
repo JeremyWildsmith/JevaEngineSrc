@@ -18,6 +18,7 @@ package io.github.jevaengine.world;
 
 import io.github.jevaengine.graphics.IRenderable;
 import io.github.jevaengine.graphics.Sprite;
+import io.github.jevaengine.math.Rect2F;
 import io.github.jevaengine.math.Vector2F;
 import io.github.jevaengine.world.EffectMap.TileEffects;
 
@@ -188,7 +189,13 @@ public final class Tile extends Actor
 		return new WorldDirection[]
 		{ WorldDirection.Zero };
 	}
-
+	
+	@Override
+	public Rect2F getGraphicBounds(float scale)
+	{
+		return m_sprite.getBounds(scale);
+	}
+	
 	@Override
 	public IRenderable getGraphic()
 	{

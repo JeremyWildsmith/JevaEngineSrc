@@ -234,7 +234,6 @@ public class Route
 
 	public static class SearchNode
 	{
-
 		private static final int DIAGONAL_COST = 7;
 
 		private static final int HORIZONTAL_VERTICAL_COST = 5;
