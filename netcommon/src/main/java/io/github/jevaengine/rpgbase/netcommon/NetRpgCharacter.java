@@ -395,7 +395,7 @@ public final class NetRpgCharacter extends NetEntity
 	
 	public final static class InventoryAction implements IEntityVisitor
 	{
-		private String m_accessor;
+		private NetEntityName m_accessor;
 		private String m_action;
 		private int m_slotIndex;
 		
@@ -407,7 +407,7 @@ public final class NetRpgCharacter extends NetEntity
 
 		public InventoryAction(RpgCharacter accessor, String action, int slotIndex)
 		{
-			m_accessor = accessor.getInstanceName();
+			m_accessor = new NetEntityName(accessor.getInstanceName());
 			m_action = action;
 			m_slotIndex = slotIndex;
 		}
@@ -422,7 +422,7 @@ public final class NetRpgCharacter extends NetEntity
 		{
 			RpgCharacter character = getCharacter(entity, sender, this);
 			
-			Entity accessor = m_accessor == null ? character : character.getWorld().getEntity(m_accessor);
+			Entity accessor = m_accessor == null ? character : character.getWorld().getEntity(m_accessor.get(onServer));
 
 			if(!(accessor instanceof RpgCharacter))
 				throw new InvalidMessageException(sender, this, "Invalid accessor.");

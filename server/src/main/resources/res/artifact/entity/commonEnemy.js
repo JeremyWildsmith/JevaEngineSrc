@@ -58,8 +58,8 @@ function constructTasks()
 			core.log("Found!");
 			if(__commonEnemy.attackTarget.distance(me) <= __commonEnemy.attackRange)
 			{
-				me.idle(1200);
 				me.attack(__commonEnemy.attackTarget);
+				me.idle(1200);
 			}else
 			{
 				var targetLocation = __commonEnemy.attackTarget.getLocation();
