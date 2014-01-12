@@ -132,7 +132,7 @@ public class EditorTile implements IInteractable
 
 		m_tile.associate(world);
 		
-		layer.addStatic(m_tile);
+		layer.add(m_tile, true);
 	}
 
 	public void setLocation(Vector2D location)

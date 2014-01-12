@@ -118,13 +118,12 @@ public abstract class ServerEntity<T extends Entity> extends SharedEntity
 		}
 
 		@Override
-		public void replaced() { }
-
-		@Override
 		public void flagSet(String name, int value) { }
 
 		@Override
 		public void flagCleared(String name) { }
-		
+
+		@Override
+		public void moved() { }
 	}
 }

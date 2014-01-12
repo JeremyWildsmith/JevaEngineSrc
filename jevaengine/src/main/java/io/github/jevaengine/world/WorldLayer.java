@@ -22,38 +22,73 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 import io.github.jevaengine.IDisposable;
+import io.github.jevaengine.math.Rect2D;
 import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.math.Vector2F;
+import io.github.jevaengine.util.Nullable;
 import io.github.jevaengine.world.EffectMap.TileEffects;
+import io.github.jevaengine.world.Entity.IEntityObserver;
 
 public class WorldLayer implements IDisposable
 {
-
 	private ArrayList<LayerSector> m_sectors;
 
+	private ArrayList<ActorEntry> m_actors;
+	
 	public WorldLayer()
 	{
 		m_sectors = new ArrayList<LayerSector>();
+		m_actors = new ArrayList<ActorEntry>();
+	}
+	
+	public void dispose()
+	{
+		for (ActorEntry a : m_actors)
+			a.dispose();
+		
+		m_actors.clear();
 	}
 
-	public void addStatic(Actor entity)
+	private LayerSector getSector(Vector2F location)
 	{
-		if (!m_sectors.contains(new LayerSectorCoordinate(entity.getLocation())))
-			m_sectors.add(new LayerSector(entity.getLocation().round()));
+		LayerSectorCoordinate sectorCoordinates = new LayerSectorCoordinate(location);
+		
+		if (!m_sectors.contains(sectorCoordinates))
+			m_sectors.add(new LayerSector(location.round()));
 
-		int sec = m_sectors.indexOf(new LayerSectorCoordinate(entity.getLocation()));
+		int sec = m_sectors.indexOf(sectorCoordinates);
 
-		m_sectors.get(sec).addStatic(entity);
+		LayerSector sector = m_sectors.get(sec);
+		
+		return sector;
 	}
-
-	public void addDynamic(Actor entity)
+	
+	@Nullable
+	private ActorEntry getActor(Actor actor)
 	{
-		if (!m_sectors.contains(entity.getLocation()))
-			m_sectors.add(new LayerSector(entity.getLocation().round()));
-
-		int sec = m_sectors.indexOf(new LayerSectorCoordinate(entity.getLocation()));
-
-		m_sectors.get(sec).addDynamic(entity);
+		for(ActorEntry entry : m_actors)
+		{
+			if(entry.m_subject == actor)
+				return entry;
+		}
+		
+		return null;
+	}
+	
+	public void add(Actor actor, boolean isStatic)
+	{
+		m_actors.add(new ActorEntry(actor, isStatic));
+	}
+	
+	public void remove(Actor actor)
+	{
+		ActorEntry entry = getActor(actor);
+		
+		if(entry != null)
+		{
+			entry.dispose();
+			m_actors.remove(actor);
+		}
 	}
 
 	public TileEffects getTileEffects(Vector2D location)
@@ -80,14 +115,14 @@ public class WorldLayer implements IDisposable
 
 		int sectorX = renderBounds.x / LayerSector.SECTOR_DIMENSIONS;
 		int sectorY = renderBounds.y / LayerSector.SECTOR_DIMENSIONS;
-		int sectorWidth = Math.max(3, renderBounds.width / LayerSector.SECTOR_DIMENSIONS);
-		int sectorHeight = Math.max(3, renderBounds.width / LayerSector.SECTOR_DIMENSIONS);
+		int sectorWidth = (int)Math.ceil((float)renderBounds.width / (float)LayerSector.SECTOR_DIMENSIONS);
+		int sectorHeight = (int)Math.ceil((float)renderBounds.height / (float)LayerSector.SECTOR_DIMENSIONS);
 
-		for (int y = sectorY; y < sectorY + sectorHeight; y++)
+		for (int y = sectorY; y <= sectorY + sectorHeight; y++)
 		{
-			for (int x = sectorX; x < sectorX + sectorWidth; x++)
+			for (int x = sectorX; x <= sectorX + sectorWidth; x++)
 			{
-				renderSectors.add(m_sectors.indexOf(new LayerSectorCoordinate(x * LayerSector.SECTOR_DIMENSIONS, y * LayerSector.SECTOR_DIMENSIONS)));
+				renderSectors.add(m_sectors.indexOf(new LayerSectorCoordinate(x, y, true)));
 			}
 		}
 
@@ -98,19 +133,69 @@ public class WorldLayer implements IDisposable
 		}
 	}
 
+	private class ActorEntry implements IDisposable
+	{
+		private Actor m_subject;
+		private boolean m_isStatic;
+		private LocationObserver m_observer = new LocationObserver();
+		private LayerSector m_parentSector;
+		
+		public ActorEntry(Actor subject, boolean isStatic)
+		{
+			m_subject = subject;
+			m_isStatic = isStatic;
+			m_parentSector = getSector(subject.getLocation());
+			m_parentSector.addActor(subject, isStatic);
+			subject.addObserver(m_observer);
+		}
+		
+		@Override
+		public void dispose()
+		{
+			m_parentSector.remove(m_subject);
+			m_subject.removeObserver(m_observer);
+		}
+		
+		private class LocationObserver implements IEntityObserver
+		{
+			@Override
+			public void moved()
+			{
+				if(!m_parentSector.contains(m_subject.getLocation()))
+				{
+					m_parentSector.remove(m_subject);
+					m_parentSector = getSector(m_subject.getLocation());
+					m_parentSector.addActor(m_subject, m_isStatic);
+				}
+			}
+			
+			@Override
+			public void enterWorld() { }
+	
+			@Override
+			public void leaveWorld() { }
+	
+			@Override
+			public void flagSet(String name, int value) { }
+	
+			@Override
+			public void flagCleared(String name) { }
+		}
+	}
+	
 	private static class LayerSectorCoordinate
 	{
-
 		int x;
-
 		int y;
+		boolean isSectorScale;
 
-		public LayerSectorCoordinate(int _x, int _y)
+		public LayerSectorCoordinate(int _x, int _y, boolean _isSectorScale)
 		{
 			x = _x;
 			y = _y;
+			isSectorScale = _isSectorScale;
 		}
-
+		
 		public LayerSectorCoordinate(Vector2F location)
 		{
 			x = location.round().x;
@@ -139,26 +224,29 @@ public class WorldLayer implements IDisposable
 			{
 				LayerSectorCoordinate coord = (LayerSectorCoordinate) o;
 
-				return coord.x == x && coord.y == y;
+				return coord.x == x && coord.y == y && coord.isSectorScale == isSectorScale;
 			}
 			else if (o instanceof LayerSector)
 			{
 				LayerSector sector = (LayerSector) o;
-
-				return new Rectangle(sector.m_location.x * LayerSector.SECTOR_DIMENSIONS,
-						sector.m_location.y * LayerSector.SECTOR_DIMENSIONS,
-						LayerSector.SECTOR_DIMENSIONS,
-						LayerSector.SECTOR_DIMENSIONS)
-						.contains(x, y);
+				
+				if(isSectorScale)
+					return sector.m_location.equals(new Vector2D(x, y));
+				else
+					return new Rect2D(sector.m_location.x * LayerSector.SECTOR_DIMENSIONS,
+							sector.m_location.y * LayerSector.SECTOR_DIMENSIONS,
+							LayerSector.SECTOR_DIMENSIONS,
+							LayerSector.SECTOR_DIMENSIONS)
+							.contains(new Vector2D(x, y));
 			} else
 				return false;
 		}
 	}
 
-	private static class LayerSector implements IDisposable
+	private static class LayerSector
 	{
 
-		protected static final int SECTOR_DIMENSIONS = 25;
+		protected static final int SECTOR_DIMENSIONS = 10;
 
 		private Vector2D m_location;
 
@@ -184,16 +272,25 @@ public class WorldLayer implements IDisposable
 			m_isDirty = false;
 		}
 
-		public void addDynamic(Actor entity)
+		public void addActor(Actor actor, boolean isStatic)
 		{
-			m_dynamic.add(entity);
+			if(isStatic)
+				m_static.add(actor);
+			else
+				m_dynamic.add(actor);
+			
 			m_isDirty = true;
 		}
-
-		public void addStatic(Actor Actor)
+		
+		public void remove(Actor entity)
 		{
-			m_static.add(Actor);
-			m_isDirty = true;
+			m_dynamic.remove(entity);
+			
+			if(m_static.contains(entity))
+			{
+				m_static.remove(entity);
+				m_isDirty = true;
+			}
 		}
 
 		public TileEffects getTileEffects(Vector2D location)
@@ -243,21 +340,6 @@ public class WorldLayer implements IDisposable
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see io.github.jeremywildsmith.jevaengine.IDisposable#dispose()
-		 */
-		@Override
-		public void dispose()
-		{
-			for (Actor a : m_dynamic)
-				a.disassociate();
-
-			for (Actor a : m_static)
-				a.disassociate();
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
 		 * @see java.lang.Object#equals(java.lang.Object)
 		 */
 		@Override
@@ -269,22 +351,15 @@ public class WorldLayer implements IDisposable
 				return false;
 			else if (o instanceof Vector2D || o instanceof Vector2F)
 			{
-				int x = (o instanceof Vector2F) ? ((Vector2F) o).floor().x : ((Vector2D) o).x;
-				int y = (o instanceof Vector2F) ? ((Vector2F) o).floor().y : ((Vector2D) o).y;
-				return new Rectangle(m_location.x * SECTOR_DIMENSIONS, m_location.y * SECTOR_DIMENSIONS, SECTOR_DIMENSIONS, SECTOR_DIMENSIONS).contains(x, y);
+				Vector2D src = (o instanceof Vector2F) ? ((Vector2F) o).floor() : ((Vector2D) o);
+				return new Rect2D(m_location.x * SECTOR_DIMENSIONS, m_location.y * SECTOR_DIMENSIONS, SECTOR_DIMENSIONS, SECTOR_DIMENSIONS).contains(src);
 			} else
 				return false;
 		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see io.github.jeremywildsmith.jevaengine.IDisposable#dispose()
-	 */
-	public void dispose()
-	{
-		for (LayerSector sector : m_sectors)
-			sector.dispose();
+		
+		public boolean contains(Vector2F location)
+		{
+			return new Rect2D(m_location.x * SECTOR_DIMENSIONS, m_location.y * SECTOR_DIMENSIONS, SECTOR_DIMENSIONS, SECTOR_DIMENSIONS).contains(location.floor());
+		}
 	}
 }

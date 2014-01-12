@@ -55,8 +55,6 @@ public final class World implements IDisposable
 {
 	private static final int WORLD_TICK_INTERVAL = 500;
 
-	private static final int WORLD_CULLING_EXCCESS = 6;
-
 	private final Observers m_observers = new Observers();
 
 	// Read comments in update route for notes on m_additionEntities member.
@@ -172,10 +170,7 @@ public final class World implements IDisposable
 					// for optimizations.
 					tile.setLocation(new Vector2F((locationOffset + i) % world.m_worldWidth, (float) Math.floor((locationOffset + i) / world.m_worldWidth)));
 
-					if (tileDecl.isStatic)
-						worldLayer.addStatic(tile);
-					else
-						worldLayer.addDynamic(tile);
+					worldLayer.add(tile, tileDecl.isStatic);
 				}else
 					locationOffset += Math.abs(tileIndices[i]) - 1;
 			}
@@ -564,11 +559,6 @@ public final class World implements IDisposable
 		Vector2D brWorldBounds = translateScreenToWorld(new Vector2D(-viewBounds.x + viewBounds.width, -viewBounds.y + viewBounds.height), fScale).round();
 
 		Rectangle worldViewBounds = new Rectangle(tlWorldBounds.x, trWorldBounds.y, brWorldBounds.x - tlWorldBounds.x, blWorldBounds.y - trWorldBounds.y);
-
-		worldViewBounds.x -= WORLD_CULLING_EXCCESS;
-		worldViewBounds.y -= WORLD_CULLING_EXCCESS;
-		worldViewBounds.width += WORLD_CULLING_EXCCESS * 2;
-		worldViewBounds.height += WORLD_CULLING_EXCCESS * 2;
 
 		for (int i = 0; i < m_layers.size(); i++)
 		{

@@ -186,9 +186,6 @@ public final class ControlledCamera implements ICamera
 		}
 
 		@Override
-		public void endBatch() {
-			// TODO Auto-generated method stub
-			
-		}
+		public void endBatch() { }
 	}
 }

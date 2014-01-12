@@ -411,13 +411,13 @@ public abstract class Actor extends Entity implements IInteractable
 				}
 
 				@Override
-				public void replaced() { }
-
-				@Override
 				public void flagSet(String name, int value) { }
 
 				@Override
 				public void flagCleared(String name) { }
+
+				@Override
+				public void moved() { }
 			}
 		}
 		

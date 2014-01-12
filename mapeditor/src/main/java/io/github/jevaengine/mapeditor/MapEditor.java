@@ -220,9 +220,9 @@ public class MapEditor extends Game implements IEditorPaneListener
 												tileDecl.allowRenderSplitting, tileDecl.visibility);
 					}
 					
+					tile.addToWorld(m_world, worldLayer);
 					tile.setLocation(new Vector2D((locationOffset + i) % m_world.getWidth(), (int) Math.floor((locationOffset + i) / m_world.getHeight())));
 
-					tile.addToWorld(m_world, worldLayer);
 				} else
 					locationOffset += Math.abs(tileIndices[i]) - 1;
 			}

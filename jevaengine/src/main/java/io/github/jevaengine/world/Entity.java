@@ -221,7 +221,7 @@ public abstract class Entity implements IWorldAssociation
 		m_location = location;
 
 		if (!oldLocation.equals(location))
-			m_observers.replaced();
+			m_observers.moved();
 	}
 	
 	public final WorldDirection getDirection()
@@ -237,6 +237,9 @@ public abstract class Entity implements IWorldAssociation
 	public final void move(Vector2F delta)
 	{
 		m_location = m_location.add(delta);
+		
+		if(!delta.isZero())
+			m_observers.moved();
 	}
 
 	protected final IVariable getConfiguration()
@@ -375,7 +378,7 @@ public abstract class Entity implements IWorldAssociation
 	{
 		void enterWorld();
 		void leaveWorld();
-		void replaced();
+		void moved();
 		void flagSet(String name, int value);
 		void flagCleared(String name);
 	}
@@ -395,10 +398,10 @@ public abstract class Entity implements IWorldAssociation
 				observer.leaveWorld();
 		}
 		
-		void replaced()
+		public void moved()
 		{
 			for (IEntityObserver observer : this)
-				observer.replaced();
+				observer.moved();
 		}
 		
 		public void flagSet(String name, int value)
@@ -458,7 +461,7 @@ public abstract class Entity implements IWorldAssociation
 		}
 
 		@Override
-		public void replaced() { }
+		public void moved() { }
 
 		@Override
 		public void flagSet(String name, int value) { }

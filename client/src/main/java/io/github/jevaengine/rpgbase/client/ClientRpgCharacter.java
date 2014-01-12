@@ -89,7 +89,7 @@ public final class ClientRpgCharacter extends ClientEntity<RpgCharacter>
 		}
 
 		@Override
-		public void replaced() { }
+		public void moved() { }
 
 		@Override
 		public void flagSet(String name, int value) { }

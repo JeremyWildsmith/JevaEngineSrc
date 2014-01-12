@@ -123,13 +123,13 @@ public final class FollowCamera implements ICamera
 		public void enterWorld() { }
 
 		@Override
-		public void replaced() { }
-
-		@Override
 		public void flagSet(String name, int value) { }
 
 		@Override
 		public void flagCleared(String name) { }
+
+		@Override
+		public void moved() { }
 	}
 
 }

@@ -96,13 +96,6 @@ public final class ServerRpgCharacter extends ServerEntity<RpgCharacter>
 		}
 
 		@Override
-		public void replaced()
-		{
-			m_movementState = new NetRpgCharacter.Movement(getEntity().getLocation());
-			send(m_movementState);
-		}
-
-		@Override
 		public void enterWorld()
 		{
 			m_movementState = new NetRpgCharacter.Movement(getEntity().getLocation());
@@ -151,6 +144,9 @@ public final class ServerRpgCharacter extends ServerEntity<RpgCharacter>
 
 		@Override
 		public void attacked(RpgCharacter attacker) { }
+
+		@Override
+		public void moved() { }
 	}
 	
 	private class ServerRpgCharacterInventoryObserver implements Inventory.IInventoryObserver
