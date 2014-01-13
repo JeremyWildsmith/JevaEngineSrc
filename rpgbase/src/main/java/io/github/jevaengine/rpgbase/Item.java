@@ -23,7 +23,9 @@ import io.github.jevaengine.graphics.AnimationState;
 import io.github.jevaengine.graphics.IRenderable;
 import io.github.jevaengine.graphics.Sprite;
 import io.github.jevaengine.util.Nullable;
+
 import javax.script.ScriptException;
+
 import org.mozilla.javascript.NativeArray;
 
 public class Item
@@ -41,34 +43,26 @@ public class Item
 
 	public enum ItemType
 	{
-		General(new NoItemBehaviour()),
-		Weapon(true, new AttackItemBehaviour(), "item/weaponGear.jsf"),
-		HeadArmor(true, new NoItemBehaviour(), "item/headGear.jsf"),
-		BodyArmor(true, new NoItemBehaviour(), "item/bodyGear.jsf"),
-		Accessory(true, new NoItemBehaviour(), "item/accessoryGear.jsf");
+		General(),
+		Weapon(true, "item/weaponGear.jsf"),
+		HeadArmor(true, "item/headGear.jsf"),
+		BodyArmor(true, "item/bodyGear.jsf"),
+		Accessory(true, "item/accessoryGear.jsf");
 
 		private Sprite m_icon;
-		private IItemBehaviour m_behaviour;
 		private boolean m_isWieldable;
 
-		ItemType(IItemBehaviour behaviour)
+		ItemType()
 		{
-			m_behaviour = behaviour;
 			m_icon = null;
 			m_isWieldable = false;
 		}
 
-		ItemType(boolean isWieldable, IItemBehaviour behaviour, String backgroundSpritePath)
+		ItemType(boolean isWieldable, String backgroundSpritePath)
 		{
 			m_isWieldable = isWieldable;
-			m_behaviour = behaviour;
 			m_icon = Sprite.create(Core.getService(ResourceLibrary.class).openConfiguration(backgroundSpritePath));
 			m_icon.setAnimation("idle", AnimationState.Play);
-		}
-
-		public IItemBehaviour getBehaviour()
-		{
-			return m_behaviour;
 		}
 
 		public boolean hasIcon()
@@ -130,7 +124,7 @@ public class Item
 	{
 		try
 		{
-			NativeArray jsStringArray = (NativeArray) getScript().invokeScriptFunction("getCommands");
+			NativeArray jsStringArray = (NativeArray)m_script.invokeScriptFunction("getCommands");
 
 			if (jsStringArray == null)
 				return new String[0];
@@ -185,11 +179,6 @@ public class Item
 		return m_name;
 	}
 
-	public Script getScript()
-	{
-		return m_script;
-	}
-
 	public IRenderable getGraphic()
 	{
 		return m_graphic;
@@ -202,7 +191,19 @@ public class Item
 
 	public boolean use(RpgCharacter user, RpgCharacter target)
 	{
-		return m_type.getBehaviour().use(this, user, target);
+		try {
+			Object o = m_script.invokeScriptFunction("use", user, target);
+			
+			if(!(o instanceof Boolean))
+				throw new CoreScriptException("Use does not return the expected return value.");
+			else
+				return ((Boolean)o).booleanValue();
+			
+		} catch (NoSuchMethodException e) {
+			return false;
+		} catch (ScriptException e) {
+			throw new CoreScriptException(e);
+		}
 	}
 
 	public static class ItemIdentifer implements Comparable<ItemIdentifer>
