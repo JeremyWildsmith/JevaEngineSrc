@@ -13,8 +13,11 @@
 package io.github.jevaengine.mapeditor;
 
 import io.github.jevaengine.config.IVariable;
+import io.github.jevaengine.mapeditor.MapEditor.LayerMetaData;
+import io.github.jevaengine.math.Vector2F;
 
 import java.io.FileOutputStream;
+import java.io.IOException;
 
 public interface IEditorPaneListener
 {
@@ -23,6 +26,10 @@ public interface IEditorPaneListener
 	void setScript(String script);
 	String getScript();
 	int getEntityLayer();
+
+	void setSelectedLayerBackground(String background) throws IOException;
+	void setSelectedLayerBackgroundLocation(Vector2F offset) throws IOException;
+	LayerMetaData getSelectedLayerBackground();
 	
 	void refreshEntity(EditorEntity entity);
 	void removeEntity(EditorEntity entity);

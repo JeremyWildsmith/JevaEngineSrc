@@ -14,7 +14,7 @@
 package io.github.jevaengine.mapeditor;
 
 import io.github.jevaengine.ResourceLibrary;
-import io.github.jevaengine.ResourceLibraryIOException;
+import io.github.jevaengine.ResourceIOException;
 import io.github.jevaengine.Script;
 import io.github.jevaengine.UnresolvedResourcePathException;
 import io.github.jevaengine.config.IVariable;
@@ -53,7 +53,7 @@ public class MapEditorLibrary extends ResourceLibrary
 			throw new UnresolvedResourcePathException(path);
 		} catch (IOException ex)
 		{
-			throw new ResourceLibraryIOException(ex, path);
+			throw new ResourceIOException(ex, path);
 		}
 	}
 

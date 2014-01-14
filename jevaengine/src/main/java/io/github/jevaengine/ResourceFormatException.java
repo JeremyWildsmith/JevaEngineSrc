@@ -10,19 +10,21 @@
  * Contributors:
  *     Jeremy - initial API and implementation
  ******************************************************************************/
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package io.github.jevaengine;
 
-public class ResourceLibraryIOException extends RuntimeException
+public class ResourceFormatException extends RuntimeException
 {
 
 	private static final long serialVersionUID = 1L;
 
-	public ResourceLibraryIOException(Exception cause, String resourceName)
+	public ResourceFormatException(String description, String resourceName)
 	{
-		super("Filesystem IO Exception: " + resourceName + ", cause: " + cause.toString(), cause);
+		super("Resource format error: " + resourceName + ", cause: " + description);
+	}
+	
+	public ResourceFormatException(String description)
+	{
+		super("Resource format error: " + description);
 	}
 }

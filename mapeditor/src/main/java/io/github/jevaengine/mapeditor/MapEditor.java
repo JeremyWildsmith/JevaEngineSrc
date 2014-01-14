@@ -13,14 +13,15 @@
 package io.github.jevaengine.mapeditor;
 
 import io.github.jevaengine.Core;
+import io.github.jevaengine.ResourceFormatException;
 import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.config.IVariable;
 import io.github.jevaengine.config.JsonVariable;
 import io.github.jevaengine.game.ControlledCamera;
 import io.github.jevaengine.game.Game;
 import io.github.jevaengine.game.IGameScriptProvider;
-import io.github.jevaengine.game.ResourceLoadingException;
 import io.github.jevaengine.graphics.AnimationState;
+import io.github.jevaengine.graphics.Graphic;
 import io.github.jevaengine.graphics.Sprite;
 import io.github.jevaengine.ui.IWindowManager;
 import io.github.jevaengine.ui.Window;
@@ -39,13 +40,17 @@ import io.github.jevaengine.world.World;
 import io.github.jevaengine.world.World.WorldConfiguration;
 import io.github.jevaengine.world.World.WorldConfiguration.EntityDeclaration;
 import io.github.jevaengine.world.World.WorldConfiguration.LayerDeclaration;
+import io.github.jevaengine.world.World.WorldConfiguration.LayerDeclaration.LayerBackgroundDeclaration;
 import io.github.jevaengine.world.World.WorldConfiguration.TileDeclaration;
 import io.github.jevaengine.world.WorldLayer;
+import io.github.jevaengine.world.WorldLayer.LayerBackground;
 
 import java.awt.event.KeyEvent;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+
 import javax.swing.JOptionPane;
 
 public class MapEditor extends Game implements IEditorPaneListener
@@ -53,6 +58,7 @@ public class MapEditor extends Game implements IEditorPaneListener
 	private EditorPane m_pane;
 
 	private int m_selectedLayer;
+	private HashMap<Integer, LayerMetaData> m_layerMetaData = new HashMap<Integer, LayerMetaData>();
 	
 	private String m_baseDirectory;
 	
@@ -128,6 +134,8 @@ public class MapEditor extends Game implements IEditorPaneListener
 	@Override
 	public synchronized void initializeWorld(int worldWidth, int worldHeight, int tileWidth, int tileHeight)
 	{
+		m_layerMetaData.clear();
+		
 		m_world = new World(worldWidth, worldHeight, tileWidth, tileHeight, 0);
 
 		WorldLayer mainLayer = new WorldLayer();
@@ -185,8 +193,51 @@ public class MapEditor extends Game implements IEditorPaneListener
 	}
 
 	@Override
+	public synchronized void setSelectedLayerBackground(String background) throws IOException
+	{
+		WorldLayer layer = getWorld().getLayers()[m_selectedLayer];
+
+		LayerMetaData last = m_layerMetaData.get(m_selectedLayer) == null ? new LayerMetaData() : m_layerMetaData.get(m_selectedLayer);
+		
+		if(background.isEmpty())
+			layer.setBackground(new LayerBackground(null, last.getBackgroundLocation()));
+		else
+			layer.setBackground(new LayerBackground(Graphic.create(background), last.getBackgroundLocation()));
+		
+		
+		m_layerMetaData.put(m_selectedLayer, new LayerMetaData(background, last.getBackgroundLocation()));
+	}
+	
+	@Override
+	public synchronized void setSelectedLayerBackgroundLocation(Vector2F location) throws IOException
+	{
+		WorldLayer layer = getWorld().getLayers()[m_selectedLayer];
+		LayerMetaData last = m_layerMetaData.get(m_selectedLayer) == null ? new LayerMetaData() : m_layerMetaData.get(m_selectedLayer);
+		
+		if(last.getBackground().isEmpty())
+			layer.setBackground(new LayerBackground(null, location));
+		else
+			layer.setBackground(new LayerBackground(Graphic.create(last.getBackground()), location));
+	
+		
+		m_layerMetaData.put(m_selectedLayer, new LayerMetaData(last.getBackground(), location));
+		
+	}
+	
+	@Override
+	public synchronized LayerMetaData getSelectedLayerBackground()
+	{
+		if(m_layerMetaData.get(m_selectedLayer) == null)
+			m_layerMetaData.put(m_selectedLayer, new LayerMetaData());
+		
+		return m_layerMetaData.get(m_selectedLayer);
+	}
+	
+	@Override
 	public synchronized void openWorld(IVariable source)
 	{
+		m_layerMetaData.clear();
+	
 		m_pane.clearEntities();
 
 		WorldConfiguration worldConfig = new WorldConfiguration();
@@ -195,9 +246,18 @@ public class MapEditor extends Game implements IEditorPaneListener
 		m_world = new World(worldConfig.worldWidth, worldConfig.worldHeight, worldConfig.tileWidth, 
 							worldConfig.tileHeight, worldConfig.entityLayer, worldConfig.script);
 	
-		for (LayerDeclaration layerDeclaration : worldConfig.layers)
+		for (int l = 0; l < worldConfig.layers.length; l++)
 		{
+			LayerDeclaration layerDeclaration = worldConfig.layers[l];
+			
 			WorldLayer worldLayer = new WorldLayer();
+			
+			if(layerDeclaration.background != null)
+			{
+				m_layerMetaData.put(l, new LayerMetaData(layerDeclaration.background.image, layerDeclaration.background.location));
+				worldLayer.setBackground(new LayerBackground(Graphic.create(layerDeclaration.background.image), layerDeclaration.background.location));
+			}
+			
 			int[] tileIndices = layerDeclaration.tileIndices;
 			
 			int locationOffset = 0;
@@ -206,7 +266,7 @@ public class MapEditor extends Game implements IEditorPaneListener
 				if (tileIndices[i] >= 0)
 				{
 					if (tileIndices[i] >= worldConfig.tiles.length)
-						throw new ResourceLoadingException("Undeclared Tile Class Index Used");
+						throw new ResourceFormatException("Undeclared Tile Declaration Index Used");
 
 					EditorTile tile;
 					
@@ -328,6 +388,20 @@ public class MapEditor extends Game implements IEditorPaneListener
 		for (int i = 0; i < layers.size(); i++)
 		{
 			worldConfig.layers[i] = new LayerDeclaration();
+			
+			LayerMetaData metaData = m_layerMetaData.get(i);
+			if(metaData != null)
+			{
+				if(metaData.getBackground() != null)
+				{
+					LayerBackgroundDeclaration bgr = new LayerBackgroundDeclaration();
+					worldConfig.layers[i].background = bgr;
+					
+					bgr.image = metaData.getBackground();
+					bgr.location = metaData.getBackgroundLocation();
+				}
+			}
+			
 			worldConfig.layers[i].tileIndices = new int[layers.get(i).size()];
 			
 			for(int x = 0; x < worldConfig.layers[i].tileIndices.length; x++)
@@ -465,6 +539,35 @@ public class MapEditor extends Game implements IEditorPaneListener
 		throw new UnsupportedOperationException("Map editor does not implement a script provider.");
 	}
 
+	public class LayerMetaData
+	{
+		@Nullable
+		private String m_background;
+		private Vector2F m_location;
+		
+		public LayerMetaData(@Nullable String background, Vector2F location)
+		{
+			m_background = background;
+			m_location = location;
+		}
+		
+		public LayerMetaData()
+		{
+			this(null, new Vector2F());
+		}
+		
+		@Nullable
+		public String getBackground()
+		{
+			return m_background;
+		}
+		
+		public Vector2F getBackgroundLocation()
+		{
+			return m_location;
+		}
+	}
+	
 	private class MapViewListener implements IWorldViewListener
 	{
 		@Override

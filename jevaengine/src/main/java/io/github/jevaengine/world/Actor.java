@@ -30,8 +30,6 @@ import io.github.jevaengine.math.Vector2F;
 import io.github.jevaengine.util.Nullable;
 import io.github.jevaengine.world.EffectMap.TileEffects;
 
-import java.awt.Color;
-
 public abstract class Actor extends Entity implements IInteractable
 {
 	private final ActorScript m_script = new ActorScript();
@@ -282,11 +280,6 @@ public abstract class Actor extends Entity implements IInteractable
 	{
 		private SearchForTask<?> m_searchTask;
 
-		public ScriptLight bindLight(float offsetX, float offsetY, float radius, int r, int g, int b, int a)
-		{
-			return new ScriptLight(new Vector2F(offsetX, offsetY), radius, new Color(r, g, b, a));
-		}
-
 		public void beginLook()
 		{
 			if(m_searchTask == null)
@@ -338,86 +331,6 @@ public abstract class Actor extends Entity implements IInteractable
 			public boolean continueSearch()
 			{
 				return true;
-			}
-		}
-		
-		public class ScriptLight
-		{
-			private LightSource m_light;
-			
-			private ScriptLight(Vector2F offset, float radius, Color color)
-			{
-				m_light = new LightSource(offset, radius, color);
-			}
-			
-			public void setColor(int a, int r, int g, int b)
-			{
-				m_light.setColor(new Color(a,r,g,b));
-			}
-			
-			public void off()
-			{
-				m_light.remove();
-			}
-			
-			public void on()
-			{
-				m_light.add();
-			}
-		
-			private class LightSource extends DiffuseLight implements IEntityObserver
-			{
-				private Vector2F m_offset;
-
-				public LightSource(Vector2F offset, float radius, Color color)
-				{
-					super(radius, color);
-					m_offset = offset;
-				}
-
-				@Override
-				public Vector2F getLocation()
-				{
-					return getEntity().getLocation().add(m_offset);
-				}
-
-				public void add()
-				{
-					if(getEntity().isAssociated())
-						getEntity().getWorld().getLighting().addLight(this);
-
-					getEntity().addObserver(this);
-				}
-
-				public void remove()
-				{
-					if(!getEntity().isAssociated())
-						throw new CoreScriptException("Entity has not been associated with a world.");
-					
-					getEntity().removeObserver(this);
-					getEntity().getWorld().getLighting().removeLight(this);
-				}
-
-				@Override
-				public void enterWorld()
-				{
-					add();
-				}
-
-				@Override
-				public void leaveWorld()
-				{
-					getEntity().getWorld().getLighting().removeLight(this);
-				}
-
-				@Override
-				public void flagSet(String name, int value) { }
-
-				@Override
-				public void flagCleared(String name) { }
-
-				@Override
-				public void moved() { }
 			}
 		}
 		

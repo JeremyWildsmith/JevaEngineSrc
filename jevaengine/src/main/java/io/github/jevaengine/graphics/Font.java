@@ -14,13 +14,11 @@ package io.github.jevaengine.graphics;
 
 import java.awt.Color;
 import java.awt.image.RGBImageFilter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import io.github.jevaengine.config.ISerializable;
 import io.github.jevaengine.config.IVariable;
-import io.github.jevaengine.game.ResourceLoadingException;
 import io.github.jevaengine.graphics.Font.FontDeclaration.GlyphDeclaration;
 import io.github.jevaengine.math.Rect2D;
 import io.github.jevaengine.util.Nullable;
@@ -51,26 +49,21 @@ public final class Font
 		int maxWidth = 0;
 		int maxHeight = 0;
 		
-		try
-		{
-			Graphic srcImage = Graphic.create(fontDecl.texture);
+		Graphic srcImage = Graphic.create(fontDecl.texture);
 			
-			srcImage = filterImage(srcImage, color);
+		srcImage = filterImage(srcImage, color);
 
-			HashMap<Character, Rect2D> charMap = new HashMap<Character, Rect2D>();
+		HashMap<Character, Rect2D> charMap = new HashMap<Character, Rect2D>();
 
-			for (GlyphDeclaration glyph : fontDecl.glyphs)
-			{
-				maxWidth = Math.max(maxWidth, glyph.region.width);
-				maxHeight = Math.max(maxHeight, glyph.region.height);
-
-				charMap.put(glyph.character, glyph.region);
-			}
-			return new Font(srcImage, charMap, maxWidth, maxHeight);
-		} catch (IOException e)
+		for (GlyphDeclaration glyph : fontDecl.glyphs)
 		{
-			throw new ResourceLoadingException(fontDecl.texture);
+			maxWidth = Math.max(maxWidth, glyph.region.width);
+			maxHeight = Math.max(maxHeight, glyph.region.height);
+
+			charMap.put(glyph.character, glyph.region);
 		}
+		
+		return new Font(srcImage, charMap, maxWidth, maxHeight);
 	}
 
 	private static Graphic filterImage(Graphic src, final Color color)

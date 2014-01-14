@@ -24,7 +24,6 @@ import io.github.jevaengine.util.Nullable;
 
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
@@ -64,32 +63,25 @@ public final class Sprite implements IRenderable
 	
 	public static Sprite create(IVariable root)
 	{
-		try
-		{
-			SpriteDeclaration spriteDecl = root.getValue(SpriteDeclaration.class);
+		SpriteDeclaration spriteDecl = root.getValue(SpriteDeclaration.class);
 			
-			Graphic srcImage = Graphic.create(spriteDecl.texture);
+		Graphic srcImage = Graphic.create(spriteDecl.texture);
 
-			Sprite sprite = new Sprite(srcImage, spriteDecl.scale);
+		Sprite sprite = new Sprite(srcImage, spriteDecl.scale);
 
-			for (AnimationDeclaration anim : spriteDecl.animations)
+		for (AnimationDeclaration anim : spriteDecl.animations)
+		{
+			Animation animBuffer = new Animation();
+
+			for(FrameDeclaration frame : anim.frames)
 			{
-				Animation animBuffer = new Animation();
-
-				for(FrameDeclaration frame : anim.frames)
-				{
-					animBuffer.addFrame(new Frame(frame.region, frame.delay, frame.anchor));
-				}
-
-				sprite.addAnimation(anim.name, animBuffer);
+				animBuffer.addFrame(new Frame(frame.region, frame.delay, frame.anchor));
 			}
 
-			return sprite;
-
-		} catch (IOException ex)
-		{
-			throw new RuntimeException(ex);
+			sprite.addAnimation(anim.name, animBuffer);
 		}
+
+		return sprite;
 	}
 
 	public Rect2D getBounds()

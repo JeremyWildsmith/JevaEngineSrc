@@ -31,7 +31,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import io.github.jevaengine.Core;
 import io.github.jevaengine.IDisposable;
 import io.github.jevaengine.ResourceLibrary;
-import io.github.jevaengine.ResourceLibraryIOException;
+import io.github.jevaengine.ResourceIOException;
 import io.github.jevaengine.util.Nullable;
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
@@ -197,10 +197,10 @@ public final class Audio
 				srcStream.close();
 			} catch (UnsupportedEncodingException e)
 			{
-				throw new ResourceLibraryIOException(e, "Unsupported stream encoding. " + e.getMessage());
+				throw new ResourceIOException(e, "Unsupported stream encoding. " + e.getMessage());
 			} catch (IOException e)
 			{
-				throw new ResourceLibraryIOException(e, "Error occured while attempting to read file: " + e.getMessage());
+				throw new ResourceIOException(e, "Error occured while attempting to read file: " + e.getMessage());
 			}
 
 			m_clipStream = new ByteBufferAdapter(ByteBuffer.wrap(bos.toByteArray()));

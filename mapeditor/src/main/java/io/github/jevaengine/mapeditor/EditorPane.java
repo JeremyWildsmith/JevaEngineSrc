@@ -14,24 +14,36 @@
 package io.github.jevaengine.mapeditor;
 
 import io.github.jevaengine.Core;
+import io.github.jevaengine.ResourceIOException;
 import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.config.JsonVariable;
-import io.github.jevaengine.game.ResourceLoadingException;
 import io.github.jevaengine.graphics.Sprite;
+import io.github.jevaengine.mapeditor.MapEditor.LayerMetaData;
 import io.github.jevaengine.math.Vector2F;
 import io.github.jevaengine.world.WorldDirection;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
+
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.GroupLayout.Alignment;
+import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.GroupLayout;
+import javax.swing.JTextField;
+import javax.swing.JLabel;
+import javax.swing.JButton;
+
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 /**
  *
  * @author Jeremy
@@ -44,6 +56,7 @@ public class EditorPane extends javax.swing.JFrame
 	private static final long serialVersionUID = 1L;
 	private IEditorPaneListener m_listener;
 	private String m_baseDirectory;
+	
 	/**
 	 * Creates new form NewEditorPane
 	 */
@@ -68,6 +81,14 @@ public class EditorPane extends javax.swing.JFrame
 				refreshLayers();
 				txtWorldScript.setText(m_listener.getScript());
 				txtEntityLayer.setValue(m_listener.getEntityLayer());
+				
+				LayerMetaData selectedLayerMeta = m_listener.getSelectedLayerBackground();
+				
+				String background = selectedLayerMeta.getBackground();
+				txtLayerBackground.setText(background == null ? "" : background);
+
+				txtLayerBackgroundOffsetX.setText(String.valueOf(selectedLayerMeta.getBackgroundLocation().x));
+				txtLayerBackgroundOffsetY.setText(String.valueOf(selectedLayerMeta.getBackgroundLocation().y));
 			}
 		});
 	}
@@ -153,7 +174,7 @@ public class EditorPane extends javax.swing.JFrame
 				txtBrushSprite.setText("");
 				JOptionPane.showMessageDialog(this, "This sprite cannot be used as it has no animations.");
 			}
-		}catch(ResourceLoadingException e)
+		}catch(ResourceIOException e)
 		{
 			txtBrushSprite.setText("");
 			JOptionPane.showMessageDialog(this, "Could not open sprite resource.");
@@ -300,7 +321,7 @@ public class EditorPane extends javax.swing.JFrame
         setResizable(false);
         setType(java.awt.Window.Type.UTILITY);
 
-        jLabel5.setText("Script:");
+        jLabel5.setText("World Script:");
 
         txtWorldScript.setEditable(false);
 
@@ -351,55 +372,114 @@ public class EditorPane extends javax.swing.JFrame
                 txtEntityLayerStateChanged(evt);
             }
         });
+        
+        txtLayerBackground = new JTextField();
+        txtLayerBackground.setEditable(false);
+        
+        lblBackground = new JLabel();
+        lblBackground.setText("Layer Background:");
+        
+        btnBrowseBackground = new JButton();
+        btnBrowseBackground.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		btnBrowseBackgroundActionPerformed(e);
+        	}
+        });
+        btnBrowseBackground.setText("...");
+        
+        txtLayerBackgroundOffsetX = new JTextField();
+        txtLayerBackgroundOffsetX.setText("0");
+        
+        txtLayerBackgroundOffsetY = new JTextField();
+        txtLayerBackgroundOffsetY.setText("0");
+        
+        label = new JLabel();
+        label.setText("Location:");
+        
+        btnApplyBackgroundOffset = new JButton("Apply");
+        btnApplyBackgroundOffset.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		btnApplyBackgroundOffsetActionPerformed(e);
+        	}
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel6)
-                            .addComponent(jLabel7))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(txtEntityLayer, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(lstSelectedLayer, javax.swing.GroupLayout.Alignment.LEADING, 0, 113, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnNewLayer))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(17, 17, 17)
-                        .addComponent(jLabel5)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtWorldScript, javax.swing.GroupLayout.PREFERRED_SIZE, 199, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btnDeleteLayer)
-                    .addComponent(btnBrowseScript))
-                .addContainerGap(34, Short.MAX_VALUE))
+        	jPanel1Layout.createParallelGroup(Alignment.LEADING)
+        		.addGroup(jPanel1Layout.createSequentialGroup()
+        			.addContainerGap()
+        			.addGroup(jPanel1Layout.createParallelGroup(Alignment.LEADING)
+        				.addGroup(jPanel1Layout.createSequentialGroup()
+        					.addGroup(jPanel1Layout.createParallelGroup(Alignment.TRAILING)
+        						.addComponent(jLabel6)
+        						.addComponent(jLabel7))
+        					.addPreferredGap(ComponentPlacement.RELATED)
+        					.addGroup(jPanel1Layout.createParallelGroup(Alignment.TRAILING, false)
+        						.addComponent(txtEntityLayer, Alignment.LEADING, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+        						.addComponent(lstSelectedLayer, Alignment.LEADING, 0, 113, Short.MAX_VALUE))
+        					.addPreferredGap(ComponentPlacement.RELATED)
+        					.addComponent(btnNewLayer)
+        					.addPreferredGap(ComponentPlacement.RELATED)
+        					.addComponent(btnDeleteLayer))
+        				.addGroup(jPanel1Layout.createSequentialGroup()
+        					.addGroup(jPanel1Layout.createParallelGroup(Alignment.TRAILING)
+        						.addComponent(lblBackground)
+        						.addComponent(jLabel5))
+        					.addPreferredGap(ComponentPlacement.RELATED)
+        					.addGroup(jPanel1Layout.createParallelGroup(Alignment.LEADING)
+        						.addGroup(jPanel1Layout.createSequentialGroup()
+        							.addGroup(jPanel1Layout.createParallelGroup(Alignment.LEADING, false)
+        								.addComponent(txtLayerBackground, GroupLayout.DEFAULT_SIZE, 185, Short.MAX_VALUE)
+        								.addComponent(txtWorldScript))
+        							.addPreferredGap(ComponentPlacement.RELATED)
+        							.addGroup(jPanel1Layout.createParallelGroup(Alignment.LEADING)
+        								.addComponent(btnBrowseBackground, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
+        								.addComponent(btnBrowseScript)))
+        						.addGroup(jPanel1Layout.createSequentialGroup()
+        							.addComponent(label, GroupLayout.PREFERRED_SIZE, 62, GroupLayout.PREFERRED_SIZE)
+        							.addPreferredGap(ComponentPlacement.RELATED)
+        							.addComponent(txtLayerBackgroundOffsetX, GroupLayout.PREFERRED_SIZE, 31, GroupLayout.PREFERRED_SIZE)
+        							.addPreferredGap(ComponentPlacement.RELATED)
+        							.addComponent(txtLayerBackgroundOffsetY, GroupLayout.PREFERRED_SIZE, 28, GroupLayout.PREFERRED_SIZE)
+        							.addGap(18)
+        							.addComponent(btnApplyBackgroundOffset)))))
+        			.addGap(20))
         );
         jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel6)
-                    .addComponent(lstSelectedLayer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnNewLayer)
-                    .addComponent(btnDeleteLayer))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel7)
-                    .addComponent(txtEntityLayer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(49, 49, 49)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel5)
-                    .addComponent(txtWorldScript, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnBrowseScript))
-                .addContainerGap(119, Short.MAX_VALUE))
+        	jPanel1Layout.createParallelGroup(Alignment.LEADING)
+        		.addGroup(jPanel1Layout.createSequentialGroup()
+        			.addContainerGap()
+        			.addGroup(jPanel1Layout.createParallelGroup(Alignment.BASELINE)
+        				.addComponent(jLabel6)
+        				.addComponent(lstSelectedLayer, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+        				.addComponent(btnNewLayer)
+        				.addComponent(btnDeleteLayer))
+        			.addPreferredGap(ComponentPlacement.RELATED)
+        			.addGroup(jPanel1Layout.createParallelGroup(Alignment.BASELINE)
+        				.addComponent(jLabel7)
+        				.addComponent(txtEntityLayer, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+        			.addGap(42)
+        			.addGroup(jPanel1Layout.createParallelGroup(Alignment.BASELINE)
+        				.addComponent(txtLayerBackground, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+        				.addComponent(lblBackground)
+        				.addComponent(btnBrowseBackground))
+        			.addPreferredGap(ComponentPlacement.RELATED)
+        			.addGroup(jPanel1Layout.createParallelGroup(Alignment.LEADING)
+        				.addGroup(jPanel1Layout.createParallelGroup(Alignment.BASELINE)
+        					.addComponent(txtLayerBackgroundOffsetY, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+        					.addComponent(btnApplyBackgroundOffset)
+        					.addComponent(txtLayerBackgroundOffsetX, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+        				.addGroup(jPanel1Layout.createSequentialGroup()
+        					.addGap(3)
+        					.addComponent(label)))
+        			.addGap(35)
+        			.addGroup(jPanel1Layout.createParallelGroup(Alignment.BASELINE)
+        				.addComponent(txtWorldScript, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+        				.addComponent(jLabel5)
+        				.addComponent(btnBrowseScript))
+        			.addContainerGap(39, Short.MAX_VALUE))
         );
+        jPanel1.setLayout(jPanel1Layout);
 
         jTabbedPane1.addTab("World", jPanel1);
 
@@ -787,7 +867,7 @@ public class EditorPane extends javax.swing.JFrame
 				txtBrushSprite.setText(relative);
 
 				refreshTileSpriteAnimations();
-			} catch (ResourceLoadingException e)
+			} catch (ResourceIOException e)
 			{
 				JOptionPane.showMessageDialog(this, "Error opening sprite resource: " + e.toString());
 			}
@@ -830,6 +910,8 @@ public class EditorPane extends javax.swing.JFrame
 			JOptionPane.showMessageDialog(this, "Invalid layer selected");
 		else
 			m_listener.selectLayer(model.getIndexOf(model.getSelectedItem()));
+		
+		refresh();
     }//GEN-LAST:event_lstSelectedLayerActionPerformed
 
     private void btnDeleteLayerActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnDeleteLayerActionPerformed
@@ -875,6 +957,25 @@ public class EditorPane extends javax.swing.JFrame
 			String relative = base.relativize(chooser.getSelectedFile().toURI()).toString();
 
 			m_listener.setScript(relative);
+
+			refresh();
+		}
+    }//GEN-LAST:event_btnBrowseScriptActionPerformed
+    
+    private void btnBrowseBackgroundActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnBrowseScriptActionPerformed
+    {//GEN-HEADEREND:event_btnBrowseScriptActionPerformed
+		JFileChooser chooser = new JFileChooser(new File(m_baseDirectory));
+		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+
+		if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
+		{
+			URI base = new File(m_baseDirectory).toURI();
+			String relative = base.relativize(chooser.getSelectedFile().toURI()).toString();
+			try {
+				m_listener.setSelectedLayerBackground(relative);
+			} catch (IOException e) {
+				JOptionPane.showMessageDialog(this, "IOException accessing background resource file: " + e.toString());
+			}
 
 			refresh();
 		}
@@ -990,6 +1091,23 @@ public class EditorPane extends javax.swing.JFrame
 		JOptionPane.showMessageDialog(this, "Invalid entity name provided for deletion.");
     }//GEN-LAST:event_btnDeleteEntityActionPerformed
 
+    private void btnApplyBackgroundOffsetActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnEntityCreateActionPerformed
+    {
+    	try
+    	{
+    		float x = Float.parseFloat(txtLayerBackgroundOffsetX.getText());
+    		float y = Float.parseFloat(txtLayerBackgroundOffsetY.getText());
+    		
+    		m_listener.setSelectedLayerBackgroundLocation(new Vector2F(x, y));
+    	}catch(NumberFormatException e)
+    	{
+    		JOptionPane.showMessageDialog(this, "Invalid X and Y floating points.");
+    	}catch(IOException e)
+    	{
+    		JOptionPane.showMessageDialog(this, "IO Error occured attempting to access background resource file: " + e.toString());
+        }
+    }
+    
     private void btnEntityCreateActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnEntityCreateActionPerformed
     {//GEN-HEADEREND:event_btnEntityCreateActionPerformed
 
@@ -1151,5 +1269,11 @@ public class EditorPane extends javax.swing.JFrame
     private javax.swing.JTextField txtEntityY;
     private javax.swing.JTextField txtFillDimensions;
     private javax.swing.JTextField txtWorldScript;
-    // End of variables declaration//GEN-END:variables
+    private JTextField txtLayerBackground;
+    private JLabel lblBackground;
+    private JButton btnBrowseBackground;
+    private JTextField txtLayerBackgroundOffsetX;
+    private JTextField txtLayerBackgroundOffsetY;
+    private JLabel label;
+    private JButton btnApplyBackgroundOffset;
 }

@@ -16,12 +16,15 @@
  */
 package io.github.jevaengine.world;
 
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.HashSet;
 
 import io.github.jevaengine.IDisposable;
+import io.github.jevaengine.graphics.Graphic;
+import io.github.jevaengine.graphics.IRenderable;
 import io.github.jevaengine.math.Rect2D;
 import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.math.Vector2F;
@@ -35,10 +38,14 @@ public class WorldLayer implements IDisposable
 
 	private ArrayList<ActorEntry> m_actors;
 	
+	@Nullable
+	private LayerBackground m_background;
+	
 	public WorldLayer()
 	{
 		m_sectors = new ArrayList<LayerSector>();
 		m_actors = new ArrayList<ActorEntry>();
+		m_background = new LayerBackground();
 	}
 	
 	public void dispose()
@@ -47,6 +54,11 @@ public class WorldLayer implements IDisposable
 			a.dispose();
 		
 		m_actors.clear();
+	}
+	
+	public void setBackground(LayerBackground background)
+	{
+		m_background = background;
 	}
 
 	private LayerSector getSector(Vector2F location)
@@ -109,8 +121,10 @@ public class WorldLayer implements IDisposable
 			sector.update(delta);
 	}
 
-	public void enqueueRender(Rectangle renderBounds)
+	void enqueueRender(World parent, Rectangle renderBounds)
 	{
+		m_background.enqueueRender(parent);
+		
 		HashSet<Integer> renderSectors = new HashSet<Integer>();
 
 		int sectorX = renderBounds.x / LayerSector.SECTOR_DIMENSIONS;
@@ -133,6 +147,41 @@ public class WorldLayer implements IDisposable
 		}
 	}
 
+	public static class LayerBackground
+	{
+		@Nullable
+		private Graphic m_background;
+		private Vector2F m_location;
+		private Renderer m_renderer = new Renderer();
+		
+		public LayerBackground(@Nullable Graphic background, Vector2F location)
+		{
+			m_background = background;
+			m_location = location;
+		}
+		
+		public LayerBackground()
+		{
+			this(null, new Vector2F());
+		}
+
+		private void enqueueRender(World parent)
+		{
+			parent.enqueueRender(m_renderer, m_location);
+		}
+		
+		private class Renderer implements IRenderable
+		{
+
+			@Override
+			public void render(Graphics2D g, int x, int y, float scale)
+			{
+				if(m_background != null)
+					m_background.render(g, x, y, scale);
+			}
+		}
+	}
+	
 	private class ActorEntry implements IDisposable
 	{
 		private Actor m_subject;

@@ -16,7 +16,6 @@
  */
 package io.github.jevaengine.world;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.util.ArrayList;
@@ -30,12 +29,13 @@ import javax.script.ScriptException;
 import io.github.jevaengine.Core;
 import io.github.jevaengine.CoreScriptException;
 import io.github.jevaengine.IDisposable;
+import io.github.jevaengine.ResourceFormatException;
 import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.Script;
 import io.github.jevaengine.config.ISerializable;
 import io.github.jevaengine.config.IVariable;
-import io.github.jevaengine.game.ResourceLoadingException;
 import io.github.jevaengine.graphics.AnimationState;
+import io.github.jevaengine.graphics.Graphic;
 import io.github.jevaengine.graphics.IRenderable;
 import io.github.jevaengine.graphics.Sprite;
 import io.github.jevaengine.math.Matrix2X2;
@@ -50,6 +50,7 @@ import io.github.jevaengine.world.Entity.EntityBridge;
 import io.github.jevaengine.world.World.WorldConfiguration.EntityDeclaration;
 import io.github.jevaengine.world.World.WorldConfiguration.LayerDeclaration;
 import io.github.jevaengine.world.World.WorldConfiguration.TileDeclaration;
+import io.github.jevaengine.world.WorldLayer.LayerBackground;
 
 public final class World implements IDisposable
 {
@@ -70,7 +71,6 @@ public final class World implements IDisposable
 	private ArrayList<WorldLayer> m_layers;
 	private int m_entityLayer;
 	
-	private SceneLighting m_worldLighting;
 	private EffectMap m_entityEffectMap;
 	private WorldScriptManager m_worldScript;
 
@@ -110,8 +110,6 @@ public final class World implements IDisposable
 
 		m_worldToScreenMatrix = new Matrix2X2(tileWidth / 2.0F, -tileWidth / 2.0F, tileHeight / 2.0F, tileHeight / 2.0F);
 
-		m_worldLighting = new SceneLighting();
-
 		m_worldTime = Calendar.getInstance();
 		m_fTimeMultiplier = 1.0F;
 		m_timeSinceTick = 0;
@@ -129,7 +127,7 @@ public final class World implements IDisposable
 		this(width, height, tileWidth, tileHeight, entityLayerDepth, null);
 	}
 
-	public static World create(IVariable source) throws ResourceLoadingException
+	public static World create(IVariable source)
 	{
 		WorldConfiguration worldConfig = source.getValue(WorldConfiguration.class);
 
@@ -142,6 +140,10 @@ public final class World implements IDisposable
 		for (LayerDeclaration layerDeclaration : worldConfig.layers)
 		{
 			WorldLayer worldLayer = new WorldLayer();
+			
+			if(layerDeclaration.background != null)
+				worldLayer.setBackground(new LayerBackground(Graphic.create(layerDeclaration.background.image), layerDeclaration.background.location));
+			
 			int[] tileIndices = layerDeclaration.tileIndices;
 			
 			int locationOffset = 0;
@@ -150,7 +152,7 @@ public final class World implements IDisposable
 				if (tileIndices[i] >= 0)
 				{
 					if (tileIndices[i] >= worldConfig.tiles.length)
-						throw new ResourceLoadingException("Undeclared Tile Class Index Used");
+						throw new ResourceFormatException("Undeclared Tile Declaration Index Used");
 
 					TileDeclaration tileDecl = worldConfig.tiles[tileIndices[i]];
 					
@@ -164,12 +166,8 @@ public final class World implements IDisposable
 										tileDecl.allowRenderSplitting, tileDecl.visibility);
 					
 					tile.associate(world);
-
-					// Location of tile must be set _BEFORE_ adding it to map layer
-					// so map layer can place the tile in the proper sector
-					// for optimizations.
+					
 					tile.setLocation(new Vector2F((locationOffset + i) % world.m_worldWidth, (float) Math.floor((locationOffset + i) / world.m_worldWidth)));
-
 					worldLayer.add(tile, tileDecl.isStatic);
 				}else
 					locationOffset += Math.abs(tileIndices[i]) - 1;
@@ -196,11 +194,6 @@ public final class World implements IDisposable
 		return world;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see io.github.jeremywildsmith.jevaengine.IDisposable#dispose()
-	 */
 	@Override
 	public void dispose()
 	{
@@ -259,11 +252,6 @@ public final class World implements IDisposable
 	public void setEntityLayer(int layer)
 	{
 		m_entityLayer = layer;
-	}
-
-	public SceneLighting getLighting()
-	{
-		return m_worldLighting;
 	}
 
 	public int getWidth()
@@ -563,7 +551,7 @@ public final class World implements IDisposable
 		for (int i = 0; i < m_layers.size(); i++)
 		{
 			setRenderQueueLayerDepth(i);
-			m_layers.get(i).enqueueRender(worldViewBounds);
+			m_layers.get(i).enqueueRender(this, worldViewBounds);
 		}
 
 		setRenderQueueLayerDepth(m_entityLayer);
@@ -575,13 +563,6 @@ public final class World implements IDisposable
 		}
 
 		setRenderQueueLayerDepth(Float.MAX_VALUE);
-
-		if (m_worldLighting.getTargetWidth() != viewBounds.width ||
-				m_worldLighting.getTargetHeight() != viewBounds.height)
-			
-			m_worldLighting.setTargetBounds(viewBounds.width, viewBounds.height);
-
-		m_worldLighting.enqueueRender(this, g.getDeviceConfiguration(), viewBounds, x, y, fScale);
 
 		renderQueue(g, viewBounds.x + x, viewBounds.y + y, fScale);
 	}
@@ -805,11 +786,6 @@ public final class World implements IDisposable
 			m_fTimeMultiplier = fMultiplier;
 		}
 
-		public void setAmbientLight(int r, int g, int b, int a)
-		{
-			World.this.m_worldLighting.setAmbientLight(new Color((int) Math.min(255, Math.max(0, r)), (int) Math.min(255, Math.max(0, g)), (int) Math.min(255, Math.max(0, b)), (int) Math.min(255, Math.max(0, a))));
-		}
-
 		public void pause()
 		{
 			World.this.pause();
@@ -908,12 +884,18 @@ public final class World implements IDisposable
 		{
 			public int[] tileIndices = new int[0];
 			
+			@Nullable 
+			public LayerBackgroundDeclaration background;
+			
 			public LayerDeclaration() { }
 
 			@Override
 			public void serialize(IVariable target)
 			{
 				target.addChild("indice").setValue(this.tileIndices);
+				
+				if(background != null)
+					target.addChild("background").setValue(background);
 			}
 
 			@Override
@@ -925,6 +907,40 @@ public final class World implements IDisposable
 				
 				for(int i = 0; i < indice.length; i++)
 					this.tileIndices[i] = indice[i];
+				
+				if(source.childExists("background"))
+					background = source.getChild("background").getValue(LayerBackgroundDeclaration.class);
+			}
+			
+			public static class LayerBackgroundDeclaration implements ISerializable
+			{
+				public String image;
+				public Vector2F location;
+				
+				public LayerBackgroundDeclaration()
+				{
+					location = new Vector2F();
+				}
+
+				@Override
+				public void serialize(IVariable target)
+				{
+					if(image != null && image.length() > 0)
+					{
+						target.addChild("image").setValue(image);
+						target.addChild("location").setValue(location);
+					}
+				}
+
+				@Override
+				public void deserialize(IVariable source)
+				{
+					if(source.childExists("image"))
+					{
+						image = source.getChild("image").getValue(String.class);
+						location = source.getChild("location").getValue(Vector2F.class);
+					}
+				}
 			}
 		}
 		

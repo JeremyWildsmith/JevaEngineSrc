@@ -14,6 +14,7 @@ package io.github.jevaengine.graphics;
 
 import io.github.jevaengine.CoreModeViolationException;
 import io.github.jevaengine.Core;
+import io.github.jevaengine.ResourceIOException;
 import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.util.Nullable;
 
@@ -40,7 +41,7 @@ public final class Graphic
 		m_sourceImage = sourceImage;
 	}
 	
-	public static Graphic create(String name) throws IOException
+	public static Graphic create(String name)
 	{
 		if(!Core.getMode().allowsRender())
 			return new Graphic(null);
@@ -56,8 +57,13 @@ public final class Graphic
 			
 			if (img == null)
 			{
-				img = ImageIO.read(Core.getService(ResourceLibrary.class).openAsset(formal));
-				m_imageCache.put(formal, new WeakReference<BufferedImage>(img));
+				try
+				{
+					img = ImageIO.read(Core.getService(ResourceLibrary.class).openAsset(formal));
+					m_imageCache.put(formal, new WeakReference<BufferedImage>(img));
+				}catch(IOException e) {
+					throw new ResourceIOException(e, name);
+				}
 			}
 			
 			return new Graphic(img);
@@ -70,6 +76,14 @@ public final class Graphic
 			throw new CoreModeViolationException("Core mode does not permit rendering or graphics operations.");
 		
 		g.drawImage(m_sourceImage, dx, dy, dx + dw, dy + dh, sx, sy, sx + sw, sy + sh, null);
+	}
+	
+	public void render(Graphics2D g, int dx, int dy, float scale)
+	{
+		if(m_sourceImage == null)
+			throw new CoreModeViolationException("Core mode does not permit rendering or graphics operations.");
+		
+		g.drawImage(m_sourceImage, dx, dy, (int)(m_sourceImage.getWidth() * scale), (int)(m_sourceImage.getHeight() * scale), null);
 	}
 	
 	public Graphic filterImage(RGBImageFilter filter)

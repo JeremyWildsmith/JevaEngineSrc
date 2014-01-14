@@ -14,15 +14,15 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package io.github.jevaengine.world;
+package io.github.jevaengine;
 
-public class EntityInstantiationException extends RuntimeException
+public class ResourceIOException extends RuntimeException
 {
 
 	private static final long serialVersionUID = 1L;
 
-	public EntityInstantiationException(String reason)
+	public ResourceIOException(Exception cause, String resourceName)
 	{
-		super("Unable to instantiate entity because " + reason);
+		super("Filesystem IO Exception: " + resourceName + ", cause: " + cause.toString(), cause);
 	}
 }

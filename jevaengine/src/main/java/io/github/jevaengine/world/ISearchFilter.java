@@ -19,10 +19,10 @@ import io.github.jevaengine.util.Nullable;
 public interface ISearchFilter<T>
 {
 
-	public abstract Rect2D getSearchBounds();
+	Rect2D getSearchBounds();
 
-	public abstract boolean shouldInclude(Vector2F location);
+	boolean shouldInclude(Vector2F location);
 
 	@Nullable
-	public abstract T filter(T item);
+	T filter(T item);
 }

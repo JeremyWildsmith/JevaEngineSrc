@@ -64,7 +64,7 @@ public class EffectMap
 	{
 		if (m_bounds != null && !m_bounds.contains(new Point(location.x, location.y)))
 		{
-			TileEffects effects = new TileEffects(location);
+			TileEffects effects = new TileEffects();
 			effects.isTraversable = false;
 
 			return effects;
@@ -133,8 +133,6 @@ public class EffectMap
 			m_tileEffects.put(location, effect);
 		else
 			m_tileEffects.get(location).overlay(effect);
-
-		effect.location = location;
 	}
 
 	public final void overlay(EffectMap overlay, Vector2D offset)
@@ -156,20 +154,9 @@ public class EffectMap
 		public boolean isTraversable;
 
 		public float sightEffect;
-
-		public Vector2D location;
-
+		
 		public TileEffects()
 		{
-			location = new Vector2D();
-			isTraversable = true;
-			sightEffect = 1.0F;
-			interactables = new ArrayList<IInteractable>();
-		}
-
-		public TileEffects(Vector2D _location)
-		{
-			location = _location;
 			isTraversable = true;
 			sightEffect = 1.0F;
 			interactables = new ArrayList<IInteractable>();
@@ -177,7 +164,6 @@ public class EffectMap
 
 		public TileEffects(TileEffects effects)
 		{
-			location = effects.location;
 			isTraversable = effects.isTraversable;
 			sightEffect = effects.sightEffect;
 
@@ -186,7 +172,6 @@ public class EffectMap
 
 		public TileEffects(boolean _isTraversable)
 		{
-			location = new Vector2D();
 			isTraversable = _isTraversable;
 			sightEffect = 1.0F;
 			interactables = new ArrayList<IInteractable>();
@@ -194,7 +179,6 @@ public class EffectMap
 
 		public TileEffects(float _sightEffect)
 		{
-			location = new Vector2D();
 			isTraversable = true;
 			sightEffect = _sightEffect;
 			interactables = new ArrayList<IInteractable>();
@@ -202,7 +186,6 @@ public class EffectMap
 
 		public TileEffects(IInteractable... _interactables)
 		{
-			location = new Vector2D();
 			isTraversable = true;
 			interactables = new ArrayList<IInteractable>(Arrays.asList(_interactables));
 		}

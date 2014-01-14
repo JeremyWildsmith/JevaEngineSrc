@@ -62,13 +62,18 @@ public class Vector3F implements Comparable<Vector3F>
 		if (Math.abs(v.z - z) > TOLERANCE)
 			return (z < v.z ? -1 : 1);
 
-		float fLengthDifference = x * x + y * y - (v.x * v.x + v.y * v.y);
-
-		if (fLengthDifference > TOLERANCE)
-			return 1;
-		else if (fLengthDifference < -TOLERANCE)
-			return -1;
-		else if (Math.abs(v.z - z) > TOLERANCE)
+		float distanceDifference = x * x + y * y - (v.x * v.x + v.y * v.y);
+		
+		if(Math.abs(distanceDifference) > TOLERANCE)
+		{
+			//If there is a difference in x, and their signs are not equal (i.e, in different quadrants)
+			if(Math.abs(v.x - x) > TOLERANCE && (x < 0) != (v.x < 0))
+				return x < v.x ? -1 : 1;
+			else if(Math.abs(v.y - y) > TOLERANCE && (y < 0) != (v.y < 0))
+				return y < v.y ? -1 : 1;
+			else
+				return distanceDifference > 0 ? 1 : -1;
+		}else if (Math.abs(v.z - z) > TOLERANCE)
 			return (z < v.z ? -1 : 1);
 		else if (Math.abs(v.x - x) > TOLERANCE)
 			return (x < v.x ? -1 : 1);

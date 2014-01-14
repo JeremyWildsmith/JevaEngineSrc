@@ -19,12 +19,12 @@ package io.github.jevaengine.rpgbase;
 import java.io.InputStream;
 import java.util.Scanner;
 
+import io.github.jevaengine.ResourceIOException;
 import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.Script;
 import io.github.jevaengine.UnresolvedResourcePathException;
 import io.github.jevaengine.config.IVariable;
 import io.github.jevaengine.config.JsonVariable;
-import io.github.jevaengine.game.ResourceLoadingException;
 
 import java.io.File;
 import java.io.IOException;
@@ -99,7 +99,7 @@ public class RpgLibrary extends ResourceLibrary
 			return JsonVariable.create(openAsset(path));
 		} catch (IOException ex)
 		{
-			throw new ResourceLoadingException("Error opening: " + path + ", " + ex.toString());
+			throw new ResourceIOException(ex, path);
 		}
 	}
 
