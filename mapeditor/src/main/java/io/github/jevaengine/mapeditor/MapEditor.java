@@ -14,6 +14,7 @@ package io.github.jevaengine.mapeditor;
 
 import io.github.jevaengine.Core;
 import io.github.jevaengine.ResourceFormatException;
+import io.github.jevaengine.ResourceIOException;
 import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.config.IImmutableVariable;
 import io.github.jevaengine.config.JsonVariable;
@@ -193,7 +194,7 @@ public class MapEditor extends Game implements IEditorPaneListener
 	}
 
 	@Override
-	public synchronized void setSelectedLayerBackground(String background) throws IOException
+	public synchronized void setSelectedLayerBackground(String background) throws ResourceIOException
 	{
 		WorldLayer layer = getWorld().getLayers()[m_selectedLayer];
 
@@ -204,12 +205,11 @@ public class MapEditor extends Game implements IEditorPaneListener
 		else
 			layer.setBackground(new LayerBackground(Graphic.create(background), last.getBackgroundLocation()));
 		
-		
 		m_layerMetaData.put(m_selectedLayer, new LayerMetaData(background, last.getBackgroundLocation()));
 	}
 	
 	@Override
-	public synchronized void setSelectedLayerBackgroundLocation(Vector2F location) throws IOException
+	public synchronized void setSelectedLayerBackgroundLocation(Vector2F location) throws ResourceIOException
 	{
 		WorldLayer layer = getWorld().getLayers()[m_selectedLayer];
 		LayerMetaData last = m_layerMetaData.get(m_selectedLayer) == null ? new LayerMetaData() : m_layerMetaData.get(m_selectedLayer);

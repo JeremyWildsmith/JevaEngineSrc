@@ -14,6 +14,7 @@
 package io.github.jevaengine.mapeditor;
 
 import io.github.jevaengine.Core;
+import io.github.jevaengine.ResourceFormatException;
 import io.github.jevaengine.ResourceIOException;
 import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.config.JsonVariable;
@@ -973,7 +974,7 @@ public class EditorPane extends javax.swing.JFrame
 			String relative = base.relativize(chooser.getSelectedFile().toURI()).toString();
 			try {
 				m_listener.setSelectedLayerBackground(relative);
-			} catch (IOException e) {
+			} catch (ResourceIOException | ResourceFormatException e) {
 				JOptionPane.showMessageDialog(this, "IOException accessing background resource file: " + e.toString());
 			}
 
@@ -1102,7 +1103,7 @@ public class EditorPane extends javax.swing.JFrame
     	}catch(NumberFormatException e)
     	{
     		JOptionPane.showMessageDialog(this, "Invalid X and Y floating points.");
-    	}catch(IOException e)
+    	}catch(ResourceIOException e)
     	{
     		JOptionPane.showMessageDialog(this, "IO Error occured attempting to access background resource file: " + e.toString());
         }

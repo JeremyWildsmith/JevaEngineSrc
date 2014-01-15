@@ -14,6 +14,7 @@ package io.github.jevaengine.graphics;
 
 import io.github.jevaengine.CoreModeViolationException;
 import io.github.jevaengine.Core;
+import io.github.jevaengine.ResourceFormatException;
 import io.github.jevaengine.ResourceIOException;
 import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.util.Nullable;
@@ -60,6 +61,10 @@ public final class Graphic
 				try
 				{
 					img = ImageIO.read(Core.getService(ResourceLibrary.class).openAsset(formal));
+					
+					if(img == null)
+						throw new ResourceFormatException("Unknown image format", formal);
+					
 					m_imageCache.put(formal, new WeakReference<BufferedImage>(img));
 				}catch(IOException e) {
 					throw new ResourceIOException(e, name);
