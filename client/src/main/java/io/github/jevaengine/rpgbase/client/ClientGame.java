@@ -15,6 +15,7 @@ package io.github.jevaengine.rpgbase.client;
 import io.github.jevaengine.Core;
 import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.config.ISerializable;
+import io.github.jevaengine.config.IImmutableVariable;
 import io.github.jevaengine.config.IVariable;
 import io.github.jevaengine.game.IGameScriptProvider;
 import io.github.jevaengine.graphics.AnimationState;
@@ -133,7 +134,7 @@ public class ClientGame extends RpgGame
 		}
 
 		@Override
-		public void deserialize(IVariable source)
+		public void deserialize(IImmutableVariable source)
 		{
 			server = source.getChild("server").getValue(String.class);
 			port = source.getChild("port").getValue(Integer.class);

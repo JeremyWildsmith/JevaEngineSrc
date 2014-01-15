@@ -33,6 +33,7 @@ import io.github.jevaengine.ResourceFormatException;
 import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.Script;
 import io.github.jevaengine.config.ISerializable;
+import io.github.jevaengine.config.IImmutableVariable;
 import io.github.jevaengine.config.IVariable;
 import io.github.jevaengine.graphics.AnimationState;
 import io.github.jevaengine.graphics.Graphic;
@@ -127,7 +128,7 @@ public final class World implements IDisposable
 		this(width, height, tileWidth, tileHeight, entityLayerDepth, null);
 	}
 
-	public static World create(IVariable source)
+	public static World create(IImmutableVariable source)
 	{
 		WorldConfiguration worldConfig = source.getValue(WorldConfiguration.class);
 
@@ -135,8 +136,6 @@ public final class World implements IDisposable
 									worldConfig.tileWidth, worldConfig.tileHeight, 
 									worldConfig.entityLayer, worldConfig.script);
 		
-		HashMap<Integer, IVariable> tileSpriteDefinitions = new HashMap<Integer, IVariable>();
-			
 		for (LayerDeclaration layerDeclaration : worldConfig.layers)
 		{
 			WorldLayer worldLayer = new WorldLayer();
@@ -155,11 +154,8 @@ public final class World implements IDisposable
 						throw new ResourceFormatException("Undeclared Tile Declaration Index Used");
 
 					TileDeclaration tileDecl = worldConfig.tiles[tileIndices[i]];
-					
-					if(!tileSpriteDefinitions.containsKey(tileIndices[i]))
-						tileSpriteDefinitions.put(tileIndices[i], Core.getService(ResourceLibrary.class).openConfiguration(tileDecl.sprite));
 
-					Sprite tileSprite = Sprite.create(tileSpriteDefinitions.get(tileIndices[i]));
+					Sprite tileSprite = Sprite.create(Core.getService(ResourceLibrary.class).openConfiguration(tileDecl.sprite));
 					tileSprite.setAnimation(tileDecl.animation, AnimationState.Play);
 					
 					Tile tile = new Tile(tileSprite, tileDecl.isTraversable,  
@@ -831,7 +827,7 @@ public final class World implements IDisposable
 		}
 
 		@Override
-		public void deserialize(IVariable source)
+		public void deserialize(IImmutableVariable source)
 		{
 			if(source.childExists("script"))
 				this.script = source.getChild("script").getValue(String.class);
@@ -869,7 +865,7 @@ public final class World implements IDisposable
 			}
 
 			@Override
-			public void deserialize(IVariable source)
+			public void deserialize(IImmutableVariable source)
 			{
 				this.sprite = source.getChild("sprite").getValue(String.class);
 				this.animation = source.getChild("animation").getValue(String.class);
@@ -899,7 +895,7 @@ public final class World implements IDisposable
 			}
 
 			@Override
-			public void deserialize(IVariable source)
+			public void deserialize(IImmutableVariable source)
 			{
 				Integer indice[] = source.getChild("indice").getValues(Integer[].class);
 				
@@ -933,7 +929,7 @@ public final class World implements IDisposable
 				}
 
 				@Override
-				public void deserialize(IVariable source)
+				public void deserialize(IImmutableVariable source)
 				{
 					if(source.childExists("image"))
 					{
@@ -981,7 +977,7 @@ public final class World implements IDisposable
 			}
 
 			@Override
-			public void deserialize(IVariable source)
+			public void deserialize(IImmutableVariable source)
 			{
 				if(source.childExists("name"))
 					this.name = source.getChild("name").getValue(String.class);

@@ -12,28 +12,11 @@
  ******************************************************************************/
 package io.github.jevaengine.config;
 
-public interface IVariable extends IImmutableVariable
+public interface IImmutableVariable extends ISerializable
 {
-	void setValue(ISerializable value);
-	void setValue(ISerializable[] value);
-	
-	void setValue(String value);
-	void setValue(String[] value);
-	
-	void setValue(int value);
-	void setValue(int[] value);
-	
-	void setValue(double value);
-	void setValue(double[] value);
-	
-	void setValue(boolean value);
-	void setValue(boolean[] value);
-	
-	void setValue(Object o);
+	<T> T getValue(Class<T> cls);
+	<T> T[] getValues(Class<T[]> cls);
 	
 	boolean childExists(String name);
-	IVariable getChild(String name);
-	IVariable addChild(String name);
-	
-	void removeChild(String name);
+	IImmutableVariable getChild(String name);
 }

@@ -19,6 +19,7 @@ import io.github.jevaengine.Core;
 import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.audio.Audio;
 import io.github.jevaengine.config.ISerializable;
+import io.github.jevaengine.config.IImmutableVariable;
 import io.github.jevaengine.config.IVariable;
 import io.github.jevaengine.graphics.Font;
 import io.github.jevaengine.graphics.Sprite;
@@ -73,7 +74,7 @@ public class UIStyle
 		m_pressButtonAudio = pressButton;
 	}
 
-	public static UIStyle create(IVariable root)
+	public static UIStyle create(IImmutableVariable root)
 	{
 		UIStyleDeclaration styleDecl = root.getValue(UIStyleDeclaration.class);
 		
@@ -242,7 +243,7 @@ public class UIStyle
 		}
 
 		@Override
-		public void deserialize(IVariable source)
+		public void deserialize(IImmutableVariable source)
 		{
 			font = source.getChild("font").getValue(String.class);
 			frameFill = source.getChild("frameFill").getValue(String.class);

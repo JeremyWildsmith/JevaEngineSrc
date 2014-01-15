@@ -14,15 +14,11 @@
 package io.github.jevaengine.mapeditor;
 
 import io.github.jevaengine.ResourceLibrary;
-import io.github.jevaengine.ResourceIOException;
 import io.github.jevaengine.Script;
 import io.github.jevaengine.UnresolvedResourcePathException;
-import io.github.jevaengine.config.IVariable;
-import io.github.jevaengine.config.JsonVariable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -36,25 +32,6 @@ public class MapEditorLibrary extends ResourceLibrary
 	public MapEditorLibrary(String root)
 	{
 		m_root = new File(root);
-	}
-	
-	@Override
-	public IVariable openConfiguration(String path)
-	{
-		try
-		{
-			try (InputStream is = openAsset(path))
-			{
-				return JsonVariable.create(is);
-			}
-			
-		} catch (FileNotFoundException ex)
-		{
-			throw new UnresolvedResourcePathException(path);
-		} catch (IOException ex)
-		{
-			throw new ResourceIOException(ex, path);
-		}
 	}
 
 	@Override

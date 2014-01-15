@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import io.github.jevaengine.config.ISerializable;
+import io.github.jevaengine.config.IImmutableVariable;
 import io.github.jevaengine.config.IVariable;
 import io.github.jevaengine.graphics.Font.FontDeclaration.GlyphDeclaration;
 import io.github.jevaengine.math.Rect2D;
@@ -42,7 +43,7 @@ public final class Font
 		m_height = height;
 	}
 
-	public static Font create(IVariable root, Color color)
+	public static Font create(IImmutableVariable root, Color color)
 	{
 		FontDeclaration fontDecl = root.getValue(FontDeclaration.class);
 
@@ -147,7 +148,7 @@ public final class Font
 		}
 
 		@Override
-		public void deserialize(IVariable source)
+		public void deserialize(IImmutableVariable source)
 		{
 			texture = source.getChild("texture").getValue(String.class);
 			glyphs = source.getChild("glyphs").getValues(GlyphDeclaration[].class);
@@ -168,7 +169,7 @@ public final class Font
 			}
 
 			@Override
-			public void deserialize(IVariable source)
+			public void deserialize(IImmutableVariable source)
 			{
 				this.character = (char)source.getChild("char").getValue(Integer.class).intValue();
 				this.region = source.getChild("region").getValue(Rect2D.class);

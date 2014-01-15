@@ -15,7 +15,7 @@ package io.github.jevaengine.mapeditor;
 import io.github.jevaengine.Core;
 import io.github.jevaengine.ResourceFormatException;
 import io.github.jevaengine.ResourceLibrary;
-import io.github.jevaengine.config.IVariable;
+import io.github.jevaengine.config.IImmutableVariable;
 import io.github.jevaengine.config.JsonVariable;
 import io.github.jevaengine.game.ControlledCamera;
 import io.github.jevaengine.game.Game;
@@ -234,7 +234,7 @@ public class MapEditor extends Game implements IEditorPaneListener
 	}
 	
 	@Override
-	public synchronized void openWorld(IVariable source)
+	public synchronized void openWorld(IImmutableVariable source)
 	{
 		m_layerMetaData.clear();
 	

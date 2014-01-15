@@ -20,6 +20,7 @@ import io.github.jevaengine.communication.PolicyViolationException;
 import io.github.jevaengine.communication.ShareEntityException;
 import io.github.jevaengine.communication.tcp.RemoteSocketCommunicator;
 import io.github.jevaengine.config.ISerializable;
+import io.github.jevaengine.config.IImmutableVariable;
 import io.github.jevaengine.config.IVariable;
 import io.github.jevaengine.game.IGameScriptProvider;
 import io.github.jevaengine.graphics.AnimationState;
@@ -359,7 +360,7 @@ public class ServerGame extends RpgGame implements IDisposable
 		}
 
 		@Override
-		public void deserialize(IVariable source)
+		public void deserialize(IImmutableVariable source)
 		{
 			spawnWorld = source.getChild("spawnWorld").getValue(String.class);
 			playerEntity = source.getChild("playerEntity").getValue(String.class);

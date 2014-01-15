@@ -17,17 +17,11 @@
 package io.github.jevaengine.rpgbase;
 
 import java.io.InputStream;
-import java.util.Scanner;
 
-import io.github.jevaengine.ResourceIOException;
 import io.github.jevaengine.ResourceLibrary;
-import io.github.jevaengine.Script;
 import io.github.jevaengine.UnresolvedResourcePathException;
-import io.github.jevaengine.config.IVariable;
-import io.github.jevaengine.config.JsonVariable;
 
 import java.io.File;
-import java.io.IOException;
 
 public class RpgLibrary extends ResourceLibrary
 {
@@ -60,20 +54,6 @@ public class RpgLibrary extends ResourceLibrary
 		m_base = "res";
 		m_allowStateResource = allowStates;
 	}
-
-	public String openResourceContents(String path)
-	{
-		InputStream srcStream = openAsset(path);
-
-		Scanner scanner = new Scanner(srcStream, "UTF-8");
-		scanner.useDelimiter("\\A");
-
-		String contents = (scanner.hasNext() ? scanner.next() : "");
-
-		scanner.close();
-
-		return contents;
-	}
 	
 	public String resolvePath(String path)
 	{
@@ -89,27 +69,5 @@ public class RpgLibrary extends ResourceLibrary
 			throw new UnresolvedResourcePathException(path);
 
 		return is;
-	}
-
-	@Override
-	public IVariable openConfiguration(String path)
-	{
-		try
-		{
-			return JsonVariable.create(openAsset(path));
-		} catch (IOException ex)
-		{
-			throw new ResourceIOException(ex, path);
-		}
-	}
-
-	@Override
-	public Script openScript(String path, Object context)
-	{
-		Script script = new Script(context);
-		
-		script.evaluate(openResourceContents(path));
-		
-		return script;
 	}
 }

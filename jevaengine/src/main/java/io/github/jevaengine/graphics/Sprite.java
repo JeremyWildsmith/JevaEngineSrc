@@ -13,6 +13,7 @@
 package io.github.jevaengine.graphics;
 
 import io.github.jevaengine.config.ISerializable;
+import io.github.jevaengine.config.IImmutableVariable;
 import io.github.jevaengine.config.IVariable;
 import io.github.jevaengine.graphics.Sprite.SpriteDeclaration.AnimationDeclaration;
 import io.github.jevaengine.graphics.Sprite.SpriteDeclaration.FrameDeclaration;
@@ -61,7 +62,7 @@ public final class Sprite implements IRenderable
 		m_fNaturalScale = fNaturalScale;
 	}
 	
-	public static Sprite create(IVariable root)
+	public static Sprite create(IImmutableVariable root)
 	{
 		SpriteDeclaration spriteDecl = root.getValue(SpriteDeclaration.class);
 			
@@ -214,7 +215,7 @@ public final class Sprite implements IRenderable
 		}
 
 		@Override
-		public void deserialize(IVariable source)
+		public void deserialize(IImmutableVariable source)
 		{
 			this.texture = source.getChild("texture").getValue(String.class);
 			this.scale = source.getChild("scale").getValue(Double.class).floatValue();
@@ -236,7 +237,7 @@ public final class Sprite implements IRenderable
 			}
 
 			@Override
-			public void deserialize(IVariable source)
+			public void deserialize(IImmutableVariable source)
 			{
 				this.name = source.getChild("name").getValue(String.class);
 				this.frames = source.getChild("frames").getValues(FrameDeclaration[].class);
@@ -260,7 +261,7 @@ public final class Sprite implements IRenderable
 			}
 
 			@Override
-			public void deserialize(IVariable source)
+			public void deserialize(IImmutableVariable source)
 			{
 				this.region = source.getChild("region").getValue(Rect2D.class);
 				this.anchor = source.getChild("anchor").getValue(Vector2D.class);

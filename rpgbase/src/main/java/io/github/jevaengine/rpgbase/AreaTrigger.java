@@ -18,6 +18,7 @@ import javax.script.ScriptException;
 
 import io.github.jevaengine.CoreScriptException;
 import io.github.jevaengine.config.ISerializable;
+import io.github.jevaengine.config.IImmutableVariable;
 import io.github.jevaengine.config.IVariable;
 import io.github.jevaengine.math.Rect2F;
 import io.github.jevaengine.math.Vector2F;
@@ -40,7 +41,7 @@ public class AreaTrigger extends Entity
 	private float m_width;
 	private float m_height;
 	
-	public AreaTrigger(@Nullable String name, IVariable arguments)
+	public AreaTrigger(@Nullable String name, IImmutableVariable arguments)
 	{
 		super(name, arguments, new AreaTriggerBridge<>());
 
@@ -175,7 +176,7 @@ public class AreaTrigger extends Entity
 		}
 
 		@Override
-		public void deserialize(IVariable source)
+		public void deserialize(IImmutableVariable source)
 		{
 			this.width = source.getChild("width").getValue(Integer.class);
 			this.height = source.getChild("height").getValue(Integer.class);

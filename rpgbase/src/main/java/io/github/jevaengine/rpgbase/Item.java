@@ -18,6 +18,7 @@ import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.Script;
 import io.github.jevaengine.audio.Audio;
 import io.github.jevaengine.config.ISerializable;
+import io.github.jevaengine.config.IImmutableVariable;
 import io.github.jevaengine.config.IVariable;
 import io.github.jevaengine.graphics.AnimationState;
 import io.github.jevaengine.graphics.IRenderable;
@@ -272,7 +273,7 @@ public class Item
 		}
 
 		@Override
-		public void deserialize(IVariable source)
+		public void deserialize(IImmutableVariable source)
 		{
 			name = source.getChild("name").getValue(String.class);
 			type = ItemType.values()[source.getChild("type").getValue(Integer.class)];

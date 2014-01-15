@@ -6,6 +6,7 @@
 
 package io.github.jevaengine.math;
 
+import io.github.jevaengine.config.IImmutableVariable;
 import io.github.jevaengine.config.ISerializable;
 import io.github.jevaengine.config.IVariable;
 
@@ -90,7 +91,7 @@ public class Rect2F implements ISerializable
 	}
 
 	@Override
-	public void deserialize(IVariable source)
+	public void deserialize(IImmutableVariable source)
 	{
 		this.x = source.getChild("x").getValue(Double.class).floatValue();
 		this.y = source.getChild("y").getValue(Double.class).floatValue();

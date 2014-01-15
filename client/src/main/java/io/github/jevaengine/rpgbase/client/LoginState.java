@@ -28,7 +28,6 @@ import io.github.jevaengine.ui.Window;
 import io.github.jevaengine.ui.WorldView;
 import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.math.Vector2F;
-import io.github.jevaengine.rpgbase.RpgLibrary;
 import io.github.jevaengine.rpgbase.client.ClientGame.ClientConfiguration;
 import io.github.jevaengine.rpgbase.netcommon.NetUser.UserCredentials;
 import io.github.jevaengine.world.World;
@@ -61,12 +60,7 @@ public final class LoginState implements IGameState
 
 	public LoginState()
 	{
-		this(getCredits());
-	}
-
-	private static String getCredits()
-	{
-		return Core.getService(RpgLibrary.class).openResourceContents("credits.txt");
+		this("Test");
 	}
 
 	public LoginState(String userMessage)

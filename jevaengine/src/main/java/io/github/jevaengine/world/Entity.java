@@ -35,6 +35,7 @@ import io.github.jevaengine.Script;
 import io.github.jevaengine.Script.ScriptHiddenMember;
 import io.github.jevaengine.audio.Audio;
 import io.github.jevaengine.config.ISerializable;
+import io.github.jevaengine.config.IImmutableVariable;
 import io.github.jevaengine.config.IVariable;
 import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.math.Vector2F;
@@ -61,7 +62,7 @@ public abstract class Entity implements IWorldAssociation
 	
 	private EntityBridge<?> m_bridge;
 
-	private IVariable m_config;
+	private IImmutableVariable m_config;
 
 	private World m_parentWorld;
 
@@ -79,21 +80,21 @@ public abstract class Entity implements IWorldAssociation
 		m_name = (name == null ? "__UNNAMED_ENTITY" + m_unnamedCount.getAndIncrement() : name);
 	}
 
-	protected <T extends EntityBridge<?>> Entity(@Nullable String name, IVariable config, T entityContext)
+	protected <T extends EntityBridge<?>> Entity(@Nullable String name, IImmutableVariable config, T entityContext)
 	{
 		this(name == null ? "__UNNAMED_ENTITY" + m_unnamedCount.getAndIncrement() : name);
 		
 		init(config, entityContext);
 	}
 
-	protected <T extends EntityBridge<?>> Entity(@Nullable String name, IVariable config, T entityContext, WorldDirection direction)
+	protected <T extends EntityBridge<?>> Entity(@Nullable String name, IImmutableVariable config, T entityContext, WorldDirection direction)
 	{
 		this(name == null ? "__UNNAMED_ENTITY" + m_unnamedCount.getAndIncrement() : name);
 		
 		init(config, entityContext);
 	}
 
-	private <T extends EntityBridge<?>> void init(IVariable config, T entityContext)
+	private <T extends EntityBridge<?>> void init(IImmutableVariable config, T entityContext)
 	{
 		m_config = config;
 
@@ -242,7 +243,7 @@ public abstract class Entity implements IWorldAssociation
 			m_observers.moved();
 	}
 
-	protected final IVariable getConfiguration()
+	protected final IImmutableVariable getConfiguration()
 	{
 		return m_config;
 	}
@@ -482,7 +483,7 @@ public abstract class Entity implements IWorldAssociation
 		}
 
 		@Override
-		public void deserialize(IVariable source)
+		public void deserialize(IImmutableVariable source)
 		{
 			if(source.childExists("script"))
 				script = source.getChild("script").getValue(String.class);

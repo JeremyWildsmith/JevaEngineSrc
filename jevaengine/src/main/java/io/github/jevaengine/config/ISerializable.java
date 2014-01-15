@@ -15,8 +15,8 @@ package io.github.jevaengine.config;
 
 public interface ISerializable
 {
-	//Must have default constructor as well...
+	//Implementors must have default constructor as well...
 	
 	void serialize(IVariable target);
-	void deserialize(IVariable source);
+	void deserialize(IImmutableVariable source);
 }

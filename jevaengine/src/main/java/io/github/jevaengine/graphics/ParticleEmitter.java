@@ -17,6 +17,7 @@ import java.awt.Graphics2D;
 import io.github.jevaengine.Core;
 import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.config.ISerializable;
+import io.github.jevaengine.config.IImmutableVariable;
 import io.github.jevaengine.config.IVariable;
 import io.github.jevaengine.math.Vector2F;
 
@@ -56,7 +57,7 @@ public final class ParticleEmitter implements IRenderable
 		m_isEmitting = false;
 	}
 
-	public static ParticleEmitter create(IVariable root)
+	public static ParticleEmitter create(IImmutableVariable root)
 	{
 		ParticleEmitterDeclaration decl = root.getValue(ParticleEmitterDeclaration.class);
 
@@ -190,7 +191,7 @@ public final class ParticleEmitter implements IRenderable
 		}
 
 		@Override
-		public void deserialize(IVariable source)
+		public void deserialize(IImmutableVariable source)
 		{
 			this.count = source.getChild("count").getValue(Integer.class);
 			this.life = source.getChild("life").getValue(Integer.class);

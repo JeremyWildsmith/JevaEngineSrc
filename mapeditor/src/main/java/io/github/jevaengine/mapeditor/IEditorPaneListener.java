@@ -12,7 +12,7 @@
  ******************************************************************************/
 package io.github.jevaengine.mapeditor;
 
-import io.github.jevaengine.config.IVariable;
+import io.github.jevaengine.config.IImmutableVariable;
 import io.github.jevaengine.mapeditor.MapEditor.LayerMetaData;
 import io.github.jevaengine.math.Vector2F;
 
@@ -36,7 +36,7 @@ public interface IEditorPaneListener
 
 	void initializeWorld(int worldWidth, int worldHeight, int tileWidth, int tileHeight);
 
-	void openWorld(IVariable world);
+	void openWorld(IImmutableVariable world);
 	void saveWorld(FileOutputStream fileOutputStream, EditorEntity[] entities);
 	
 	void selectLayer(int i);

@@ -21,7 +21,7 @@ import javax.script.ScriptException;
 import org.mozilla.javascript.NativeArray;
 
 import io.github.jevaengine.CoreScriptException;
-import io.github.jevaengine.config.IVariable;
+import io.github.jevaengine.config.IImmutableVariable;
 import io.github.jevaengine.graphics.IRenderable;
 import io.github.jevaengine.math.Matrix2X2;
 import io.github.jevaengine.math.Rect2F;
@@ -46,7 +46,7 @@ public abstract class Actor extends Entity implements IInteractable
 		super(name);
 	}
 	
-	protected <Y extends Actor, T extends ActorBridge<Y>> Actor(@Nullable String name, IVariable root, T entityContext)
+	protected <Y extends Actor, T extends ActorBridge<Y>> Actor(@Nullable String name, IImmutableVariable root, T entityContext)
 	{
 		super(name, root, entityContext);
 		

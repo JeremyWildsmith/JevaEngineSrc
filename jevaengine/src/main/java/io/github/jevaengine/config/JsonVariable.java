@@ -420,7 +420,7 @@ public final class JsonVariable implements IVariable
 		
 		if(m_value instanceof Map)
 		{
-			for(Map.Entry<String, IVariable> e : ((Map<String, IVariable>)m_value).entrySet())
+			for(Map.Entry<String, IImmutableVariable> e : ((Map<String, IImmutableVariable>)m_value).entrySet())
 			{
 				e.getValue().serialize(target.addChild(e.getKey()));
 			}
@@ -430,7 +430,7 @@ public final class JsonVariable implements IVariable
 	}
 
 	@Override
-	public void deserialize(IVariable source)
+	public void deserialize(IImmutableVariable source)
 	{
 		m_value = source;
 	}

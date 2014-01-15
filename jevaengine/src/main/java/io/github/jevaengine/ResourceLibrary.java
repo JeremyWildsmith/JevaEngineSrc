@@ -12,22 +12,105 @@
  ******************************************************************************/
 package io.github.jevaengine;
 
+import io.github.jevaengine.config.IImmutableVariable;
 import io.github.jevaengine.config.IVariable;
+import io.github.jevaengine.config.JsonVariable;
 import io.github.jevaengine.util.Nullable;
 import io.github.jevaengine.world.Entity;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.lang.ref.SoftReference;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Scanner;
 
 public abstract class ResourceLibrary
 {
 	private ArrayList<EntityRegistration<? extends Entity>> m_registeredEntities = new ArrayList<EntityRegistration<? extends Entity>>();
 	
-	public abstract IVariable openConfiguration(String path);
-	public abstract Script openScript(String path, Object context);
+	private HashMap<String, SoftReference<IImmutableVariable>> m_varCache = new HashMap<String, SoftReference<IImmutableVariable>>();
 	
-	public abstract InputStream openAsset(String path);
+	private String openResourceContents(String path, String encoding)
+	{
+		InputStream srcStream = openAsset(path);
+
+		Scanner scanner = new Scanner(srcStream, encoding);
+		scanner.useDelimiter("\\A");
+
+		String contents = (scanner.hasNext() ? scanner.next() : "");
+
+		scanner.close();
+
+		return contents;
+	}
+	
+	@Nullable
+	private IImmutableVariable findCachedVariable(String formal)
+	{
+		Iterator<Map.Entry<String, SoftReference<IImmutableVariable>>> it = m_varCache.entrySet().iterator();
+
+		while(it.hasNext())
+		{
+			Map.Entry<String, SoftReference<IImmutableVariable>> entry = it.next();
+			
+			if(entry.getValue().get() != null)
+			{
+				if(entry.getKey().equals(formal))
+					return entry.getValue().get();
+			}else
+				it.remove();
+		}
+		
+		return null;
+	}
+	
+	public IImmutableVariable openConfiguration(String path)
+	{
+		String formal = path.trim().replace("\\", "/");
+		
+		IImmutableVariable cacheVar = findCachedVariable(formal);
+		
+		if(cacheVar != null)
+			return cacheVar;
+		else
+		{
+			try
+			{
+				JsonVariable loadVar = JsonVariable.create(openAsset(path));
+					
+				m_varCache.put(formal, new SoftReference<IImmutableVariable>(loadVar));
+					
+				return loadVar;
+			} catch (IOException ex)
+			{
+				throw new ResourceIOException(ex, path);
+			}
+		}
+	}
+	
+	public IVariable openMutableConfiguration(String path)
+	{
+		try
+		{
+			return JsonVariable.create(openAsset(path));
+		} catch (IOException ex)
+		{
+			throw new ResourceIOException(ex, path);
+		}
+	}
+	
+	public Script openScript(String path, Object context)
+	{
+		Script script = new Script(context);
+		
+		script.evaluate(openResourceContents(path, "UTF-8"));
+		
+		return script;
+	}
 
 	protected final <T extends Entity> void registerEntity(String name, Class<T> clazz, IEntityFactory<T> factory)
 	{
@@ -93,6 +176,8 @@ public abstract class ResourceLibrary
 	{
 		T create(@Nullable String instanceName, @Nullable String config);
 	}
+
+	public abstract InputStream openAsset(String path);
 	
 	private static class EntityRegistration<T extends Entity>
 	{

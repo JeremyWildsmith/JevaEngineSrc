@@ -15,6 +15,7 @@ package io.github.jevaengine.rpgbase;
 import io.github.jevaengine.Core;
 import io.github.jevaengine.CoreScriptException;
 import io.github.jevaengine.ResourceLibrary;
+import io.github.jevaengine.config.IImmutableVariable;
 import io.github.jevaengine.config.IVariable;
 import io.github.jevaengine.graphics.AnimationState;
 import io.github.jevaengine.graphics.IRenderable;
@@ -66,7 +67,7 @@ public final class RpgCharacter extends Actor
 
 	private RpgCharacterTaskFactory m_taskFactory;
 	
-	public <T extends RpgCharacterBridge> RpgCharacter(@Nullable String name, IVariable root, T entityContext, @Nullable RpgCharacterTaskFactory taskFactory)
+	public <T extends RpgCharacterBridge> RpgCharacter(@Nullable String name, IImmutableVariable root, T entityContext, @Nullable RpgCharacterTaskFactory taskFactory)
 	{
 		super(name, root, entityContext);
 		m_taskFactory = (taskFactory == null ? new RpgCharacterTaskFactory() : taskFactory);
@@ -74,7 +75,7 @@ public final class RpgCharacter extends Actor
 		init();
 	}
 
-	public RpgCharacter(@Nullable String name, IVariable root, @Nullable RpgCharacterTaskFactory taskFactory)
+	public RpgCharacter(@Nullable String name, IImmutableVariable root, @Nullable RpgCharacterTaskFactory taskFactory)
 	{
 		super(name, root, new RpgCharacterBridge());
 		m_taskFactory = (taskFactory == null ? new RpgCharacterTaskFactory() : taskFactory);
@@ -82,33 +83,33 @@ public final class RpgCharacter extends Actor
 		init();
 	}
 	
-	public <T extends RpgCharacterBridge> RpgCharacter(@Nullable String name, IVariable root, T entityContext)
+	public <T extends RpgCharacterBridge> RpgCharacter(@Nullable String name, IImmutableVariable root, T entityContext)
 	{
 		this(name, root, entityContext, null);
 	}
 	
 	
-	public RpgCharacter(@Nullable String name, IVariable root)
+	public RpgCharacter(@Nullable String name, IImmutableVariable root)
 	{
 		this(name, root, new RpgCharacterBridge());
 	}
 	
-	public <T extends RpgCharacterBridge> RpgCharacter(IVariable root, T entityContext, @Nullable RpgCharacterTaskFactory taskFactory)
+	public <T extends RpgCharacterBridge> RpgCharacter(IImmutableVariable root, T entityContext, @Nullable RpgCharacterTaskFactory taskFactory)
 	{
 		this(null, root, entityContext, taskFactory);
 	}
 	
-	public <T extends RpgCharacterBridge> RpgCharacter(IVariable root, T entityContext)
+	public <T extends RpgCharacterBridge> RpgCharacter(IImmutableVariable root, T entityContext)
 	{
 		this(null, root, entityContext, null);
 	}
 	
-	public RpgCharacter(IVariable root, RpgCharacterTaskFactory factory)
+	public RpgCharacter(IImmutableVariable root, RpgCharacterTaskFactory factory)
 	{
 		this(null, root, factory);
 	}
 	
-	public RpgCharacter(IVariable root)
+	public RpgCharacter(IImmutableVariable root)
 	{
 		this(null, root);
 	}
@@ -771,7 +772,7 @@ public final class RpgCharacter extends Actor
 		}
 
 		@Override
-		public void deserialize(IVariable source)
+		public void deserialize(IImmutableVariable source)
 		{
 			name = source.getChild("name").getValue(String.class);
 			sprite = source.getChild("sprite").getValue(String.class);

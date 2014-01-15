@@ -13,6 +13,7 @@
 package io.github.jevaengine.rpgbase;
 
 import io.github.jevaengine.config.ISerializable;
+import io.github.jevaengine.config.IImmutableVariable;
 import io.github.jevaengine.config.IVariable;
 import io.github.jevaengine.util.Nullable;
 
@@ -33,7 +34,7 @@ public class DialoguePath implements ISerializable
 	}
 
 	@Override
-	public void deserialize(IVariable source)
+	public void deserialize(IImmutableVariable source)
 	{
 		queries = source.getChild("queries").getValues(Query[].class);
 	}
@@ -60,7 +61,7 @@ public class DialoguePath implements ISerializable
 		}
 
 		@Override
-		public void deserialize(IVariable source)
+		public void deserialize(IImmutableVariable source)
 		{
 			query = source.getChild("query").getValue(String.class);
 			answers = source.getChild("answers").getValues(Answer[].class);
@@ -98,7 +99,7 @@ public class DialoguePath implements ISerializable
 		}
 
 		@Override
-		public void deserialize(IVariable source)
+		public void deserialize(IImmutableVariable source)
 		{
 			answer = source.getChild("answer").getValue(String.class);
 			

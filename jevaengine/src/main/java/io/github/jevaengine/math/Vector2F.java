@@ -16,6 +16,7 @@
  */
 package io.github.jevaengine.math;
 
+import io.github.jevaengine.config.IImmutableVariable;
 import io.github.jevaengine.config.ISerializable;
 import io.github.jevaengine.config.IVariable;
 
@@ -199,7 +200,7 @@ public class Vector2F implements Comparable<Vector2F>, ISerializable
 	}
 
 	@Override
-	public void deserialize(IVariable source)
+	public void deserialize(IImmutableVariable source)
 	{
 		x = source.getChild("x").getValue(Double.class).floatValue();
 		y = source.getChild("y").getValue(Double.class).floatValue();
