@@ -20,13 +20,13 @@ import io.github.jevaengine.Core;
 import io.github.jevaengine.game.Game;
 
 import java.awt.Color;
-import java.awt.Frame;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.lang.reflect.InvocationTargetException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
 public class Main
@@ -75,7 +75,7 @@ public class Main
 			return;
 		}
 		
-		final Frame frameBuffer = new Frame();
+		final JFrame frameBuffer = new JFrame();
 
 		try
 		{

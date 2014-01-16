@@ -22,7 +22,6 @@ import io.github.jevaengine.rpgbase.RpgLibrary;
 
 import java.awt.Color;
 import java.awt.DisplayMode;
-import java.awt.Frame;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Point;
@@ -34,6 +33,7 @@ import java.awt.event.WindowListener;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
@@ -47,7 +47,7 @@ public class Main implements WindowListener, KeyListener
 	private int m_displayX = 0;
 	private int m_displayY = 0;
 
-	private Frame m_frame;
+	private JFrame m_frame;
 
 	private volatile boolean m_terminate = false;
 
@@ -59,7 +59,7 @@ public class Main implements WindowListener, KeyListener
 
 	public void entry(String[] args)
 	{
-		m_frame = new Frame();
+		m_frame = new JFrame();
 		try
 		{
 			if (args.length >= 1)

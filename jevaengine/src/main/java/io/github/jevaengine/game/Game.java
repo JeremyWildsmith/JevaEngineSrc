@@ -14,13 +14,18 @@ package io.github.jevaengine.game;
 
 import io.github.jevaengine.ui.UIStyle;
 import io.github.jevaengine.ui.IWindowManager;
+
 import java.awt.Color;
-import java.awt.Frame;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
-import java.awt.Toolkit;
 import java.awt.image.BufferStrategy;
 import java.awt.image.VolatileImage;
+
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
+import org.jogamp.glg2d.GLG2DCanvas;
 
 import io.github.jevaengine.Core;
 import io.github.jevaengine.graphics.Sprite;
@@ -40,7 +45,7 @@ public abstract class Game implements IInputDeviceListener
 	private BufferStrategy m_bufferStratedgy;
 
 	private GraphicsConfiguration m_gfxConfig;
-
+	
 	private int m_targetWidth;
 
 	private int m_targetHeight;
@@ -55,13 +60,17 @@ public abstract class Game implements IInputDeviceListener
 	{
 	}
 
-	public final void init(Frame target, int resolutionX, int resolutionY)
+	public final void init(JFrame target, int resolutionX, int resolutionY)
 	{
 		target.createBufferStrategy(2);
 
 		m_renderWidth = resolutionX;
 		m_renderHeight = resolutionY;
 
+		JComponent renderPane = new JPanel();
+		renderPane.setDoubleBuffered(true);
+		target.setContentPane(new GLG2DCanvas(renderPane));
+		
 		m_gfxConfig = target.getGraphicsConfiguration();
 		m_targetWidth = target.getWidth();
 		m_targetHeight = target.getHeight();
@@ -122,8 +131,6 @@ public abstract class Game implements IInputDeviceListener
 			m_bufferStratedgy.show();
 
 		} while (m_bufferStratedgy.contentsLost() || m_renderBuffer.contentsLost());
-
-		Toolkit.getDefaultToolkit().sync();
 	}
 
 	public void update(int deltaTime)

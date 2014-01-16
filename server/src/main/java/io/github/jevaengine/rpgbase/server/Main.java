@@ -23,7 +23,6 @@ import io.github.jevaengine.Script;
 import io.github.jevaengine.game.Game;
 
 import java.awt.Color;
-import java.awt.Frame;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.io.IOException;
@@ -33,6 +32,7 @@ import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
 
@@ -122,9 +122,9 @@ public class Main
 		}
 	}
 	
-	public static Frame createGui()
+	public static JFrame createGui()
 	{
-		final Frame frame = new Frame();
+		final JFrame frame = new JFrame();
 		try
 		{
 			SwingUtilities.invokeAndWait(new Runnable()
