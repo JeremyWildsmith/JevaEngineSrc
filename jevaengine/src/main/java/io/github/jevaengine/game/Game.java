@@ -21,9 +21,7 @@ import java.awt.GraphicsConfiguration;
 import java.awt.image.BufferStrategy;
 import java.awt.image.VolatileImage;
 
-import javax.swing.JComponent;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 
 import org.jogamp.glg2d.GLG2DCanvas;
 
@@ -67,9 +65,7 @@ public abstract class Game implements IInputDeviceListener
 		m_renderWidth = resolutionX;
 		m_renderHeight = resolutionY;
 
-		JComponent renderPane = new JPanel();
-		renderPane.setDoubleBuffered(true);
-		target.setContentPane(new GLG2DCanvas(renderPane));
+		target.setContentPane(new GLG2DCanvas());
 		
 		m_gfxConfig = target.getGraphicsConfiguration();
 		m_targetWidth = target.getWidth();
