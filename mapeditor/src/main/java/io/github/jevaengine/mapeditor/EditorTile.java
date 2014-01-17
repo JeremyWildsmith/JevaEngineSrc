@@ -42,30 +42,52 @@ public class EditorTile implements IInteractable
 	private ContainedTile m_tile;
 	private String m_animation;
 	
-	private float m_visObstruction;
+	private float m_visibility;
 
-	public EditorTile(String spriteName, String animation, boolean isTraversable, boolean isStatic, boolean enableSplitting, float fVisiblity)
+	public EditorTile(String spriteName, String animation, boolean isTraversable, boolean isStatic, boolean enableSplitting, float visibility)
 	{
+		m_tile = new ContainedTile(true, 1.0F);
+		
 		Sprite sprite = Sprite.create(Core.getService(ResourceLibrary.class).openConfiguration(spriteName));
 		sprite.setAnimation(animation, AnimationState.Play);
+		m_tile.setSprite(sprite);
 		
-		m_tile = new ContainedTile(sprite, true, fVisiblity);
-
 		m_isStatic = isStatic;
 		m_isTraversable = isTraversable;
 		m_enablesSplitting = enableSplitting;
 		m_spriteName = spriteName;
 		m_animation = animation;
+		m_visibility = visibility;
 	}
-
-	public void setVisibilityObstruction(float fVisiblity)
+	
+	public EditorTile(String spriteName, String animation)
 	{
-		m_visObstruction = fVisiblity;
+		m_tile = new ContainedTile(true, 1.0F);
+		
+		Sprite sprite = Sprite.create(Core.getService(ResourceLibrary.class).openConfiguration(spriteName));
+		sprite.setAnimation(animation, AnimationState.Play);
+		m_tile.setSprite(sprite);
+
+		TileEffects efx = new TileEffects();
+		
+		m_isStatic = true;
+		m_enablesSplitting = false;
+		m_spriteName = spriteName;
+		m_animation = animation;
+		
+		m_isTraversable = efx.isTraversable;
+		m_visibility = efx.sightEffect;
+	}
+	
+
+	public void setVisibilityObstruction(float visiblity)
+	{
+		m_visibility = visiblity;
 	}
 
 	public float getVisibilityObstruction()
 	{
-		return m_visObstruction;
+		return m_visibility;
 	}
 
 	public void setTraversable(boolean isTraversable)
@@ -87,6 +109,14 @@ public class EditorTile implements IInteractable
 	{
 		return m_isStatic;
 	}
+	
+	public boolean isDefaultEffects()
+	{
+		TileEffects efx = new TileEffects();
+		
+		return m_visibility == efx.sightEffect && 
+				m_isTraversable == efx.isTraversable;
+	}
 
 	public void setSpriteName(String spriteName, String animation)
 	{
@@ -96,7 +126,7 @@ public class EditorTile implements IInteractable
 		Sprite sprite = Sprite.create(Core.getService(ResourceLibrary.class).openConfiguration(spriteName));
 		sprite.setAnimation(animation, AnimationState.Play);
 		
-		m_tile.setSprite(sprite);	
+		m_tile.setSprite(sprite);
 	}
 
 	public boolean enablesSplitting()
@@ -182,9 +212,9 @@ public class EditorTile implements IInteractable
 	{
 		private Tile m_contained;
 		
-		public ContainedTile(Sprite sprite, boolean isTraversable, float fVisiblity)
+		public ContainedTile(boolean isTraversable, float fVisiblity)
 		{
-			m_contained = new Tile(sprite, isTraversable, false, fVisiblity);
+			m_contained = new Tile(isTraversable, false, fVisiblity);
 		}
 
 		@Override
@@ -217,7 +247,10 @@ public class EditorTile implements IInteractable
 				@Override
 				public void render(Graphics2D g, int x, int y, float fScale)
 				{
-					m_contained.getGraphic().render(g, x, y, fScale);
+					IRenderable graphic = m_contained.getGraphic();
+					
+					if(graphic != null)
+						graphic.render(g, x, y, fScale);
 					
 					if(!m_isTraversable)
 					{

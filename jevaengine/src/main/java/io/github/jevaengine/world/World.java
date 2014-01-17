@@ -153,13 +153,18 @@ public final class World implements IDisposable
 					if (tileIndices[i] >= worldConfig.tiles.length)
 						throw new ResourceFormatException("Undeclared Tile Declaration Index Used");
 
+					Tile tile = null;
+					
 					TileDeclaration tileDecl = worldConfig.tiles[tileIndices[i]];
 
-					Sprite tileSprite = Sprite.create(Core.getService(ResourceLibrary.class).openConfiguration(tileDecl.sprite));
-					tileSprite.setAnimation(tileDecl.animation, AnimationState.Play);
-					
-					Tile tile = new Tile(tileSprite, tileDecl.isTraversable,  
-										tileDecl.allowRenderSplitting, tileDecl.visibility);
+					if(tileDecl.sprite != null)
+					{
+						Sprite tileSprite = Sprite.create(Core.getService(ResourceLibrary.class).openConfiguration(tileDecl.sprite));
+						tileSprite.setAnimation(tileDecl.animation, AnimationState.Play);
+						
+						tile = new Tile(tileSprite, tileDecl.isTraversable, tileDecl.allowRenderSplitting, tileDecl.visibility);
+					}else
+						tile = new Tile(tileDecl.isTraversable, tileDecl.allowRenderSplitting, tileDecl.visibility);
 					
 					tile.associate(world);
 					
@@ -844,8 +849,12 @@ public final class World implements IDisposable
 		
 		public static class TileDeclaration implements ISerializable
 		{
+			@Nullable
 			public String sprite;
+			
+			@Nullable
 			public String animation;
+			
 			public float visibility;
 			public boolean allowRenderSplitting;
 			public boolean isTraversable;
@@ -856,8 +865,13 @@ public final class World implements IDisposable
 			@Override
 			public void serialize(IVariable target)
 			{
-				target.addChild("sprite").setValue(this.sprite);
-				target.addChild("animation").setValue(this.animation);
+				if(this.animation != null && this.sprite != null &&
+					!this.animation.isEmpty() && !this.sprite.isEmpty())
+				{
+					target.addChild("sprite").setValue(this.sprite);
+					target.addChild("animation").setValue(this.animation);
+				}
+				
 				target.addChild("visiblity").setValue(this.visibility);
 				target.addChild("allowRenderSplitting").setValue(this.allowRenderSplitting);
 				target.addChild("isTraversable").setValue(this.isTraversable);
@@ -867,8 +881,16 @@ public final class World implements IDisposable
 			@Override
 			public void deserialize(IImmutableVariable source)
 			{
-				this.sprite = source.getChild("sprite").getValue(String.class);
-				this.animation = source.getChild("animation").getValue(String.class);
+				if(source.childExists("sprite") && source.childExists("animation"))
+				{
+					this.sprite = source.getChild("sprite").getValue(String.class);
+					this.animation = source.getChild("animation").getValue(String.class);	
+				
+					if(this.sprite.isEmpty() || this.animation.isEmpty())
+						this.sprite = this.animation = null;
+				
+				}
+				
 				this.visibility = source.getChild("visiblity").getValue(Double.class).floatValue();
 				this.allowRenderSplitting = source.getChild("allowRenderSplitting").getValue(Boolean.class);
 				this.isTraversable = source.getChild("isTraversable").getValue(Boolean.class);

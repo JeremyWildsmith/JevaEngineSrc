@@ -26,6 +26,8 @@ public final class FollowCamera implements ICamera
 
 	private Entity m_target;
 
+	private float m_scale = 1.0F;
+	
 	public FollowCamera()
 	{
 		m_targetEntity = null;
@@ -67,15 +69,15 @@ public final class FollowCamera implements ICamera
 		return m_world;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see io.github.jeremywildsmith.jevaengine.game.IWorldCamera#getScale()
-	 */
+	public void setZoom(float zoom)
+	{
+		m_scale = zoom;
+	}
+	
 	@Override
 	public float getScale()
 	{
-		return 1.0F;
+		return m_scale;
 	}
 
 	/*

@@ -56,15 +56,16 @@ import javax.swing.JOptionPane;
 
 public class MapEditor extends Game implements IEditorPaneListener
 {
+
+	private static final String SPRITE_SPECIAL = "@tile/tile.jsf";
+	private static final String ANIMATION_SPECIAL_NULL = "null";
+	
 	private EditorPane m_pane;
 
 	private int m_selectedLayer;
 	private HashMap<Integer, LayerMetaData> m_layerMetaData = new HashMap<Integer, LayerMetaData>();
 	
 	private String m_baseDirectory;
-	
-	private final String m_nullTileSprite = "@tile/tile.jsf";
-	private final String m_nullTileAnimation = "tile";
 
 	private ControlledCamera m_camera = new ControlledCamera();
 	private Vector2F m_cameraMovement = new Vector2F();
@@ -145,7 +146,7 @@ public class MapEditor extends Game implements IEditorPaneListener
 		{
 			for (int x = 0; x < worldWidth; x++)
 			{
-				EditorTile editorTile = new EditorTile(m_nullTileSprite, m_nullTileAnimation, true, true, false, 1.0F);
+				EditorTile editorTile = new EditorTile(SPRITE_SPECIAL, ANIMATION_SPECIAL_NULL, true, true, false, 1.0F);
 				editorTile.setLocation(new Vector2D(x, y));
 				editorTile.addToWorld(getWorld(), mainLayer);
 			}
@@ -156,21 +157,6 @@ public class MapEditor extends Game implements IEditorPaneListener
 		m_pane.refresh();
 
 		m_camera.attach(m_world);
-	}
-
-	@Override
-	public synchronized void setTile(EditorTile tile, boolean isTraversable, boolean isStatic, String sprite, String animation, float fVisibility, boolean enableSplitting)
-	{
-		tile.setTraversable(isTraversable);
-		tile.setStatic(isStatic);
-
-		if (sprite.length() != 0 && sprite.compareTo(m_nullTileSprite) != 0)
-			tile.setSpriteName(sprite, animation);
-		else
-			tile.setSpriteName(m_nullTileSprite, m_nullTileAnimation);
-		
-		tile.setVisibilityObstruction(fVisibility);
-		tile.setEnableSplitting(enableSplitting);
 	}
 
 	@Override
@@ -270,21 +256,29 @@ public class MapEditor extends Game implements IEditorPaneListener
 
 					EditorTile tile;
 					
-					if(tileIndices[i] < 0)
-						tile = new EditorTile(m_nullTileSprite, m_nullTileAnimation, true, true, false, 1.0F);
-					else
+					TileDeclaration tileDecl = worldConfig.tiles[tileIndices[i]];
+
+					if (tileDecl.sprite != null)
 					{
-						TileDeclaration tileDecl = worldConfig.tiles[tileIndices[i]];
-						tile = new EditorTile(tileDecl.sprite, tileDecl.animation, 
-												tileDecl.isStatic, tileDecl.isTraversable,
-												tileDecl.allowRenderSplitting, tileDecl.visibility);
+						tile = new EditorTile(tileDecl.sprite,
+								tileDecl.animation, tileDecl.isTraversable,
+								tileDecl.isStatic,
+								tileDecl.allowRenderSplitting,
+								tileDecl.visibility);
+					} else
+					{
+						tile = new EditorTile(SPRITE_SPECIAL,
+								ANIMATION_SPECIAL_NULL, tileDecl.isTraversable,
+								tileDecl.isStatic,
+								tileDecl.allowRenderSplitting,
+								tileDecl.visibility);
 					}
-					
+
 					tile.addToWorld(m_world, worldLayer);
 					tile.setLocation(new Vector2D((locationOffset + i) % m_world.getWidth(), (int) Math.floor((locationOffset + i) / m_world.getHeight())));
 
 				} else
-					locationOffset += Math.abs(tileIndices[i]) - 1;
+					locationOffset += -tileIndices[i] - 1;
 			}
 			
 			m_world.addLayer(worldLayer);
@@ -347,7 +341,7 @@ public class MapEditor extends Game implements IEditorPaneListener
 					for (IInteractable i : interactables)
 					{
 						if (i instanceof EditorTile && 
-							((EditorTile) i).getSpriteName().compareTo(m_nullTileSprite) != 0 && 
+							(((EditorTile) i).getSpriteName().compareTo(SPRITE_SPECIAL) != 0 || !((EditorTile) i).isDefaultEffects()) && 
 							((EditorTile) i).getSpriteName().length() > 0)
 						{
 							editorTile = (EditorTile) i;
@@ -370,6 +364,9 @@ public class MapEditor extends Game implements IEditorPaneListener
 					}
 				}
 			}
+			
+			if(accumulatedEmpty > 0)
+				layers.get(layers.size() - 1).add(-accumulatedEmpty);
 		}
 
 		worldConfig.tiles = new TileDeclaration[tiles.size()];
@@ -377,8 +374,13 @@ public class MapEditor extends Game implements IEditorPaneListener
 		{
 			worldConfig.tiles[i] = new TileDeclaration();
 			worldConfig.tiles[i].allowRenderSplitting = tiles.get(i).enablesSplitting();
-			worldConfig.tiles[i].animation = tiles.get(i).getSpriteAnimation();
-			worldConfig.tiles[i].sprite = tiles.get(i).getSpriteName();
+
+			if(!tiles.get(i).getSpriteName().equals(SPRITE_SPECIAL))
+			{
+				worldConfig.tiles[i].sprite = tiles.get(i).getSpriteName();
+				worldConfig.tiles[i].animation = tiles.get(i).getSpriteAnimation();
+			}
+			
 			worldConfig.tiles[i].isStatic = tiles.get(i).isStatic();
 			worldConfig.tiles[i].isTraversable = tiles.get(i).isTraversable();
 			worldConfig.tiles[i].visibility = tiles.get(i).getVisibilityObstruction();
@@ -593,7 +595,7 @@ public class MapEditor extends Game implements IEditorPaneListener
 
 				if (selectedTile == null)
 				{
-					selectedTile = new EditorTile(m_nullTileSprite, m_nullTileAnimation, true, true, false, 1.0F);
+					selectedTile = new EditorTile(SPRITE_SPECIAL, ANIMATION_SPECIAL_NULL, true, true, false, 1.0F);
 					selectedTile.setLocation(worldLocation.round());
 					selectedTile.addToWorld(getWorld(), getWorld().getLayers()[m_selectedLayer]);
 				}

@@ -150,6 +150,8 @@ public abstract class Actor extends Entity implements IInteractable
 	}
 
 	public abstract Rect2F getGraphicBounds(float scale);
+	
+	@Nullable
 	public abstract IRenderable getGraphic();
 	
 	public abstract float getVisibilityFactor();
@@ -217,7 +219,7 @@ public abstract class Actor extends Entity implements IInteractable
 			{
 				Object jsString = getScript().invokeScriptFunction("getDefaultCommand");
 				
-				if(!(jsString instanceof String))
+				if(!(jsString instanceof String) && jsString != null)
 					throw new CoreScriptException("Unexpected return value from getDefaultCommand script routine.");
 				
 				return (String)jsString;

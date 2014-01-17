@@ -1,5 +1,6 @@
-var __commonEnemy = {
-	attackTickCount: 0
+__commonEnemy = {
+	attackTarget: null,
+	attackRange: 2.5
 };
 
 function onEnter()
@@ -10,7 +11,7 @@ function onEnter()
 
 function getDefaultCommand()
 {
-	return me.getHealth() == 0 ? "Revive" : "Kill!";
+	return me.getHealth() > 0 ? "Attack!" : null;
 }
 
 function getCommands()
@@ -18,67 +19,75 @@ function getCommands()
 	var commands = new Array();
 
 	if (me.getHealth() > 0)
-		commands[0] = 'Kill!';
-	else
-		commands[1] = "Revive";
+		commands[0] = 'Attack!';
 
 	return commands;
 }
 
 function doCommand(command)
 {
-	if (command === 'Kill!')
-		me.setHealth(0);
-	else if (command === "Revive")
-	{
-		me.setHealth(100);
-	constructTasks();
-	}
+	if(command === "Attack!")
+		game.getPlayer().attack(me);
 }
 
 function constructTasks()
 {
+	me.cancelTasks();
+	
 	if (me.getHealth() > 0)
 	{
-		me.idle(500);
-		me.wonder(4);
+		if(__commonEnemy.attackTarget === null ||
+			__commonEnemy.attackTarget.getHealth() <= 0 ||
+			__commonEnemy.attackTarget.distance(me) > 4)
+		{
+			__commonEnemy.attackTarget = null;
+			me.beginLook();
+			me.idle(500);
+			me.wonder(3);
+		}else
+		{
+			if(__commonEnemy.attackTarget.distance(me) <= __commonEnemy.attackRange)
+			{
+				me.attack(__commonEnemy.attackTarget);
+				me.idle(1200);
+			}else
+			{
+				var targetLocation = __commonEnemy.attackTarget.getLocation();
+				me.invokeTimeout(2000, constructTasks);
+				me.moveTo(targetLocation.x, targetLocation.y, 1);
+			}
+		}
 		me.invoke(constructTasks);
 	}
 }
 
 function onAttacked(attackee)
 {
-	if (me.getHealth() > 0)
+	if(me.getHealth() > 0 && __commonEnemy.attackTarget === null)
 	{
-		me.moveTo(attackee.getLocation().x, attackee.getLocation().y, 1);
-		me.attack(attackee);
-		me.invoke(constructTasks);
+		__commonEnemy.attackTarget = attackee;
+		me.cancelTasks();
+		constructTasks();
 	}
 }
 
 function onAttack(attackee)
 {
-	if (me.distance(attackee) > 1.7)
-		return false;
-
-	if (__commonEnemy.attackTickCount <= 0)
+	if (me.distance(attackee) >= __commonEnemy.attackRange)
 	{
-		__commonEnemy.attackTickCount = __commonEnemy_config.attackInterval;
-		attackee.setHealth(attackee.getHealth() - 5);
-	} else
-		__commonEnemy.attackTickCount--;
-
+		return false;
+	}
+	attackee.setHealth(attackee.getHealth() - 5);
 	return true;
 }
 
 function lookFound(target)
 {
-	if (me.isConflictingAllegiance(target.target))
+	if(me.isConflictingAllegiance(target.target) && __commonEnemy.attackTarget == null)
 	{
+		__commonEnemy.attackTarget = target.target;
 		me.cancelTasks();
-		me.moveTo(target.location.x, target.location.y, 1);
-		me.attack(target.target);
-		me.invoke(constructTasks);
+		constructTasks();
 		return true;
 	}
 

@@ -20,10 +20,12 @@ import io.github.jevaengine.graphics.IRenderable;
 import io.github.jevaengine.graphics.Sprite;
 import io.github.jevaengine.math.Rect2F;
 import io.github.jevaengine.math.Vector2F;
+import io.github.jevaengine.util.Nullable;
 import io.github.jevaengine.world.EffectMap.TileEffects;
 
 public final class Tile extends Actor
 {
+	@Nullable
 	private Sprite m_sprite;
 
 	private boolean m_isTraversable;
@@ -32,21 +34,17 @@ public final class Tile extends Actor
 	
 	private float m_visiblityObstruction;
 
-	public Tile(String name, Sprite sprite, boolean isTraversable, boolean enableSplitting, float fVisibilityObstruction)
+	public Tile(@Nullable Sprite sprite, boolean isTraversable, boolean enableSplitting, float fVisibilityObstruction)
 	{
-		super(name);
 		m_sprite = sprite;
 		m_isTraversable = isTraversable;
 		m_enableSplitting = enableSplitting;
 		m_visiblityObstruction = fVisibilityObstruction;
 	}
-
-	public Tile(Sprite sprite, boolean isTraversable, boolean enableSplitting, float fVisibilityObstruction)
+	
+	public Tile(boolean isTraversable, boolean enableSplitting, float fVisibilityObstruction)
 	{
-		m_sprite = sprite;
-		m_isTraversable = isTraversable;
-		m_enableSplitting = enableSplitting;
-		m_visiblityObstruction = fVisibilityObstruction;
+		this(null, isTraversable, enableSplitting, fVisibilityObstruction);
 	}
 
 	public Sprite getSprite()
@@ -54,7 +52,7 @@ public final class Tile extends Actor
 		return m_sprite;
 	}
 	
-	public void setSprite(Sprite sprite)
+	public void setSprite(@Nullable Sprite sprite)
 	{
 		m_sprite = sprite;
 	}
@@ -77,7 +75,9 @@ public final class Tile extends Actor
 	@Override
 	public int getTileWidth()
 	{
-		if (!m_enableSplitting)
+		if(m_sprite == null)
+			return 0;
+		else if (!m_enableSplitting)
 			return 1;
 
 		// get tile width
@@ -93,7 +93,9 @@ public final class Tile extends Actor
 	@Override
 	public int getTileHeight()
 	{
-		if (!m_enableSplitting)
+		if(m_sprite == null)
+			return 0;
+		else if (!m_enableSplitting)
 			return 1;
 
 		// get tile height
@@ -197,6 +199,7 @@ public final class Tile extends Actor
 	}
 	
 	@Override
+	@Nullable
 	public IRenderable getGraphic()
 	{
 		return m_sprite;

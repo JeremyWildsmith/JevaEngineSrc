@@ -209,6 +209,7 @@ public class NewMap extends javax.swing.JDialog
     private void btnCancelActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnCancelActionPerformed
     {//GEN-HEADEREND:event_btnCancelActionPerformed
         m_isValid = false;
+        setVisible(false);
     }//GEN-LAST:event_btnCancelActionPerformed
 
 	/**

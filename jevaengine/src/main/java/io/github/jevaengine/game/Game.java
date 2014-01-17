@@ -60,8 +60,6 @@ public abstract class Game implements IInputDeviceListener
 
 	public final void init(JFrame target, int resolutionX, int resolutionY)
 	{
-		target.createBufferStrategy(2);
-
 		m_renderWidth = resolutionX;
 		m_renderHeight = resolutionY;
 

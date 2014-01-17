@@ -22,7 +22,6 @@ import java.io.FileOutputStream;
 public interface IEditorPaneListener
 {
 	void setEntityLayer(int layer);
-	void setTile(EditorTile tile, boolean isTraversable, boolean isStatic, String sprite, String animation, float fVisibility, boolean enableSplitting);
 	void setScript(String script);
 	String getScript();
 	int getEntityLayer();

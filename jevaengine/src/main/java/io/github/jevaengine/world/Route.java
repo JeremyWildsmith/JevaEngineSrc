@@ -28,7 +28,7 @@ import io.github.jevaengine.util.Nullable;
 public class Route
 {
 
-	private static final int MAX_PATH_ITERATIONS = 40;
+	private static final int MAX_PATH_ITERATIONS = 150;
 
 	private static final float PATHING_CONSISTANCY_PROBABILITY = 0.7F;
 
