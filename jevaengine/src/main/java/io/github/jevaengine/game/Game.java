@@ -63,6 +63,7 @@ public abstract class Game implements IInputDeviceListener
 		m_renderWidth = resolutionX;
 		m_renderHeight = resolutionY;
 
+		target.createBufferStrategy(2);
 		target.setContentPane(new GLG2DCanvas());
 		
 		m_gfxConfig = target.getGraphicsConfiguration();
