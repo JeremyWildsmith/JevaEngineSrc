@@ -38,14 +38,12 @@ public abstract class ResourceLibrary
 	{
 		InputStream srcStream = openAsset(path);
 
-		Scanner scanner = new Scanner(srcStream, encoding);
-		scanner.useDelimiter("\\A");
-
-		String contents = (scanner.hasNext() ? scanner.next() : "");
-
-		scanner.close();
-
-		return contents;
+		try(Scanner scanner = new Scanner(srcStream, encoding))
+		{
+			scanner.useDelimiter("\\A");
+	
+			return (scanner.hasNext() ? scanner.next() : "");
+		}
 	}
 	
 	@Nullable

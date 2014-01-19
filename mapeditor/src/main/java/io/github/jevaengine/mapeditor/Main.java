@@ -23,8 +23,6 @@ import java.awt.Color;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.lang.reflect.InvocationTargetException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
@@ -93,6 +91,7 @@ public class Main
 					frameBuffer.setResizable(false);
 					frameBuffer.setTitle("JevaEngine - Underground");
 					frameBuffer.setSize(WINX, WINY);
+					frameBuffer.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 				}
 			});
 		} catch (InterruptedException | InvocationTargetException ex)
@@ -106,31 +105,6 @@ public class Main
 		
 		Game game = Core.getService(Game.class);
 
-		game.init(frameBuffer, WINX, WINY);
-
-		final int targetTime = 1000 / 60 + 20;
-
-		long lastTime = System.nanoTime() / 1000000;
-		long curTime;
-
-		while (true)
-		{
-			curTime = System.nanoTime() / 1000000;
-
-			game.update((int) ((curTime - lastTime)));
-			game.render();
-
-			int cycleLength = (int) (curTime - lastTime);
-
-			lastTime = curTime;
-
-			try
-			{
-				Thread.sleep(Math.max(targetTime - cycleLength, 20));
-			} catch (InterruptedException ex)
-			{
-				Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-			}
-		}
+		game.init(frameBuffer);
 	}
 }

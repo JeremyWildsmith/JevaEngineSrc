@@ -30,8 +30,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -48,8 +46,6 @@ public class Main implements WindowListener, KeyListener
 	private int m_displayY = 0;
 
 	private JFrame m_frame;
-
-	private volatile boolean m_terminate = false;
 
 	public static void main(String[] args)
 	{
@@ -122,35 +118,7 @@ public class Main implements WindowListener, KeyListener
 
 		Game game = Core.getService(Game.class);
 
-		game.init(m_frame, WINX, WINY);
-
-		final int targetTime = 1000 / 60 + 5;
-
-		long lastTime = System.nanoTime() / 1000000;
-		long curTime = lastTime;
-
-		while (!m_terminate)
-		{
-			curTime = System.nanoTime() / 1000000;
-
-			game.update((int) ((curTime - lastTime)));
-			game.render();
-
-			int cycleLength = (int) (curTime - lastTime);
-
-			lastTime = curTime;
-
-			try
-			{
-				Thread.sleep(Math.max(targetTime - cycleLength, 20));
-			} catch (InterruptedException ex)
-			{
-				Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-			}
-		}
-
-		m_frame.setVisible(false);
-		System.exit(0);
+		game.init(m_frame);
 	}
 
 	@Override
@@ -166,7 +134,8 @@ public class Main implements WindowListener, KeyListener
 	@Override
 	public void windowClosing(WindowEvent arg0)
 	{
-		m_terminate = true;
+		Core.getService(Game.class).dispose();
+		m_frame.dispose();
 	}
 
 	@Override

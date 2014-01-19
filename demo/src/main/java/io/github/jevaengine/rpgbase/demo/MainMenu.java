@@ -28,10 +28,10 @@ public class MainMenu implements IState
 	public MainMenu()
 	{
 		m_demoSelection = new Window(Core.getService(Game.class).getGameStyle(), 300, 500);
-		m_demoSelection.setRenderBackground(false);
 		
 		m_demoSelection.setLocation(new Vector2D(100,100));
 		m_demoSelection.setMovable(false);
+		m_demoSelection.setRenderBackground(false);
 		
 		m_demoSelection.addControl(new Button("0. AI Wondering Demo")
 		{

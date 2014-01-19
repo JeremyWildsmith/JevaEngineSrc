@@ -24,7 +24,6 @@ import io.github.jevaengine.math.Vector2F;
 import io.github.jevaengine.util.Nullable;
 
 import java.awt.Graphics2D;
-import java.awt.geom.AffineTransform;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
@@ -154,7 +153,7 @@ public final class Sprite implements IRenderable
 	 * float)
 	 */
 	@Override
-	public void render(Graphics2D g, int x, int y, float fScale)
+	public void render(Graphics2D g, int x, int y, float scale)
 	{
 		if (m_currentAnimation == null)
 		{
@@ -163,20 +162,15 @@ public final class Sprite implements IRenderable
 
 		Frame currentFrame = m_currentAnimation.getCurrentFrame();
 
-		int destX = x - Math.round(currentFrame.getOrigin().x * fScale * m_fNaturalScale);
-		int destY = y - Math.round(currentFrame.getOrigin().y * fScale * m_fNaturalScale);
-
-		AffineTransform trans = new AffineTransform();
-		trans.translate(destX, destY);
-		trans.scale(fScale * m_fNaturalScale, fScale * m_fNaturalScale);
-
-		Graphics2D workingGraphics = (Graphics2D) g.create();
-		workingGraphics.transform(trans);
+		int destX = x - Math.round(currentFrame.getOrigin().x * scale * m_fNaturalScale);
+		int destY = y - Math.round(currentFrame.getOrigin().y * scale * m_fNaturalScale);
 
 		Rect2D srcRect = currentFrame.getSourceRect();
 	
-		m_srcImage.render(workingGraphics, 0, 0, srcRect.width, srcRect.height, srcRect.x, srcRect.y, srcRect.width, srcRect.height);
-		workingGraphics.dispose();
+		m_srcImage.render(g, destX, destY, 
+				Math.round((float)srcRect.width * scale * m_fNaturalScale),
+				Math.round((float)srcRect.height * scale * m_fNaturalScale),
+				srcRect.x, srcRect.y, srcRect.width, srcRect.height);
 	}
 	
 	public boolean testPick(int x, int y, float scale)

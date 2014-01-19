@@ -56,7 +56,7 @@ public class Main
 		Core.initialize(game, new ServerLibrary(), guiMode ? CoreMode.Normal : CoreMode.LogicOnly);
 		
 		if(guiMode)
-			game.init(createGui(), WINX, WINY);
+			game.init(createGui());
 		else
 			game.init();
 
@@ -76,9 +76,6 @@ public class Main
 			while (true)
 			{
 				curTime = System.nanoTime() / 1000000;
-	
-				game.update((int) ((curTime - lastTime)));
-				game.render();
 	
 				int cycleLength = (int) (curTime - lastTime);
 	
