@@ -16,29 +16,15 @@
  */
 package io.github.jevaengine.world;
 
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
-
-import javax.script.ScriptException;
-
 import io.github.jevaengine.Core;
 import io.github.jevaengine.CoreScriptException;
 import io.github.jevaengine.IDisposable;
-import io.github.jevaengine.ResourceFormatException;
 import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.Script;
-import io.github.jevaengine.config.ISerializable;
 import io.github.jevaengine.config.IImmutableVariable;
+import io.github.jevaengine.config.ISerializable;
 import io.github.jevaengine.config.IVariable;
-import io.github.jevaengine.graphics.AnimationState;
-import io.github.jevaengine.graphics.Graphic;
 import io.github.jevaengine.graphics.IRenderable;
-import io.github.jevaengine.graphics.Sprite;
 import io.github.jevaengine.math.Matrix2X2;
 import io.github.jevaengine.math.Rect2D;
 import io.github.jevaengine.math.Vector2D;
@@ -50,8 +36,16 @@ import io.github.jevaengine.world.EffectMap.TileEffects;
 import io.github.jevaengine.world.Entity.EntityBridge;
 import io.github.jevaengine.world.World.WorldConfiguration.EntityDeclaration;
 import io.github.jevaengine.world.World.WorldConfiguration.LayerDeclaration;
-import io.github.jevaengine.world.World.WorldConfiguration.TileDeclaration;
-import io.github.jevaengine.world.WorldLayer.LayerBackground;
+
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
+
+import javax.script.ScriptException;
 
 public final class World implements IDisposable
 {
@@ -137,45 +131,7 @@ public final class World implements IDisposable
 									worldConfig.entityLayer, worldConfig.script);
 		
 		for (LayerDeclaration layerDeclaration : worldConfig.layers)
-		{
-			WorldLayer worldLayer = new WorldLayer();
-			
-			if(layerDeclaration.background != null)
-				worldLayer.setBackground(new LayerBackground(Graphic.create(layerDeclaration.background.image), layerDeclaration.background.location));
-			
-			int[] tileIndices = layerDeclaration.tileIndices;
-			
-			int locationOffset = 0;
-			for (int i = 0; i < tileIndices.length; i++)
-			{
-				if (tileIndices[i] >= 0)
-				{
-					if (tileIndices[i] >= worldConfig.tiles.length)
-						throw new ResourceFormatException("Undeclared Tile Declaration Index Used");
-
-					Tile tile = null;
-					
-					TileDeclaration tileDecl = worldConfig.tiles[tileIndices[i]];
-
-					if(tileDecl.sprite != null)
-					{
-						Sprite tileSprite = Sprite.create(Core.getService(ResourceLibrary.class).openConfiguration(tileDecl.sprite));
-						tileSprite.setAnimation(tileDecl.animation, AnimationState.Play);
-						
-						tile = new Tile(tileSprite, tileDecl.isTraversable, tileDecl.allowRenderSplitting, tileDecl.visibility);
-					}else
-						tile = new Tile(tileDecl.isTraversable, tileDecl.allowRenderSplitting, tileDecl.visibility);
-					
-					tile.associate(world);
-					
-					tile.setLocation(new Vector2F((locationOffset + i) % world.m_worldWidth, (float) Math.floor((locationOffset + i) / world.m_worldWidth)));
-					worldLayer.add(tile, tileDecl.isStatic);
-				}else
-					locationOffset += Math.abs(tileIndices[i]) - 1;
-			}
-			
-			world.m_layers.add(worldLayer);
-		}
+			world.m_layers.add(WorldLayer.create(world, worldConfig.tiles, layerDeclaration));
 		
 		for (EntityDeclaration entityConfig : worldConfig.entities)
 		{

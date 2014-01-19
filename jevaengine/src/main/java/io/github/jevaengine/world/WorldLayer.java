@@ -16,21 +16,28 @@
  */
 package io.github.jevaengine.world;
 
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.util.ArrayList;
-import java.util.HashSet;
-
+import io.github.jevaengine.Core;
 import io.github.jevaengine.IDisposable;
+import io.github.jevaengine.ResourceFormatException;
+import io.github.jevaengine.ResourceLibrary;
+import io.github.jevaengine.graphics.AnimationState;
 import io.github.jevaengine.graphics.Graphic;
 import io.github.jevaengine.graphics.IRenderable;
+import io.github.jevaengine.graphics.Sprite;
 import io.github.jevaengine.math.Rect2D;
 import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.math.Vector2F;
 import io.github.jevaengine.util.Nullable;
 import io.github.jevaengine.world.EffectMap.TileEffects;
 import io.github.jevaengine.world.Entity.IEntityObserver;
+import io.github.jevaengine.world.World.WorldConfiguration.LayerDeclaration;
+import io.github.jevaengine.world.World.WorldConfiguration.TileDeclaration;
+
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.util.ArrayList;
+import java.util.HashSet;
 
 public class WorldLayer implements IDisposable
 {
@@ -46,6 +53,48 @@ public class WorldLayer implements IDisposable
 		m_sectors = new ArrayList<LayerSector>();
 		m_actors = new ArrayList<ActorEntry>();
 		m_background = new LayerBackground();
+	}
+
+	public static WorldLayer create(World world, TileDeclaration[] tiles, LayerDeclaration layerDecl)
+	{
+		WorldLayer layer = new WorldLayer();
+
+		if(layerDecl.background != null)
+			layer.setBackground(new LayerBackground(Graphic.create(layerDecl.background.image), layerDecl.background.location));
+		
+		int locationOffset = 0;
+		
+		for(int i = 0; i < layerDecl.tileIndices.length; i++)
+		{
+			int index = layerDecl.tileIndices[i];
+
+			if(index >= 0)
+			{
+				if(index >= tiles.length)
+					throw new ResourceFormatException("Undeclared Tile Declaration Index Used");
+
+				Tile tile = null;
+		
+				TileDeclaration tileDec1 = tiles[index];
+
+				if(tileDec1.sprite != null)
+				{
+					Sprite tileSprite = Sprite.create(Core.getService(ResourceLibrary.class).openConfiguration(tileDec1.sprite));
+					tileSprite.setAnimation(tileDec1.animation, AnimationState.Play);
+
+					tile = new Tile(tileSprite, tileDec1.isTraversable, tileDec1.allowRenderSplitting, tileDec1.visibility);
+				}else
+					tile = new Tile(tileDec1.isTraversable, tileDec1.allowRenderSplitting, tileDec1.visibility);
+
+				tile.associate(world);
+
+				tile.setLocation(new Vector2F((locationOffset + i) % world.getWidth(), (float) Math.floor((locationOffset + i) / world.getHeight())));
+				layer.add(tile, tileDec1.isStatic);
+			}else
+				locationOffset += -index - 1;
+		}
+		
+		return layer;
 	}
 	
 	public void dispose()
