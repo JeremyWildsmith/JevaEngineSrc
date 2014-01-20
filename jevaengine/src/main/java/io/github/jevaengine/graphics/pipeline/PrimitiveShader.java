@@ -1,4 +1,4 @@
-package io.github.jevaengine.graphics.shaders;
+package io.github.jevaengine.graphics.pipeline;
 
 import io.github.jevaengine.IDisposable;
 import io.github.jevaengine.util.Nullable;
@@ -17,12 +17,13 @@ public class PrimitiveShader implements IDisposable
 	
 	private GraphicShader m_shader = new GraphicShader();
 	
+	private Color m_workingColor = Color.BLACK;
+	
 	@Nullable
 	private PrimitiveMode m_lastMode;
 	
+	@Nullable
 	private GL2 m_glContext;
-	
-	private Color m_workingColor = Color.BLACK;
 	
 	private enum ShaderMode
 	{
@@ -116,9 +117,9 @@ public class PrimitiveShader implements IDisposable
 		}
 	}
 	
-	
-	private static abstract class PrimitiveMode
+	public static abstract class PrimitiveMode
 	{
+		private PrimitiveMode() { }
 		protected abstract void apply(PrimitiveShader shader);
 	}
 	
@@ -209,13 +210,13 @@ public class PrimitiveShader implements IDisposable
 		}
 	}
 	
-	public static final class ColourReplace extends PrimitiveMode
+	public static final class ColorReplace extends PrimitiveMode
 	{
 		private Texture m_texture;
 		private Color m_search;
 		private Color m_replace;
 		
-		public ColourReplace(Texture texture, Color search, Color replace)
+		public ColorReplace(Texture texture, Color search, Color replace)
 		{
 			m_texture = texture;
 			m_search = search;
@@ -252,7 +253,7 @@ public class PrimitiveShader implements IDisposable
 				return false;
 			if (getClass() != obj.getClass())
 				return false;
-			ColourReplace other = (ColourReplace) obj;
+			ColorReplace other = (ColorReplace) obj;
 			if (m_replace == null) {
 				if (other.m_replace != null)
 					return false;

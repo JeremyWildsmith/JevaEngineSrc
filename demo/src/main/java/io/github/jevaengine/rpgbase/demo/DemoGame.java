@@ -19,7 +19,6 @@ import io.github.jevaengine.graphics.Sprite;
 import io.github.jevaengine.joystick.InputManager.InputMouseEvent;
 import io.github.jevaengine.rpgbase.RpgCharacter;
 import io.github.jevaengine.rpgbase.RpgGame;
-import io.github.jevaengine.rpgbase.demo.demos.Demo2;
 import io.github.jevaengine.ui.UIStyle;
 import io.github.jevaengine.util.Nullable;
 
@@ -44,7 +43,7 @@ public class DemoGame extends RpgGame implements IStateContext
 		m_cursor = Sprite.create(library.openConfiguration("ui/tech/cursor/cursor.jsf"));
 		m_cursor.setAnimation("idle", AnimationState.Play);
 		
-		m_state = new Demo2();
+		m_state = new MainMenu();
 		m_state.enter(this);
 	}
 

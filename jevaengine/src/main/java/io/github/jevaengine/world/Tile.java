@@ -67,11 +67,6 @@ public final class Tile extends Actor
 		return m_visiblityObstruction;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see io.github.jeremywildsmith.jevaengine.world.Actor#getTileWidth()
-	 */
 	@Override
 	public int getTileWidth()
 	{
@@ -85,11 +80,6 @@ public final class Tile extends Actor
 		return (int) (Math.ceil((m_sprite.getBounds().width) / v.x));
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see io.github.jeremywildsmith.jevaengine.world.Actor#getTileHeight()
-	 */
 	@Override
 	public int getTileHeight()
 	{
@@ -103,88 +93,48 @@ public final class Tile extends Actor
 		return (int) (Math.ceil((m_sprite.getBounds().height) / v.y));
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see io.github.jeremywildsmith.jevaengine.world.Entity#blendEffectMap(jeva.world.EffectMap)
-	 */
 	@Override
 	public void blendEffectMap(EffectMap globalEffectMap)
 	{
 		globalEffectMap.applyOverlayEffects(this.getLocation().round(), new TileEffects(m_isTraversable).overlay(new TileEffects(m_visiblityObstruction)));
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see io.github.jeremywildsmith.jevaengine.world.Entity#doLogic(int)
-	 */
 	@Override
 	public void doLogic(int deltaTime)
 	{
 		m_sprite.update(deltaTime);
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see io.github.jeremywildsmith.jevaengine.world.Actor#getVisibilityFactor()
-	 */
+	
 	@Override
 	public float getVisibilityFactor()
 	{
 		return 0;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see io.github.jeremywildsmith.jevaengine.world.Actor#getViewDistance()
-	 */
 	@Override
 	public float getViewDistance()
 	{
 		return 0;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see io.github.jeremywildsmith.jevaengine.world.Actor#getFieldOfView()
-	 */
 	@Override
 	public float getFieldOfView()
 	{
 		return 0;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see io.github.jeremywildsmith.jevaengine.world.Actor#getVisualAcuity()
-	 */
 	@Override
 	public float getVisualAcuity()
 	{
 		return 0;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see io.github.jeremywildsmith.jevaengine.world.Actor#getSpeed()
-	 */
 	@Override
 	public float getSpeed()
 	{
 		return 0;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see io.github.jeremywildsmith.jevaengine.world.Actor#getAllowedMovements()
-	 */
 	@Override
 	public WorldDirection[] getAllowedMovements()
 	{

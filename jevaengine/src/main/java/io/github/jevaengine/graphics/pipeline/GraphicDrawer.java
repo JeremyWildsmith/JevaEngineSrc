@@ -1,6 +1,9 @@
-package io.github.jevaengine.graphics.shaders;
+package io.github.jevaengine.graphics.pipeline;
+
+import io.github.jevaengine.graphics.pipeline.GraphicRenderHints.GraphicMode;
 
 import java.awt.Color;
+import java.awt.RenderingHints.Key;
 import java.awt.geom.AffineTransform;
 
 import javax.media.opengl.GL2;
@@ -15,9 +18,16 @@ public final class GraphicDrawer extends AbstractImageHelper
 	private GL2 m_glContext;
 	private PrimitiveShader m_shader;
 	
+	private GraphicMode m_nextMode;
+	
 	public GraphicDrawer(PrimitiveShader shader)
 	{
 		m_shader = shader;
+	}
+	
+	protected Texture getTexture(Graphic graphic)
+	{
+		return super.getTexture(graphic.get(), null);
 	}
 
 	@Override
@@ -32,14 +42,31 @@ public final class GraphicDrawer extends AbstractImageHelper
 	}
 	
 	@Override
+	public void setHint(Key key, Object value)
+	{
+		if(key == GraphicRenderHints.KEY_MODE)
+			m_nextMode = (GraphicMode)value;
+	}
+	
+	@Override
 	protected void begin(Texture texture, AffineTransform xform, Color bgcolor)
 	{
-		m_shader.setShaderConfiguration(new PrimitiveShader.PrimitiveTexture(texture));
+		PrimitiveShader.PrimitiveMode mode;
+		
+		if(m_nextMode == null)
+			mode = new PrimitiveShader.PrimitiveTexture(texture);
+		else
+			mode = m_nextMode.create(this, texture, m_shader.getWorkingColor());
+
+		m_shader.setShaderConfiguration(mode);
+		
+		m_nextMode = null;
 	}
 
 	@Override
 	protected void end(Texture texture)
 	{
+		
 	}
 
 	@Override

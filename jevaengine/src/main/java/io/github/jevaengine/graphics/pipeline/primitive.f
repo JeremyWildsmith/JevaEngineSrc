@@ -1,4 +1,4 @@
-#define FTOL 0.01
+#define FTOL 0.009
 
 //Normal
 #define MODE_NORMAL 0
@@ -38,8 +38,7 @@ vec4 filterMap(vec4 color)
 	
 	if(abs(auxColor.x - map.x) < FTOL &&
 	   abs(auxColor.y - map.y) < FTOL &&
-	   abs(auxColor.z - map.z) < FTOL &&
-	   abs(auxColor.w - map.w) < FTOL)
+	   abs(auxColor.z - map.z) < FTOL)
 	   	return color;
 	   else
 	    return vec4(0.0, 0.0, 0.0, 0.0);

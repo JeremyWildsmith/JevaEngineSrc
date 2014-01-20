@@ -1,4 +1,4 @@
-package io.github.jevaengine.graphics.shaders;
+package io.github.jevaengine.graphics.pipeline;
 
 import java.awt.Color;
 

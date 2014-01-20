@@ -10,7 +10,7 @@
  * Contributors:
  *     Jeremy - initial API and implementation
  ******************************************************************************/
-package io.github.jevaengine.graphics;
+package io.github.jevaengine.graphics.pipeline;
 
 import io.github.jevaengine.CoreModeViolationException;
 import io.github.jevaengine.Core;
@@ -73,6 +73,14 @@ public final class Graphic
 			
 			return new Graphic(img);
 		}
+	}
+	
+	Image get()
+	{
+		if(m_sourceImage == null)
+			throw new CoreModeViolationException("Core mode does not permit rendering or graphics operations.");
+		
+		return m_sourceImage;
 	}
 	
 	public void render(Graphics2D g, int dx, int dy, int dw, int dh, int sx, int sy, int sw, int sh)

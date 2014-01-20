@@ -17,6 +17,7 @@ import io.github.jevaengine.config.IImmutableVariable;
 import io.github.jevaengine.config.IVariable;
 import io.github.jevaengine.graphics.Sprite.SpriteDeclaration.AnimationDeclaration;
 import io.github.jevaengine.graphics.Sprite.SpriteDeclaration.FrameDeclaration;
+import io.github.jevaengine.graphics.pipeline.Graphic;
 import io.github.jevaengine.math.Rect2D;
 import io.github.jevaengine.math.Rect2F;
 import io.github.jevaengine.math.Vector2D;

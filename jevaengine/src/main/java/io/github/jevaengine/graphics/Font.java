@@ -21,6 +21,7 @@ import io.github.jevaengine.config.ISerializable;
 import io.github.jevaengine.config.IImmutableVariable;
 import io.github.jevaengine.config.IVariable;
 import io.github.jevaengine.graphics.Font.FontDeclaration.GlyphDeclaration;
+import io.github.jevaengine.graphics.pipeline.Graphic;
 import io.github.jevaengine.math.Rect2D;
 import io.github.jevaengine.util.Nullable;
 

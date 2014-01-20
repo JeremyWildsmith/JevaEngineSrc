@@ -12,8 +12,19 @@
  ******************************************************************************/
 package io.github.jevaengine.game;
 
-import io.github.jevaengine.ui.UIStyle;
+import io.github.jevaengine.Core;
+import io.github.jevaengine.IDisposable;
+import io.github.jevaengine.graphics.Sprite;
+import io.github.jevaengine.graphics.pipeline.ColorDrawer;
+import io.github.jevaengine.graphics.pipeline.GraphicDrawer;
+import io.github.jevaengine.graphics.pipeline.PrimitiveShader;
+import io.github.jevaengine.graphics.pipeline.ShapeDrawer;
+import io.github.jevaengine.joystick.IInputDeviceListener;
+import io.github.jevaengine.joystick.InputManager;
+import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.ui.IWindowManager;
+import io.github.jevaengine.ui.UIStyle;
+import io.github.jevaengine.util.Nullable;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -35,17 +46,6 @@ import org.jogamp.glg2d.GLG2DSimpleEventListener;
 import org.jogamp.glg2d.GLGraphics2D;
 
 import com.jogamp.opengl.util.FPSAnimator;
-
-import io.github.jevaengine.Core;
-import io.github.jevaengine.IDisposable;
-import io.github.jevaengine.graphics.Sprite;
-import io.github.jevaengine.graphics.shaders.ColorDrawer;
-import io.github.jevaengine.graphics.shaders.GraphicDrawer;
-import io.github.jevaengine.graphics.shaders.PrimitiveShader;
-import io.github.jevaengine.graphics.shaders.ShapeDrawer;
-import io.github.jevaengine.joystick.*;
-import io.github.jevaengine.math.Vector2D;
-import io.github.jevaengine.util.Nullable;
 
 public abstract class Game implements IInputDeviceListener, IDisposable
 {

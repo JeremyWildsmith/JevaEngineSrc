@@ -1,4 +1,4 @@
-package io.github.jevaengine.graphics.shaders;
+package io.github.jevaengine.graphics.pipeline;
 
 import java.awt.Color;
 import java.io.InputStream;
@@ -331,7 +331,7 @@ final class GraphicShader implements IDisposable
 		}
 	}
 
-	public static class ShaderUniformNotFoundException extends ShaderException
+	public static final class ShaderUniformNotFoundException extends ShaderException
 	{
 		private static final long serialVersionUID = 1L;
 		
@@ -341,7 +341,7 @@ final class GraphicShader implements IDisposable
 		}
 	}
 	
-	public static class ShaderCompileException extends ShaderException
+	public static final class ShaderCompileException extends ShaderException
 	{
 		private static final long serialVersionUID = 1L;
 
@@ -366,7 +366,7 @@ final class GraphicShader implements IDisposable
 		}
 	}
 	
-	public static class ProgramLinkException extends ShaderException
+	public static final class ProgramLinkException extends ShaderException
 	{
 		private static final long serialVersionUID = 1L;
 
@@ -391,7 +391,7 @@ final class GraphicShader implements IDisposable
 		}
 	}
 	
-	public static class InvalidShaderStateException extends ShaderException
+	public static final class InvalidShaderStateException extends ShaderException
 	{
 		private static final long serialVersionUID = 1L;
 
