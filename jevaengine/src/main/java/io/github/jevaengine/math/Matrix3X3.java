@@ -35,7 +35,8 @@ public class Matrix3X3
 
 	public Vector3F dot(Vector3F v)
 	{
-		return new Vector3F(v.x * matrix[0][0] + v.y * matrix[1][0] + v.z * matrix[2][0], v.x * matrix[0][1] + v.y * matrix[1][1] + v.z * matrix[2][1], v.x * matrix[0][2] + v.y * matrix[1][2] + v.z * matrix[2][2]);
+		return new Vector3F(v.x * matrix[0][0] + v.y * matrix[1][0] + v.z * matrix[2][0], v.x * matrix[0][1] + v.y * matrix[1][1] + v.z * matrix[2][1], v.x * matrix[0][2] + v.y * matrix[1][2] + v.z * matrix[2][2],
+							v.getSortingModel());
 	}
 
 	public Matrix3X3 scale(float fScale)

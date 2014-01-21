@@ -14,72 +14,81 @@ package io.github.jevaengine.math;
 
 public class Vector3F implements Comparable<Vector3F>
 {
-
 	public static final float TOLERANCE = 0.0000001F;
 
+	private SortingModel m_sortingModel;
+	
 	public float x;
-
 	public float y;
-
 	public float z;
-
-	public Vector3F(Vector2F v, float fZ)
-	{
-		x = v.x;
-		y = v.y;
-		z = fZ;
-	}
-
-	public Vector3F(Vector2D v, float fZ)
-	{
-		x = v.x;
-		y = v.y;
-		z = fZ;
-	}
 
 	public Vector3F(float fX, float fY, float fZ)
 	{
 		x = fX;
 		y = fY;
 		z = fZ;
+		
+		m_sortingModel = SortingModel.Distance;
 	}
-
-	public Vector3F(Vector2F v)
+	
+	public Vector3F(float fX, float fY, float fZ, SortingModel sortingModel)
 	{
-		x = v.x;
-		y = v.y;
-		z = 0;
+		this(fX, fY, fZ);
+		m_sortingModel = sortingModel;
+	}
+	
+	public Vector3F(Vector2F v, float fZ)
+	{
+		this(v.x, v.y, fZ);
+		m_sortingModel = v.getSortingModel();
+	}
+	
+	public SortingModel getSortingModel()
+	{
+		return m_sortingModel;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Comparable#compareTo(java.lang.Object)
-	 */
 	@Override
 	public int compareTo(Vector3F v)
 	{
 		if (Math.abs(v.z - z) > TOLERANCE)
 			return (z < v.z ? -1 : 1);
 
-		float distanceDifference = x * x + y * y - (v.x * v.x + v.y * v.y);
-		
-		if(Math.abs(distanceDifference) > TOLERANCE)
+		if(m_sortingModel == SortingModel.Distance)
 		{
-			//If there is a difference in x, and their signs are not equal (i.e, in different quadrants)
-			if(Math.abs(v.x - x) > TOLERANCE && (x < 0) != (v.x < 0))
-				return x < v.x ? -1 : 1;
-			else if(Math.abs(v.y - y) > TOLERANCE && (y < 0) != (v.y < 0))
-				return y < v.y ? -1 : 1;
+			float distanceDifference = x * x + y * y - (v.x * v.x + v.y * v.y);
+			
+			if(Math.abs(distanceDifference) > TOLERANCE)
+			{
+				//If there is a difference in x, and their signs are not equal (i.e, in different quadrants)
+				if(Math.abs(v.x - x) > TOLERANCE && (x < 0) != (v.x < 0))
+					return x < v.x ? -1 : 1;
+				else if(Math.abs(v.y - y) > TOLERANCE && (y < 0) != (v.y < 0))
+					return y < v.y ? -1 : 1;
+				else
+					return distanceDifference > 0 ? 1 : -1;
+			}else if (Math.abs(v.z - z) > TOLERANCE)
+				return (z < v.z ? -1 : 1);
+			else if (Math.abs(v.x - x) > TOLERANCE)
+				return (x < v.x ? -1 : 1);
+			else if (Math.abs(v.y - y) > TOLERANCE)
+				return (y < v.y ? -1 : 1);
 			else
-				return distanceDifference > 0 ? 1 : -1;
-		}else if (Math.abs(v.z - z) > TOLERANCE)
-			return (z < v.z ? -1 : 1);
-		else if (Math.abs(v.x - x) > TOLERANCE)
-			return (x < v.x ? -1 : 1);
-		else if (Math.abs(v.y - y) > TOLERANCE)
-			return (y < v.y ? -1 : 1);
-		else
-			return 0;
+				return 0;
+			
+		}else if(m_sortingModel == SortingModel.XOnly)
+		{
+			if (Math.abs(v.x - x) > TOLERANCE)
+				return (x < v.x ? -1 : 1);
+			else
+				return 0;
+		}else if(m_sortingModel == SortingModel.YOnly)
+		{
+			if (Math.abs(v.y - y) > TOLERANCE)
+				return (y < v.y ? -1 : 1);
+			else
+				return 0;
+		}else
+			throw new UnsupportedOperationException();
 	}
 }

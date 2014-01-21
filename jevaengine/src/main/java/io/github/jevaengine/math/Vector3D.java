@@ -3,9 +3,7 @@ package io.github.jevaengine.math;
 public class Vector3D
 {
 	public int x;
-
 	public int y;
-
 	public int z;
 
 	public Vector3D(Vector2D _v, int _z)

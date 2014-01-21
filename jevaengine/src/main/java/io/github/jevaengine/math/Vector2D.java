@@ -16,33 +16,44 @@
  */
 package io.github.jevaengine.math;
 
+import io.github.jevaengine.ResourceFormatException;
 import io.github.jevaengine.config.IImmutableVariable;
 import io.github.jevaengine.config.ISerializable;
 import io.github.jevaengine.config.IVariable;
 
 public class Vector2D implements Comparable<Vector2D>, ISerializable
 {
-
+	private SortingModel m_sortingModel;
+	
 	public int x;
-
 	public int y;
 
-	public Vector2D(int _x, int _y)
+	public Vector2D(int _x, int _y, SortingModel model)
 	{
 		x = _x;
 		y = _y;
+		m_sortingModel = model;
 	}
+	
 
-	public Vector2D()
+	public Vector2D(int _x, int _y)
 	{
-		x = 0;
-		y = 0;
+		this(_x, _y, SortingModel.Distance);
 	}
-
+	
 	public Vector2D(Vector2D location)
 	{
-		x = location.x;
-		y = location.y;
+		this(location.x, location.y, location.getSortingModel());
+	}
+	
+	public Vector2D()
+	{
+		this(0,0);
+	}
+	
+	public SortingModel getSortingModel()
+	{
+		return m_sortingModel;
 	}
 
 	public Vector2D add(Vector2D a)
@@ -104,23 +115,43 @@ public class Vector2D implements Comparable<Vector2D>, ISerializable
 		return hash;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Comparable#compareTo(java.lang.Object)
-	 */
 	@Override
 	public int compareTo(Vector2D v)
 	{
-		if (v.x == x && v.y == y)
-			return 0;
-
-		if (y == v.y)
-			return (x < v.x ? -1 : 1);
-		else if (y < v.y)
-			return -1;
-		else
-			return 1;
+		if(m_sortingModel == SortingModel.Distance)
+		{
+			int distanceDifference = x * x + y * y - (v.x * v.x + v.y * v.y);
+			
+			if(distanceDifference > 0)
+			{
+				//If there is a difference in x, and their signs are not equal (i.e, in different quadrants)
+				if(v.x != x && (x < 0) != (v.x < 0))
+					return x < v.x ? -1 : 1;
+				else if(v.y != y && (y < 0) != (v.y < 0))
+					return y < v.y ? -1 : 1;
+				else
+					return distanceDifference > 0 ? 1 : -1;
+			}else if (v.x != x)
+				return (x < v.x ? -1 : 1);
+			else if (v.y != y)
+				return (y < v.y ? -1 : 1);
+			else
+				return 0;
+			
+		}else if(m_sortingModel == SortingModel.XOnly)
+		{
+			if (v.x != x)
+				return (x < v.x ? -1 : 1);
+			else
+				return 0;
+		}else if(m_sortingModel == SortingModel.YOnly)
+		{
+			if (v.y != y)
+				return (y < v.y ? -1 : 1);
+			else
+				return 0;
+		}else
+			throw new UnsupportedOperationException();
 	}
 
 	public Vector2D difference(Vector2D v)
@@ -133,6 +164,10 @@ public class Vector2D implements Comparable<Vector2D>, ISerializable
 	{
 		target.addChild("x").setValue(x);
 		target.addChild("y").setValue(y);
+		
+		//If not default
+		if(m_sortingModel != SortingModel.Distance)
+			target.addChild("sorting").setValue(m_sortingModel.ordinal());
 	}
 
 	@Override
@@ -140,5 +175,16 @@ public class Vector2D implements Comparable<Vector2D>, ISerializable
 	{
 		x = source.getChild("x").getValue(Integer.class);
 		y = source.getChild("y").getValue(Integer.class);
+		
+		if(source.childExists("sorting"))
+		{
+			int sortingBuffer = source.getChild("sorting").getValue(Integer.class);
+			
+			if(sortingBuffer < 0 || sortingBuffer >= SortingModel.values().length)
+				throw new ResourceFormatException("Sorting model index is invalid.");
+			
+			m_sortingModel = SortingModel.values()[sortingBuffer];
+		}else
+			m_sortingModel = SortingModel.Distance;
 	}
 }

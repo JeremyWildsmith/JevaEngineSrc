@@ -20,19 +20,24 @@ import io.github.jevaengine.Core;
 import io.github.jevaengine.IDisposable;
 import io.github.jevaengine.ResourceFormatException;
 import io.github.jevaengine.ResourceLibrary;
+import io.github.jevaengine.config.IImmutableVariable;
+import io.github.jevaengine.config.ISerializable;
+import io.github.jevaengine.config.IVariable;
 import io.github.jevaengine.graphics.AnimationState;
 import io.github.jevaengine.graphics.IRenderable;
 import io.github.jevaengine.graphics.Sprite;
 import io.github.jevaengine.graphics.pipeline.Graphic;
+import io.github.jevaengine.graphics.pipeline.GraphicRenderHints;
 import io.github.jevaengine.math.Rect2D;
 import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.math.Vector2F;
 import io.github.jevaengine.util.Nullable;
 import io.github.jevaengine.world.EffectMap.TileEffects;
 import io.github.jevaengine.world.Entity.IEntityObserver;
-import io.github.jevaengine.world.World.WorldConfiguration.LayerDeclaration;
 import io.github.jevaengine.world.World.WorldConfiguration.TileDeclaration;
+import io.github.jevaengine.world.WorldLayer.LayerDeclaration.LayerBackgroundDeclaration.SortedGraphic;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -60,7 +65,14 @@ public class WorldLayer implements IDisposable
 		WorldLayer layer = new WorldLayer();
 
 		if(layerDecl.background != null)
-			layer.setBackground(new LayerBackground(Graphic.create(layerDecl.background.image), layerDecl.background.location));
+		{
+			layer.setBackground(
+					new LayerBackground(
+							Graphic.create(layerDecl.background.texture),
+							Graphic.create(layerDecl.background.colorMap),
+							layerDecl.background.location,
+							layerDecl.background.graphics));
+		}
 		
 		int locationOffset = 0;
 		
@@ -198,35 +210,56 @@ public class WorldLayer implements IDisposable
 
 	public static class LayerBackground
 	{
-		@Nullable
 		private Graphic m_background;
+		private Graphic m_colorMap;
 		private Vector2F m_location;
-		private Renderer m_renderer = new Renderer();
 		
-		public LayerBackground(@Nullable Graphic background, Vector2F location)
+		private SortedGraphic[] m_graphics;
+		
+		public LayerBackground(Graphic background, Graphic colorMap, Vector2F location, SortedGraphic[] graphics)
 		{
 			m_background = background;
+			m_colorMap = colorMap;
 			m_location = location;
+			m_graphics = graphics;
 		}
 		
 		public LayerBackground()
 		{
-			this(null, new Vector2F());
+			this(null, null, new Vector2F(), new SortedGraphic[0]);
 		}
 
 		private void enqueueRender(World parent)
 		{
-			parent.enqueueRender(m_renderer, m_location);
+			if(m_graphics.length > 0)
+			{
+				for(SortedGraphic graphic : m_graphics)
+				{
+					Vector2F graphicLocation = parent.translateScreenToWorld(graphic.origin, 1.0F);
+					parent.enqueueRender(new ArtifactRenderer(graphic.colorKey, graphic.origin), graphicLocation.add(m_location));
+				}
+			}
 		}
 		
-		private class Renderer implements IRenderable
+		private class ArtifactRenderer implements IRenderable
 		{
-
+			private Color m_key;
+			private Vector2D m_offset;
+			
+			public ArtifactRenderer(Color key, Vector2D offset)
+			{
+				m_key = key;
+				m_offset = offset;
+			}
+			
 			@Override
 			public void render(Graphics2D g, int x, int y, float scale)
 			{
 				if(m_background != null)
-					m_background.render(g, x, y, scale);
+				{
+					g.setRenderingHint(GraphicRenderHints.KEY_MODE, new GraphicRenderHints.ColorMap(m_colorMap, m_key));
+					m_background.render(g, x - m_offset.x, y - m_offset.y, scale);
+				}
 			}
 		}
 	}
@@ -343,7 +376,6 @@ public class WorldLayer implements IDisposable
 
 	private static class LayerSector
 	{
-
 		protected static final int SECTOR_DIMENSIONS = 10;
 
 		private Vector2D m_location;
@@ -458,6 +490,116 @@ public class WorldLayer implements IDisposable
 		public boolean contains(Vector2F location)
 		{
 			return new Rect2D(m_location.x * SECTOR_DIMENSIONS, m_location.y * SECTOR_DIMENSIONS, SECTOR_DIMENSIONS, SECTOR_DIMENSIONS).contains(location.floor());
+		}
+	}
+	
+	public static class LayerDeclaration implements ISerializable
+	{
+		public int[] tileIndices = new int[0];
+		
+		@Nullable 
+		public LayerBackgroundDeclaration background;
+		
+		public LayerDeclaration() { }
+
+		@Override
+		public void serialize(IVariable target)
+		{
+			target.addChild("indice").setValue(this.tileIndices);
+			
+			if(background != null)
+				target.addChild("background").setValue(background);
+		}
+
+		@Override
+		public void deserialize(IImmutableVariable source)
+		{
+			Integer indice[] = source.getChild("indice").getValues(Integer[].class);
+			
+			this.tileIndices = new int[indice.length];
+			
+			for(int i = 0; i < indice.length; i++)
+				this.tileIndices[i] = indice[i];
+			
+			if(source.childExists("background"))
+				background = source.getChild("background").getValue(LayerBackgroundDeclaration.class);
+		}
+		
+		public static class LayerBackgroundDeclaration implements ISerializable
+		{
+			public String texture;
+			public String colorMap;
+			public Vector2F location;
+			public SortedGraphic graphics[];
+			
+			public LayerBackgroundDeclaration()
+			{
+				location = new Vector2F();
+			}
+
+			@Override
+			public void serialize(IVariable target)
+			{
+				if(texture != null && texture.length() > 0 &&
+					colorMap != null && colorMap.length() > 0 &&
+					graphics != null && graphics.length > 0)
+				{
+					target.addChild("texture").setValue(texture);
+					target.addChild("colorMap").setValue(colorMap);
+					target.addChild("location").setValue(location);
+					target.addChild("graphics").setValue(graphics);
+				}
+			}
+
+			@Override
+			public void deserialize(IImmutableVariable source)
+			{
+				if(source.childExists("texture") &&
+					source.childExists("colorMap") &&
+					source.childExists("graphics"))
+				{
+					texture = source.getChild("texture").getValue(String.class);
+					colorMap = source.getChild("colorMap").getValue(String.class);
+					location = source.getChild("location").getValue(Vector2F.class);
+					graphics = source.getChild("graphics").getValues(SortedGraphic[].class);
+				}
+			}
+			
+			public static class SortedGraphic implements ISerializable
+			{
+				private Color colorKey;
+				private Vector2D origin;
+				
+				public SortedGraphic() {}
+
+				@Override
+				public void serialize(IVariable target)
+				{
+					if(colorKey != null && origin != null)
+					{
+						IVariable colorKeyVar = target.addChild("colorKey");
+						colorKeyVar.addChild("r").setValue(colorKey.getRed());
+						colorKeyVar.addChild("g").setValue(colorKey.getGreen());
+						colorKeyVar.addChild("b").setValue(colorKey.getBlue());
+						
+						target.addChild("origin").setValue(origin);
+						
+					}
+				}
+
+				@Override
+				public void deserialize(IImmutableVariable source)
+				{
+					IImmutableVariable colorKeyVar = source.getChild("colorKey");
+					
+					int r = colorKeyVar.getChild("r").getValue(Integer.class);
+					int g = colorKeyVar.getChild("g").getValue(Integer.class);
+					int b = colorKeyVar.getChild("b").getValue(Integer.class);
+					
+					colorKey = new Color(r, g, b);
+					origin = source.getChild("origin").getValue(Vector2D.class);
+				}
+			}
 		}
 	}
 }

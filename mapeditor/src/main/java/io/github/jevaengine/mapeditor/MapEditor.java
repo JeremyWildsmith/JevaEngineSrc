@@ -24,27 +24,27 @@ import io.github.jevaengine.game.IGameScriptProvider;
 import io.github.jevaengine.graphics.AnimationState;
 import io.github.jevaengine.graphics.Sprite;
 import io.github.jevaengine.graphics.pipeline.Graphic;
-import io.github.jevaengine.ui.IWindowManager;
-import io.github.jevaengine.ui.Window;
-import io.github.jevaengine.ui.WorldView;
-import io.github.jevaengine.ui.WorldView.IWorldViewListener;
 import io.github.jevaengine.joystick.InputManager.InputKeyEvent;
 import io.github.jevaengine.joystick.InputManager.InputMouseEvent;
 import io.github.jevaengine.joystick.InputManager.InputMouseEvent.MouseButton;
 import io.github.jevaengine.mapeditor.EditorPane.Brush;
 import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.math.Vector2F;
+import io.github.jevaengine.ui.IWindowManager;
 import io.github.jevaengine.ui.UIStyle;
+import io.github.jevaengine.ui.Window;
+import io.github.jevaengine.ui.WorldView;
+import io.github.jevaengine.ui.WorldView.IWorldViewListener;
 import io.github.jevaengine.util.Nullable;
 import io.github.jevaengine.world.IInteractable;
 import io.github.jevaengine.world.World;
 import io.github.jevaengine.world.World.WorldConfiguration;
 import io.github.jevaengine.world.World.WorldConfiguration.EntityDeclaration;
-import io.github.jevaengine.world.World.WorldConfiguration.LayerDeclaration;
-import io.github.jevaengine.world.World.WorldConfiguration.LayerDeclaration.LayerBackgroundDeclaration;
 import io.github.jevaengine.world.World.WorldConfiguration.TileDeclaration;
 import io.github.jevaengine.world.WorldLayer;
 import io.github.jevaengine.world.WorldLayer.LayerBackground;
+import io.github.jevaengine.world.WorldLayer.LayerDeclaration;
+import io.github.jevaengine.world.WorldLayer.LayerDeclaration.LayerBackgroundDeclaration;
 
 import java.awt.event.KeyEvent;
 import java.io.FileOutputStream;
@@ -240,8 +240,8 @@ public class MapEditor extends Game implements IEditorPaneListener
 			
 			if(layerDeclaration.background != null)
 			{
-				m_layerMetaData.put(l, new LayerMetaData(layerDeclaration.background.image, layerDeclaration.background.location));
-				worldLayer.setBackground(new LayerBackground(Graphic.create(layerDeclaration.background.image), layerDeclaration.background.location));
+				m_layerMetaData.put(l, new LayerMetaData(layerDeclaration.background.texture, layerDeclaration.background.location));
+				worldLayer.setBackground(new LayerBackground(Graphic.create(layerDeclaration.background.texture), layerDeclaration.background.location));
 			}
 			
 			int[] tileIndices = layerDeclaration.tileIndices;
@@ -399,7 +399,7 @@ public class MapEditor extends Game implements IEditorPaneListener
 					LayerBackgroundDeclaration bgr = new LayerBackgroundDeclaration();
 					worldConfig.layers[i].background = bgr;
 					
-					bgr.image = metaData.getBackground();
+					bgr.texture = metaData.getBackground();
 					bgr.location = metaData.getBackgroundLocation();
 				}
 			}

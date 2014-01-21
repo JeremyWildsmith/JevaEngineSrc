@@ -46,12 +46,14 @@ public class Matrix2X2
 
 	public Vector2F dot(Vector2F vec)
 	{
-		return new Vector2F(vec.x * matrix[0][0] + vec.y * matrix[1][0], vec.x * matrix[0][1] + vec.y * matrix[1][1]);
+		return new Vector2F(vec.x * matrix[0][0] + vec.y * matrix[1][0],
+								vec.x * matrix[0][1] + vec.y * matrix[1][1],
+								vec.getSortingModel());
 	}
 
 	public Vector2F dot(Vector2D vec)
 	{
-		return this.dot(new Vector2F(vec.x, vec.y));
+		return this.dot(new Vector2F(vec));
 	}
 
 	public Matrix2X2 scale(float fScale)

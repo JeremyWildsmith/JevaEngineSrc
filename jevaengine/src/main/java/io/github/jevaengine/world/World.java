@@ -35,7 +35,7 @@ import io.github.jevaengine.util.StaticSet;
 import io.github.jevaengine.world.EffectMap.TileEffects;
 import io.github.jevaengine.world.Entity.EntityBridge;
 import io.github.jevaengine.world.World.WorldConfiguration.EntityDeclaration;
-import io.github.jevaengine.world.World.WorldConfiguration.LayerDeclaration;
+import io.github.jevaengine.world.WorldLayer.LayerDeclaration;
 
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -425,7 +425,7 @@ public final class World implements IDisposable
 		
 		for (Map.Entry<Vector3F, ArrayList<WorldRenderEntry>> entry : m_renderQueue.entrySet())
 		{	
-			Vector2D renderLocation = translateWorldToScreen(new Vector2F(entry.getKey().x, entry.getKey().y), scale).add(new Vector2D(offsetX, offsetY));
+			Vector2D renderLocation = translateWorldToScreen(new Vector2F(entry.getKey().x, entry.getKey().y, entry.getKey().getSortingModel()), scale).add(new Vector2D(offsetX, offsetY));
 
 			for (WorldRenderEntry renderable : entry.getValue())
 			{
@@ -448,7 +448,7 @@ public final class World implements IDisposable
 		m_renderQueue.clear();
 	}
 
-	protected void enqueueRender(IRenderable renderable, Actor dispatcher, Vector2F location)
+	protected void enqueueRender(IRenderable renderable, @Nullable Actor dispatcher, Vector2F location)
 	{
 		Vector3F location3 = new Vector3F(location, m_renderQueueDepth);
 
@@ -851,70 +851,6 @@ public final class World implements IDisposable
 				this.allowRenderSplitting = source.getChild("allowRenderSplitting").getValue(Boolean.class);
 				this.isTraversable = source.getChild("isTraversable").getValue(Boolean.class);
 				this.isStatic = source.getChild("isStatic").getValue(Boolean.class);
-			}
-		}
-		
-		public static class LayerDeclaration implements ISerializable
-		{
-			public int[] tileIndices = new int[0];
-			
-			@Nullable 
-			public LayerBackgroundDeclaration background;
-			
-			public LayerDeclaration() { }
-
-			@Override
-			public void serialize(IVariable target)
-			{
-				target.addChild("indice").setValue(this.tileIndices);
-				
-				if(background != null)
-					target.addChild("background").setValue(background);
-			}
-
-			@Override
-			public void deserialize(IImmutableVariable source)
-			{
-				Integer indice[] = source.getChild("indice").getValues(Integer[].class);
-				
-				this.tileIndices = new int[indice.length];
-				
-				for(int i = 0; i < indice.length; i++)
-					this.tileIndices[i] = indice[i];
-				
-				if(source.childExists("background"))
-					background = source.getChild("background").getValue(LayerBackgroundDeclaration.class);
-			}
-			
-			public static class LayerBackgroundDeclaration implements ISerializable
-			{
-				public String image;
-				public Vector2F location;
-				
-				public LayerBackgroundDeclaration()
-				{
-					location = new Vector2F();
-				}
-
-				@Override
-				public void serialize(IVariable target)
-				{
-					if(image != null && image.length() > 0)
-					{
-						target.addChild("image").setValue(image);
-						target.addChild("location").setValue(location);
-					}
-				}
-
-				@Override
-				public void deserialize(IImmutableVariable source)
-				{
-					if(source.childExists("image"))
-					{
-						image = source.getChild("image").getValue(String.class);
-						location = source.getChild("location").getValue(Vector2F.class);
-					}
-				}
 			}
 		}
 		

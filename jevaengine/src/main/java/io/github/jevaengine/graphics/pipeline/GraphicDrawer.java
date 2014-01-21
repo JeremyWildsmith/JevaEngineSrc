@@ -19,6 +19,8 @@ public final class GraphicDrawer extends AbstractImageHelper
 	private PrimitiveShader m_shader;
 	
 	private GraphicMode m_nextMode;
+
+	private AffineTransform m_lastTransform;
 	
 	public GraphicDrawer(PrimitiveShader shader)
 	{
@@ -61,12 +63,19 @@ public final class GraphicDrawer extends AbstractImageHelper
 		m_shader.setShaderConfiguration(mode);
 		
 		m_nextMode = null;
+
+		if(xform != null)
+		{
+			m_lastTransform = new AffineTransform(g2d.getTransform());
+			g2d.setTransform(xform);
+		}
 	}
 
 	@Override
 	protected void end(Texture texture)
 	{
-		
+		if(m_lastTransform != null)
+			g2d.setTransform(m_lastTransform);
 	}
 
 	@Override
