@@ -54,7 +54,9 @@ public class Vector3F implements Comparable<Vector3F>
 		if (Math.abs(v.z - z) > TOLERANCE)
 			return (z < v.z ? -1 : 1);
 
-		if(m_sortingModel == SortingModel.Distance)
+		SortingModel model = SortingModel.values()[Math.max(m_sortingModel.ordinal(), v.getSortingModel().ordinal())];
+		
+		if(model == SortingModel.Distance)
 		{
 			float distanceDifference = x * x + y * y - (v.x * v.x + v.y * v.y);
 			
@@ -76,13 +78,13 @@ public class Vector3F implements Comparable<Vector3F>
 			else
 				return 0;
 			
-		}else if(m_sortingModel == SortingModel.XOnly)
+		}else if(model == SortingModel.XOnly)
 		{
 			if (Math.abs(v.x - x) > TOLERANCE)
 				return (x < v.x ? -1 : 1);
 			else
 				return 0;
-		}else if(m_sortingModel == SortingModel.YOnly)
+		}else if(model == SortingModel.YOnly)
 		{
 			if (Math.abs(v.y - y) > TOLERANCE)
 				return (y < v.y ? -1 : 1);

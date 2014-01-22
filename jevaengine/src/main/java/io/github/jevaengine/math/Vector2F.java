@@ -133,7 +133,7 @@ public class Vector2F implements Comparable<Vector2F>, ISerializable
 
 	public Vector2F add(Vector2F a)
 	{
-		return new Vector2F(x + a.x, y + a.y);
+		return new Vector2F(x + a.x, y + a.y, m_sortingModel);
 	}
 	
 	public Vector2F add(Vector2D a)
