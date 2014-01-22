@@ -371,9 +371,9 @@ public abstract class Entity implements IWorldAssociation
 		}
 	}
 
-	public abstract void blendEffectMap(EffectMap globalEffectMap);
+	public void blendEffectMap(EffectMap globalEffectMap) { }
 
-	public abstract void doLogic(int deltaTime);
+	public void doLogic(int deltaTime) { }
 
 	public interface IEntityObserver
 	{

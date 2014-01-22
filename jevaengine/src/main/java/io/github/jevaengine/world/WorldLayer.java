@@ -39,8 +39,6 @@ import io.github.jevaengine.world.WorldLayer.LayerDeclaration.LayerBackgroundDec
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.HashSet;
 
@@ -50,29 +48,15 @@ public class WorldLayer implements IDisposable
 
 	private ArrayList<ActorEntry> m_actors;
 	
-	@Nullable
-	private LayerBackground m_background;
-	
 	public WorldLayer()
 	{
 		m_sectors = new ArrayList<LayerSector>();
 		m_actors = new ArrayList<ActorEntry>();
-		m_background = new LayerBackground();
 	}
 
 	public static WorldLayer create(World world, TileDeclaration[] tiles, LayerDeclaration layerDecl)
 	{
 		WorldLayer layer = new WorldLayer();
-
-		if(layerDecl.background != null)
-		{
-			layer.setBackground(
-					new LayerBackground(
-							Graphic.create(layerDecl.background.texture),
-							Graphic.create(layerDecl.background.colorMap),
-							layerDecl.background.location,
-							layerDecl.background.graphics));
-		}
 		
 		int locationOffset = 0;
 		
@@ -94,16 +78,34 @@ public class WorldLayer implements IDisposable
 					Sprite tileSprite = Sprite.create(Core.getService(ResourceLibrary.class).openConfiguration(tileDec1.sprite));
 					tileSprite.setAnimation(tileDec1.animation, AnimationState.Play);
 
-					tile = new Tile(tileSprite, tileDec1.isTraversable, tileDec1.allowRenderSplitting, tileDec1.visibility);
+					tile = new Tile(tileSprite, tileDec1.isTraversable, tileDec1.visibility);
 				}else
-					tile = new Tile(tileDec1.isTraversable, tileDec1.allowRenderSplitting, tileDec1.visibility);
+					tile = new Tile(tileDec1.isTraversable, tileDec1.visibility);
 
 				tile.associate(world);
-
 				tile.setLocation(new Vector2F((locationOffset + i) % world.getWidth(), (float) Math.floor((locationOffset + i) / world.getHeight())));
+				
 				layer.add(tile, tileDec1.isStatic);
 			}else
 				locationOffset += -index - 1;
+		}
+		
+		if(layerDecl.background != null)
+		{
+			Graphic backgroundTexture = Graphic.create(layerDecl.background.texture);
+			Graphic backgroundMap = Graphic.create(layerDecl.background.colorMap);
+			
+			for(SortedGraphic graphic : layerDecl.background.graphics)
+			{
+				Vector2F graphicLocation = world.translateScreenToWorld(graphic.origin, 1.0F).add(layerDecl.background.location);
+				
+				BackgroundGraphic actor = new BackgroundGraphic(backgroundTexture, backgroundMap, graphic);
+				
+				actor.associate(world);
+				actor.setLocation(graphicLocation);
+				
+				layer.add(actor, true);
+			}
 		}
 		
 		return layer;
@@ -115,11 +117,6 @@ public class WorldLayer implements IDisposable
 			a.dispose();
 		
 		m_actors.clear();
-	}
-	
-	public void setBackground(LayerBackground background)
-	{
-		m_background = background;
 	}
 
 	private LayerSector getSector(Vector2F location)
@@ -182,10 +179,8 @@ public class WorldLayer implements IDisposable
 			sector.update(delta);
 	}
 
-	void enqueueRender(World parent, Rectangle renderBounds)
+	void enqueueRender(Rect2D renderBounds)
 	{
-		m_background.enqueueRender(parent);
-		
 		HashSet<Integer> renderSectors = new HashSet<Integer>();
 
 		int sectorX = renderBounds.x / LayerSector.SECTOR_DIMENSIONS;
@@ -201,66 +196,65 @@ public class WorldLayer implements IDisposable
 			}
 		}
 
+		//If an actor is placed in more than two sectors(possible if it has a tile width\height greater than 1x1) and
+		//more than one of the contained sectors are visible, it could be added to the set twice. Thus, a hashset is used
+		//to resolve this issue.
+		HashSet<Actor> m_renderActors = new HashSet<Actor>();
 		for (Integer i : renderSectors)
 		{
 			if (i >= 0)
-				m_sectors.get(i).enqueueRender(renderBounds);
+				m_sectors.get(i).enqueueRender(m_renderActors, renderBounds);
 		}
+		
+		for(Actor a : m_renderActors)
+			a.enqueueRender();
 	}
 
-	public static class LayerBackground
+	private static class BackgroundGraphic extends Actor
 	{
 		private Graphic m_background;
 		private Graphic m_colorMap;
-		private Vector2F m_location;
+		private SortedGraphic m_graphic;
+		private GraphicRenderer m_renderer;
 		
-		private SortedGraphic[] m_graphics;
-		
-		public LayerBackground(Graphic background, Graphic colorMap, Vector2F location, SortedGraphic[] graphics)
+		public BackgroundGraphic(Graphic background, Graphic colorMap, SortedGraphic graphic)
 		{
 			m_background = background;
 			m_colorMap = colorMap;
-			m_location = location;
-			m_graphics = graphics;
-		}
-		
-		public LayerBackground()
-		{
-			this(null, null, new Vector2F(), new SortedGraphic[0]);
+			m_graphic = graphic;
+			
+			m_renderer = new GraphicRenderer();
 		}
 
-		private void enqueueRender(World parent)
+		@Override
+		public IRenderable getGraphic()
 		{
-			if(m_graphics.length > 0)
-			{
-				for(SortedGraphic graphic : m_graphics)
-				{
-					Vector2F graphicLocation = parent.translateScreenToWorld(graphic.origin, 1.0F);
-					parent.enqueueRender(new ArtifactRenderer(graphic.colorKey, graphic.origin), graphicLocation.add(m_location));
-				}
-			}
+			return m_renderer;
 		}
 		
-		private class ArtifactRenderer implements IRenderable
+		private class GraphicRenderer implements IRenderable
 		{
-			private Color m_key;
-			private Vector2D m_offset;
-			
-			public ArtifactRenderer(Color key, Vector2D offset)
-			{
-				m_key = key;
-				m_offset = offset;
-			}
-			
 			@Override
 			public void render(Graphics2D g, int x, int y, float scale)
 			{
 				if(m_background != null)
 				{
-					g.setRenderingHint(GraphicRenderHints.KEY_MODE, new GraphicRenderHints.ColorMap(m_colorMap, m_key));
-					m_background.render(g, x - m_offset.x, y - m_offset.y, scale);
+					g.setRenderingHint(GraphicRenderHints.KEY_MODE, new GraphicRenderHints.ColorMap(m_colorMap, m_graphic.colorKey));
+					m_background.render(g, x - m_graphic.origin.x, y - m_graphic.origin.y, scale);
 				}
 			}
+		}
+
+		@Override
+		public int getTileWidth()
+		{
+			return m_graphic.tileWidth;
+		}
+
+		@Override
+		public int getTileHeight()
+		{
+			return m_graphic.tileHeight;
 		}
 	}
 	
@@ -269,22 +263,49 @@ public class WorldLayer implements IDisposable
 		private Actor m_subject;
 		private boolean m_isStatic;
 		private LocationObserver m_observer = new LocationObserver();
-		private LayerSector m_parentSector;
+		
+		private ArrayList<LayerSector> m_containingSectors = new ArrayList<LayerSector>();
 		
 		public ActorEntry(Actor subject, boolean isStatic)
 		{
 			m_subject = subject;
 			m_isStatic = isStatic;
-			m_parentSector = getSector(subject.getLocation());
-			m_parentSector.addActor(subject, isStatic);
+			place();
 			subject.addObserver(m_observer);
 		}
 		
 		@Override
 		public void dispose()
 		{
-			m_parentSector.remove(m_subject);
+			remove();
 			m_subject.removeObserver(m_observer);
+		}
+		
+		private void place()
+		{
+			int xsign = m_subject.getTileWidth() >= 0 ? 1 : -1;
+			for(int x = 0; x < xsign * m_subject.getTileWidth(); x+=LayerSector.SECTOR_DIMENSIONS)
+			{
+				int ysign = m_subject.getTileHeight() >= 0 ? 1 : -1;
+				for(int y = 0; y < ysign * m_subject.getTileHeight(); y++)
+				{
+					LayerSector sector = getSector(m_subject.getLocation().add(new Vector2F(x * xsign, y * ysign)));
+					
+					if(!m_containingSectors.contains(sector))
+					{
+						sector.addActor(m_subject, m_isStatic);
+						m_containingSectors.add(sector);
+					}
+				}
+			}
+		}
+		
+		private void remove()
+		{
+			for(LayerSector sector : m_containingSectors)
+				sector.remove(m_subject);
+			
+			m_containingSectors.clear();
 		}
 		
 		private class LocationObserver implements IEntityObserver
@@ -292,12 +313,8 @@ public class WorldLayer implements IDisposable
 			@Override
 			public void moved()
 			{
-				if(!m_parentSector.contains(m_subject.getLocation()))
-				{
-					m_parentSector.remove(m_subject);
-					m_parentSector = getSector(m_subject.getLocation());
-					m_parentSector.addActor(m_subject, m_isStatic);
-				}
+				remove();
+				place();
 			}
 			
 			@Override
@@ -449,29 +466,26 @@ public class WorldLayer implements IDisposable
 			}
 		}
 
-		public void enqueueRender(Rectangle renderBounds)
+		public void enqueueRender(HashSet<Actor> renderList, Rect2D renderBounds)
 		{
 			for (Actor a : m_static)
 			{
 				Vector2D location = a.getLocation().round();
-
-				if (renderBounds.contains(new Point(location.x, location.y)))
-					a.enqueueRender();
+				Rect2D actorBounds = new Rect2D(location.x, location.y, a.getTileWidth(), a.getTileHeight());
+				
+				if (renderBounds.intersects(actorBounds))
+					renderList.add(a);
 			}
 			for (Actor a : m_dynamic)
 			{
-				Vector2D location = a.getLocation().floor();
+				Vector2D location = a.getLocation().round();
+				Rect2D actorBounds = new Rect2D(location.x, location.y, a.getTileWidth(), a.getTileHeight());
 
-				if (renderBounds.contains(new Point(location.x, location.y)))
-					a.enqueueRender();
+				if (renderBounds.intersects(actorBounds))
+					renderList.add(a);
 			}
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see java.lang.Object#equals(java.lang.Object)
-		 */
 		@Override
 		public boolean equals(Object o)
 		{
@@ -485,11 +499,6 @@ public class WorldLayer implements IDisposable
 				return new Rect2D(m_location.x * SECTOR_DIMENSIONS, m_location.y * SECTOR_DIMENSIONS, SECTOR_DIMENSIONS, SECTOR_DIMENSIONS).contains(src);
 			} else
 				return false;
-		}
-		
-		public boolean contains(Vector2F location)
-		{
-			return new Rect2D(m_location.x * SECTOR_DIMENSIONS, m_location.y * SECTOR_DIMENSIONS, SECTOR_DIMENSIONS, SECTOR_DIMENSIONS).contains(location.floor());
 		}
 	}
 	
@@ -569,6 +578,8 @@ public class WorldLayer implements IDisposable
 			{
 				private Color colorKey;
 				private Vector2D origin;
+				private int tileWidth = 1;
+				private int tileHeight = 1;
 				
 				public SortedGraphic() {}
 
@@ -584,6 +595,11 @@ public class WorldLayer implements IDisposable
 						
 						target.addChild("origin").setValue(origin);
 						
+						if(tileWidth != 1)
+							target.addChild("tileWidth").setValue(tileWidth);
+						
+						if(tileHeight != 1)
+							target.addChild("tileHeight").setValue(tileHeight);
 					}
 				}
 
@@ -598,6 +614,17 @@ public class WorldLayer implements IDisposable
 					
 					colorKey = new Color(r, g, b);
 					origin = source.getChild("origin").getValue(Vector2D.class);
+				
+					if(source.childExists("tileWidth"))
+						tileWidth = source.getChild("tileWidth").getValue(Integer.class);
+					else
+						tileWidth = 1;
+					
+					if(source.childExists("tileHeight"))
+						tileHeight = source.getChild("tileHeight").getValue(Integer.class);
+					else
+						tileHeight = 1;
+				
 				}
 			}
 		}

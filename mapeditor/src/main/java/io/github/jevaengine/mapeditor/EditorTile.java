@@ -17,7 +17,6 @@ import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.graphics.AnimationState;
 import io.github.jevaengine.graphics.IRenderable;
 import io.github.jevaengine.graphics.Sprite;
-import io.github.jevaengine.math.Rect2F;
 import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.math.Vector2F;
 import io.github.jevaengine.world.Actor;
@@ -37,14 +36,13 @@ public class EditorTile implements IInteractable
 	private String m_spriteName;
 	private boolean m_isTraversable;
 	private boolean m_isStatic;
-	private boolean m_enablesSplitting;
 
 	private ContainedTile m_tile;
 	private String m_animation;
 	
 	private float m_visibility;
 
-	public EditorTile(String spriteName, String animation, boolean isTraversable, boolean isStatic, boolean enableSplitting, float visibility)
+	public EditorTile(String spriteName, String animation, boolean isTraversable, boolean isStatic, float visibility)
 	{
 		m_tile = new ContainedTile(true, 1.0F);
 		
@@ -54,7 +52,6 @@ public class EditorTile implements IInteractable
 		
 		m_isStatic = isStatic;
 		m_isTraversable = isTraversable;
-		m_enablesSplitting = enableSplitting;
 		m_spriteName = spriteName;
 		m_animation = animation;
 		m_visibility = visibility;
@@ -71,7 +68,6 @@ public class EditorTile implements IInteractable
 		TileEffects efx = new TileEffects();
 		
 		m_isStatic = true;
-		m_enablesSplitting = false;
 		m_spriteName = spriteName;
 		m_animation = animation;
 		
@@ -129,16 +125,6 @@ public class EditorTile implements IInteractable
 		m_tile.setSprite(sprite);
 	}
 
-	public boolean enablesSplitting()
-	{
-		return m_enablesSplitting;
-	}
-
-	public void setEnableSplitting(boolean enableSplitting)
-	{
-		m_enablesSplitting = enableSplitting;
-	}
-
 	public String getSpriteName()
 	{
 		return m_spriteName;
@@ -190,7 +176,7 @@ public class EditorTile implements IInteractable
 
 		EditorTile tile = (EditorTile) o;
 
-		return (tile.m_isStatic == this.m_isStatic && tile.m_isTraversable == this.m_isTraversable && tile.m_enablesSplitting == this.m_enablesSplitting && tile.getVisibilityObstruction() == this.getVisibilityObstruction() && tile.getDirection() == this.getDirection() && tile.getSpriteName().compareTo(this.getSpriteName()) == 0 && tile.getSpriteAnimation().compareTo(this.getSpriteAnimation()) == 0);
+		return (tile.m_isStatic == this.m_isStatic && tile.m_isTraversable == this.m_isTraversable && tile.getVisibilityObstruction() == this.getVisibilityObstruction() && tile.getDirection() == this.getDirection() && tile.getSpriteName().compareTo(this.getSpriteName()) == 0 && tile.getSpriteAnimation().compareTo(this.getSpriteAnimation()) == 0);
 	}
 
 	@Override
@@ -214,7 +200,7 @@ public class EditorTile implements IInteractable
 		
 		public ContainedTile(boolean isTraversable, float fVisiblity)
 		{
-			m_contained = new Tile(isTraversable, false, fVisiblity);
+			m_contained = new Tile(isTraversable, fVisiblity);
 		}
 
 		@Override
@@ -231,12 +217,6 @@ public class EditorTile implements IInteractable
 		void setSprite(Sprite sprite)
 		{
 			m_contained.setSprite(sprite);
-		}
-
-		@Override
-		public Rect2F getGraphicBounds(float scale)
-		{
-			return m_contained.getGraphicBounds(scale);
 		}
 
 		@Override

@@ -131,7 +131,6 @@ public class EditorPane extends javax.swing.JFrame
 				lblSelectionX.setText(String.valueOf(x));
 				lblSelectionY.setText(String.valueOf(y));
 				
-				chkAllowSplitting.setSelected(allowsSplitting);
 				chkTraversable.setSelected(isTraversable);
 				chkStatic.setSelected(isStatic);
 				sldVisibility.setValue((int)(fVisibility * 100.0F));
@@ -239,8 +238,7 @@ public class EditorPane extends javax.swing.JFrame
 								(float)sldVisibility.getValue() / (float)sldVisibility.getMaximum(),  
 								getBrushSize(),
 								chkStatic.isSelected(),
-								chkTraversable.isSelected(),
-								chkAllowSplitting.isSelected());
+								chkTraversable.isSelected());
 	}
 	
 	/**
@@ -271,7 +269,6 @@ public class EditorPane extends javax.swing.JFrame
         txtBrushSprite = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
         btnSpriteBrowse = new javax.swing.JButton();
-        chkAllowSplitting = new javax.swing.JCheckBox();
         lstBrushAnimation = new javax.swing.JComboBox();
         jLabel2 = new javax.swing.JLabel();
         chkTraversable = new javax.swing.JCheckBox();
@@ -497,8 +494,6 @@ public class EditorPane extends javax.swing.JFrame
             }
         });
 
-        chkAllowSplitting.setText("Allow Splitting");
-
         jLabel2.setText("Animation:");
 
         chkTraversable.setSelected(true);
@@ -582,66 +577,62 @@ public class EditorPane extends javax.swing.JFrame
         chkStatic.setText("Static");
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel1)
-                            .addComponent(jLabel2)
-                            .addComponent(jLabel12))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                    .addComponent(txtBrushSprite, javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(lstBrushAnimation, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 242, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(btnSpriteBrowse))
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addComponent(sldVisibility, javax.swing.GroupLayout.PREFERRED_SIZE, 154, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(lblVisibility))))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(10, 10, 10)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(chkTraversable)
-                            .addComponent(chkAllowSplitting))
-                        .addGap(18, 18, 18)
-                        .addComponent(chkStatic)))
-                .addContainerGap())
+        	jPanel2Layout.createParallelGroup(Alignment.LEADING)
+        		.addGroup(jPanel2Layout.createSequentialGroup()
+        			.addContainerGap()
+        			.addGroup(jPanel2Layout.createParallelGroup(Alignment.LEADING)
+        				.addComponent(jPanel4, GroupLayout.DEFAULT_SIZE, 348, Short.MAX_VALUE)
+        				.addGroup(jPanel2Layout.createSequentialGroup()
+        					.addGroup(jPanel2Layout.createParallelGroup(Alignment.TRAILING)
+        						.addComponent(jLabel1)
+        						.addComponent(jLabel2)
+        						.addComponent(jLabel12))
+        					.addPreferredGap(ComponentPlacement.RELATED)
+        					.addGroup(jPanel2Layout.createParallelGroup(Alignment.LEADING)
+        						.addGroup(jPanel2Layout.createSequentialGroup()
+        							.addGroup(jPanel2Layout.createParallelGroup(Alignment.TRAILING, false)
+        								.addComponent(txtBrushSprite, Alignment.LEADING)
+        								.addComponent(lstBrushAnimation, Alignment.LEADING, GroupLayout.PREFERRED_SIZE, 242, GroupLayout.PREFERRED_SIZE))
+        							.addPreferredGap(ComponentPlacement.RELATED)
+        							.addComponent(btnSpriteBrowse))
+        						.addGroup(jPanel2Layout.createSequentialGroup()
+        							.addComponent(sldVisibility, GroupLayout.PREFERRED_SIZE, 154, GroupLayout.PREFERRED_SIZE)
+        							.addPreferredGap(ComponentPlacement.RELATED)
+        							.addComponent(lblVisibility))))
+        				.addGroup(jPanel2Layout.createSequentialGroup()
+        					.addGap(10)
+        					.addComponent(chkTraversable)
+        					.addGap(26)
+        					.addComponent(chkStatic)))
+        			.addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txtBrushSprite, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel1)
-                    .addComponent(btnSpriteBrowse))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lstBrushAnimation, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel2))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(sldVisibility, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(lblVisibility, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel12, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(chkTraversable)
-                    .addComponent(chkStatic))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(chkAllowSplitting)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(27, Short.MAX_VALUE))
+        	jPanel2Layout.createParallelGroup(Alignment.LEADING)
+        		.addGroup(jPanel2Layout.createSequentialGroup()
+        			.addContainerGap()
+        			.addGroup(jPanel2Layout.createParallelGroup(Alignment.BASELINE)
+        				.addComponent(txtBrushSprite, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+        				.addComponent(jLabel1)
+        				.addComponent(btnSpriteBrowse))
+        			.addPreferredGap(ComponentPlacement.RELATED)
+        			.addGroup(jPanel2Layout.createParallelGroup(Alignment.BASELINE)
+        				.addComponent(lstBrushAnimation, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+        				.addComponent(jLabel2))
+        			.addPreferredGap(ComponentPlacement.UNRELATED)
+        			.addGroup(jPanel2Layout.createParallelGroup(Alignment.LEADING, false)
+        				.addComponent(sldVisibility, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        				.addComponent(lblVisibility, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        				.addComponent(jLabel12, Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 25, GroupLayout.PREFERRED_SIZE))
+        			.addPreferredGap(ComponentPlacement.RELATED)
+        			.addGroup(jPanel2Layout.createParallelGroup(Alignment.BASELINE)
+        				.addComponent(chkTraversable)
+        				.addComponent(chkStatic))
+        			.addGap(25)
+        			.addComponent(jPanel4, GroupLayout.PREFERRED_SIZE, 78, GroupLayout.PREFERRED_SIZE)
+        			.addContainerGap(27, Short.MAX_VALUE))
         );
+        jPanel2.setLayout(jPanel2Layout);
 
         jLabel1.getAccessibleContext().setAccessibleName("Sprite:");
 
@@ -1189,7 +1180,6 @@ public class EditorPane extends javax.swing.JFrame
 		public int size;
 		public boolean isStatic;
 		public boolean isTraversable;
-		public boolean allowSplitting;
 		public boolean isSelection;
 		
 		public Brush(int _size)
@@ -1199,7 +1189,7 @@ public class EditorPane extends javax.swing.JFrame
 		}
 		
 		public Brush(String _sprite, String _animation, float _visibility, int _size,
-						boolean _isStatic, boolean _isTraversable, boolean _allowSplitting)
+						boolean _isStatic, boolean _isTraversable)
 		{
 			sprite = _sprite;
 			animation = _animation;
@@ -1207,7 +1197,6 @@ public class EditorPane extends javax.swing.JFrame
 			size = _size;
 			isStatic = _isStatic;
 			isTraversable = _isTraversable;
-			allowSplitting = _allowSplitting;
 			isSelection = false;
 		}
 	}
@@ -1221,7 +1210,6 @@ public class EditorPane extends javax.swing.JFrame
     private javax.swing.JButton btnNewLayer;
     private javax.swing.JButton btnSpriteBrowse;
     private javax.swing.ButtonGroup burshGroup;
-    private javax.swing.JCheckBox chkAllowSplitting;
     private javax.swing.JCheckBox chkStatic;
     private javax.swing.JCheckBox chkTraversable;
     private javax.swing.JLabel jLabel1;

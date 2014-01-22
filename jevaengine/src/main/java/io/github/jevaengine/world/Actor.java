@@ -12,23 +12,19 @@
  ******************************************************************************/
 package io.github.jevaengine.world;
 
-import java.awt.Graphics2D;
-import java.awt.Shape;
+import io.github.jevaengine.CoreScriptException;
+import io.github.jevaengine.config.IImmutableVariable;
+import io.github.jevaengine.graphics.IRenderable;
+import io.github.jevaengine.math.Vector2D;
+import io.github.jevaengine.math.Vector2F;
+import io.github.jevaengine.util.Nullable;
+import io.github.jevaengine.world.EffectMap.TileEffects;
+
 import java.util.ArrayList;
 
 import javax.script.ScriptException;
 
 import org.mozilla.javascript.NativeArray;
-
-import io.github.jevaengine.CoreScriptException;
-import io.github.jevaengine.config.IImmutableVariable;
-import io.github.jevaengine.graphics.IRenderable;
-import io.github.jevaengine.math.Matrix2X2;
-import io.github.jevaengine.math.Rect2F;
-import io.github.jevaengine.math.Vector2D;
-import io.github.jevaengine.math.Vector2F;
-import io.github.jevaengine.util.Nullable;
-import io.github.jevaengine.world.EffectMap.TileEffects;
 
 public abstract class Actor extends Entity implements IInteractable
 {
@@ -119,27 +115,7 @@ public abstract class Actor extends Entity implements IInteractable
 		
 		if (renderable != null)
 		{
-			// Optimize for most common case
-			if (getTileWidth() == 1 && getTileHeight() == 1)
-			{
-				getWorld().enqueueRender(renderable, Actor.this, new Vector2F(worldLocation.x, worldLocation.y));
-			} else
-			{
-				// Start with 1, since we start with 0 on x. If they both
-				// started
-				// at 0, we would render 0,0 twice.
-				for (int y = 1; y < getTileHeight(); y++)
-				{
-					Vector2D location = new Vector2D(0, y);
-					getWorld().enqueueRender(new RenderTile(true, renderable, location), Actor.this, worldLocation.difference(location));
-				}
-
-				for (int x = 0; x < getTileWidth(); x++)
-				{
-					Vector2D location = new Vector2D(x, 0);
-					getWorld().enqueueRender(new RenderTile(false, renderable, location), Actor.this, worldLocation.difference(location));
-				}
-			}
+			getWorld().enqueueRender(renderable, Actor.this, worldLocation);
 		}
 	}
 	
@@ -149,66 +125,18 @@ public abstract class Actor extends Entity implements IInteractable
 		return false;
 	}
 
-	public abstract Rect2F getGraphicBounds(float scale);
+	public float getVisibilityFactor() { return 0; }
+	public float getViewDistance() { return 0; }
+	public float getFieldOfView() { return 0; }
+	public float getVisualAcuity() { return 0; }
+	public float getSpeed() { return 0; }
+	public WorldDirection[] getAllowedMovements() { return new WorldDirection[0]; }
 	
 	@Nullable
 	public abstract IRenderable getGraphic();
-	
-	public abstract float getVisibilityFactor();
-	public abstract float getViewDistance();
-	public abstract float getFieldOfView();
-	public abstract float getVisualAcuity();
-
-	public abstract float getSpeed();
 
 	public abstract int getTileWidth();
 	public abstract int getTileHeight();
-
-	public abstract WorldDirection[] getAllowedMovements();
-
-	private final class RenderTile implements IRenderable
-	{
-		private final Vector2D m_location;
-
-		private final IRenderable m_renderable;
-
-		private final boolean m_isYAxis;
-
-		public RenderTile(boolean isYAxis, IRenderable renderable, Vector2D location)
-		{
-			m_isYAxis = isYAxis;
-			m_renderable = renderable;
-			m_location = location;
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see io.github.jeremywildsmith.jevaengine.graphics.IRenderable#render(java.awt.Graphics2D, int, int,
-		 * float)
-		 */
-		@Override
-		public void render(Graphics2D g, int x, int y, float fScale)
-		{
-			Matrix2X2 worldMat = getWorld().getPerspectiveMatrix(fScale);
-
-			// Get tile width...
-			Vector2F v = worldMat.dot(new Vector2F(1, -1));
-
-			Vector2F renderv = worldMat.dot(new Vector2F(m_location.x, m_location.y));
-
-			if (x - (m_isYAxis ? 0 : v.x / 2) + (m_isYAxis ? v.x / 2 : v.x) > 0)
-			{
-				Shape lastClip = g.getClip();
-
-				g.clipRect(x - (m_isYAxis ? 0 : (int) v.x / 2), 0, (int) (m_isYAxis ? v.x / 2 : v.x), Integer.MAX_VALUE);
-
-				m_renderable.render(g, (int) (x + renderv.x), (int) (y + renderv.y), fScale);
-
-				g.setClip(lastClip);
-			}
-		}
-	}
 
 	private class ActorScript
 	{

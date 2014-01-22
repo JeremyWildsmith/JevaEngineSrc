@@ -21,6 +21,7 @@ import io.github.jevaengine.game.ICamera;
 import io.github.jevaengine.joystick.InputManager.InputMouseEvent;
 import io.github.jevaengine.joystick.InputManager.InputMouseEvent.EventType;
 import io.github.jevaengine.joystick.InputManager.InputMouseEvent.MouseButton;
+import io.github.jevaengine.math.Rect2D;
 import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.math.Vector2F;
 import io.github.jevaengine.util.Nullable;
@@ -127,7 +128,11 @@ public final class WorldView extends Panel
 			
 			Shape oldClip = g.getClip();
 			g.clipRect(x, y, getBounds().width, getBounds().height);
-			world.render(g, scale * m_camera.getScale(), new Rectangle(offset.x, offset.y, bounds.width, bounds.height), getAbsoluteLocation().x, getAbsoluteLocation().y);// bounds.width,																																		// bounds.height));
+			
+			world.render(g, scale * m_camera.getScale(), 
+							new Rect2D(offset.x, offset.y, bounds.width, bounds.height), 
+							getAbsoluteLocation().x, getAbsoluteLocation().y);
+			
 			g.setClip(oldClip);
 		}
 		

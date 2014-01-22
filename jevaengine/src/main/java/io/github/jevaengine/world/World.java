@@ -494,7 +494,7 @@ public final class World implements IDisposable
 		return null;
 	}
 	
-	public void render(Graphics2D g, float fScale, Rectangle viewBounds, int x, int y)
+	public void render(Graphics2D g, float fScale, Rect2D viewBounds, int x, int y)
 	{
 		clearQueue();
 		
@@ -503,12 +503,12 @@ public final class World implements IDisposable
 		Vector2D blWorldBounds = translateScreenToWorld(new Vector2D(-viewBounds.x, -viewBounds.y + viewBounds.height), fScale).round();
 		Vector2D brWorldBounds = translateScreenToWorld(new Vector2D(-viewBounds.x + viewBounds.width, -viewBounds.y + viewBounds.height), fScale).round();
 
-		Rectangle worldViewBounds = new Rectangle(tlWorldBounds.x, trWorldBounds.y, brWorldBounds.x - tlWorldBounds.x, blWorldBounds.y - trWorldBounds.y);
+		Rect2D worldViewBounds = new Rect2D(tlWorldBounds.x, trWorldBounds.y, brWorldBounds.x - tlWorldBounds.x, blWorldBounds.y - trWorldBounds.y);
 
 		for (int i = 0; i < m_layers.size(); i++)
 		{
 			setRenderQueueLayerDepth(i);
-			m_layers.get(i).enqueueRender(this, worldViewBounds);
+			m_layers.get(i).enqueueRender(worldViewBounds);
 		}
 
 		setRenderQueueLayerDepth(m_entityLayer);
@@ -829,7 +829,6 @@ public final class World implements IDisposable
 				}
 				
 				target.addChild("visiblity").setValue(this.visibility);
-				target.addChild("allowRenderSplitting").setValue(this.allowRenderSplitting);
 				target.addChild("isTraversable").setValue(this.isTraversable);
 				target.addChild("isStatic").setValue(this.isStatic);
 			}
@@ -848,7 +847,6 @@ public final class World implements IDisposable
 				}
 				
 				this.visibility = source.getChild("visiblity").getValue(Double.class).floatValue();
-				this.allowRenderSplitting = source.getChild("allowRenderSplitting").getValue(Boolean.class);
 				this.isTraversable = source.getChild("isTraversable").getValue(Boolean.class);
 				this.isStatic = source.getChild("isStatic").getValue(Boolean.class);
 			}

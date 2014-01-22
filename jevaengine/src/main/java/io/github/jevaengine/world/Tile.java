@@ -18,8 +18,6 @@ package io.github.jevaengine.world;
 
 import io.github.jevaengine.graphics.IRenderable;
 import io.github.jevaengine.graphics.Sprite;
-import io.github.jevaengine.math.Rect2F;
-import io.github.jevaengine.math.Vector2F;
 import io.github.jevaengine.util.Nullable;
 import io.github.jevaengine.world.EffectMap.TileEffects;
 
@@ -29,22 +27,19 @@ public final class Tile extends Actor
 	private Sprite m_sprite;
 
 	private boolean m_isTraversable;
-
-	private boolean m_enableSplitting;
 	
 	private float m_visiblityObstruction;
 
-	public Tile(@Nullable Sprite sprite, boolean isTraversable, boolean enableSplitting, float fVisibilityObstruction)
+	public Tile(@Nullable Sprite sprite, boolean isTraversable, float fVisibilityObstruction)
 	{
 		m_sprite = sprite;
 		m_isTraversable = isTraversable;
-		m_enableSplitting = enableSplitting;
 		m_visiblityObstruction = fVisibilityObstruction;
 	}
 	
-	public Tile(boolean isTraversable, boolean enableSplitting, float fVisibilityObstruction)
+	public Tile(boolean isTraversable, float fVisibilityObstruction)
 	{
-		this(null, isTraversable, enableSplitting, fVisibilityObstruction);
+		this(null, isTraversable, fVisibilityObstruction);
 	}
 
 	public Sprite getSprite()
@@ -70,27 +65,13 @@ public final class Tile extends Actor
 	@Override
 	public int getTileWidth()
 	{
-		if(m_sprite == null)
-			return 0;
-		else if (!m_enableSplitting)
-			return 1;
-
-		// get tile width
-		Vector2F v = getWorld().getPerspectiveMatrix(1.0F).dot(new Vector2F(1, -1));
-		return (int) (Math.ceil((m_sprite.getBounds().width) / v.x));
+		return 1;
 	}
 
 	@Override
 	public int getTileHeight()
 	{
-		if(m_sprite == null)
-			return 0;
-		else if (!m_enableSplitting)
-			return 1;
-
-		// get tile height
-		Vector2F v = getWorld().getPerspectiveMatrix(1.0F).dot(new Vector2F(0, 2));
-		return (int) (Math.ceil((m_sprite.getBounds().height) / v.y));
+		return 1;
 	}
 
 	@Override
@@ -140,12 +121,6 @@ public final class Tile extends Actor
 	{
 		return new WorldDirection[]
 		{ WorldDirection.Zero };
-	}
-	
-	@Override
-	public Rect2F getGraphicBounds(float scale)
-	{
-		return m_sprite.getBounds(scale);
 	}
 	
 	@Override
