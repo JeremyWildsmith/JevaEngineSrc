@@ -33,6 +33,8 @@ import java.awt.event.ActionListener;
 
 import javax.media.opengl.GL2;
 import javax.media.opengl.GLAutoDrawable;
+import javax.media.opengl.GLCapabilities;
+import javax.media.opengl.GLProfile;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.Timer;
@@ -228,9 +230,26 @@ public abstract class Game implements IDisposable
 
 		public CustomGLG2DCanvas(JComponent surface)
 		{
-			super(surface);
+		    
+			super(getCapabilities(), surface);
 		}
 
+		private static GLCapabilities getCapabilities()
+		{
+		    GLCapabilities caps = new GLCapabilities(GLProfile.getGL2GL3());
+		    caps.setRedBits(8);
+		    caps.setGreenBits(8);
+		    caps.setBlueBits(8);
+		    caps.setAlphaBits(8);
+		    caps.setDoubleBuffered(true);
+		    caps.setHardwareAccelerated(true);
+		    caps.setNumSamples(4);
+		    caps.setBackgroundOpaque(false);
+		    caps.setSampleBuffers(true);
+		    
+		    return caps;
+		}
+		
 		@Override
 		protected GLG2DSimpleEventListener createG2DListener(JComponent drawingComponent)
 		{	
