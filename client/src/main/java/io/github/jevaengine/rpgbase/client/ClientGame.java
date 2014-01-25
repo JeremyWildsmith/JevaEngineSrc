@@ -14,13 +14,12 @@ package io.github.jevaengine.rpgbase.client;
 
 import io.github.jevaengine.Core;
 import io.github.jevaengine.ResourceLibrary;
-import io.github.jevaengine.config.ISerializable;
 import io.github.jevaengine.config.IImmutableVariable;
+import io.github.jevaengine.config.ISerializable;
 import io.github.jevaengine.config.IVariable;
 import io.github.jevaengine.game.IGameScriptProvider;
 import io.github.jevaengine.graphics.AnimationState;
 import io.github.jevaengine.graphics.Sprite;
-import io.github.jevaengine.joystick.InputManager.InputMouseEvent;
 import io.github.jevaengine.rpgbase.RpgCharacter;
 import io.github.jevaengine.rpgbase.RpgGame;
 import io.github.jevaengine.ui.UIStyle;
@@ -54,7 +53,7 @@ public class ClientGame extends RpgGame
 		m_cursor = Sprite.create(library.openConfiguration("ui/tech/cursor/cursor.jsf"));
 		m_cursor.setAnimation("idle", AnimationState.Play);
 		
-		setState(new LoginState());
+		setState(new LoginState(m_style));
 	}
 
 	public ClientCommunicator getCommunicator()
@@ -101,18 +100,7 @@ public class ClientGame extends RpgGame
 	{
 		return new ClientGameScriptProvider();
 	}
-
-	@Override
-	public void mouseButtonStateChanged(InputMouseEvent e)
-	{
-	}
-
-	@Override
-	public UIStyle getGameStyle()
-	{
-		return m_style;
-	}
-
+	
 	@Override
 	protected Sprite getCursor()
 	{

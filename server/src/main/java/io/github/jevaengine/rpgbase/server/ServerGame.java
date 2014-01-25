@@ -19,29 +19,24 @@ import io.github.jevaengine.communication.InvalidMessageException;
 import io.github.jevaengine.communication.PolicyViolationException;
 import io.github.jevaengine.communication.ShareEntityException;
 import io.github.jevaengine.communication.tcp.RemoteSocketCommunicator;
-import io.github.jevaengine.config.ISerializable;
 import io.github.jevaengine.config.IImmutableVariable;
+import io.github.jevaengine.config.ISerializable;
 import io.github.jevaengine.config.IVariable;
 import io.github.jevaengine.game.IGameScriptProvider;
 import io.github.jevaengine.graphics.AnimationState;
 import io.github.jevaengine.graphics.Sprite;
-import io.github.jevaengine.ui.CommandMenu;
-import io.github.jevaengine.ui.IWindowManager;
-import io.github.jevaengine.ui.UIStyle;
-import io.github.jevaengine.joystick.InputManager.InputKeyEvent;
-import io.github.jevaengine.joystick.InputManager.InputMouseEvent;
-import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.math.Vector2F;
 import io.github.jevaengine.rpgbase.RpgCharacter;
 import io.github.jevaengine.rpgbase.RpgGame;
 import io.github.jevaengine.rpgbase.netcommon.NetUser.UserCredentials;
 import io.github.jevaengine.rpgbase.server.ServerUser.IUserHandler;
 import io.github.jevaengine.rpgbase.server.ui.WorldViewWindow;
+import io.github.jevaengine.ui.UIStyle;
 import io.github.jevaengine.util.Nullable;
 import io.github.jevaengine.util.StaticSet;
 import io.github.jevaengine.world.Entity;
-import io.github.jevaengine.world.World;
 import io.github.jevaengine.world.Entity.IEntityObserver;
+import io.github.jevaengine.world.World;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -59,7 +54,6 @@ public class ServerGame extends RpgGame implements IDisposable
 	private final StaticSet<RemoteClient> m_clients = new StaticSet<RemoteClient>();
 	private final StaticSet<ServerWorld> m_worlds = new StaticSet<ServerWorld>();
 	
-	private CommandMenu m_commandMenu;
 	private ServerListener m_listener;
 	
 	private ServerConfiguration m_config;
@@ -78,11 +72,6 @@ public class ServerGame extends RpgGame implements IDisposable
 		m_style = UIStyle.create(library.openConfiguration("ui/game.juis"));
 		m_cursor = Sprite.create(library.openConfiguration("ui/tech/cursor/cursor.jsf"));
 		m_cursor.setAnimation("idle", AnimationState.Play);
-		
-		m_commandMenu = new CommandMenu(m_style, 660, 125);
-		m_commandMenu.setLocation(new Vector2D(10, 10));
-
-		Core.getService(IWindowManager.class).addWindow(m_commandMenu);
 
 		ServerSocket serverSocket;
 		try
@@ -105,7 +94,7 @@ public class ServerGame extends RpgGame implements IDisposable
 
 	private void openWorldViewWindow(World world)
 	{
-		Core.getService(IWindowManager.class).addWindow(new WorldViewWindow(world));
+		getWindowManager().addWindow(new WorldViewWindow(m_style, world));
 	}
 
 	public ServerWorld getServerWorld(String worldName)
@@ -179,21 +168,6 @@ public class ServerGame extends RpgGame implements IDisposable
 			}
 
 			super.update(deltaTime);
-		}
-	}
-
-	@Override
-	public void keyUp(InputKeyEvent e)
-	{
-		super.keyUp(e);
-
-		if (e.isConsumed)
-			return;
-
-		if (e.keyChar == '`')
-		{
-			m_commandMenu.setVisible(!m_commandMenu.isVisible());
-			e.isConsumed = true;
 		}
 	}
 
@@ -325,18 +299,7 @@ public class ServerGame extends RpgGame implements IDisposable
 	{
 		return new ServerGameScriptProvider();
 	}
-
-	@Override
-	public void mouseButtonStateChanged(InputMouseEvent e)
-	{
-	}
-
-	@Override
-	public UIStyle getGameStyle()
-	{
-		return m_style;
-	}
-
+	
 	@Override
 	protected Sprite getCursor()
 	{

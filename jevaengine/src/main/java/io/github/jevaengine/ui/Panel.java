@@ -13,17 +13,17 @@
  */
 package io.github.jevaengine.ui;
 
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
-
 import io.github.jevaengine.graphics.AnimationState;
 import io.github.jevaengine.graphics.Sprite;
 import io.github.jevaengine.joystick.InputManager.InputKeyEvent;
 import io.github.jevaengine.joystick.InputManager.InputMouseEvent;
 import io.github.jevaengine.joystick.InputManager.InputMouseEvent.EventType;
+import io.github.jevaengine.math.Rect2D;
 import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.util.Nullable;
 import io.github.jevaengine.util.StaticSet;
+
+import java.awt.Graphics2D;
 
 public abstract class Panel extends Control
 {
@@ -200,7 +200,7 @@ public abstract class Panel extends Control
 				if (control.isVisible())
 				{
 					Vector2D relativeLocation = mouseEvent.location.difference(control.getAbsoluteLocation());
-					boolean isInBounds = control.getBounds().contains(relativeLocation.x, relativeLocation.y);
+					boolean isInBounds = control.getBounds().contains(relativeLocation);
 
 					if (isInBounds)
 					{
@@ -268,9 +268,9 @@ public abstract class Panel extends Control
 	 * @see io.github.jeremywildsmith.jevaengine.graphics.ui.Control#getBounds()
 	 */
 	@Override
-	public Rectangle getBounds()
+	public Rect2D getBounds()
 	{
-		return new Rectangle(0, 0, m_width, m_height);
+		return new Rect2D(0, 0, m_width, m_height);
 	}
 
 	public void setWidth(int width)

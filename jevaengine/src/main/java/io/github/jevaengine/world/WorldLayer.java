@@ -93,16 +93,28 @@ public class WorldLayer implements IDisposable
 		if(layerDecl.background != null)
 		{
 			Graphic backgroundTexture = Graphic.create(layerDecl.background.texture);
-			Graphic backgroundMap = Graphic.create(layerDecl.background.colorMap);
 			
-			for(SortedGraphic graphic : layerDecl.background.graphics)
+			if(layerDecl.background.colorMap != null)
 			{
-				Vector2F graphicLocation = world.translateScreenToWorld(graphic.origin, 1.0F).add(layerDecl.background.location);
+				Graphic backgroundMap = Graphic.create(layerDecl.background.colorMap);
 				
-				BackgroundGraphic actor = new BackgroundGraphic(backgroundTexture, backgroundMap, graphic);
+				for(SortedGraphic graphic : layerDecl.background.graphics)
+				{
+					Vector2F graphicLocation = world.translateScreenToWorld(graphic.origin, 1.0F).add(layerDecl.background.location);
+					
+					BackgroundGraphic actor = new BackgroundGraphic(backgroundTexture, backgroundMap, graphic);
+					
+					actor.associate(world);
+					actor.setLocation(graphicLocation);
+					
+					layer.add(actor, true);
+				}
+			}else
+			{
+				BackgroundGraphic actor = new BackgroundGraphic(backgroundTexture);
 				
 				actor.associate(world);
-				actor.setLocation(graphicLocation);
+				actor.setLocation(layerDecl.background.location);
 				
 				layer.add(actor, true);
 			}
@@ -213,17 +225,27 @@ public class WorldLayer implements IDisposable
 	private static class BackgroundGraphic extends Actor
 	{
 		private Graphic m_background;
+		
+		@Nullable
 		private Graphic m_colorMap;
+		
+		@Nullable
 		private SortedGraphic m_graphic;
+		
 		private GraphicRenderer m_renderer;
 		
-		public BackgroundGraphic(Graphic background, Graphic colorMap, SortedGraphic graphic)
+		public BackgroundGraphic(Graphic background, @Nullable Graphic colorMap, @Nullable  SortedGraphic graphic)
 		{
 			m_background = background;
 			m_colorMap = colorMap;
 			m_graphic = graphic;
 			
 			m_renderer = new GraphicRenderer();
+		}
+		
+		public BackgroundGraphic(Graphic background)
+		{
+			this(background, null, null);
 		}
 
 		@Override
@@ -239,8 +261,11 @@ public class WorldLayer implements IDisposable
 			{
 				if(m_background != null)
 				{
-					g.setRenderingHint(GraphicRenderHints.KEY_MODE, new GraphicRenderHints.ColorMap(m_colorMap, m_graphic.colorKey));
-					m_background.render(g, x - m_graphic.origin.x, y - m_graphic.origin.y, scale);
+					if(m_colorMap != null && m_graphic != null)
+						g.setRenderingHint(GraphicRenderHints.KEY_MODE, new GraphicRenderHints.ColorMap(m_colorMap, m_graphic.colorKey));
+					
+					Vector2D origin = m_graphic == null ? new Vector2D() : m_graphic.origin;
+					m_background.render(g, x - origin.x, y - origin.y, scale);
 				}
 			}
 		}
@@ -248,13 +273,19 @@ public class WorldLayer implements IDisposable
 		@Override
 		public int getTileWidth()
 		{
-			return m_graphic.tileWidth;
+			if(m_graphic == null)
+				return getWorld().getWidth();
+			else
+				return m_graphic.tileWidth;
 		}
 
 		@Override
 		public int getTileHeight()
 		{
-			return m_graphic.tileHeight;
+			if(m_graphic == null)
+				return getWorld().getHeight();
+			else
+				return m_graphic.tileHeight;
 		}
 	}
 	
@@ -356,11 +387,6 @@ public class WorldLayer implements IDisposable
 			y = location.y;
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see java.lang.Object#equals(java.lang.Object)
-		 */
 		@Override
 		public boolean equals(Object o)
 		{
@@ -549,9 +575,13 @@ public class WorldLayer implements IDisposable
 			@Override
 			public void serialize(IVariable target)
 			{
-				if(texture != null && texture.length() > 0 &&
-					colorMap != null && colorMap.length() > 0 &&
-					graphics != null && graphics.length > 0)
+				if(texture == null || texture.length() <= 0)
+					return;
+
+				target.addChild("texture").setValue(texture);
+				
+				if(colorMap != null && colorMap.length() > 0 &&
+				    graphics != null && graphics.length > 0)
 				{
 					target.addChild("texture").setValue(texture);
 					target.addChild("colorMap").setValue(colorMap);
@@ -563,14 +593,21 @@ public class WorldLayer implements IDisposable
 			@Override
 			public void deserialize(IImmutableVariable source)
 			{
-				if(source.childExists("texture") &&
-					source.childExists("colorMap") &&
+				if(!source.childExists("texture"))
+					return;
+				
+				texture = source.getChild("texture").getValue(String.class);
+				
+				if(source.childExists("colorMap") &&
 					source.childExists("graphics"))
 				{
-					texture = source.getChild("texture").getValue(String.class);
 					colorMap = source.getChild("colorMap").getValue(String.class);
 					location = source.getChild("location").getValue(Vector2F.class);
 					graphics = source.getChild("graphics").getValues(SortedGraphic[].class);
+				}else
+				{
+					colorMap = null;
+					graphics = new SortedGraphic[0];
 				}
 			}
 			

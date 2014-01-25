@@ -8,6 +8,7 @@ package io.github.jevaengine.rpgbase.demo;
 
 import io.github.jevaengine.rpgbase.DialogueController;
 import io.github.jevaengine.rpgbase.RpgCharacter;
+import io.github.jevaengine.ui.WindowManager;
 import io.github.jevaengine.util.Nullable;
 
 /**
@@ -18,5 +19,6 @@ public interface IStateContext
 {
 	void setState(IState state);
 	void setPlayer(@Nullable RpgCharacter player);
+	WindowManager getWindowManager();
 	DialogueController getDialogueController();
 }

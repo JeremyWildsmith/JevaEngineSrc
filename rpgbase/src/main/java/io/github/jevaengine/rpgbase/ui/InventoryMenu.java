@@ -12,14 +12,6 @@
  ******************************************************************************/
 package io.github.jevaengine.rpgbase.ui;
 
-import io.github.jevaengine.Core;
-import io.github.jevaengine.game.Game;
-import io.github.jevaengine.ui.Button;
-import io.github.jevaengine.ui.MenuStrip;
-import io.github.jevaengine.ui.Panel;
-import io.github.jevaengine.ui.UIStyle;
-import io.github.jevaengine.ui.Window;
-import io.github.jevaengine.ui.MenuStrip.IMenuStripListener;
 import io.github.jevaengine.joystick.InputManager.InputKeyEvent;
 import io.github.jevaengine.joystick.InputManager.InputMouseEvent;
 import io.github.jevaengine.joystick.InputManager.InputMouseEvent.EventType;
@@ -28,6 +20,12 @@ import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.rpgbase.IItemStore;
 import io.github.jevaengine.rpgbase.ItemSlot;
 import io.github.jevaengine.rpgbase.RpgCharacter;
+import io.github.jevaengine.ui.Button;
+import io.github.jevaengine.ui.MenuStrip;
+import io.github.jevaengine.ui.MenuStrip.IMenuStripListener;
+import io.github.jevaengine.ui.Panel;
+import io.github.jevaengine.ui.UIStyle;
+import io.github.jevaengine.ui.Window;
 
 import java.awt.Graphics2D;
 import java.lang.ref.WeakReference;
@@ -46,11 +44,6 @@ public class InventoryMenu extends Window
 		m_accessor = new WeakReference<RpgCharacter>(null);
 
 		m_menuStrip = new MenuStrip();
-	}
-
-	public InventoryMenu()
-	{
-		this(Core.getService(Game.class).getGameStyle());
 	}
 
 	public void accessInventory(IItemStore host, RpgCharacter accessor)

@@ -18,18 +18,18 @@ import io.github.jevaengine.communication.tcp.RemoteSocketCommunicator;
 import io.github.jevaengine.game.ControlledCamera;
 import io.github.jevaengine.game.Game;
 import io.github.jevaengine.graphics.IRenderable;
+import io.github.jevaengine.math.Vector2D;
+import io.github.jevaengine.math.Vector2F;
+import io.github.jevaengine.rpgbase.client.ClientGame.ClientConfiguration;
+import io.github.jevaengine.rpgbase.netcommon.NetUser.UserCredentials;
 import io.github.jevaengine.ui.Button;
-import io.github.jevaengine.ui.IWindowManager;
 import io.github.jevaengine.ui.Label;
 import io.github.jevaengine.ui.TextArea;
 import io.github.jevaengine.ui.UIStyle;
 import io.github.jevaengine.ui.Viewport;
 import io.github.jevaengine.ui.Window;
+import io.github.jevaengine.ui.WindowManager;
 import io.github.jevaengine.ui.WorldView;
-import io.github.jevaengine.math.Vector2D;
-import io.github.jevaengine.math.Vector2F;
-import io.github.jevaengine.rpgbase.client.ClientGame.ClientConfiguration;
-import io.github.jevaengine.rpgbase.netcommon.NetUser.UserCredentials;
 import io.github.jevaengine.world.World;
 
 import java.awt.Color;
@@ -58,16 +58,14 @@ public final class LoginState implements IGameState
 
 	private World m_menuWorld;
 
-	public LoginState()
+	public LoginState(final UIStyle style)
 	{
-		this("Test");
+		this(style, "Test");
 	}
 
-	public LoginState(String userMessage)
+	public LoginState(final UIStyle style, String userMessage)
 	{
 		//m_backgroundMusic = new Audio("audio/da/da.ogg");
-
-		final UIStyle style = Core.getService(Game.class).getGameStyle();
 		
 		m_loginWindow = new Window(style, 500, 400);
 		m_loginWindow.setRenderBackground(false);
@@ -114,7 +112,7 @@ public final class LoginState implements IGameState
 					communicator.setUserCredentials(new UserCredentials(m_nickname.getText()));
 					communicator.bind(new RemoteSocketCommunicator(clientSocket));
 
-					m_context.setState(new LoadingState());
+					m_context.setState(new LoadingState(style));
 
 				} catch (IOException e)
 				{
@@ -179,9 +177,10 @@ public final class LoginState implements IGameState
 		m_context = context;
 		//m_backgroundMusic.repeat();
 
-		Core.getService(IWindowManager.class).addWindow(m_loginWindow);
-		Core.getService(IWindowManager.class).addWindow(m_overlayWindow);
-		Core.getService(IWindowManager.class).addWindow(m_worldViewWindow);
+		WindowManager windowManager = m_context.getWindowManager();
+		windowManager.addWindow(m_loginWindow);
+		windowManager.addWindow(m_overlayWindow);
+		windowManager.addWindow(m_worldViewWindow);
 	}
 
 	@Override
@@ -189,9 +188,10 @@ public final class LoginState implements IGameState
 	{
 		//m_backgroundMusic.stop();
 
-		Core.getService(IWindowManager.class).removeWindow(m_worldViewWindow);
-		Core.getService(IWindowManager.class).removeWindow(m_loginWindow);
-		Core.getService(IWindowManager.class).removeWindow(m_overlayWindow);
+		WindowManager windowManager = m_context.getWindowManager();
+		windowManager.removeWindow(m_worldViewWindow);
+		windowManager.removeWindow(m_loginWindow);
+		windowManager.removeWindow(m_overlayWindow);
 
 		m_menuWorld.dispose();
 		m_context = null;

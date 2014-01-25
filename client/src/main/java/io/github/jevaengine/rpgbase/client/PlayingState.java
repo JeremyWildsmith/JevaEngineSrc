@@ -12,9 +12,7 @@
  ******************************************************************************/
 package io.github.jevaengine.rpgbase.client;
 
-import io.github.jevaengine.Core;
 import io.github.jevaengine.game.FollowCamera;
-import io.github.jevaengine.game.Game;
 import io.github.jevaengine.joystick.InputManager.InputMouseEvent.MouseButton;
 import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.math.Vector2F;
@@ -25,12 +23,12 @@ import io.github.jevaengine.rpgbase.client.ui.ChatMenu;
 import io.github.jevaengine.rpgbase.ui.CharacterMenu;
 import io.github.jevaengine.rpgbase.ui.InventoryMenu;
 import io.github.jevaengine.ui.Button;
-import io.github.jevaengine.ui.IWindowManager;
 import io.github.jevaengine.ui.Label;
 import io.github.jevaengine.ui.MenuStrip;
 import io.github.jevaengine.ui.MenuStrip.IMenuStripListener;
 import io.github.jevaengine.ui.UIStyle;
 import io.github.jevaengine.ui.Window;
+import io.github.jevaengine.ui.WindowManager;
 import io.github.jevaengine.ui.WorldView;
 import io.github.jevaengine.ui.WorldView.IWorldViewListener;
 import io.github.jevaengine.util.Nullable;
@@ -61,17 +59,22 @@ public class PlayingState implements IGameState
 	private Window m_worldViewWindow;
 	private Window m_hud;
 	private ChatMenu m_chatMenu;
-	private InventoryMenu m_inventoryMenu = new InventoryMenu();
-	private CharacterMenu m_characterMenu = new CharacterMenu();
+	private InventoryMenu m_inventoryMenu;
+	private CharacterMenu m_characterMenu;
 
 	private MenuStrip m_contextStrip = new MenuStrip();
 	
 	private Label m_cursorActionLabel = new Label("", Color.yellow);
 	private WorldView m_worldView;
 
-	public PlayingState(String playerEntityName, ClientUser user, World world)
+	private UIStyle m_style;
+	
+	public PlayingState(final UIStyle style, String playerEntityName, ClientUser user, World world)
 	{
-		final UIStyle style = Core.getService(Game.class).getGameStyle();
+		m_style = style;
+		
+		m_inventoryMenu = new InventoryMenu(style);
+		m_characterMenu = new CharacterMenu(style);
 		
 		m_playerEntityName = playerEntityName;
 		m_user = user;
@@ -114,7 +117,7 @@ public class PlayingState implements IGameState
 		m_hud.setMovable(false);
 		m_hud.setVisible(false);
 
-		Vector2D resolution = Core.getService(Game.class).getResolution();
+		Vector2D resolution = m_context.getResolution();
 
 		m_playerCamera = new FollowCamera();
 
@@ -139,7 +142,7 @@ public class PlayingState implements IGameState
 
 		m_context = context;
 
-		final IWindowManager windowManager = Core.getService(IWindowManager.class);
+		final WindowManager windowManager = context.getWindowManager();
 
 		windowManager.addWindow(m_hud);
 		windowManager.addWindow(m_chatMenu);
@@ -166,7 +169,7 @@ public class PlayingState implements IGameState
 	@Override
 	public void leave()
 	{
-		final IWindowManager windowManager = Core.getService(IWindowManager.class);
+		final WindowManager windowManager = m_context.getWindowManager();
 
 		windowManager.removeWindow(m_hud);
 		windowManager.removeWindow(m_chatMenu);
@@ -303,13 +306,13 @@ public class PlayingState implements IGameState
 		@Override
 		public void unservedWorld()
 		{
-			m_context.setState(new LoadingState(m_user, m_playerEntityName));
+			m_context.setState(new LoadingState(m_style, m_user, m_playerEntityName));
 		}
 
 		@Override
 		public void disconnected(String cause)
 		{
-			m_context.setState(new LoginState(cause));
+			m_context.setState(new LoginState(m_style, cause));
 		}
 
 		// By the time we've reached this state, the player is fully

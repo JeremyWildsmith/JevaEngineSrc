@@ -12,12 +12,12 @@
  ******************************************************************************/
 package io.github.jevaengine.ui;
 
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
-
 import io.github.jevaengine.graphics.IRenderable;
 import io.github.jevaengine.joystick.InputManager.InputKeyEvent;
 import io.github.jevaengine.joystick.InputManager.InputMouseEvent;
+import io.github.jevaengine.math.Rect2D;
+
+import java.awt.Graphics2D;
 
 public class Viewport extends Panel
 {
@@ -53,7 +53,7 @@ public class Viewport extends Panel
 	 * @see io.github.jeremywildsmith.jevaengine.graphics.ui.Panel#getBounds()
 	 */
 	@Override
-	public Rectangle getBounds()
+	public Rect2D getBounds()
 	{
 		return super.getBounds();
 	}

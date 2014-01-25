@@ -12,14 +12,14 @@
  ******************************************************************************/
 package io.github.jevaengine.ui;
 
-import java.awt.Color;
-import java.awt.Rectangle;
-import java.awt.event.KeyEvent;
-
 import io.github.jevaengine.Script;
 import io.github.jevaengine.joystick.InputManager.InputKeyEvent;
 import io.github.jevaengine.joystick.InputManager.InputKeyEvent.EventType;
+import io.github.jevaengine.math.Rect2D;
 import io.github.jevaengine.math.Vector2D;
+
+import java.awt.Color;
+import java.awt.event.KeyEvent;
 
 public final class CommandMenu extends Window
 {
@@ -37,7 +37,7 @@ public final class CommandMenu extends Window
 		super(style, Math.max(100, width), Math.max(300, height));
 		this.setVisible(false);
 
-		Rectangle bounds = this.getBounds();
+		Rect2D bounds = this.getBounds();
 
 		m_commandOutArea = new TextArea(Color.green, (int) (bounds.width - 20), (int) (bounds.height - 210));
 		m_commandOutArea.setLocation(new Vector2D(10, 10));

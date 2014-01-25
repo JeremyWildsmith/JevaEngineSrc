@@ -14,15 +14,17 @@ package io.github.jevaengine.rpgbase;
 
 import io.github.jevaengine.Core;
 import io.github.jevaengine.ResourceLibrary;
-import java.util.HashMap;
-
 import io.github.jevaengine.game.Game;
 import io.github.jevaengine.game.IGameScriptProvider;
+import io.github.jevaengine.ui.WindowManager;
 import io.github.jevaengine.util.Nullable;
+
+import java.util.HashMap;
 
 public abstract class RpgGame extends Game
 {
 	private DialogueController m_dialogueController = new DialogueController();
+	private WindowManager m_windowManager = new WindowManager();
 	
 	@Override
 	protected void startup()
@@ -33,6 +35,7 @@ public abstract class RpgGame extends Game
 	public void update(int deltaTime)
 	{
 		super.update(deltaTime);
+		m_windowManager.update(deltaTime);
 		m_dialogueController.update(deltaTime);
 	}
 
@@ -47,6 +50,12 @@ public abstract class RpgGame extends Game
 		return new RpgGameScriptProvider();
 	}
 
+	@Override
+	public WindowManager getWindowManager()
+	{
+		return m_windowManager;
+	}
+	
 	public abstract @Nullable RpgCharacter getPlayer();
 
 	public class RpgGameScriptProvider implements IGameScriptProvider

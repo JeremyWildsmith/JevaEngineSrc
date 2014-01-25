@@ -9,14 +9,13 @@ package io.github.jevaengine.rpgbase.demo.demos;
 import io.github.jevaengine.Core;
 import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.game.ControlledCamera;
-import io.github.jevaengine.game.Game;
 import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.math.Vector2F;
 import io.github.jevaengine.rpgbase.demo.IState;
 import io.github.jevaengine.rpgbase.demo.IStateContext;
 import io.github.jevaengine.rpgbase.demo.MainMenu;
 import io.github.jevaengine.ui.Button;
-import io.github.jevaengine.ui.IWindowManager;
+import io.github.jevaengine.ui.UIStyle;
 import io.github.jevaengine.ui.Window;
 import io.github.jevaengine.ui.WorldView;
 import io.github.jevaengine.world.World;
@@ -33,11 +32,11 @@ public class Demo0 implements IState
 	private World m_world;
 	private Window m_window;
 	
-	public Demo0()
+	public Demo0(final UIStyle style)
 	{
 		m_world = World.create(Core.getService(ResourceLibrary.class).openConfiguration(DEMO_MAP));
 
-		m_window = new Window(Core.getService(Game.class).getGameStyle(), 420, 500);
+		m_window = new Window(style, 420, 500);
 		m_window.setLocation(new Vector2D(100, 100));
 		
 		ControlledCamera camera = new ControlledCamera(new Vector2F(2.5F, 2.5F));
@@ -54,7 +53,7 @@ public class Demo0 implements IState
 			@Override
 			public void onButtonPress()
 			{
-				m_context.setState(new MainMenu());
+				m_context.setState(new MainMenu(style));
 			}
 		}, new Vector2D(10,10));
 	}
@@ -62,12 +61,12 @@ public class Demo0 implements IState
 	public void enter(IStateContext context)
 	{
 		m_context = context;
-		Core.getService(IWindowManager.class).addWindow(m_window);
+		context.getWindowManager().addWindow(m_window);
 	}
 
 	public void leave()
 	{
-		Core.getService(IWindowManager.class).removeWindow(m_window);
+		m_context.getWindowManager().removeWindow(m_window);
 	}
 
 	public void update(int iDelta)

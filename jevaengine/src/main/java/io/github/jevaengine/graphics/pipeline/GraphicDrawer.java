@@ -81,20 +81,19 @@ public final class GraphicDrawer extends AbstractImageHelper
 	@Override
 	protected void applyTexture(Texture texture, int dx1, int dy1, int dx2, int dy2, float sx1, float sy1, float sx2, float sy2)
 	{
-		m_glContext.glBegin(GL2.GL_QUADS);
+		m_glContext.glBegin(GL2.GL_TRIANGLE_STRIP);
 
-	    // SW
 		m_glContext.glTexCoord2f(sx1, sy2);
 		m_glContext.glVertex2i(dx1, dy2);
-	    // SE
+
 		m_glContext.glTexCoord2f(sx2, sy2);
 		m_glContext.glVertex2i(dx2, dy2);
-	    // NE
-		m_glContext.glTexCoord2f(sx2, sy1);
-		m_glContext.glVertex2i(dx2, dy1);
-	    // NW
+
 		m_glContext.glTexCoord2f(sx1, sy1);
 		m_glContext.glVertex2i(dx1, dy1);
+		
+		m_glContext.glTexCoord2f(sx2, sy1);
+		m_glContext.glVertex2i(dx2, dy1);
 
 		m_glContext.glEnd();
 	}

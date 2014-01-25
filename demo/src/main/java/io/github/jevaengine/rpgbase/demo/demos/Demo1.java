@@ -10,7 +10,6 @@ package io.github.jevaengine.rpgbase.demo.demos;
 import io.github.jevaengine.Core;
 import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.game.ControlledCamera;
-import io.github.jevaengine.game.Game;
 import io.github.jevaengine.joystick.InputManager.InputMouseEvent.MouseButton;
 import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.math.Vector2F;
@@ -19,7 +18,7 @@ import io.github.jevaengine.rpgbase.demo.IState;
 import io.github.jevaengine.rpgbase.demo.IStateContext;
 import io.github.jevaengine.rpgbase.demo.MainMenu;
 import io.github.jevaengine.ui.Button;
-import io.github.jevaengine.ui.IWindowManager;
+import io.github.jevaengine.ui.UIStyle;
 import io.github.jevaengine.ui.Window;
 import io.github.jevaengine.ui.WorldView;
 import io.github.jevaengine.ui.WorldView.IWorldViewListener;
@@ -42,7 +41,7 @@ public class Demo1 implements IState
 	
 	private RpgCharacter m_player;
 	
-	public Demo1()
+	public Demo1(final UIStyle style)
 	{
 		ResourceLibrary resourceLibrary = Core.getService(ResourceLibrary.class);
 		
@@ -52,7 +51,7 @@ public class Demo1 implements IState
 		m_player.setLocation(new Vector2F(4,4));
 		m_world.addEntity(m_player);
 		
-		m_window = new Window(Core.getService(Game.class).getGameStyle(), 420, 500);
+		m_window = new Window(style, 420, 500);
 		m_window.setLocation(new Vector2D(100, 100));
 		
 		ControlledCamera camera = new ControlledCamera(new Vector2F(2.5F, 2.5F));
@@ -71,7 +70,7 @@ public class Demo1 implements IState
 			@Override
 			public void onButtonPress()
 			{
-				m_context.setState(new MainMenu());
+				m_context.setState(new MainMenu(style));
 			}
 		}, new Vector2D(10,10));
 	}
@@ -80,13 +79,13 @@ public class Demo1 implements IState
 	{
 		m_context = context;
 		context.setPlayer(m_player);
-		Core.getService(IWindowManager.class).addWindow(m_window);
+		context.getWindowManager().addWindow(m_window);
 	}
 
 	public void leave()
 	{
 		m_context.setPlayer(null);
-		Core.getService(IWindowManager.class).removeWindow(m_window);
+		m_context.getWindowManager().removeWindow(m_window);
 	}
 
 	public void update(int iDelta)

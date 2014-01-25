@@ -13,10 +13,6 @@
 
 package io.github.jevaengine.ui;
 
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import java.awt.Shape;
-
 import io.github.jevaengine.game.ICamera;
 import io.github.jevaengine.joystick.InputManager.InputMouseEvent;
 import io.github.jevaengine.joystick.InputManager.InputMouseEvent.EventType;
@@ -30,6 +26,8 @@ import io.github.jevaengine.world.Actor;
 import io.github.jevaengine.world.World;
 
 import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Shape;
 
 public final class WorldView extends Panel
 {
@@ -120,7 +118,7 @@ public final class WorldView extends Panel
 		if (world != null)
 		{
 			Vector2D offset = getCameraOffset();
-			Rectangle bounds = getBounds();
+			Rect2D bounds = getBounds();
 
 			
 			g.setColor(Color.black);

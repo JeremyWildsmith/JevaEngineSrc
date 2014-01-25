@@ -12,15 +12,15 @@
  ******************************************************************************/
 package io.github.jevaengine.rpgbase.ui;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
-
 import io.github.jevaengine.graphics.IRenderable;
-import io.github.jevaengine.ui.Control;
 import io.github.jevaengine.joystick.InputManager.InputKeyEvent;
 import io.github.jevaengine.joystick.InputManager.InputMouseEvent;
+import io.github.jevaengine.math.Rect2D;
 import io.github.jevaengine.math.Vector2D;
+import io.github.jevaengine.ui.Control;
+
+import java.awt.Color;
+import java.awt.Graphics2D;
 
 public class StatisticGuage extends Control implements IRenderable
 {
@@ -66,9 +66,9 @@ public class StatisticGuage extends Control implements IRenderable
 	}
 
 	@Override
-	public Rectangle getBounds()
+	public Rect2D getBounds()
 	{
-		return new Rectangle(0, 0, m_width, m_height);
+		return new Rect2D(0, 0, m_width, m_height);
 	}
 
 	@Override

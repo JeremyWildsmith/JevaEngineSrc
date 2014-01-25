@@ -18,7 +18,6 @@ package io.github.jevaengine.ui;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
 
 import io.github.jevaengine.graphics.Font;
 import io.github.jevaengine.joystick.InputManager;
@@ -53,7 +52,7 @@ public class Label extends Control
 	 * @see io.github.jeremywildsmith.jevaengine.graphics.ui.Control#getBounds()
 	 */
 	@Override
-	public Rectangle getBounds()
+	public Rect2D getBounds()
 	{
 		Font font = getStyle().getFont(m_color);
 
@@ -64,7 +63,7 @@ public class Label extends Control
 		for (Rect2D rect : widths)
 			width += rect.width;
 
-		return new Rectangle(0, 0, width, font.getHeight());
+		return new Rect2D(0, 0, width, font.getHeight());
 	}
 
 	public void setColor(Color color)

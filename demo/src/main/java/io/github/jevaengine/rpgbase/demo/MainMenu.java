@@ -6,14 +6,12 @@
 
 package io.github.jevaengine.rpgbase.demo;
 
-import io.github.jevaengine.Core;
-import io.github.jevaengine.game.Game;
 import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.rpgbase.demo.demos.Demo0;
 import io.github.jevaengine.rpgbase.demo.demos.Demo1;
 import io.github.jevaengine.rpgbase.demo.demos.Demo2;
 import io.github.jevaengine.ui.Button;
-import io.github.jevaengine.ui.IWindowManager;
+import io.github.jevaengine.ui.UIStyle;
 import io.github.jevaengine.ui.Window;
 
 /**
@@ -25,9 +23,9 @@ public class MainMenu implements IState
 	private IStateContext m_context;
 	private Window m_demoSelection;
 	
-	public MainMenu()
+	public MainMenu(final UIStyle style)
 	{
-		m_demoSelection = new Window(Core.getService(Game.class).getGameStyle(), 300, 500);
+		m_demoSelection = new Window(style, 300, 500);
 		
 		m_demoSelection.setLocation(new Vector2D(100,100));
 		m_demoSelection.setMovable(false);
@@ -38,7 +36,7 @@ public class MainMenu implements IState
 			@Override
 			public void onButtonPress()
 			{
-				m_context.setState(new Demo0());
+				m_context.setState(new Demo0(style));
 			}
 		}, new Vector2D(20, 50));
 		
@@ -47,7 +45,7 @@ public class MainMenu implements IState
 			@Override
 			public void onButtonPress()
 			{
-				m_context.setState(new Demo1());
+				m_context.setState(new Demo1(style));
 			}
 		}, new Vector2D(20, 90));
 		
@@ -56,7 +54,7 @@ public class MainMenu implements IState
 			@Override
 			public void onButtonPress()
 			{
-				m_context.setState(new Demo2());
+				m_context.setState(new Demo2(style));
 			}
 		}, new Vector2D(20, 130));
 		
@@ -65,7 +63,7 @@ public class MainMenu implements IState
 			@Override
 			public void onButtonPress()
 			{
-				m_context.setState(new Credits());
+				m_context.setState(new Credits(style));
 			}
 		}, new Vector2D(20, 170));
 	}
@@ -73,12 +71,12 @@ public class MainMenu implements IState
 	public void enter(IStateContext context)
 	{
 		m_context = context;
-		Core.getService(IWindowManager.class).addWindow(m_demoSelection);
+		context.getWindowManager().addWindow(m_demoSelection);
 	}
 
 	public void leave()
 	{
-		Core.getService(IWindowManager.class).removeWindow(m_demoSelection);
+		m_context.getWindowManager().removeWindow(m_demoSelection);
 	}
 
 	public void update(int iDelta)

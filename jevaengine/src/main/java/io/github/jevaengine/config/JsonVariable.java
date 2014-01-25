@@ -209,11 +209,11 @@ public final class JsonVariable implements IVariable
 			JsonVariable value = ((Map<String, JsonVariable>)m_value).get(name);
 			
 			if(value == null)
-				throw new NoSuchElementException();
+				throw new NoSuchElementException(name);
 			
 			return value;
 		} else
-			throw new NoSuchElementException();
+			throw new NoSuchElementException(name);
 	}
 	
 	@Override

@@ -290,12 +290,6 @@ public final class RpgCharacter extends Actor
 		cancelTasks();
 		addTask(createMoveTask(destination, m_speed));
 	}
-	
-	public void loot(RpgCharacter target)
-	{
-		cancelTasks();
-		addTask(new LootTask(this, target.getInventory()));
-	}
 
 	public void attack(@Nullable RpgCharacter target)
 	{
@@ -702,14 +696,6 @@ public final class RpgCharacter extends Actor
 			RpgCharacter character = ((RpgCharacterBridge) entity).getEntity();
 
 			return character.m_allegiance.conflictsWith(((RpgCharacter) getEntity()).m_allegiance);
-		}
-		
-		public void loot(EntityBridge<?> entity)
-		{
-			if (!(entity instanceof RpgCharacterBridge))
-				return;
-			
-			getEntity().addTask(new LootTask(getEntity(), ((RpgCharacterBridge)entity).getEntity().getInventory()));
 		}
 				
 		public InventoryBridge getInventory()

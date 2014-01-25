@@ -13,23 +13,21 @@
 
 package io.github.jevaengine.rpgbase.server.ui;
 
-import io.github.jevaengine.Core;
 import io.github.jevaengine.game.ControlledCamera;
-import io.github.jevaengine.game.Game;
-import io.github.jevaengine.ui.Button;
-import io.github.jevaengine.ui.IWindowManager;
-import io.github.jevaengine.ui.Label;
-import io.github.jevaengine.ui.MenuStrip;
-import io.github.jevaengine.ui.Window;
-import io.github.jevaengine.ui.WorldView;
-import io.github.jevaengine.ui.MenuStrip.IMenuStripListener;
-import io.github.jevaengine.ui.WorldView.IWorldViewListener;
 import io.github.jevaengine.joystick.InputManager.InputKeyEvent;
 import io.github.jevaengine.joystick.InputManager.InputKeyEvent.EventType;
 import io.github.jevaengine.joystick.InputManager.InputMouseEvent;
 import io.github.jevaengine.joystick.InputManager.InputMouseEvent.MouseButton;
 import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.math.Vector2F;
+import io.github.jevaengine.ui.Button;
+import io.github.jevaengine.ui.Label;
+import io.github.jevaengine.ui.MenuStrip;
+import io.github.jevaengine.ui.MenuStrip.IMenuStripListener;
+import io.github.jevaengine.ui.UIStyle;
+import io.github.jevaengine.ui.Window;
+import io.github.jevaengine.ui.WorldView;
+import io.github.jevaengine.ui.WorldView.IWorldViewListener;
 import io.github.jevaengine.world.Actor;
 import io.github.jevaengine.world.IInteractable;
 import io.github.jevaengine.world.World;
@@ -49,9 +47,9 @@ public class WorldViewWindow extends Window
 	
 	private Vector2F m_cameraMovement = new Vector2F();
 	
-	public WorldViewWindow(World world)
+	public WorldViewWindow(UIStyle style, World world)
 	{
-		super(Core.getService(Game.class).getGameStyle(), 400, 400);
+		super(style, 400, 400);
 
 		m_camera.setZoom(.5F);
 		m_camera.attach(world);
@@ -69,7 +67,7 @@ public class WorldViewWindow extends Window
 			@Override
 			public void onButtonPress()
 			{
-				Core.getService(IWindowManager.class).removeWindow(WorldViewWindow.this);
+				WorldViewWindow.this.remove();
 			}
 		}, new Vector2D(2, 2));
 

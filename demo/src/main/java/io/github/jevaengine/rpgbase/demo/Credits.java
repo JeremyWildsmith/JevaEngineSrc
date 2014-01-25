@@ -6,13 +6,12 @@
 
 package io.github.jevaengine.rpgbase.demo;
 
-import io.github.jevaengine.Core;
-import io.github.jevaengine.game.Game;
 import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.ui.Button;
-import io.github.jevaengine.ui.IWindowManager;
 import io.github.jevaengine.ui.TextArea;
+import io.github.jevaengine.ui.UIStyle;
 import io.github.jevaengine.ui.Window;
+
 import java.awt.Color;
 
 /**
@@ -24,9 +23,9 @@ public class Credits implements IState
 	private IStateContext m_context;
 	private Window m_credits;
 	
-	public Credits()
+	public Credits(final UIStyle style)
 	{
-		m_credits = new Window(Core.getService(Game.class).getGameStyle(), 800, 500);
+		m_credits = new Window(style, 800, 500);
 		m_credits.setRenderBackground(false);
 		
 		m_credits.setLocation(new Vector2D(100,100));
@@ -37,7 +36,7 @@ public class Credits implements IState
 			@Override
 			public void onButtonPress()
 			{
-				m_context.setState(new MainMenu());
+				m_context.setState(new MainMenu(style));
 			}
 		}, new Vector2D(0, 00));
 		
@@ -56,12 +55,12 @@ public class Credits implements IState
 	public void enter(IStateContext context)
 	{
 		m_context = context;
-		Core.getService(IWindowManager.class).addWindow(m_credits);
+		context.getWindowManager().addWindow(m_credits);
 	}
 
 	public void leave()
 	{
-		Core.getService(IWindowManager.class).removeWindow(m_credits);
+		m_context.getWindowManager().removeWindow(m_credits);
 	}
 
 	public void update(int iDelta)

@@ -16,7 +16,6 @@ import io.github.jevaengine.CoreScriptException;
 import io.github.jevaengine.config.IImmutableVariable;
 import io.github.jevaengine.graphics.IRenderable;
 import io.github.jevaengine.math.Vector2D;
-import io.github.jevaengine.math.Vector2F;
 import io.github.jevaengine.util.Nullable;
 import io.github.jevaengine.world.EffectMap.TileEffects;
 
@@ -111,11 +110,10 @@ public abstract class Actor extends Entity implements IInteractable
 			throw new WorldAssociationException("Entity is not associated with world and can thus not be rendered.");
 
 		final IRenderable renderable = getGraphic();
-		final Vector2F worldLocation = getLocation();
 		
 		if (renderable != null)
 		{
-			getWorld().enqueueRender(renderable, Actor.this, worldLocation);
+			getWorld().enqueueRender(renderable, Actor.this, getLocation());
 		}
 	}
 	

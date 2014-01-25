@@ -12,33 +12,32 @@
  ******************************************************************************/
 package io.github.jevaengine.rpgbase.ui;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.lang.ref.WeakReference;
-
 import io.github.jevaengine.Core;
 import io.github.jevaengine.ResourceLibrary;
-import io.github.jevaengine.game.Game;
 import io.github.jevaengine.graphics.IRenderable;
 import io.github.jevaengine.graphics.ParticleEmitter;
 import io.github.jevaengine.graphics.Sprite;
-import io.github.jevaengine.ui.Button;
-import io.github.jevaengine.ui.Label;
-import io.github.jevaengine.ui.MenuStrip;
-import io.github.jevaengine.ui.Panel;
-import io.github.jevaengine.ui.UIStyle;
-import io.github.jevaengine.ui.Viewport;
-import io.github.jevaengine.ui.Window;
-import io.github.jevaengine.ui.MenuStrip.IMenuStripListener;
 import io.github.jevaengine.joystick.InputManager.InputKeyEvent;
 import io.github.jevaengine.joystick.InputManager.InputMouseEvent;
 import io.github.jevaengine.joystick.InputManager.InputMouseEvent.EventType;
 import io.github.jevaengine.joystick.InputManager.InputMouseEvent.MouseButton;
 import io.github.jevaengine.math.Vector2D;
-import io.github.jevaengine.rpgbase.RpgCharacter;
 import io.github.jevaengine.rpgbase.Item.ItemType;
 import io.github.jevaengine.rpgbase.ItemSlot;
 import io.github.jevaengine.rpgbase.Loadout;
+import io.github.jevaengine.rpgbase.RpgCharacter;
+import io.github.jevaengine.ui.Button;
+import io.github.jevaengine.ui.Label;
+import io.github.jevaengine.ui.MenuStrip;
+import io.github.jevaengine.ui.MenuStrip.IMenuStripListener;
+import io.github.jevaengine.ui.Panel;
+import io.github.jevaengine.ui.UIStyle;
+import io.github.jevaengine.ui.Viewport;
+import io.github.jevaengine.ui.Window;
+
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.lang.ref.WeakReference;
 
 public class CharacterMenu extends Window
 {
@@ -108,11 +107,6 @@ public class CharacterMenu extends Window
 		}, new Vector2D(95, 290));
 
 		m_target = new WeakReference<RpgCharacter>(null);
-	}
-
-	public CharacterMenu()
-	{
-		this(Core.getService(Game.class).getGameStyle());
 	}
 
 	public void showCharacter(RpgCharacter player)

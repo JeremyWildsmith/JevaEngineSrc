@@ -12,15 +12,13 @@
  ******************************************************************************/
 package io.github.jevaengine.rpgbase.client;
 
-import io.github.jevaengine.Core;
 import io.github.jevaengine.IDisposable;
-import io.github.jevaengine.game.Game;
-import io.github.jevaengine.ui.IWindowManager;
-import io.github.jevaengine.ui.Label;
-import io.github.jevaengine.ui.Window;
 import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.rpgbase.client.ClientCommunicator.IClientCommunicatorObserver;
 import io.github.jevaengine.rpgbase.client.ClientUser.IClientUserObserver;
+import io.github.jevaengine.ui.Label;
+import io.github.jevaengine.ui.UIStyle;
+import io.github.jevaengine.ui.Window;
 import io.github.jevaengine.util.Nullable;
 import io.github.jevaengine.world.World;
 
@@ -31,11 +29,15 @@ public class LoadingState implements IGameState
 	private Window m_connectingWindow;
 	private ClientGame m_context;
 
+	private UIStyle m_style;
+	
 	private EventHandler m_handler = new EventHandler();
 
-	public LoadingState(@Nullable ClientUser user, @Nullable String playerEntity, @Nullable World world)
+	public LoadingState(final UIStyle style, @Nullable ClientUser user, @Nullable String playerEntity, @Nullable World world)
 	{
-		m_connectingWindow = new Window(Core.getService(Game.class).getGameStyle(), 300, 50);
+		m_style = style;
+		
+		m_connectingWindow = new Window(style, 300, 50);
 		m_connectingWindow.setMovable(false);
 		m_connectingWindow.setRenderBackground(false);
 		m_connectingWindow.addControl(new Label("Loading - May take some time", Color.white));
@@ -44,14 +46,14 @@ public class LoadingState implements IGameState
 		m_handler = new EventHandler(user, playerEntity, world);
 	}
 
-	public LoadingState(@Nullable ClientUser user, @Nullable String playerEntity)
+	public LoadingState(final UIStyle style, @Nullable ClientUser user, @Nullable String playerEntity)
 	{
-		this(user, playerEntity, null);
+		this(style, user, playerEntity, null);
 	}
 
-	public LoadingState()
+	public LoadingState(final UIStyle style)
 	{
-		this(null, null, null);
+		this(style, null, null, null);
 	}
 
 	private void loadingCompleted(String playerEntityName, ClientUser user, World world)
@@ -59,7 +61,7 @@ public class LoadingState implements IGameState
 		m_context.getCommunicator().removeObserver(m_handler);
 		m_handler.dispose();
 
-		m_context.setState(new PlayingState(playerEntityName, user, world));
+		m_context.setState(new PlayingState(m_style, playerEntityName, user, world));
 	}
 
 	@Override
@@ -67,7 +69,7 @@ public class LoadingState implements IGameState
 	{
 		m_context = context;
 
-		Core.getService(IWindowManager.class).addWindow(m_connectingWindow);
+		m_context.getWindowManager().addWindow(m_connectingWindow);
 
 		m_context.getCommunicator().addObserver(m_handler);
 
@@ -77,7 +79,7 @@ public class LoadingState implements IGameState
 	@Override
 	public void leave()
 	{
-		Core.getService(IWindowManager.class).removeWindow(m_connectingWindow);
+		m_context.getWindowManager().removeWindow(m_connectingWindow);
 		m_context.getCommunicator().removeObserver(m_handler);
 		m_handler.dispose();
 		m_context = null;
@@ -133,7 +135,7 @@ public class LoadingState implements IGameState
 		@Override
 		public void disconnected(String cause)
 		{
-			m_context.setState(new LoginState(cause));
+			m_context.setState(new LoginState(m_style, cause));
 		}
 
 		@Override

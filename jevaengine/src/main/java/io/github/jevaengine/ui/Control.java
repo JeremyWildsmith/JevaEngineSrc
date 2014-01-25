@@ -16,10 +16,9 @@
  */
 package io.github.jevaengine.ui;
 
-import java.awt.Rectangle;
-
 import io.github.jevaengine.graphics.IRenderable;
 import io.github.jevaengine.joystick.InputManager;
+import io.github.jevaengine.math.Rect2D;
 import io.github.jevaengine.math.Vector2D;
 
 public abstract class Control implements IRenderable
@@ -113,7 +112,7 @@ public abstract class Control implements IRenderable
 
 	public abstract void onKeyEvent(InputManager.InputKeyEvent keyEvent);
 
-	public abstract Rectangle getBounds();
+	public abstract Rect2D getBounds();
 
 	public abstract void update(int deltaTime);
 }

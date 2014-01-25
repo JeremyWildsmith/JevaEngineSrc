@@ -14,11 +14,12 @@ package io.github.jevaengine.ui;
 
 public class Window extends Panel
 {
-
 	private boolean m_isMovable;
 
 	private boolean m_isFocusable;
 
+	private WindowManager m_manager;
+	
 	public Window(UIStyle style, int width, int height)
 	{
 		super(width, height);
@@ -46,5 +47,21 @@ public class Window extends Panel
 	public void setFocusable(boolean isFocusable)
 	{
 		m_isFocusable = isFocusable;
+	}
+	
+	public void remove()
+	{
+		if(m_manager != null)
+			m_manager.removeWindow(this);
+	}
+	
+	void setManager(WindowManager manager)
+	{
+		m_manager = manager;
+	}
+	
+	public WindowManager getManager()
+	{
+		return m_manager;
 	}
 }

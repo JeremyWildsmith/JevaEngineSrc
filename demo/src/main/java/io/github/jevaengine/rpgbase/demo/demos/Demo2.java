@@ -6,27 +6,26 @@
 
 package io.github.jevaengine.rpgbase.demo.demos;
 
-import io.github.jevaengine.rpgbase.demo.MainMenu;
-import io.github.jevaengine.rpgbase.demo.IStateContext;
-import io.github.jevaengine.rpgbase.demo.IState;
 import io.github.jevaengine.Core;
 import io.github.jevaengine.CoreScriptException;
 import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.game.FollowCamera;
-import io.github.jevaengine.game.Game;
 import io.github.jevaengine.joystick.InputManager.InputMouseEvent.MouseButton;
 import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.math.Vector2F;
 import io.github.jevaengine.rpgbase.DialogueController;
 import io.github.jevaengine.rpgbase.DialogueController.IDialogueControlObserver;
 import io.github.jevaengine.rpgbase.RpgCharacter;
+import io.github.jevaengine.rpgbase.demo.IState;
+import io.github.jevaengine.rpgbase.demo.IStateContext;
+import io.github.jevaengine.rpgbase.demo.MainMenu;
 import io.github.jevaengine.rpgbase.ui.CharacterMenu;
 import io.github.jevaengine.rpgbase.ui.InventoryMenu;
 import io.github.jevaengine.ui.Button;
-import io.github.jevaengine.ui.IWindowManager;
 import io.github.jevaengine.ui.Label;
 import io.github.jevaengine.ui.MenuStrip;
 import io.github.jevaengine.ui.TextArea;
+import io.github.jevaengine.ui.UIStyle;
 import io.github.jevaengine.ui.Window;
 import io.github.jevaengine.ui.WorldView;
 import io.github.jevaengine.ui.WorldView.IWorldViewListener;
@@ -59,26 +58,29 @@ public class Demo2 implements IState
 	private TextArea m_dialogue;
 	private final MenuStrip m_contextStrip = new MenuStrip();
 	private final Label m_cursorActionLabel = new Label("None", Color.yellow);
-	private final InventoryMenu m_inventoryMenu = new InventoryMenu();
-	private final CharacterMenu m_characterMenu = new CharacterMenu();
+	private final InventoryMenu m_inventoryMenu;
+	private final CharacterMenu m_characterMenu;
 	
 	private RpgCharacter m_player;
 	
-	public Demo2()
+	public Demo2(final UIStyle style)
 	{
+		m_inventoryMenu = new InventoryMenu(style);
+		m_characterMenu = new CharacterMenu(style);
+		
 		ResourceLibrary resourceLibrary = Core.getService(ResourceLibrary.class);
 		
 		m_world = World.create(resourceLibrary.openConfiguration(DEMO_MAP));
 
 		m_player = new RpgCharacter(resourceLibrary.openConfiguration(PLAYER));
-		m_player.setLocation(new Vector2F(2,2));
+		m_player.setLocation(new Vector2F(2,3));
 		m_world.addEntity(m_player);
 		
 		m_inventoryMenu.accessInventory(m_player.getInventory(), m_player);
 		m_characterMenu.showCharacter(m_player);
 		
-		m_window = new Window(Core.getService(Game.class).getGameStyle(), 710, 700);
-		m_window.setLocation(new Vector2D(157, 60));
+		m_window = new Window(style, 710, 700);
+		m_window.setLocation(new Vector2D(157, 120));
 		
 		/*
 		* Create the Camera we will be using to look at our world. The follow
@@ -128,7 +130,7 @@ public class Demo2 implements IState
 			@Override
 			public void onButtonPress()
 			{
-				m_context.setState(new MainMenu());
+				m_context.setState(new MainMenu(style));
 			}
 		}, new Vector2D(10,10));
 	}
@@ -141,16 +143,16 @@ public class Demo2 implements IState
 		
 		context.setPlayer(m_player);
 		context.getDialogueController().addObserver(m_dialogueObserver);
-		Core.getService(IWindowManager.class).addWindow(m_window);
-		Core.getService(IWindowManager.class).addWindow(m_characterMenu);
-		Core.getService(IWindowManager.class).addWindow(m_inventoryMenu);
+		context.getWindowManager().addWindow(m_window);
+		context.getWindowManager().addWindow(m_characterMenu);
+		context.getWindowManager().addWindow(m_inventoryMenu);
 	}
 
 	public void leave()
 	{
-		Core.getService(IWindowManager.class).removeWindow(m_window);
-		Core.getService(IWindowManager.class).removeWindow(m_characterMenu);
-		Core.getService(IWindowManager.class).removeWindow(m_inventoryMenu);
+		m_context.getWindowManager().removeWindow(m_window);
+		m_context.getWindowManager().removeWindow(m_characterMenu);
+		m_context.getWindowManager().removeWindow(m_inventoryMenu);
 		
 		m_dialogueController.removeObserver(m_dialogueObserver);
 		m_context.setPlayer(null);

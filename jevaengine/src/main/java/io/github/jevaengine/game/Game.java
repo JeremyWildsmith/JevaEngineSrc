@@ -12,7 +12,6 @@
  ******************************************************************************/
 package io.github.jevaengine.game;
 
-import io.github.jevaengine.Core;
 import io.github.jevaengine.IDisposable;
 import io.github.jevaengine.graphics.Sprite;
 import io.github.jevaengine.graphics.pipeline.ColorDrawer;
@@ -21,9 +20,9 @@ import io.github.jevaengine.graphics.pipeline.PrimitiveShader;
 import io.github.jevaengine.graphics.pipeline.ShapeDrawer;
 import io.github.jevaengine.joystick.IInputDeviceListener;
 import io.github.jevaengine.joystick.InputManager;
+import io.github.jevaengine.joystick.InputManager.InputMouseEvent;
 import io.github.jevaengine.math.Vector2D;
-import io.github.jevaengine.ui.IWindowManager;
-import io.github.jevaengine.ui.UIStyle;
+import io.github.jevaengine.ui.WindowManager;
 import io.github.jevaengine.util.Nullable;
 
 import java.awt.Color;
@@ -47,7 +46,7 @@ import org.jogamp.glg2d.GLGraphics2D;
 
 import com.jogamp.opengl.util.FPSAnimator;
 
-public abstract class Game implements IInputDeviceListener, IDisposable
+public abstract class Game implements IDisposable
 {
 	private @Nullable InputManager m_inputMan;
 
@@ -56,6 +55,8 @@ public abstract class Game implements IInputDeviceListener, IDisposable
 	private int m_renderWidth;
 
 	private int m_renderHeight;
+
+	private InputHandler m_inputHandler = new InputHandler();
 	
 	private IDisposable m_gameLoopDisposer;
 	
@@ -135,7 +136,7 @@ public abstract class Game implements IInputDeviceListener, IDisposable
 		g.setColor(Color.black);
 		g.fillRect(0, 0, m_renderWidth, m_renderHeight);
 
-		Core.getService(IWindowManager.class).render(g, 0, 0, 1.0F);
+		getWindowManager().render(g, 0, 0, 1.0F);
 
 		getCursor().render(g, m_cursorLocation.x, m_cursorLocation.y, 1.0F);
 
@@ -145,57 +146,58 @@ public abstract class Game implements IInputDeviceListener, IDisposable
 	protected void update(int deltaTime)
 	{
 		if(m_inputMan != null)
-			m_inputMan.process(this);
-
-		Core.getService(IWindowManager.class).update(deltaTime);
+			m_inputMan.process(m_inputHandler);
 	}
-	@Override
-	public void mouseMoved(InputManager.InputMouseEvent e)
+	
+	private class InputHandler implements IInputDeviceListener
 	{
-		m_cursorLocation = new Vector2D(e.location);
+		@Override
+		public void mouseMoved(InputManager.InputMouseEvent e)
+		{
+			m_cursorLocation = new Vector2D(e.location);
 
-		Core.getService(IWindowManager.class).onMouseEvent(e);
-	}
+			getWindowManager().onMouseEvent(e);
+		}
 
-	@Override
-	public void mouseClicked(InputManager.InputMouseEvent e)
-	{
-		Core.getService(IWindowManager.class).onMouseEvent(e);
-	}
+		@Override
+		public void mouseClicked(InputManager.InputMouseEvent e)
+		{
+			getWindowManager().onMouseEvent(e);
+		}
 
 
-	@Override
-	public void keyUp(InputManager.InputKeyEvent e)
-	{
-		Core.getService(IWindowManager.class).onKeyEvent(e);
-	}
+		@Override
+		public void keyUp(InputManager.InputKeyEvent e)
+		{
+			getWindowManager().onKeyEvent(e);
+		}
 
-	@Override
-	public void keyDown(InputManager.InputKeyEvent e)
-	{
-		Core.getService(IWindowManager.class).onKeyEvent(e);
-	}
+		@Override
+		public void keyDown(InputManager.InputKeyEvent e)
+		{
+			getWindowManager().onKeyEvent(e);
+		}
 
-	@Override
-	public void keyTyped(InputManager.InputKeyEvent e)
-	{
-		Core.getService(IWindowManager.class).onKeyEvent(e);
-	}
+		@Override
+		public void keyTyped(InputManager.InputKeyEvent e)
+		{
+			getWindowManager().onKeyEvent(e);
+		}
 
-	@Override
-	public void mouseWheelMoved(InputManager.InputMouseEvent e)
-	{
-		Core.getService(IWindowManager.class).onMouseEvent(e);
-	}
+		@Override
+		public void mouseWheelMoved(InputManager.InputMouseEvent e)
+		{
+			getWindowManager().onMouseEvent(e);
+		}
 
-	@Override
-	public void mouseLeft(InputManager.InputMouseEvent e)
-	{
-	}
+		@Override
+		public void mouseLeft(InputManager.InputMouseEvent e) { }
 
-	@Override
-	public void mouseEntered(InputManager.InputMouseEvent e)
-	{
+		@Override
+		public void mouseEntered(InputManager.InputMouseEvent e) { }
+
+		@Override
+		public void mouseButtonStateChanged(InputMouseEvent e) { }
 	}
 	
 	private class RenderSurface extends JComponent
@@ -271,10 +273,9 @@ public abstract class Game implements IInputDeviceListener, IDisposable
 		}
 	}
 
-	public abstract UIStyle getGameStyle();
-
 	public abstract IGameScriptProvider getScriptBridge();
 
+	public abstract WindowManager getWindowManager();
 	protected abstract void startup();
 
 	protected abstract Sprite getCursor();
