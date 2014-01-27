@@ -1,13 +1,5 @@
 package io.github.jevaengine.graphics.pipeline;
 
-import java.awt.Color;
-import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
-import java.util.Scanner;
-
-import javax.media.opengl.GL2;
-
 import io.github.jevaengine.IDisposable;
 import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.math.Vector2F;
@@ -16,6 +8,15 @@ import io.github.jevaengine.math.Vector3F;
 import io.github.jevaengine.math.Vector4D;
 import io.github.jevaengine.math.Vector4F;
 import io.github.jevaengine.util.Nullable;
+
+import java.awt.Color;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
+import java.util.Scanner;
+
+import javax.media.opengl.GL2;
+import javax.media.opengl.GL4;
 
 final class GraphicShader implements IDisposable
 {
@@ -33,7 +34,7 @@ final class GraphicShader implements IDisposable
 	private int m_lastProgram = 0;
 	
 	@Nullable
-	private GL2 m_glContext;
+	private GL4 m_glContext;
 	
 	public GraphicShader()
 	{
@@ -45,7 +46,7 @@ final class GraphicShader implements IDisposable
 		cleanup();
 	}
 	
-	private static void compileShader(GL2 glContext, int shader, String source)
+	private static void compileShader(GL4 glContext, int shader, String source)
 	{
 		IntBuffer intBuffer = IntBuffer.allocate(1);
 		
@@ -72,7 +73,7 @@ final class GraphicShader implements IDisposable
 		}
 	}
 	
-	private static void linkProgram(GL2 glContext, int program, int[] shaders)
+	private static void linkProgram(GL4 glContext, int program, int[] shaders)
 	{
 		for(int shader : shaders)
 			glContext.glAttachShader(program, shader);
@@ -209,7 +210,7 @@ final class GraphicShader implements IDisposable
 		m_isDirty = true;
 	}
 	
-	public void prepare(GL2 glContext)
+	public void prepare(GL4 glContext)
 	{
 		if(m_glContext != glContext)
 		{
@@ -224,7 +225,7 @@ final class GraphicShader implements IDisposable
 		}
 	}
 	
-	public void begin(GL2 glContext)
+	public void load(GL4 glContext)
 	{
 		if(m_isActive)
 			return;
@@ -239,7 +240,7 @@ final class GraphicShader implements IDisposable
 		m_isActive = true;
 	}
 	
-	public void end()
+	public void unload()
 	{
 		if(!m_isActive)
 			return;
@@ -250,7 +251,7 @@ final class GraphicShader implements IDisposable
 	
 	private int getUniformLocation(String name)
 	{
-		int location = m_glContext.glGetUniformLocationARB(m_program, name);
+		int location = m_glContext.glGetUniformLocation(m_program, name);
 		
 		if(location < 0)
 			throw new ShaderUniformNotFoundException(name);
@@ -319,6 +320,17 @@ final class GraphicShader implements IDisposable
 		int location = getUniformLocation(name);
 		
 		m_glContext.glUniform4f(location, (float)value.getRed()/255.0F, (float)value.getGreen()/255.0F, (float)value.getBlue()/255.0F, (float)value.getAlpha()/255.0F);
+	}
+	
+	public void setUniform4F4(String name, float[] values)
+	{
+		int location = getUniformLocation(name);
+		m_glContext.glUniformMatrix4fv(location, 1, false, values, 0);
+	}
+	
+	public void bindAttribute(int index, String name)
+	{
+		m_glContext.glBindAttribLocation(m_program, index, name);
 	}
 	
 	public static class ShaderException extends RuntimeException

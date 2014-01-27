@@ -14,13 +14,16 @@ package io.github.jevaengine.game;
 
 import io.github.jevaengine.IDisposable;
 import io.github.jevaengine.graphics.Sprite;
-import io.github.jevaengine.graphics.pipeline.ColorDrawer;
+import io.github.jevaengine.graphics.pipeline.ColorHelper;
+import io.github.jevaengine.graphics.pipeline.DrawBatcher;
 import io.github.jevaengine.graphics.pipeline.GraphicDrawer;
 import io.github.jevaengine.graphics.pipeline.PrimitiveShader;
 import io.github.jevaengine.graphics.pipeline.ShapeDrawer;
+import io.github.jevaengine.graphics.pipeline.TransformHelper;
 import io.github.jevaengine.joystick.IInputDeviceListener;
 import io.github.jevaengine.joystick.InputManager;
 import io.github.jevaengine.joystick.InputManager.InputMouseEvent;
+import io.github.jevaengine.math.Rect2D;
 import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.ui.WindowManager;
 import io.github.jevaengine.util.Nullable;
@@ -31,7 +34,6 @@ import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.media.opengl.GL2;
 import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.GLCapabilities;
 import javax.media.opengl.GLProfile;
@@ -44,6 +46,7 @@ import org.jogamp.glg2d.GLG2DColorHelper;
 import org.jogamp.glg2d.GLG2DImageHelper;
 import org.jogamp.glg2d.GLG2DShapeHelper;
 import org.jogamp.glg2d.GLG2DSimpleEventListener;
+import org.jogamp.glg2d.GLG2DTransformHelper;
 import org.jogamp.glg2d.GLGraphics2D;
 
 import com.jogamp.opengl.util.FPSAnimator;
@@ -230,13 +233,12 @@ public abstract class Game implements IDisposable
 
 		public CustomGLG2DCanvas(JComponent surface)
 		{
-		    
 			super(getCapabilities(), surface);
 		}
 
 		private static GLCapabilities getCapabilities()
 		{
-		    GLCapabilities caps = new GLCapabilities(GLProfile.getGL2GL3());
+		    GLCapabilities caps = new GLCapabilities(GLProfile.get(GLProfile.GL4));
 		    caps.setRedBits(8);
 		    caps.setGreenBits(8);
 		    caps.setBlueBits(8);
@@ -256,12 +258,22 @@ public abstract class Game implements IDisposable
 			return new GLG2DSimpleEventListener(drawingComponent)
 			{
 				private PrimitiveShader m_shader = new PrimitiveShader();
+				private DrawBatcher m_drawBatcher = new DrawBatcher(m_shader);
+				
+				@Override
+				protected void prePaint(GLAutoDrawable drawable)
+				{
+					m_shader.load(drawable.getGL().getGL4());
+					super.prePaint(drawable);
+				}
 				
 				@Override
 				protected void paintGL(GLGraphics2D g2d)
 				{
-					m_shader.begin((GL2)g2d.getGLContext().getGL());
+					m_drawBatcher.setG2D(g2d.getGLContext().getGL().getGL4());
+					m_shader.load(g2d.getGLContext().getGL().getGL4());
 					super.paintGL(g2d);
+					m_drawBatcher.flush();
 				}
 				
 				@Override
@@ -270,21 +282,40 @@ public abstract class Game implements IDisposable
 					return new GLGraphics2D()
 					{
 						@Override
+						protected void scissor(boolean enable)
+						{
+							if(!enable)
+							{
+								clip = null;
+								m_drawBatcher.setClip(null);
+							}else
+							{
+								m_drawBatcher.setClip(new Rect2D(clip.x, getCanvasHeight() - clip.y - clip.height, Math.max(clip.width, 0), Math.max(clip.height, 0)));
+							}
+						}
+						
+						@Override
 						protected GLG2DShapeHelper createShapeHelper()
 						{
-							return new ShapeDrawer(m_shader);
+							return new ShapeDrawer(m_shader, m_drawBatcher);
 						}
 						
 						@Override
 						protected GLG2DColorHelper createColorHelper()
 						{
-							return new ColorDrawer(m_shader);
+							return new ColorHelper(m_shader);
 						}
 						
 						@Override
 						protected GLG2DImageHelper createImageHelper()
 						{
-							return new GraphicDrawer(m_shader);
+							return new GraphicDrawer(m_shader, m_drawBatcher);
+						}
+						
+						@Override
+						protected GLG2DTransformHelper createTransformHelper()
+						{
+							return new TransformHelper(m_shader);
 						}
 					};
 				}

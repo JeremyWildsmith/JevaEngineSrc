@@ -192,9 +192,6 @@ public class CharacterMenu extends Window
 		@Override
 		public void render(Graphics2D g, int x, int y, float fScale)
 		{
-			g.setColor(Color.DARK_GRAY);
-			g.drawRect(x, y, 20, 20);
-
 			Sprite icon = m_gearType.getIcon();
 			
 			if(icon != null)

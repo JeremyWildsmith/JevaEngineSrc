@@ -1,12 +1,14 @@
 package io.github.jevaengine.graphics.pipeline;
 
 import io.github.jevaengine.graphics.pipeline.GraphicRenderHints.GraphicMode;
+import io.github.jevaengine.math.Rect2D;
+import io.github.jevaengine.math.Rect2F;
 
 import java.awt.Color;
 import java.awt.RenderingHints.Key;
 import java.awt.geom.AffineTransform;
 
-import javax.media.opengl.GL2;
+import javax.media.opengl.GL4;
 
 import org.jogamp.glg2d.GLGraphics2D;
 import org.jogamp.glg2d.impl.AbstractImageHelper;
@@ -15,16 +17,19 @@ import com.jogamp.opengl.util.texture.Texture;
 
 public final class GraphicDrawer extends AbstractImageHelper
 {
-	private GL2 m_glContext;
+	private GL4 m_glContext;
+	
 	private PrimitiveShader m_shader;
+	private DrawBatcher m_drawBatcher;
 	
 	private GraphicMode m_nextMode;
 
 	private AffineTransform m_lastTransform;
 	
-	public GraphicDrawer(PrimitiveShader shader)
+	public GraphicDrawer(PrimitiveShader shader, DrawBatcher drawBatcher)
 	{
 		m_shader = shader;
+		m_drawBatcher = drawBatcher;
 	}
 	
 	protected Texture getTexture(Graphic graphic)
@@ -36,11 +41,9 @@ public final class GraphicDrawer extends AbstractImageHelper
 	public void setG2D(GLGraphics2D g2d)
 	{
 		super.setG2D(g2d);
-
-		if(m_glContext != g2d && m_glContext != null)
-			m_shader.end();
-		
-		m_glContext = g2d.getGLContext().getGL().getGL2();
+		m_glContext = g2d.getGLContext().getGL().getGL4();
+		m_glContext.glEnable(GL4.GL_BLEND);
+		m_glContext.glBlendFunc(GL4.GL_SRC_ALPHA, GL4.GL_ONE_MINUS_SRC_ALPHA);
 	}
 	
 	@Override
@@ -53,22 +56,6 @@ public final class GraphicDrawer extends AbstractImageHelper
 	@Override
 	protected void begin(Texture texture, AffineTransform xform, Color bgcolor)
 	{
-		PrimitiveShader.PrimitiveMode mode;
-		
-		if(m_nextMode == null)
-			mode = new PrimitiveShader.PrimitiveTexture(texture);
-		else
-			mode = m_nextMode.create(this, texture, m_shader.getWorkingColor());
-
-		m_shader.setShaderConfiguration(mode);
-		
-		m_nextMode = null;
-
-		if(xform != null)
-		{
-			m_lastTransform = new AffineTransform(g2d.getTransform());
-			g2d.setTransform(xform);
-		}
 	}
 
 	@Override
@@ -76,25 +63,20 @@ public final class GraphicDrawer extends AbstractImageHelper
 	{
 		if(m_lastTransform != null)
 			g2d.setTransform(m_lastTransform);
+		
+		m_nextMode = null;
 	}
 
 	@Override
 	protected void applyTexture(Texture texture, int dx1, int dy1, int dx2, int dy2, float sx1, float sy1, float sx2, float sy2)
 	{
-		m_glContext.glBegin(GL2.GL_TRIANGLE_STRIP);
-
-		m_glContext.glTexCoord2f(sx1, sy2);
-		m_glContext.glVertex2i(dx1, dy2);
-
-		m_glContext.glTexCoord2f(sx2, sy2);
-		m_glContext.glVertex2i(dx2, dy2);
-
-		m_glContext.glTexCoord2f(sx1, sy1);
-		m_glContext.glVertex2i(dx1, dy1);
+		PrimitiveShader.PrimitiveMode mode;
 		
-		m_glContext.glTexCoord2f(sx2, sy1);
-		m_glContext.glVertex2i(dx2, dy1);
-
-		m_glContext.glEnd();
+		if(m_nextMode == null)
+			mode = new PrimitiveShader.PrimitiveTexture(texture);
+		else
+			mode = m_nextMode.create(this, texture, m_shader.getWorkingColor());
+		
+		m_drawBatcher.draw(mode, new Rect2D(dx1, dy1, dx2 - dx1, dy2 - dy1), new Rect2F(sx1, sy1, sx2 - sx1, sy2 - sy1));
 	}
 }

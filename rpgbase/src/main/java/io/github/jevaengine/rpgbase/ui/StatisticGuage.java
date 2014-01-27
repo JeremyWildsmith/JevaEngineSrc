@@ -59,9 +59,6 @@ public class StatisticGuage extends Control implements IRenderable
 		{
 			g.setColor(m_color);
 			g.fillRect(x - m_anchor.x, y - m_anchor.y, (int) (m_width * m_fValue), m_height);
-
-			g.setColor(Color.black);
-			g.drawRect(x - m_anchor.x, y - m_anchor.y, m_width, m_height);
 		}
 	}
 
@@ -72,20 +69,12 @@ public class StatisticGuage extends Control implements IRenderable
 	}
 
 	@Override
-	public void onMouseEvent(InputMouseEvent mouseEvent)
-	{
-	}
+	public void onMouseEvent(InputMouseEvent mouseEvent) { }
 
 	@Override
-	public void onKeyEvent(InputKeyEvent keyEvent)
-	{
-
-	}
+	public void onKeyEvent(InputKeyEvent keyEvent) { }
 
 	@Override
-	public void update(int deltaTime)
-	{
-
-	}
+	public void update(int deltaTime) { }
 
 }

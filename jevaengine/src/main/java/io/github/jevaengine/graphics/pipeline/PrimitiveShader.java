@@ -6,11 +6,11 @@ import io.github.jevaengine.util.Nullable;
 import java.awt.Color;
 
 import javax.media.opengl.GL;
-import javax.media.opengl.GL2;
+import javax.media.opengl.GL4;
 
 import com.jogamp.opengl.util.texture.Texture;
 
-public class PrimitiveShader implements IDisposable
+public final class PrimitiveShader implements IDisposable
 {
 	private static final String FRAGMENT_SHADER = "primitive.f";
 	private static final String VERTEX_SHADER = "primitive.v";
@@ -23,7 +23,10 @@ public class PrimitiveShader implements IDisposable
 	private PrimitiveMode m_lastMode;
 	
 	@Nullable
-	private GL2 m_glContext;
+	private GL4 m_glContext;
+	
+	private int m_vertexPositionAttribute = -1;
+	private int m_vertexTexCoordAttribute = -1;
 	
 	private enum ShaderMode
 	{
@@ -86,6 +89,34 @@ public class PrimitiveShader implements IDisposable
 		m_shader.setUniform1D("auxTexture", 1);
 	}
 	
+	void setProjection(float[] projection)
+	{
+		m_shader.setUniform4F4("projectionMatrix", projection);
+	}
+	
+	void setModelView(float[] modelView)
+	{
+		m_shader.setUniform4F4("modelViewMatrix", modelView);
+	}
+	
+	void bindVertexTexCoordAttribute(int index)
+	{
+		if(m_vertexTexCoordAttribute == index)
+			return;
+		
+		m_vertexTexCoordAttribute = index;
+		m_shader.bindAttribute(index, "vertexTexCoord");
+	}
+	
+	void bindVertexPositionAttribute(int index)
+	{
+		if(m_vertexPositionAttribute == index)
+			return;
+		
+		m_vertexPositionAttribute = index;
+		m_shader.bindAttribute(index, "vertexPosition");
+	}
+	
 	public void setWorkingColor(Color color)
 	{
 		m_workingColor = color;
@@ -96,15 +127,15 @@ public class PrimitiveShader implements IDisposable
 		return m_workingColor;
 	}
 	
-	public void begin(GL2 g)
+	public void load(GL4 g)
 	{
-		m_shader.begin(g);
+		m_shader.load(g);
 		m_glContext = g;
 	}
 	
-	public void end()
+	public void unload()
 	{
-		m_shader.end();
+		m_shader.unload();
 		m_glContext = null;
 	}
 	

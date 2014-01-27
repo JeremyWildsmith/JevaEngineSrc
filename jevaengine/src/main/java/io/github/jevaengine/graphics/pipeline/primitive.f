@@ -1,7 +1,9 @@
+#version 150
+
 #define FTOL 0.009
 
 //Normal
-#define MODE_NORMAL 0
+#define MODE_TEXTURE 0
 
 //Render fragments of srcTexture where respective coordinate in auxTexture has colour auxColour
 #define MODE_COLOUR 1
@@ -21,50 +23,48 @@ uniform vec4 auxColor;
 
 uniform int mode;
 
+out vec4 fragmentOut;
+
 vec4 colorReplace(vec4 color)
 {
 	if(abs(color.x - auxColor.x) < FTOL &&
-	   abs(color.y - auxColor.y) < FTOL &&
-	   abs(color.z - auxColor.z) < FTOL &&
-	   abs(color.w - auxColor.w) < FTOL)
-	   	return srcColor;
-	   else
-	    return color;
+		abs(color.y - auxColor.y) < FTOL &&
+		abs(color.z - auxColor.z) < FTOL &&
+		abs(color.w - auxColor.w) < FTOL)
+			return srcColor;
+		else
+			return color;
 }
 
 vec4 filterMap(vec4 color)
 {
-	vec4 map = texture2D(auxTexture, textureCoordinate);
-	
-	if(abs(auxColor.x - map.x) < FTOL &&
-	   abs(auxColor.y - map.y) < FTOL &&
-	   abs(auxColor.z - map.z) < FTOL)
-	   	return color;
-	   else
-	    return vec4(0.0, 0.0, 0.0, 0.0);
+		vec4 map = texture2D(auxTexture, textureCoordinate);
+        
+		if(abs(auxColor.x - map.x) < FTOL &&
+			abs(auxColor.y - map.y) < FTOL &&
+			abs(auxColor.z - map.z) < FTOL)
+				return color;
+			else
+				return vec4(0.0, 0.0, 0.0, 0.0);
 }
 
 void main (void)  
 {
-	vec4 color;
-	
-	if(mode == MODE_COLOUR)
-		color = srcColor;
-	else
-		color = texture2D(srcTexture, textureCoordinate);
-	
 	switch(mode)
 	{
-		case MODE_COLOUR_REPLACE:
-				color = colorReplace(color);
+		case MODE_TEXTURE:
+			fragmentOut = texture2D(srcTexture, textureCoordinate);
+			break;
+		case MODE_COLOUR:
+			fragmentOut = srcColor;
 			break;
 		case MODE_COLOUR_MAP:
-				color = filterMap(color);
+			fragmentOut = filterMap(texture2D(srcTexture, textureCoordinate));
 			break;
-		case MODE_NORMAL:
-		case MODE_COLOUR:
+		case MODE_COLOUR_REPLACE:
+			fragmentOut = colorReplace(texture2D(srcTexture, textureCoordinate));
+			break;
 		default:
+			fragmentOut = vec4(1.0, 1.0, 0.0, 1.0);
 	}
-	
-	gl_FragColor = color;
 }
