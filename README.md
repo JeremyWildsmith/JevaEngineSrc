@@ -1,3 +1,5 @@
+![Logo](http://i.imgur.com/RM2ndqI.jpg)
+
 JevaEngine - Java Isometric Game Engine
 =============
 
