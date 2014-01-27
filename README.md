@@ -11,6 +11,11 @@ Source Code Repository for JevaEngine - An Isoemtric Java Game Engine
 JevaEngine is currently under very early development, and the source code is still being
 conditioned for user contribution.
 
+License
+========
+JevaEngine is open-sourced under the GPLv3 License:
+http://www.gnu.org/licenses/gpl-3.0.html
+
 Features
 ========
 - Pure Java Implementation. No native dependencies, maximizing cross-platform ability.
