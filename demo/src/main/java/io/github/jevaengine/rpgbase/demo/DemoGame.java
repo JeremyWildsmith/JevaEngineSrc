@@ -16,9 +16,11 @@ import io.github.jevaengine.Core;
 import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.graphics.AnimationState;
 import io.github.jevaengine.graphics.Sprite;
+import io.github.jevaengine.graphics.Sprite.SpriteDeclaration;
 import io.github.jevaengine.rpgbase.RpgCharacter;
 import io.github.jevaengine.rpgbase.RpgGame;
 import io.github.jevaengine.ui.UIStyle;
+import io.github.jevaengine.ui.UIStyle.UIStyleDeclaration;
 import io.github.jevaengine.util.Nullable;
 
 public class DemoGame extends RpgGame implements IStateContext
@@ -36,9 +38,9 @@ public class DemoGame extends RpgGame implements IStateContext
 		
 		ResourceLibrary library = Core.getService(ResourceLibrary.class);
 		
-		UIStyle style = UIStyle.create(library.openConfiguration("ui/game.juis"));
+		UIStyle style = UIStyle.create(library.openConfiguration("ui/game.juis").getValue(UIStyleDeclaration.class));
 		
-		m_cursor = Sprite.create(library.openConfiguration("ui/tech/cursor/cursor.jsf"));
+		m_cursor = Sprite.create(library.openConfiguration("ui/tech/cursor/cursor.jsf").getValue(SpriteDeclaration.class));
 		m_cursor.setAnimation("idle", AnimationState.Play);
 		
 		m_state = new MainMenu(style);

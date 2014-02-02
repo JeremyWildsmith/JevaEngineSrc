@@ -19,6 +19,7 @@ import io.github.jevaengine.ResourceIOException;
 import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.config.JsonVariable;
 import io.github.jevaengine.graphics.Sprite;
+import io.github.jevaengine.graphics.Sprite.SpriteDeclaration;
 import io.github.jevaengine.mapeditor.MapEditor.LayerMetaData;
 import io.github.jevaengine.math.Vector2F;
 import io.github.jevaengine.world.WorldDirection;
@@ -154,7 +155,7 @@ public class EditorPane extends javax.swing.JFrame
 	{
 		try
 		{
-			Sprite sprite = Sprite.create(Core.getService(ResourceLibrary.class).openConfiguration(txtBrushSprite.getText()));
+			Sprite sprite = Sprite.create(Core.getService(ResourceLibrary.class).openConfiguration(txtBrushSprite.getText()).getValue(SpriteDeclaration.class));
 
 			String[] animations = sprite.getAnimations();
 

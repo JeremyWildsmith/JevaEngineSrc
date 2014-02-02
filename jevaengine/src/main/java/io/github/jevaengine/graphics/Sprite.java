@@ -62,10 +62,8 @@ public final class Sprite implements IRenderable
 		m_fNaturalScale = fNaturalScale;
 	}
 	
-	public static Sprite create(IImmutableVariable root)
+	public static Sprite create(SpriteDeclaration spriteDecl)
 	{
-		SpriteDeclaration spriteDecl = root.getValue(SpriteDeclaration.class);
-			
 		Graphic srcImage = Graphic.create(spriteDecl.texture);
 
 		Sprite sprite = new Sprite(srcImage, spriteDecl.scale);

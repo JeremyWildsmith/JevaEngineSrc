@@ -44,9 +44,8 @@ public final class Font
 		m_height = height;
 	}
 
-	public static Font create(IImmutableVariable root, Color color)
+	public static Font create(FontDeclaration fontDecl, Color color)
 	{
-		FontDeclaration fontDecl = root.getValue(FontDeclaration.class);
 
 		int maxWidth = 0;
 		int maxHeight = 0;

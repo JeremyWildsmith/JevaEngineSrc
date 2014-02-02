@@ -20,7 +20,9 @@ import io.github.jevaengine.config.IVariable;
 import io.github.jevaengine.graphics.AnimationState;
 import io.github.jevaengine.graphics.IRenderable;
 import io.github.jevaengine.graphics.ParticleEmitter;
+import io.github.jevaengine.graphics.ParticleEmitter.ParticleEmitterDeclaration;
 import io.github.jevaengine.graphics.Sprite;
+import io.github.jevaengine.graphics.Sprite.SpriteDeclaration;
 import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.math.Vector2F;
 import io.github.jevaengine.rpgbase.Inventory.InventoryBridge;
@@ -119,7 +121,7 @@ public final class RpgCharacter extends Actor
 		
 		setDirection(WorldDirection.values()[(int)Math.round(Math.random() * (float)WorldDirection.Zero.ordinal())]);
 		
-		m_bloodEmitter = ParticleEmitter.create(Core.getService(ResourceLibrary.class).openConfiguration(decl.blood));
+		m_bloodEmitter = ParticleEmitter.create(Core.getService(ResourceLibrary.class).openConfiguration(decl.blood).getValue(ParticleEmitterDeclaration.class));
 		m_name = decl.name;
 		m_allegiance = decl.allegiance;
 		m_visibility = decl.visibility;
@@ -134,7 +136,7 @@ public final class RpgCharacter extends Actor
 		m_inventory = new Inventory(this, decl.inventorySize);
 		m_loadout = new Loadout();
 		
-		m_model = new CharacterModel(Sprite.create(Core.getService(ResourceLibrary.class).openConfiguration(decl.sprite)));
+		m_model = new CharacterModel(Sprite.create(Core.getService(ResourceLibrary.class).openConfiguration(decl.sprite).getValue(SpriteDeclaration.class)));
 		addActionObserver(m_model);
 		addConditionObserver(m_model);
 		addConditionObserver(m_script);

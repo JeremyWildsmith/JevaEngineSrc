@@ -23,6 +23,7 @@ import io.github.jevaengine.config.IVariable;
 import io.github.jevaengine.graphics.AnimationState;
 import io.github.jevaengine.graphics.IRenderable;
 import io.github.jevaengine.graphics.Sprite;
+import io.github.jevaengine.graphics.Sprite.SpriteDeclaration;
 import io.github.jevaengine.util.Nullable;
 
 import javax.script.ScriptException;
@@ -62,7 +63,7 @@ public class Item
 		ItemType(boolean isWieldable, String backgroundSpritePath)
 		{
 			m_isWieldable = isWieldable;
-			m_icon = Sprite.create(Core.getService(ResourceLibrary.class).openConfiguration(backgroundSpritePath));
+			m_icon = Sprite.create(Core.getService(ResourceLibrary.class).openConfiguration(backgroundSpritePath).getValue(SpriteDeclaration.class));
 			m_icon.setAnimation("idle", AnimationState.Play);
 		}
 
@@ -101,7 +102,8 @@ public class Item
 
 		Sprite graphic = Sprite.create(
 							Core.getService(ResourceLibrary.class)
-								.openConfiguration(itemDecl.sprite));
+								.openConfiguration(itemDecl.sprite)
+								.getValue(SpriteDeclaration.class));
 		
 		Script script;
 

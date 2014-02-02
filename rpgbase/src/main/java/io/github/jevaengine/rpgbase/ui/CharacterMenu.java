@@ -16,6 +16,7 @@ import io.github.jevaengine.Core;
 import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.graphics.IRenderable;
 import io.github.jevaengine.graphics.ParticleEmitter;
+import io.github.jevaengine.graphics.ParticleEmitter.ParticleEmitterDeclaration;
 import io.github.jevaengine.graphics.Sprite;
 import io.github.jevaengine.joystick.InputManager.InputKeyEvent;
 import io.github.jevaengine.joystick.InputManager.InputMouseEvent;
@@ -56,7 +57,9 @@ public class CharacterMenu extends Window
 	{
 		super(style, 300, 330);
 
-		m_characterEmitter = ParticleEmitter.create(Core.getService(ResourceLibrary.class).openConfiguration("particle/characterMenu/characterMenu.jpar"));
+		m_characterEmitter = ParticleEmitter.create(Core.getService(ResourceLibrary.class)
+														.openConfiguration("particle/characterMenu/characterMenu.jpar")
+														.getValue(ParticleEmitterDeclaration.class));
 
 		m_characterEmitter.setEmit(true);
 

@@ -17,6 +17,7 @@ import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.graphics.AnimationState;
 import io.github.jevaengine.graphics.IRenderable;
 import io.github.jevaengine.graphics.Sprite;
+import io.github.jevaengine.graphics.Sprite.SpriteDeclaration;
 import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.math.Vector2F;
 import io.github.jevaengine.world.Actor;
@@ -46,7 +47,7 @@ public class EditorTile implements IInteractable
 	{
 		m_tile = new ContainedTile(true, 1.0F);
 		
-		Sprite sprite = Sprite.create(Core.getService(ResourceLibrary.class).openConfiguration(spriteName));
+		Sprite sprite = Sprite.create(Core.getService(ResourceLibrary.class).openConfiguration(spriteName).getValue(SpriteDeclaration.class));
 		sprite.setAnimation(animation, AnimationState.Play);
 		m_tile.setSprite(sprite);
 		
@@ -61,7 +62,7 @@ public class EditorTile implements IInteractable
 	{
 		m_tile = new ContainedTile(true, 1.0F);
 		
-		Sprite sprite = Sprite.create(Core.getService(ResourceLibrary.class).openConfiguration(spriteName));
+		Sprite sprite = Sprite.create(Core.getService(ResourceLibrary.class).openConfiguration(spriteName).getValue(SpriteDeclaration.class));
 		sprite.setAnimation(animation, AnimationState.Play);
 		m_tile.setSprite(sprite);
 
@@ -119,7 +120,7 @@ public class EditorTile implements IInteractable
 		m_spriteName = spriteName;
 		m_animation = animation;
 		
-		Sprite sprite = Sprite.create(Core.getService(ResourceLibrary.class).openConfiguration(spriteName));
+		Sprite sprite = Sprite.create(Core.getService(ResourceLibrary.class).openConfiguration(spriteName).getValue(SpriteDeclaration.class));
 		sprite.setAnimation(animation, AnimationState.Play);
 		
 		m_tile.setSprite(sprite);
