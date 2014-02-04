@@ -23,6 +23,7 @@ import io.github.jevaengine.ui.Window;
 import io.github.jevaengine.ui.WorldView;
 import io.github.jevaengine.ui.WorldView.IWorldViewListener;
 import io.github.jevaengine.world.World;
+import io.github.jevaengine.world.World.WorldConfiguration;
 
 /**
  *
@@ -45,7 +46,7 @@ public class Demo1 implements IState
 	{
 		ResourceLibrary resourceLibrary = Core.getService(ResourceLibrary.class);
 		
-		m_world = World.create(resourceLibrary.openConfiguration(DEMO_MAP));
+		m_world = World.create(resourceLibrary.openConfiguration(DEMO_MAP).getValue(WorldConfiguration.class));
 
 		m_player = new RpgCharacter(resourceLibrary.openConfiguration(PLAYER));
 		m_player.setLocation(new Vector2F(4,4));

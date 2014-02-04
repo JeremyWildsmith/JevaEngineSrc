@@ -19,6 +19,7 @@ import io.github.jevaengine.ui.UIStyle;
 import io.github.jevaengine.ui.Window;
 import io.github.jevaengine.ui.WorldView;
 import io.github.jevaengine.world.World;
+import io.github.jevaengine.world.World.WorldConfiguration;
 
 /**
  *
@@ -34,7 +35,7 @@ public class Demo0 implements IState
 	
 	public Demo0(final UIStyle style)
 	{
-		m_world = World.create(Core.getService(ResourceLibrary.class).openConfiguration(DEMO_MAP));
+		m_world = World.create(Core.getService(ResourceLibrary.class).openConfiguration(DEMO_MAP).getValue(WorldConfiguration.class));
 
 		m_window = new Window(style, 420, 500);
 		m_window.setLocation(new Vector2D(100, 100));

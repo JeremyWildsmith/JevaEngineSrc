@@ -122,10 +122,10 @@ public final class World implements IDisposable
 		this(width, height, tileWidth, tileHeight, entityLayerDepth, null);
 	}
 
-	public static World create(WorldConfiguration worldConfig, World world)
+	public static World create(WorldConfiguration worldConfig)
 	{
 
-		world = new World(worldConfig.worldWidth, worldConfig.worldHeight, 
+		World world = new World(worldConfig.worldWidth, worldConfig.worldHeight, 
 									worldConfig.tileWidth, worldConfig.tileHeight, 
 									worldConfig.entityLayer, worldConfig.script);
 		

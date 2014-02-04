@@ -1,6 +1,7 @@
 #version 150
+#extension GL_ARB_explicit_attrib_location : enable
 
-varying vec2 textureCoordinate;
+out vec2 textureCoordinate;
 
 layout(location = 0) in ivec2 vertexPosition;
 layout(location = 1) in vec2 texCoord;
