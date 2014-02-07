@@ -19,6 +19,7 @@ import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.config.ISerializable;
 import io.github.jevaengine.config.IImmutableVariable;
 import io.github.jevaengine.config.IVariable;
+import io.github.jevaengine.graphics.Sprite.SpriteDeclaration;
 import io.github.jevaengine.math.Vector2F;
 
 public final class ParticleEmitter implements IRenderable
@@ -57,14 +58,12 @@ public final class ParticleEmitter implements IRenderable
 		m_isEmitting = false;
 	}
 
-	public static ParticleEmitter create(IImmutableVariable root)
+	public static ParticleEmitter create(ParticleEmitterDeclaration decl)
 	{
-		ParticleEmitterDeclaration decl = root.getValue(ParticleEmitterDeclaration.class);
-
 		Sprite[] spriteMaps = new Sprite[decl.sprites.length];
 
 		for (int i = 0; i < decl.sprites.length; i++)
-			spriteMaps[i] = Sprite.create(Core.getService(ResourceLibrary.class).openConfiguration(decl.sprites[i]));
+			spriteMaps[i] = Sprite.create(Core.getService(ResourceLibrary.class).openConfiguration(decl.sprites[i]).getValue(SpriteDeclaration.class));
 
 		return new ParticleEmitter(spriteMaps, 
 									decl.acceleration, 

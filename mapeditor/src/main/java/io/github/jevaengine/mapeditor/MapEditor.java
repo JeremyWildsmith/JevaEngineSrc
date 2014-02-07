@@ -23,6 +23,7 @@ import io.github.jevaengine.game.Game;
 import io.github.jevaengine.game.IGameScriptProvider;
 import io.github.jevaengine.graphics.AnimationState;
 import io.github.jevaengine.graphics.Sprite;
+import io.github.jevaengine.graphics.Sprite.SpriteDeclaration;
 import io.github.jevaengine.graphics.pipeline.Graphic;
 import io.github.jevaengine.joystick.InputManager.InputKeyEvent;
 import io.github.jevaengine.joystick.InputManager.InputMouseEvent;
@@ -32,6 +33,7 @@ import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.math.Vector2F;
 import io.github.jevaengine.ui.IWindowManager;
 import io.github.jevaengine.ui.UIStyle;
+import io.github.jevaengine.ui.UIStyle.UIStyleDeclaration;
 import io.github.jevaengine.ui.Window;
 import io.github.jevaengine.ui.WorldView;
 import io.github.jevaengine.ui.WorldView.IWorldViewListener;
@@ -87,8 +89,8 @@ public class MapEditor extends Game implements IEditorPaneListener
 	@Override
 	protected void startup()
 	{
-		m_cursor = Sprite.create(Core.getService(ResourceLibrary.class).openConfiguration("@style/cursor/cursor.jsf"));
-		m_style = UIStyle.create(Core.getService(ResourceLibrary.class).openConfiguration("@style/editor.juis"));
+		m_cursor = Sprite.create(Core.getService(ResourceLibrary.class).openConfiguration("@style/cursor/cursor.jsf").getValue(SpriteDeclaration.class));
+		m_style = UIStyle.create(Core.getService(ResourceLibrary.class).openConfiguration("@style/editor.juis").getValue(UIStyleDeclaration.class));
 		
 		m_cursor.setAnimation("idle", AnimationState.Play);
 		

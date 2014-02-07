@@ -13,7 +13,7 @@
 
 #define MODE_COLOUR_MAP 3
 
-varying vec2 textureCoordinate;
+in vec2 textureCoordinate;
 
 uniform sampler2D srcTexture;
 uniform sampler2D auxTexture;

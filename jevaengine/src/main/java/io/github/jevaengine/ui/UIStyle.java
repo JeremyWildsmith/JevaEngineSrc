@@ -22,7 +22,9 @@ import io.github.jevaengine.config.ISerializable;
 import io.github.jevaengine.config.IImmutableVariable;
 import io.github.jevaengine.config.IVariable;
 import io.github.jevaengine.graphics.Font;
+import io.github.jevaengine.graphics.Font.FontDeclaration;
 import io.github.jevaengine.graphics.Sprite;
+import io.github.jevaengine.graphics.Sprite.SpriteDeclaration;
 
 public class UIStyle
 {
@@ -74,10 +76,8 @@ public class UIStyle
 		m_pressButtonAudio = pressButton;
 	}
 
-	public static UIStyle create(IImmutableVariable root)
-	{
-		UIStyleDeclaration styleDecl = root.getValue(UIStyleDeclaration.class);
-		
+	public static UIStyle create(UIStyleDeclaration styleDecl)
+	{	
 		return new UIStyle(styleDecl.font,
 							getSpriteFromCache(styleDecl.frameFill),
 							getSpriteFromCache(styleDecl.frameLeft),
@@ -102,7 +102,7 @@ public class UIStyle
 
 		if (!m_fontCache.get(formalName).containsKey(color))
 		{
-			m_fontCache.get(formalName).put(color, Font.create(Core.getService(ResourceLibrary.class).openConfiguration(formalName), color));
+			m_fontCache.get(formalName).put(color, Font.create(Core.getService(ResourceLibrary.class).openConfiguration(formalName).getValue(FontDeclaration.class), color));
 		}
 
 		return m_fontCache.get(formalName).get(color);
@@ -114,7 +114,7 @@ public class UIStyle
 
 		if (!m_spriteCache.containsKey(formalName))
 		{
-			m_spriteCache.put(formalName, Sprite.create(Core.getService(ResourceLibrary.class).openConfiguration(formalName)));
+			m_spriteCache.put(formalName, Sprite.create(Core.getService(ResourceLibrary.class).openConfiguration(formalName).getValue(SpriteDeclaration.class)));
 		}
 
 		return m_spriteCache.get(formalName);

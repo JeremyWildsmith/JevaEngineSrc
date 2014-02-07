@@ -26,6 +26,7 @@ import io.github.jevaengine.config.IVariable;
 import io.github.jevaengine.graphics.AnimationState;
 import io.github.jevaengine.graphics.IRenderable;
 import io.github.jevaengine.graphics.Sprite;
+import io.github.jevaengine.graphics.Sprite.SpriteDeclaration;
 import io.github.jevaengine.graphics.pipeline.Graphic;
 import io.github.jevaengine.graphics.pipeline.GraphicRenderHints;
 import io.github.jevaengine.math.Rect2D;
@@ -75,7 +76,7 @@ public class WorldLayer implements IDisposable
 
 				if(tileDec1.sprite != null)
 				{
-					Sprite tileSprite = Sprite.create(Core.getService(ResourceLibrary.class).openConfiguration(tileDec1.sprite));
+					Sprite tileSprite = Sprite.create(Core.getService(ResourceLibrary.class).openConfiguration(tileDec1.sprite).getValue(SpriteDeclaration.class));
 					tileSprite.setAnimation(tileDec1.animation, AnimationState.Play);
 
 					tile = new Tile(tileSprite, tileDec1.isTraversable, tileDec1.visibility);

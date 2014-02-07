@@ -19,6 +19,7 @@ import io.github.jevaengine.graphics.AnimationState;
 import io.github.jevaengine.graphics.Font;
 import io.github.jevaengine.graphics.IRenderable;
 import io.github.jevaengine.graphics.Sprite;
+import io.github.jevaengine.graphics.Sprite.SpriteDeclaration;
 import io.github.jevaengine.graphics.Text;
 import io.github.jevaengine.math.Rect2F;
 import io.github.jevaengine.math.Vector2F;
@@ -50,7 +51,7 @@ public class EditorEntity
 		m_config = config;
 		m_location = new Vector2F();
 		m_direction = WorldDirection.Zero;
-		m_tileSprite = Sprite.create(Core.getService(ResourceLibrary.class).openConfiguration("@tile/tile.jsf"));
+		m_tileSprite = Sprite.create(Core.getService(ResourceLibrary.class).openConfiguration("@tile/tile.jsf").getValue(SpriteDeclaration.class));
 		m_tileSprite.setAnimation("entity", AnimationState.Play);
 	}
 	
