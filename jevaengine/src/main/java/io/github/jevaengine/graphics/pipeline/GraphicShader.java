@@ -1,6 +1,7 @@
 package io.github.jevaengine.graphics.pipeline;
 
 import io.github.jevaengine.IDisposable;
+import io.github.jevaengine.math.Matrix4X4;
 import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.math.Vector2F;
 import io.github.jevaengine.math.Vector3D;
@@ -322,10 +323,11 @@ final class GraphicShader implements IDisposable
 		m_glContext.glUniform4f(location, (float)value.getRed()/255.0F, (float)value.getGreen()/255.0F, (float)value.getBlue()/255.0F, (float)value.getAlpha()/255.0F);
 	}
 	
-	public void setUniform4F4(String name, float[] values)
+	public void setUniform4F4(String name, Matrix4X4 value)
 	{
 		int location = getUniformLocation(name);
-		m_glContext.glUniformMatrix4fv(location, 1, false, values, 0);
+		
+		m_glContext.glUniformMatrix4fv(location, 1, false, value.columnMajor(), 0);
 	}
 	
 	public void bindAttribute(int index, String name)

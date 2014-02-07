@@ -56,6 +56,12 @@ public final class GraphicDrawer extends AbstractImageHelper
 	@Override
 	protected void begin(Texture texture, AffineTransform xform, Color bgcolor)
 	{
+		if(xform != null)
+		{
+			m_lastTransform = new AffineTransform(g2d.getTransform());
+			g2d.setTransform(xform);
+		}else
+			m_lastTransform = null;
 	}
 
 	@Override

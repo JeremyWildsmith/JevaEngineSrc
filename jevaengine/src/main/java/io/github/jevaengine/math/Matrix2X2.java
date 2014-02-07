@@ -38,6 +38,11 @@ public class Matrix2X2
 				{ x0y0, x0y1 },
 				{ x1y0, x1y1 } };
 	}
+	
+	public Matrix2X2(Matrix2X2 mat)
+	{
+		matrix = mat.matrix.clone();
+	}
 
 	public static Matrix2X2 createRotation(float fRot)
 	{

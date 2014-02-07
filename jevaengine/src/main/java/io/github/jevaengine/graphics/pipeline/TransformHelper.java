@@ -1,5 +1,7 @@
 package io.github.jevaengine.graphics.pipeline;
 
+import io.github.jevaengine.math.Matrix4X4;
+
 import java.awt.geom.AffineTransform;
 
 import javax.media.opengl.GL4;
@@ -12,9 +14,11 @@ public class TransformHelper extends AbstractMatrixHelper {
 
 	private float[] matrixBuf = new float[16];
 	private PrimitiveShader m_shader;
+	private DrawBatcher m_drawBatcher;
 	
-	public TransformHelper(PrimitiveShader shader)
+	public TransformHelper(PrimitiveShader shader, DrawBatcher drawBatcher)
 	{
+		m_drawBatcher = drawBatcher;
 		m_shader = shader;
 	}
 	
@@ -35,12 +39,12 @@ public class TransformHelper extends AbstractMatrixHelper {
 		int width = viewportDimensions[2];
 		int height = viewportDimensions[3];
 
-		float ortho[] = new float[] {
-					2.0F/(float)width, 0, 0, 0,
-					0, 2.0F/(float)height, 0, 0,
-					0, 0, -1, 0,
-					-1, -1, 0, 1
-				};
+		Matrix4X4 ortho = new Matrix4X4(
+				2.0F/(float)width, 0, 0, -1,
+				0, 2.0F/(float)height, 0, -1,
+				0, 0, -1, 0	,
+				0, 0, 0, 1
+				);
 		
 		m_shader.setProjection(ortho);
 	}
@@ -53,7 +57,8 @@ public class TransformHelper extends AbstractMatrixHelper {
 	{
 		float[] matrix = getGLMatrix(stack.peek());
 
-		m_shader.setModelView(matrix);
+		m_drawBatcher.flush();
+		m_shader.setModelView(Matrix4X4.fromColumnMajor(matrix));
 	}
 
 	/**

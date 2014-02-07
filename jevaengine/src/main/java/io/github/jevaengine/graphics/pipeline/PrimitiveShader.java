@@ -1,6 +1,7 @@
 package io.github.jevaengine.graphics.pipeline;
 
 import io.github.jevaengine.IDisposable;
+import io.github.jevaengine.math.Matrix4X4;
 import io.github.jevaengine.util.Nullable;
 
 import java.awt.Color;
@@ -21,6 +22,12 @@ public final class PrimitiveShader implements IDisposable
 	
 	@Nullable
 	private PrimitiveMode m_lastMode;
+
+	@Nullable
+	private Matrix4X4 m_lastProjection;
+	
+	@Nullable
+	private Matrix4X4 m_lastModelProjection;
 	
 	@Nullable
 	private GL4 m_glContext;
@@ -89,14 +96,22 @@ public final class PrimitiveShader implements IDisposable
 		m_shader.setUniform1D("auxTexture", 1);
 	}
 	
-	void setProjection(float[] projection)
+	void setProjection(Matrix4X4 projection)
 	{
+		if(m_lastProjection != null && m_lastProjection.equals(projection))
+			return;
+		
 		m_shader.setUniform4F4("projectionMatrix", projection);
+		m_lastProjection = new Matrix4X4(projection);
 	}
 	
-	void setModelView(float[] modelView)
+	void setModelView(Matrix4X4 modelView)
 	{
+		if(m_lastModelProjection != null && m_lastModelProjection.equals(modelView))
+			return;
+		
 		m_shader.setUniform4F4("modelViewMatrix", modelView);
+		m_lastModelProjection = new Matrix4X4(modelView);
 	}
 	
 	void bindVertexTexCoordAttribute(int index)

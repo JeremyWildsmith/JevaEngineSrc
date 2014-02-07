@@ -72,12 +72,6 @@ public class InputManager implements MouseMotionListener, MouseListener, KeyList
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * java.awt.event.MouseMotionListener#mouseMoved(java.awt.event.MouseEvent)
-	 */
 	public void mouseMoved(MouseEvent e)
 	{
 		synchronized (m_events)
@@ -87,11 +81,6 @@ public class InputManager implements MouseMotionListener, MouseListener, KeyList
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
-	 */
 	public void mouseClicked(MouseEvent e)
 	{
 		synchronized (m_events)
@@ -101,11 +90,6 @@ public class InputManager implements MouseMotionListener, MouseListener, KeyList
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.awt.event.KeyListener#keyTyped(java.awt.event.KeyEvent)
-	 */
 	public void keyTyped(KeyEvent e)
 	{
 		synchronized (m_events)
@@ -114,13 +98,6 @@ public class InputManager implements MouseMotionListener, MouseListener, KeyList
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * java.awt.event.MouseMotionListener#mouseDragged(java.awt.event.MouseEvent
-	 * )
-	 */
 	public void mouseDragged(MouseEvent e)
 	{
 		synchronized (m_events)
@@ -144,11 +121,6 @@ public class InputManager implements MouseMotionListener, MouseListener, KeyList
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
-	 */
 	public void mousePressed(MouseEvent e)
 	{
 		synchronized (m_events)
@@ -157,12 +129,6 @@ public class InputManager implements MouseMotionListener, MouseListener, KeyList
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
-	 */
 	public void mouseReleased(MouseEvent e)
 	{
 		synchronized (m_events)
@@ -172,31 +138,16 @@ public class InputManager implements MouseMotionListener, MouseListener, KeyList
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
-	 */
 	public void mouseEntered(MouseEvent e)
 	{
 		m_events.add(new InputMouseEvent(InputMouseEvent.EventType.MouseEntered, new Vector2D(e.getX(), e.getY()), MouseButton.fromButton(e.getButton()), false, false));
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
-	 */
 	public void mouseExited(MouseEvent e)
 	{
 		m_events.add(new InputMouseEvent(InputMouseEvent.EventType.MouseLeft, new Vector2D(e.getX(), e.getY()), MouseButton.fromButton(e.getButton()), false, false));
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.awt.event.KeyListener#keyPressed(java.awt.event.KeyEvent)
-	 */
 	public void keyPressed(KeyEvent e)
 	{
 		synchronized (m_events)
@@ -205,11 +156,6 @@ public class InputManager implements MouseMotionListener, MouseListener, KeyList
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.awt.event.KeyListener#keyReleased(java.awt.event.KeyEvent)
-	 */
 	public void keyReleased(KeyEvent e)
 	{
 		synchronized (m_events)
@@ -218,12 +164,6 @@ public class InputManager implements MouseMotionListener, MouseListener, KeyList
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.awt.event.MouseWheelListener#mouseWheelMoved(java.awt.event.
-	 * MouseWheelEvent)
-	 */
 	public void mouseWheelMoved(MouseWheelEvent e)
 	{
 		synchronized (m_events)
@@ -267,12 +207,6 @@ public class InputManager implements MouseMotionListener, MouseListener, KeyList
 			keyChar = _keyChar;
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see io.github.jeremywildsmith.jevaengine.joystick.InputManager.IInputEvent#relay(jeva.joystick.
-		 * IInputDeviceListener)
-		 */
 		public void relay(IInputDeviceListener handler)
 		{
 			switch (type)
@@ -297,17 +231,11 @@ public class InputManager implements MouseMotionListener, MouseListener, KeyList
 		{
 
 			MousePressed,
-
 			MouseReleased,
-
 			MouseMoved,
-
 			MouseClicked,
-
 			MouseWheelMoved,
-
 			MouseLeft,
-
 			MouseEntered,
 		}
 

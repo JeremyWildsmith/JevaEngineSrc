@@ -263,6 +263,7 @@ public abstract class Game implements IDisposable
 				@Override
 				protected void prePaint(GLAutoDrawable drawable)
 				{
+					m_drawBatcher.setG2D(drawable.getGL().getGL4());
 					m_shader.load(drawable.getGL().getGL4());
 					super.prePaint(drawable);
 				}
@@ -270,7 +271,6 @@ public abstract class Game implements IDisposable
 				@Override
 				protected void paintGL(GLGraphics2D g2d)
 				{
-					m_drawBatcher.setG2D(g2d.getGLContext().getGL().getGL4());
 					m_shader.load(g2d.getGLContext().getGL().getGL4());
 					super.paintGL(g2d);
 					m_drawBatcher.flush();
@@ -315,7 +315,7 @@ public abstract class Game implements IDisposable
 						@Override
 						protected GLG2DTransformHelper createTransformHelper()
 						{
-							return new TransformHelper(m_shader);
+							return new TransformHelper(m_shader, m_drawBatcher);
 						}
 					};
 				}

@@ -17,7 +17,9 @@ public class Matrix3X3
 
 	public float[][] matrix;
 
-	public static final Matrix2X2 IDENTITY = new Matrix2X2(1, 0, 0, 1);
+	public static final Matrix3X3 IDENTITY = new Matrix3X3(1, 0, 0, 
+														   0, 1, 0,
+														   0, 0, 1);
 
 	public Matrix3X3(float x0y0, float x1y0, float x2y0, float x0y1, float x1y1, float x2y1, float x0y2, float x1y2, float x2y2)
 	{
@@ -30,7 +32,7 @@ public class Matrix3X3
 
 	public Matrix3X3(Matrix3X3 mat)
 	{
-		matrix = mat.matrix;
+		matrix = mat.matrix.clone();
 	}
 
 	public Vector3F dot(Vector3F v)

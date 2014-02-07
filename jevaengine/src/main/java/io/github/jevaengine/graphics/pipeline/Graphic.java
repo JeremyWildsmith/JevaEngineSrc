@@ -96,7 +96,8 @@ public final class Graphic
 		if(m_sourceImage == null)
 			throw new CoreModeViolationException("Core mode does not permit rendering or graphics operations.");
 		
-		g.drawImage(m_sourceImage, dx, dy, (int)(m_sourceImage.getWidth() * scale), (int)(m_sourceImage.getHeight() * scale), null);
+		render(g, dx, dy, (int)(m_sourceImage.getWidth() * scale), (int)(m_sourceImage.getHeight() * scale),
+					0, 0, m_sourceImage.getWidth(), m_sourceImage.getHeight());
 	}
 	
 	public Graphic filterImage(RGBImageFilter filter)

@@ -59,7 +59,7 @@ public class DrawBatcher implements IDisposable
 			DrawConfigurationEntry entry = new DrawConfigurationEntry(shaderMode, clip);
 			m_renderQueue.add(entry);
 			return entry;
-		}else
+		} else
 			return m_renderQueue.get(m_renderQueue.size() - 1);
 	}
 	
@@ -101,6 +101,9 @@ public class DrawBatcher implements IDisposable
 	
 	public void flush()
 	{
+		if(m_enqueuedRenders <= 0)
+			return;
+		
 		m_glContext.glEnableVertexAttribArray(0);
 		m_glContext.glEnableVertexAttribArray(1);
 
@@ -165,11 +168,6 @@ public class DrawBatcher implements IDisposable
 				e.put(positionBuffer, texCoordBuffer);
 		}
 		
-		public boolean isCompatible(PrimitiveShader.PrimitiveMode mode, Clipping clip)
-		{
-			return mode.equals(m_mode) && clip.equals(m_clip);
-		}
-		
 		public int render(int base)
 		{
 			m_clip.apply(m_glContext);
@@ -181,6 +179,11 @@ public class DrawBatcher implements IDisposable
 		public void add(BatchEntry entry)
 		{
 			m_entries.add(entry);
+		}
+
+		public boolean isCompatible(PrimitiveShader.PrimitiveMode mode, Clipping clipping)
+		{
+			return m_mode.equals(mode) && m_clip.equals(clipping);
 		}
 	}
 	
