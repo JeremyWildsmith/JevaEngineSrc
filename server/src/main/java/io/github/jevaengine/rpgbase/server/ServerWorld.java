@@ -24,6 +24,7 @@ import io.github.jevaengine.communication.SharedClass;
 import io.github.jevaengine.rpgbase.netcommon.NetWorld;
 import io.github.jevaengine.world.Entity;
 import io.github.jevaengine.world.World;
+import io.github.jevaengine.world.World.WorldConfiguration;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -45,7 +46,7 @@ public final class ServerWorld extends NetWorld implements IDisposable
 	{
 		m_worldName = worldName;
 
-		m_world = World.create(Core.getService(ResourceLibrary.class).openConfiguration(worldName));
+		m_world = World.create(Core.getService(ResourceLibrary.class).openConfiguration(worldName).getValue(WorldConfiguration.class));
 	}
 
 	@Override

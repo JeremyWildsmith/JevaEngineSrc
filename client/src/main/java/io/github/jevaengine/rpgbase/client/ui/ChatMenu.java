@@ -17,13 +17,14 @@ import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.graphics.AnimationState;
 import io.github.jevaengine.graphics.IRenderable;
 import io.github.jevaengine.graphics.Sprite;
+import io.github.jevaengine.graphics.Sprite.SpriteDeclaration;
+import io.github.jevaengine.joystick.InputManager.InputKeyEvent;
+import io.github.jevaengine.joystick.InputManager.InputKeyEvent.EventType;
+import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.ui.TextArea;
 import io.github.jevaengine.ui.UIStyle;
 import io.github.jevaengine.ui.Viewport;
 import io.github.jevaengine.ui.Window;
-import io.github.jevaengine.joystick.InputManager.InputKeyEvent;
-import io.github.jevaengine.joystick.InputManager.InputKeyEvent.EventType;
-import io.github.jevaengine.math.Vector2D;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -38,7 +39,7 @@ public abstract class ChatMenu extends Window
 		super(style, 432, 180);
 		this.setRenderBackground(false);
 
-		final Sprite backgroundImage = Sprite.create(Core.getService(ResourceLibrary.class).openConfiguration("ui/chat.jsf"));
+		final Sprite backgroundImage = Sprite.create(Core.getService(ResourceLibrary.class).openConfiguration("ui/chat.jsf").getValue(SpriteDeclaration.class));
 
 		backgroundImage.setAnimation("idle", AnimationState.Play);
 

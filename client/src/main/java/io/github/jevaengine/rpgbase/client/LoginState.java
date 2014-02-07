@@ -31,6 +31,7 @@ import io.github.jevaengine.ui.Window;
 import io.github.jevaengine.ui.WindowManager;
 import io.github.jevaengine.ui.WorldView;
 import io.github.jevaengine.world.World;
+import io.github.jevaengine.world.World.WorldConfiguration;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -151,7 +152,7 @@ public final class LoginState implements IGameState
 
 		//m_backgroundMusic = new Audio("audio/da/da.ogg");
 
-		m_menuWorld = World.create(Core.getService(ResourceLibrary.class).openConfiguration("world/menu.jmp"));
+		m_menuWorld = World.create(Core.getService(ResourceLibrary.class).openConfiguration("world/menu.jmp").getValue(WorldConfiguration.class));
 
 		Vector2D resolution = Core.getService(Game.class).getResolution();
 

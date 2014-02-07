@@ -21,6 +21,7 @@ import io.github.jevaengine.communication.SharedClass;
 import io.github.jevaengine.rpgbase.netcommon.NetWorld;
 import io.github.jevaengine.util.StaticSet;
 import io.github.jevaengine.world.World;
+import io.github.jevaengine.world.World.WorldConfiguration;
 
 @SharedClass(name = "World", policy = SharePolicy.ClientR)
 public final class ClientWorld extends NetWorld
@@ -103,7 +104,7 @@ public final class ClientWorld extends NetWorld
 					@Override
 					public void run()
 					{
-						m_world = World.create(Core.getService(ResourceLibrary.class).openConfiguration(map));
+						m_world = World.create(Core.getService(ResourceLibrary.class).openConfiguration(map).getValue(WorldConfiguration.class));
 					}
 				}.start();
 			}

@@ -20,9 +20,11 @@ import io.github.jevaengine.config.IVariable;
 import io.github.jevaengine.game.IGameScriptProvider;
 import io.github.jevaengine.graphics.AnimationState;
 import io.github.jevaengine.graphics.Sprite;
+import io.github.jevaengine.graphics.Sprite.SpriteDeclaration;
 import io.github.jevaengine.rpgbase.RpgCharacter;
 import io.github.jevaengine.rpgbase.RpgGame;
 import io.github.jevaengine.ui.UIStyle;
+import io.github.jevaengine.ui.UIStyle.UIStyleDeclaration;
 import io.github.jevaengine.util.Nullable;
 import io.github.jevaengine.world.Entity;
 import io.github.jevaengine.world.World.WorldScriptContext;
@@ -49,8 +51,8 @@ public class ClientGame extends RpgGame
 		
 		m_configuration = library.openConfiguration("client.cfg").getValue(ClientConfiguration.class);
 		
-		m_style = UIStyle.create(library.openConfiguration("ui/game.juis"));
-		m_cursor = Sprite.create(library.openConfiguration("ui/tech/cursor/cursor.jsf"));
+		m_style = UIStyle.create(library.openConfiguration("ui/game.juis").getValue(UIStyleDeclaration.class));
+		m_cursor = Sprite.create(library.openConfiguration("ui/tech/cursor/cursor.jsf").getValue(SpriteDeclaration.class));
 		m_cursor.setAnimation("idle", AnimationState.Play);
 		
 		setState(new LoginState(m_style));
