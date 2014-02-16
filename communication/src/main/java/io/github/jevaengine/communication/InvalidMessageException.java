@@ -9,6 +9,7 @@
  * 
  * Contributors:
  *     Jeremy - initial API and implementation
+ *     Alan O'Brien created new constructor that accepts an exception
  ******************************************************************************/
 package io.github.jevaengine.communication;
 
@@ -26,6 +27,12 @@ public class InvalidMessageException extends Exception
 		m_sender = sender;
 		m_message = message;
 	}
+    public InvalidMessageException(Communicator sender, Object message, Exception cause)
+    {
+            super(cause);
+            m_sender = sender;
+            m_message = message;
+    }
 
 	public Object getSenderMessage()
 	{

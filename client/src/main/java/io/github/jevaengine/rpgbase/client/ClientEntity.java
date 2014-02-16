@@ -4,7 +4,7 @@ import io.github.jevaengine.communication.Communicator;
 import io.github.jevaengine.communication.InvalidMessageException;
 import io.github.jevaengine.communication.SharedEntity;
 import io.github.jevaengine.rpgbase.netcommon.NetEntity;
-import io.github.jevaengine.rpgbase.netcommon.NetEntity.IEntityVisitor;
+import io.github.jevaengine.rpgbase.netcommon.NetEntity.EntityVisitor;
 import io.github.jevaengine.rpgbase.netcommon.NetEntity.InitializeEntity;
 import io.github.jevaengine.util.Nullable;
 import io.github.jevaengine.world.Entity;
@@ -90,9 +90,9 @@ public abstract class ClientEntity<T extends Entity> extends SharedEntity implem
 	@Override
 	protected final boolean onMessageRecieved(Communicator sender, Object recv) throws InvalidMessageException
 	{
-		if(recv instanceof IEntityVisitor)
+		if(recv instanceof EntityVisitor)
 		{
-			IEntityVisitor visitor = (IEntityVisitor)recv;
+			EntityVisitor visitor = (EntityVisitor)recv;
 			
 			beginVisit();
 			visitor.visit(sender, getEntity(), false);
