@@ -5,7 +5,7 @@ import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.communication.Communicator;
 import io.github.jevaengine.communication.InvalidMessageException;
 import io.github.jevaengine.communication.SharedEntity;
-import io.github.jevaengine.rpgbase.netcommon.NetEntity.IEntityVisitor;
+import io.github.jevaengine.rpgbase.netcommon.NetEntity.EntityVisitor;
 import io.github.jevaengine.rpgbase.netcommon.NetEntity.InitializeFlags;
 import io.github.jevaengine.rpgbase.netcommon.NetEntity.InitializeRequest;
 import io.github.jevaengine.rpgbase.netcommon.NetEntity.InitializeEntity;
@@ -66,9 +66,9 @@ public abstract class ServerEntity<T extends Entity> extends SharedEntity
 	{
 		ServerCommunicator communicator = (ServerCommunicator) sender;
 		
-		if(recv instanceof IEntityVisitor)
+		if(recv instanceof EntityVisitor)
 		{
-			IEntityVisitor visitor = (IEntityVisitor)recv;
+			EntityVisitor visitor = (EntityVisitor)recv;
 			
 			if ((!visitor.requiresOwnership() || sender == m_owner) && !visitor.isServerDispatchOnly())
 			{

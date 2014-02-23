@@ -37,7 +37,7 @@ public final class NetRpgCharacter extends NetEntity
 		return (RpgCharacter)e;
 	}
 	
-	public static final class DialogueEvent implements IEntityVisitor
+	public static final class DialogueEvent extends EntityVisitor
 	{
 		private int m_eventCode;
 		private @Nullable NetEntityName m_listenerEntity;
@@ -53,7 +53,7 @@ public final class NetRpgCharacter extends NetEntity
 		}
 
 		@Override
-		public void visit(Communicator sender, Entity entity, boolean onServer) throws InvalidMessageException
+		public void doVisit(Communicator sender, Entity entity, boolean onServer)
 		{
 			RpgCharacter character = getCharacter(entity, sender, this);
 			
@@ -83,9 +83,15 @@ public final class NetRpgCharacter extends NetEntity
 		{
 			return true;
 		}
+
+		@Override
+		protected void verify() throws InvalidMessageException {
+			// TODO Auto-generated method stub
+			
+		}
 	}
 	
-	public static final class Movement implements IEntityVisitor
+	public static final class Movement extends EntityVisitor
 	{
 		private Vector2F m_location;
 		private Vector2F m_destination;
@@ -119,7 +125,7 @@ public final class NetRpgCharacter extends NetEntity
 		}
 
 		@Override
-		public void visit(Communicator sender, Entity entity, boolean onServer) throws InvalidMessageException
+		public void doVisit(Communicator sender, Entity entity, boolean onServer)
 		{
 			RpgCharacter character = getCharacter(entity, sender, this);
 			
@@ -140,9 +146,15 @@ public final class NetRpgCharacter extends NetEntity
 		{
 			return true;
 		}
+
+		@Override
+		protected void verify() throws InvalidMessageException {
+			// TODO Auto-generated method stub
+			
+		}
 	}
 
-	public static final class Attack implements IEntityVisitor
+	public static final class Attack extends EntityVisitor
 	{
 		private NetEntityName m_target;
 
@@ -161,7 +173,7 @@ public final class NetRpgCharacter extends NetEntity
 		}
 
 		@Override
-		public void visit(Communicator sender, Entity entity, boolean onServer) throws InvalidMessageException
+		public void doVisit(Communicator sender, Entity entity, boolean onServer)
 		{
 			RpgCharacter character = getCharacter(entity, sender, this);
 			
@@ -189,9 +201,15 @@ public final class NetRpgCharacter extends NetEntity
 		{
 			return false;
 		}
+
+		@Override
+		protected void verify() throws InvalidMessageException {
+			// TODO Auto-generated method stub
+			
+		}
 	}
 
-	public final static class HealthSet implements IEntityVisitor
+	public final static class HealthSet extends EntityVisitor
 	{
 		private int m_health;
 
@@ -211,7 +229,7 @@ public final class NetRpgCharacter extends NetEntity
 		}
 
 		@Override
-		public void visit(Communicator sender, Entity entity, boolean onServer) throws InvalidMessageException
+		public void doVisit(Communicator sender, Entity entity, boolean onServer)
 		{
 			RpgCharacter character = getCharacter(entity, sender, this);
 			
@@ -229,9 +247,15 @@ public final class NetRpgCharacter extends NetEntity
 		{
 			return true;
 		}
+
+		@Override
+		protected void verify() throws InvalidMessageException {
+			// TODO Auto-generated method stub
+			
+		}
 	}
 
-	public final static class AddInventoryItem implements IEntityVisitor
+	public final static class AddInventoryItem extends EntityVisitor
 	{
 		private String m_item;
 		private int m_slot;
@@ -249,7 +273,7 @@ public final class NetRpgCharacter extends NetEntity
 		}
 
 		@Override
-		public void visit(Communicator sender, Entity entity, boolean onServer) throws InvalidMessageException
+		public void doVisit(Communicator sender, Entity entity, boolean onServer)
 		{
 			RpgCharacter character = getCharacter(entity, sender, this);
 			
@@ -272,9 +296,15 @@ public final class NetRpgCharacter extends NetEntity
 		{
 			return true;
 		}
+
+		@Override
+		protected void verify() throws InvalidMessageException {
+			// TODO Auto-generated method stub
+			
+		}
 	}
 
-	public final static class RemoveInventoryItem implements IEntityVisitor
+	public final static class RemoveInventoryItem extends EntityVisitor
 	{
 		private int m_slot;
 		
@@ -290,7 +320,7 @@ public final class NetRpgCharacter extends NetEntity
 		}
 
 		@Override
-		public void visit(Communicator sender, Entity entity, boolean onServer) throws InvalidMessageException
+		public void doVisit(Communicator sender, Entity entity, boolean onServer)
 		{
 			RpgCharacter character = getCharacter(entity, sender, this);
 			
@@ -313,9 +343,15 @@ public final class NetRpgCharacter extends NetEntity
 		{
 			return true;
 		}
+
+		@Override
+		protected void verify() throws InvalidMessageException {
+			// TODO Auto-generated method stub
+			
+		}
 	}
 
-	public final static class EquipItem implements IEntityVisitor
+	public final static class EquipItem extends EntityVisitor
 	{
 		private String m_item;
 
@@ -331,7 +367,7 @@ public final class NetRpgCharacter extends NetEntity
 		}
 
 		@Override
-		public void visit(Communicator sender, Entity entity, boolean onServer) throws InvalidMessageException
+		public void doVisit(Communicator sender, Entity entity, boolean onServer)
 		{
 			RpgCharacter character = getCharacter(entity, sender, this);
 			
@@ -349,9 +385,15 @@ public final class NetRpgCharacter extends NetEntity
 		{
 			return true;
 		}
+
+		@Override
+		protected void verify() throws InvalidMessageException {
+			// TODO Auto-generated method stub
+			
+		}
 	}
 
-	public final static class UnequipItem implements IEntityVisitor
+	public final static class UnequipItem extends EntityVisitor
 	{
 		private ItemType m_slot;
 
@@ -372,7 +414,7 @@ public final class NetRpgCharacter extends NetEntity
 		}
 
 		@Override
-		public void visit(Communicator sender, Entity entity, boolean onServer) throws InvalidMessageException
+		public void doVisit(Communicator sender, Entity entity, boolean onServer)
 		{
 			RpgCharacter character = getCharacter(entity, sender, this);
 			
@@ -391,9 +433,15 @@ public final class NetRpgCharacter extends NetEntity
 		{
 			return true;
 		}
+
+		@Override
+		protected void verify() throws InvalidMessageException {
+			// TODO Auto-generated method stub
+			
+		}
 	}
 	
-	public final static class InventoryAction implements IEntityVisitor
+	public final static class InventoryAction extends EntityVisitor
 	{
 		private NetEntityName m_accessor;
 		private String m_action;
@@ -418,7 +466,7 @@ public final class NetRpgCharacter extends NetEntity
 		}
 
 		@Override
-		public void visit(Communicator sender, Entity entity, boolean onServer) throws InvalidMessageException
+		public void doVisit(Communicator sender, Entity entity, boolean onServer)
 		{
 			RpgCharacter character = getCharacter(entity, sender, this);
 			
@@ -446,9 +494,15 @@ public final class NetRpgCharacter extends NetEntity
 		{
 			return false;
 		}
+
+		@Override
+		protected void verify() throws InvalidMessageException {
+			// TODO Auto-generated method stub
+			
+		}
 	}
 
-	public final static class QueryMoveTo implements IEntityVisitor
+	public final static class QueryMoveTo extends EntityVisitor
 	{
 		private Vector2F m_destination;
 
@@ -469,7 +523,7 @@ public final class NetRpgCharacter extends NetEntity
 		}
 
 		@Override
-		public void visit(Communicator sender, Entity entity, boolean onServer) throws InvalidMessageException
+		public void doVisit(Communicator sender, Entity entity, boolean onServer)
 		{
 			RpgCharacter character = getCharacter(entity, sender, this);
 			
@@ -486,6 +540,12 @@ public final class NetRpgCharacter extends NetEntity
 		public boolean isServerDispatchOnly()
 		{
 			return false;
+		}
+
+		@Override
+		protected void verify() throws InvalidMessageException {
+			// TODO Auto-generated method stub
+			
 		}
 	}
 }

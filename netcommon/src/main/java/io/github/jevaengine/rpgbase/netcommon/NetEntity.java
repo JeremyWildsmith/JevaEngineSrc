@@ -1,3 +1,10 @@
+/*******************************************************************************
+ * 
+ * Contributors:
+ *		Jeremy - initial API and implementation
+ *      Alan O'Brien - Changed entity visitor from interface to abstract class
+ ******************************************************************************/
+
 package io.github.jevaengine.rpgbase.netcommon;
 
 import java.util.HashMap;
@@ -7,15 +14,28 @@ import io.github.jevaengine.Core;
 import io.github.jevaengine.ResourceLibrary;
 import io.github.jevaengine.communication.Communicator;
 import io.github.jevaengine.communication.InvalidMessageException;
+import io.github.jevaengine.communication.VisitorValidationFailedException;
 import io.github.jevaengine.world.Entity;
 
 public class NetEntity
 {
-	public interface IEntityVisitor
+	public static abstract class EntityVisitor
 	{
-		void visit(Communicator sender, Entity entity, boolean onServer) throws InvalidMessageException;
-		boolean isServerDispatchOnly();
-		boolean requiresOwnership();
+		public final void visit(Communicator sender, Entity entity, boolean onServer) throws InvalidMessageException
+		{
+			try{
+				verify();	
+			}
+			catch (VisitorValidationFailedException visitorException) {
+				throw new InvalidMessageException(sender, this, visitorException);	
+			}
+			doVisit(sender, entity, onServer);
+
+		}
+		protected abstract void doVisit(Communicator sender, Entity entity,boolean onServer);
+		protected abstract void verify() throws VisitorValidationFailedException;
+		public abstract boolean isServerDispatchOnly();
+		public abstract boolean requiresOwnership();
 	}
 	
 	//I feel like this is a bad idea...
@@ -61,7 +81,7 @@ public class NetEntity
 		}
 	}
 	
-	public static final class FlagSet implements IEntityVisitor
+	public static final class FlagSet extends EntityVisitor
 	{
 		public String m_name;
 		public Integer m_value;
@@ -77,7 +97,7 @@ public class NetEntity
 		}
 
 		@Override
-		public void visit(Communicator sender, Entity entity, boolean onServer) throws InvalidMessageException
+		protected void doVisit(Communicator sender, Entity entity, boolean onServer)
 		{
 			entity.setFlag(m_name, m_value);
 		}
@@ -93,9 +113,22 @@ public class NetEntity
 		{
 			return true;
 		}
+
+		@Override
+		protected void verify() throws VisitorValidationFailedException {
+			
+			if(m_name == null) {
+				throw new VisitorValidationFailedException("m_name cannot be null");
+				}
+			if ( m_value == null){
+				throw new VisitorValidationFailedException("m_value cannot be null");
+			}
+			
+		}
+
 	}
 	
-	public static final class FlagCleared implements IEntityVisitor
+	public static final class FlagCleared extends EntityVisitor
 	{
 		public String m_name;
 		
@@ -109,7 +142,7 @@ public class NetEntity
 		}
 
 		@Override
-		public void visit(Communicator sender, Entity entity, boolean onServer) throws InvalidMessageException
+		public void doVisit(Communicator sender, Entity entity, boolean onServer)
 		{
 			entity.clearFlag(m_name);
 		}
@@ -125,9 +158,17 @@ public class NetEntity
 		{
 			return true;
 		}
+
+		@Override
+		protected void verify() throws VisitorValidationFailedException {
+			
+			if(m_name == null) {
+				throw new VisitorValidationFailedException("m_name cannot be null");
+				}
+		}
 	}
 	
-	public static final class InitializeFlags implements IEntityVisitor
+	public static final class InitializeFlags extends EntityVisitor
 	{
 		HashMap<String, Integer> m_flags;
 		
@@ -141,7 +182,7 @@ public class NetEntity
 		}
 		
 		@Override
-		public void visit(Communicator sender, Entity entity, boolean onServer) throws InvalidMessageException
+		public void doVisit(Communicator sender, Entity entity, boolean onServer)
 		{
 			entity.clearFlags();
 			
@@ -159,6 +200,14 @@ public class NetEntity
 		public boolean requiresOwnership()
 		{
 			return true;
+		}
+
+		@Override
+		protected void verify() throws VisitorValidationFailedException {
+			
+			if(m_flags == null) {
+				throw new VisitorValidationFailedException("m_flags cannot be null");
+				}	
 		}
 	}
 }
