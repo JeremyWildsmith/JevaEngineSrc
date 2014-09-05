@@ -1,0 +1,62 @@
+{
+  "worldHeight" : 51,
+  "artifactPlanes" : [ {
+    "planeZ" : 0.0,
+    "artifactIndices" : [ 4, -9, 4, -9, 4, -9, 4, -9, 4, -9, 4, -459, 4, -9, 4, -9, 4, -9, 4, -9, 4, -9, 4, -459, 4, -9, 4, -9, 4, -9, 4, -9, 4, -9, 4, -459, 4, -9, 4, -9, 4, -9, 4, -9, 4, -9, 4, -459, 4, -9, 4, -9, 4, -9, 4, -9, 4, -9, 4, -459, 4, -9, 4, -9, 4, -9, 4, -9, 4, -9, 4 ]
+  }, {
+    "planeZ" : 0.10000000149011612,
+    "artifactIndices" : [ -1057, 0, -500, 1, -169, 2, -36, 3, -455, 1 ]
+  } ],
+  "friction" : 2.0,
+  "worldWidth" : 51,
+  "entities" : [ {
+    "location" : {
+      "z" : 0.10000000149011612,
+      "y" : 34.0,
+      "x" : 40.0
+    },
+    "direction" : 8,
+    "name" : "player",
+    "config" : "artifact/entity/maletraveler/entity.jec",
+    "auxConfig" : {
+      "behavior" : "artifact/behavior/character/puppet.js"
+    },
+    "type" : "character"
+  }, {
+    "location" : {
+      "z" : 0.10000000149011612,
+      "y" : 30.0,
+      "x" : 34.0
+    },
+    "direction" : 8,
+    "name" : "scene",
+    "auxConfig" : {
+      "arguments": {
+    	  "dialogue" : "quest/coldbloodedmurder/examineBody.jdf"  
+      },
+      "behavior" : "artifact/behavior/trigger/dialogue.js" 
+    },
+    "type" : "areaTrigger"
+  } ],
+  "artifacts" : [ {
+    "model" : "artifact/scene/parpg/containerhouse0.jmf",
+    "direction" : 4,
+    "isTraversable" : false
+  }, {
+    "model" : "artifact/scene/parpg/guardtower.jmf",
+    "direction" : 0,
+    "isTraversable" : false
+  }, {
+    "model" : "artifact/scene/parpg/tank.jmf",
+    "direction" : 4,
+    "isTraversable" : false
+  }, {
+    "model" : "artifact/scene/parpg/windmill.jmf",
+    "direction" : 4,
+    "isTraversable" : false
+  }, {
+    "model" : "artifact/scene/parpg/ground_chunk.jmf",
+    "direction" : 4,
+    "isTraversable" : true
+  } ]
+}

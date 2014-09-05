@@ -1,0 +1,36 @@
+{
+  "style": "@ui/style/tech/tech.juis",
+  "bounds": {
+    "width": 440,
+    "height": 85
+  },
+  "controls": [
+    {
+      "type": "label",
+      "name": "lblStatus",
+      "location": {
+        "x": 15,
+        "y": 10
+      }
+    },
+    {
+      "type": "valueGuage",
+      "name": "progress",
+      "location": {
+        "x": 10,
+        "y": 30
+      },
+      "config": {
+        "bounds": {
+          "width": 400,
+          "height": 20
+        },
+        "color": {
+          "x": 255,
+          "y": 20,
+          "z": 20
+        }
+      }
+    }
+  ]
+}

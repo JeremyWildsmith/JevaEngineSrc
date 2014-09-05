@@ -1,0 +1,125 @@
+{
+  "scale" : 1.0,
+  "animations" : [ {
+    "frames" : [ {
+      "region" : {
+        "height" : 192,
+        "width" : 128,
+        "y" : 0,
+        "x" : 0
+      },
+      "delay" : 2000,
+      "anchor" : {
+        "y" : 176,
+        "x" : 64
+      }
+    } ],
+    "name" : "0"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 192,
+        "width" : 128,
+        "y" : 0,
+        "x" : 128
+      },
+      "delay" : 2000,
+      "anchor" : {
+        "y" : 176,
+        "x" : 64
+      }
+    } ],
+    "name" : "1"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 192,
+        "width" : 128,
+        "y" : 0,
+        "x" : 256
+      },
+      "delay" : 2000,
+      "anchor" : {
+        "y" : 176,
+        "x" : 64
+      }
+    } ],
+    "name" : "2"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 192,
+        "width" : 128,
+        "y" : 0,
+        "x" : 384
+      },
+      "delay" : 2000,
+      "anchor" : {
+        "y" : 176,
+        "x" : 64
+      }
+    } ],
+    "name" : "3"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 192,
+        "width" : 128,
+        "y" : 0,
+        "x" : 512
+      },
+      "delay" : 2000,
+      "anchor" : {
+        "y" : 176,
+        "x" : 64
+      }
+    } ],
+    "name" : "4"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 192,
+        "width" : 128,
+        "y" : 0,
+        "x" : 640
+      },
+      "delay" : 2000,
+      "anchor" : {
+        "y" : 176,
+        "x" : 64
+      }
+    } ],
+    "name" : "5"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 192,
+        "width" : 128,
+        "y" : 0,
+        "x" : 768
+      },
+      "delay" : 2000,
+      "anchor" : {
+        "y" : 176,
+        "x" : 64
+      }
+    } ],
+    "name" : "6"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 192,
+        "width" : 128,
+        "y" : 0,
+        "x" : 896
+      },
+      "delay" : 2000,
+      "anchor" : {
+        "y" : 176,
+        "x" : 64
+      }
+    } ],
+    "name" : "7"
+  } ],
+  "texture" : "artifact/scene/outside/trees.png"
+}

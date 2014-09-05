@@ -1,0 +1,65 @@
+{
+  "scale" : 1.0,
+  "animations" : [ {
+    "frames" : [ {
+      "region" : {
+        "height" : 128,
+        "width" : 64,
+        "y" : 0,
+        "x" : 0
+      },
+      "delay" : 2000,
+      "anchor" : {
+        "y" : 112,
+        "x" : 32
+      }
+    } ],
+    "name" : "0"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 128,
+        "width" : 64,
+        "y" : 0,
+        "x" : 64
+      },
+      "delay" : 2000,
+      "anchor" : {
+        "y" : 112,
+        "x" : 32
+      }
+    } ],
+    "name" : "1"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 128,
+        "width" : 64,
+        "y" : 0,
+        "x" : 128
+      },
+      "delay" : 2000,
+      "anchor" : {
+        "y" : 112,
+        "x" : 32
+      }
+    } ],
+    "name" : "2"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 128,
+        "width" : 64,
+        "y" : 0,
+        "x" : 192
+      },
+      "delay" : 2000,
+      "anchor" : {
+        "y" : 112,
+        "x" : 32
+      }
+    } ],
+    "name" : "3"
+  } ],
+  "texture" : "artifact/scene/cave/wall_mushroom.png"
+}

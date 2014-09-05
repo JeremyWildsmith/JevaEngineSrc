@@ -1,0 +1,155 @@
+{
+  "scale" : 1.0,
+  "animations" : [ {
+    "frames" : [ {
+      "region" : {
+        "height" : 32,
+        "width" : 64,
+        "y" : 0,
+        "x" : 0
+      },
+      "delay" : 2000,
+      "anchor" : {
+        "y" : 16,
+        "x" : 32
+      }
+    } ],
+    "name" : "0"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 32,
+        "width" : 64,
+        "y" : 0,
+        "x" : 64
+      },
+      "delay" : 2000,
+      "anchor" : {
+        "y" : 16,
+        "x" : 32
+      }
+    } ],
+    "name" : "1"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 32,
+        "width" : 64,
+        "y" : 0,
+        "x" : 128
+      },
+      "delay" : 2000,
+      "anchor" : {
+        "y" : 16,
+        "x" : 32
+      }
+    } ],
+    "name" : "2"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 32,
+        "width" : 64,
+        "y" : 0,
+        "x" : 192
+      },
+      "delay" : 2000,
+      "anchor" : {
+        "y" : 16,
+        "x" : 32
+      }
+    } ],
+    "name" : "3"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 32,
+        "width" : 64,
+        "y" : 0,
+        "x" : 256
+      },
+      "delay" : 2000,
+      "anchor" : {
+        "y" : 16,
+        "x" : 32
+      }
+    } ],
+    "name" : "4"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 32,
+        "width" : 64,
+        "y" : 0,
+        "x" : 320
+      },
+      "delay" : 2000,
+      "anchor" : {
+        "y" : 16,
+        "x" : 32
+      }
+    } ],
+    "name" : "5"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 32,
+        "width" : 64,
+        "y" : 0,
+        "x" : 384
+      },
+      "delay" : 2000,
+      "anchor" : {
+        "y" : 16,
+        "x" : 32
+      }
+    } ],
+    "name" : "6"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 32,
+        "width" : 64,
+        "y" : 0,
+        "x" : 448
+      },
+      "delay" : 2000,
+      "anchor" : {
+        "y" : 16,
+        "x" : 32
+      }
+    } ],
+    "name" : "7"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 32,
+        "width" : 64,
+        "y" : 0,
+        "x" : 512
+      },
+      "delay" : 2000,
+      "anchor" : {
+        "y" : 16,
+        "x" : 32
+      }
+    } ],
+    "name" : "8"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 32,
+        "width" : 64,
+        "y" : 0,
+        "x" : 576
+      },
+      "delay" : 2000,
+      "anchor" : {
+        "y" : 16,
+        "x" : 32
+      }
+    } ],
+    "name" : "9"
+  } ],
+  "texture" : "artifact/scene/cave/ground_debris.png"
+}

@@ -1,0 +1,20 @@
+{
+  "scale" : 1.0,
+  "animations" : [ {
+    "frames" : [ {
+      "region" : {
+        "height" : 266,
+        "width" : 206,
+        "y" : 0,
+        "x" : 0
+      },
+      "delay" : 2000,
+      "anchor" : {
+        "y" : 214,
+        "x" : 76
+      }
+    } ],
+    "name" : "idle"
+  }],
+  "texture" : "artifact/scene/parpg/windmill.png"
+}

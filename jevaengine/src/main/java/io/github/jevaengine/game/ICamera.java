@@ -12,20 +12,17 @@
  ******************************************************************************/
 package io.github.jevaengine.game;
 
-import io.github.jevaengine.math.Vector2D;
-import io.github.jevaengine.util.Nullable;
+import io.github.jevaengine.math.Rect2D;
+import io.github.jevaengine.math.Vector3F;
+import io.github.jevaengine.world.IImmutableSceneBuffer;
 import io.github.jevaengine.world.World;
 
 public interface ICamera
 {
-	Vector2D getLookAt();
-
-	float getScale();
-
-	@Nullable
-	World getWorld();
-
-	void attach(World world);
-
+	IImmutableSceneBuffer getScene(Rect2D bounds, float scale);
+	
+	Vector3F getLookAt();
+	
 	void dettach();
+	void attach(World world);
 }

@@ -6,6 +6,7 @@
 
 package io.github.jevaengine.rpgbase.demo;
 
+
 /**
  *
  * @author Jeremy
@@ -15,5 +16,5 @@ public interface IState
 	void enter(IStateContext context);
 	void leave();
 	
-	void update(int iDelta);
+	void update(int deltaTime);
 }

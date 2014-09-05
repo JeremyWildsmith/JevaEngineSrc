@@ -19,9 +19,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-public final class Animation
+public final class Animation implements IImmutableAnimation
 {
-
 	private List<Frame> m_frames;
 
 	private int m_curIndex;
@@ -32,7 +31,8 @@ public final class Animation
 
 	private boolean m_playWrapBackwards = false;
 	
-	private @Nullable Runnable m_eventHandler;
+	@Nullable
+	private IAnimationEventListener m_eventHandler;
 	
 	public Animation(Animation src)
 	{
@@ -59,10 +59,16 @@ public final class Animation
 		m_frames.addAll(Arrays.asList(frames));
 	}
 	
-	private void triggerEvent()
+	private void triggerEvent(String name)
 	{
 		if(m_eventHandler != null)
-			m_eventHandler.run();
+			m_eventHandler.onFrameEvent(name);
+	}
+	
+	private void triggerStateEvent()
+	{
+		if(m_eventHandler != null)
+			m_eventHandler.onStateEvent();
 	}
 
 	public void reset()
@@ -81,11 +87,16 @@ public final class Animation
 		setState(state, null);
 	}
 	
-	public void setState(AnimationState state, @Nullable Runnable eventHandler)
+	public void setState(AnimationState state, @Nullable IAnimationEventListener eventHandler)
 	{
 		m_state = state;
 		m_playWrapBackwards = false;
 		m_eventHandler = eventHandler;
+	}
+	
+	public AnimationState getState()
+	{
+		return m_state;
 	}
 
 	public void update(int deltaTime)
@@ -93,9 +104,7 @@ public final class Animation
 		m_elapsedTime += deltaTime;
 
 		if (m_frames.isEmpty() || m_state == AnimationState.Stop || m_elapsedTime < getCurrentFrame().getDelay())
-		{
 			return;
-		}
 
 		while (m_elapsedTime > getCurrentFrame().getDelay())
 		{
@@ -109,7 +118,7 @@ public final class Animation
 					if (m_curIndex == m_frames.size() - 1)
 					{
 						m_state = AnimationState.Stop;
-						triggerEvent();
+						triggerStateEvent();
 						break;
 					}
 				case Play:
@@ -119,12 +128,10 @@ public final class Animation
 					if(m_curIndex == m_frames.size() - 1)
 					{
 						m_playWrapBackwards = true;
-						triggerEvent();
-					}
-					else if(m_curIndex == 0)
-					{
+						triggerStateEvent();
+					}else if(m_curIndex == 0) {
 						m_playWrapBackwards = false;
-						triggerEvent();
+						triggerStateEvent();
 					}
 					
 					if(m_playWrapBackwards)
@@ -136,16 +143,25 @@ public final class Animation
 				default:
 					throw new UnknownAnimationStateException(m_state);
 			}
+			
+			String event = m_frames.get(m_curIndex).getEvent();
+			
+			if(event != null)
+				triggerEvent(event);
 		}
 	}
 
 	public Frame getCurrentFrame()
 	{
 		if (m_curIndex >= m_frames.size())
-		{
 			throw new NoSuchElementException();
-		}
 
 		return m_frames.get(m_curIndex);
+	}
+	
+	public interface IAnimationEventListener
+	{
+		void onFrameEvent(String name);
+		void onStateEvent();
 	}
 }

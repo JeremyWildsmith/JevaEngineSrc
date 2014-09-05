@@ -12,22 +12,15 @@
  ******************************************************************************/
 package io.github.jevaengine.graphics;
 
-import java.awt.Graphics2D;
-
-import io.github.jevaengine.Core;
-import io.github.jevaengine.ResourceLibrary;
-import io.github.jevaengine.config.ISerializable;
-import io.github.jevaengine.config.IImmutableVariable;
-import io.github.jevaengine.config.IVariable;
-import io.github.jevaengine.graphics.Sprite.SpriteDeclaration;
 import io.github.jevaengine.math.Vector2F;
+
+import java.awt.Graphics2D;
 
 public final class ParticleEmitter implements IRenderable
 {
 	private static final int MAX_SPRITES = 25;
-
+	
 	private Sprite[] m_spriteMaps;
-
 	private Sprite[] m_particleSprites;
 
 	private Vector2F m_acceleration;
@@ -58,21 +51,6 @@ public final class ParticleEmitter implements IRenderable
 		m_isEmitting = false;
 	}
 
-	public static ParticleEmitter create(ParticleEmitterDeclaration decl)
-	{
-		Sprite[] spriteMaps = new Sprite[decl.sprites.length];
-
-		for (int i = 0; i < decl.sprites.length; i++)
-			spriteMaps[i] = Sprite.create(Core.getService(ResourceLibrary.class).openConfiguration(decl.sprites[i]).getValue(SpriteDeclaration.class));
-
-		return new ParticleEmitter(spriteMaps, 
-									decl.acceleration, 
-									decl.velocity, 
-									Math.max(1, decl.count), 
-									Math.max(100, decl.life), 
-									decl.variation);
-	}
-
 	public void update(int deltaTime)
 	{
 		for (int i = 0; i < m_particleCount; i++)
@@ -100,7 +78,6 @@ public final class ParticleEmitter implements IRenderable
 				if (m_particleSprites[particle % m_particleSprites.length] == null)
 				{
 					m_particleSprites[particle % m_particleSprites.length] = new Sprite(m_spriteMaps[((int) (Math.random() * 100) % m_spriteMaps.length)]);
-					m_particleSprites[particle % m_particleSprites.length].setAnimation("idle", AnimationState.PlayToEnd);
 				}
 			}
 
@@ -114,12 +91,6 @@ public final class ParticleEmitter implements IRenderable
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see io.github.jeremywildsmith.jevaengine.graphics.IRenderable#render(java.awt.Graphics2D, int, int,
-	 * float)
-	 */
 	@Override
 	public void render(Graphics2D g, int x, int y, float fScale)
 	{
@@ -165,41 +136,5 @@ public final class ParticleEmitter implements IRenderable
 		{
 			offset = _offset;
 		}
-	}
-	
-	public static class ParticleEmitterDeclaration implements ISerializable
-	{
-		public int count;
-		public int life;
-		public Vector2F velocity;
-		public Vector2F acceleration;
-		public float variation;
-		public String[] sprites;
-
-		public ParticleEmitterDeclaration() { }
-		
-		@Override
-		public void serialize(IVariable target)
-		{
-			target.addChild("count").setValue(this.count);
-			target.addChild("life").setValue(this.life);
-			target.addChild("velocity").setValue(this.velocity);
-			target.addChild("acceleration").setValue(this.acceleration);
-			target.addChild("variation").setValue(this.variation);
-			target.addChild("sprites").setValue(this.sprites);
-		}
-
-		@Override
-		public void deserialize(IImmutableVariable source)
-		{
-			this.count = source.getChild("count").getValue(Integer.class);
-			this.life = source.getChild("life").getValue(Integer.class);
-			this.velocity = source.getChild("velocity").getValue(Vector2F.class);
-			this.acceleration = source.getChild("acceleration").getValue(Vector2F.class);
-			this.variation = source.getChild("variation").getValue(Double.class).floatValue();
-			this.sprites = source.getChild("sprites").getValues(String[].class);
-		}
-		
-		
 	}
 }

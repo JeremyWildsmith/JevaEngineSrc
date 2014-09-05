@@ -1,0 +1,64 @@
+{
+  "style": "@ui/style/tech/tech.juis",
+  "bounds": {
+    "width": 440,
+    "height": 85
+  },
+  "controls": [
+    {
+      "type": "button",
+      "name": "btnOkay",
+      "location": {
+        "x": 390,
+        "y": 60
+      },
+      "config": {
+        "text": "Okay"
+      }
+    },
+    {
+      "type": "button",
+      "name": "btnCancel",
+      "location": {
+        "x": 340,
+        "y": 60
+      },
+      "config": {
+        "text": "Cancel"
+      }
+    },
+    {
+      "type": "label",
+      "name": "lblQuery",
+      "location": {
+        "x": 15,
+        "y": 10
+      }
+    },
+    {
+      "type": "textArea",
+      "name": "txtValue",
+      "location": {
+        "x": 10,
+        "y": 30
+      },
+      "config": {
+        "bounds": {
+          "width": 370,
+          "height": 20
+        }
+      }
+    },
+    {
+      "type": "button",
+      "name": "btnBrowse",
+      "location": {
+        "x": 385,
+        "y": 30
+      },
+      "config": {
+        "text": "Browse"
+      }
+    }
+  ]
+}

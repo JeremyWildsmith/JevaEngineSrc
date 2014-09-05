@@ -12,31 +12,26 @@
  ******************************************************************************/
 package io.github.jevaengine.graphics;
 
-import io.github.jevaengine.config.ISerializable;
-import io.github.jevaengine.config.IImmutableVariable;
-import io.github.jevaengine.config.IVariable;
-import io.github.jevaengine.graphics.Sprite.SpriteDeclaration.AnimationDeclaration;
-import io.github.jevaengine.graphics.Sprite.SpriteDeclaration.FrameDeclaration;
-import io.github.jevaengine.graphics.pipeline.Graphic;
+import io.github.jevaengine.graphics.Animation.IAnimationEventListener;
 import io.github.jevaengine.math.Rect2D;
-import io.github.jevaengine.math.Rect2F;
 import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.math.Vector2F;
 import io.github.jevaengine.util.Nullable;
 
 import java.awt.Graphics2D;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
-import java.util.NoSuchElementException;
 import java.util.Set;
 
-public final class Sprite implements IRenderable
+public final class Sprite implements IRenderable, Cloneable
 {
-	private HashMap<String, Animation> m_animations;
+	private HashMap<String, Animation> m_animations = new HashMap<>();
 
+	@Nullable
 	private Animation m_currentAnimation;
 
-	private Graphic m_srcImage;
+	private IImmutableGraphic m_srcImage;
 
 	private float m_fNaturalScale;
 
@@ -44,16 +39,19 @@ public final class Sprite implements IRenderable
 	{
 		m_srcImage = src.m_srcImage;
 		m_currentAnimation = null;
-		m_animations = new HashMap<String, Animation>();
 		m_fNaturalScale = src.m_fNaturalScale;
 
 		for (Entry<String, Animation> entry : src.m_animations.entrySet())
 		{
-			m_animations.put(entry.getKey(), new Animation(entry.getValue()));
+			Animation copyAnimation = new Animation(entry.getValue());
+			m_animations.put(entry.getKey(), copyAnimation);
+			
+			if(src.m_currentAnimation == entry.getValue())
+				m_currentAnimation = copyAnimation;
 		}
 	}
 
-	public Sprite(Graphic srcImage, float fNaturalScale)
+	public Sprite(IImmutableGraphic srcImage, float fNaturalScale)
 	{
 		m_srcImage = srcImage;
 		m_currentAnimation = null;
@@ -61,44 +59,26 @@ public final class Sprite implements IRenderable
 
 		m_fNaturalScale = fNaturalScale;
 	}
-	
-	public static Sprite create(SpriteDeclaration spriteDecl)
+
+	@Override
+	public Sprite clone()
 	{
-		Graphic srcImage = Graphic.create(spriteDecl.texture);
-
-		Sprite sprite = new Sprite(srcImage, spriteDecl.scale);
-
-		for (AnimationDeclaration anim : spriteDecl.animations)
-		{
-			Animation animBuffer = new Animation();
-
-			for(FrameDeclaration frame : anim.frames)
-			{
-				animBuffer.addFrame(new Frame(frame.region, frame.delay, frame.anchor));
-			}
-
-			sprite.addAnimation(anim.name, animBuffer);
-		}
-
-		return sprite;
+		return new Sprite(this);
 	}
-
+	
 	public Rect2D getBounds()
 	{
-		Rect2D source = m_currentAnimation.getCurrentFrame().getSourceRect();
-	
-		return new Rect2D(0, 0, source.width, source.height).difference(getOrigin());
-	}
-	
-	public Rect2F getBounds(float scale)
-	{
-		Rect2D bounds = getBounds();
+		if(m_currentAnimation == null)
+			return new Rect2D();
 		
-		return new Rect2F(0, 0, bounds.width, bounds.height).difference(getOrigin(scale));
+		return m_currentAnimation.getCurrentFrame().getSourceRect();
 	}
 
 	public Vector2D getOrigin()
 	{
+		if(m_currentAnimation == null)
+			return new Vector2D();
+		
 		return m_currentAnimation.getCurrentFrame().getOrigin();
 	}
 	
@@ -115,26 +95,52 @@ public final class Sprite implements IRenderable
 		
 		return keys.toArray(new String[keys.size()]);
 	}
+	
+	public boolean hasAnimation(String name)
+	{
+		return m_animations.containsKey(name);
+	}
+	
+	@Nullable
+	public String getCurrentAnimation()
+	{
+		if(m_currentAnimation != null)
+		{
+			for(Map.Entry<String, Animation> e : m_animations.entrySet())
+			{
+				if(e.getValue() == m_currentAnimation)
+					return e.getKey();
+			}
+			
+			assert false: "It is not possible for the current animation to not exist as an entry in the set of animations for this sprite.";
+			
+			return null;
+		}else
+			return null;
+	}
 
-	public void setAnimation(String animationName, AnimationState state)
+	public void setAnimation(String animationName, AnimationState state) throws NoSuchSpriteAnimation
 	{
 		setAnimation(animationName, state, null);
 	}
 	
-	public void setAnimation(String animationName, AnimationState state, @Nullable Runnable animationEventHandler)
+	public void setAnimation(String animationName, AnimationState state, @Nullable IAnimationEventListener eventListener)  throws NoSuchSpriteAnimation
 	{
 		m_currentAnimation = m_animations.get(animationName);
 
 		if (m_currentAnimation == null)
-			throw new NoSuchElementException();
+			throw new NoSuchSpriteAnimation(animationName);
 
 		m_currentAnimation.reset();
-		m_currentAnimation.setState(state, animationEventHandler);
+		m_currentAnimation.setState(state);
 	}
 
 	public void addAnimation(String name, Animation anim)
 	{
 		m_animations.put(name, anim);
+		
+		if(m_currentAnimation == null)
+			m_currentAnimation = anim;
 	}
 
 	public void update(int deltaTime)
@@ -145,20 +151,12 @@ public final class Sprite implements IRenderable
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see io.github.jeremywildsmith.jevaengine.graphics.IRenderable#render(java.awt.Graphics2D, int, int,
-	 * float)
-	 */
 	@Override
 	public void render(Graphics2D g, int x, int y, float scale)
 	{
 		if (m_currentAnimation == null)
-		{
-			throw new NoSuchElementException();
-		}
-
+			return;
+		
 		Frame currentFrame = m_currentAnimation.getCurrentFrame();
 
 		int destX = x - Math.round(currentFrame.getOrigin().x * scale * m_fNaturalScale);
@@ -189,77 +187,15 @@ public final class Sprite implements IRenderable
 		yTest += bounds.y;
 		
 		return  m_srcImage.pickTest(xTest, yTest);
-	
 	}
 	
-	public static class SpriteDeclaration implements ISerializable
+	public static final class NoSuchSpriteAnimation extends Exception
 	{
-		public String texture;
-		public float scale;
-		public AnimationDeclaration[] animations;
-		public SpriteDeclaration() { }
-		
-		@Override
-		public void serialize(IVariable target)
+		private static final long serialVersionUID = 1L;
+	
+		private NoSuchSpriteAnimation(String name)
 		{
-			target.addChild("texture").setValue(this.texture);
-			target.addChild("scale").setValue((double)this.scale);
-			target.addChild("animations").setValue(animations);
-		}
-
-		@Override
-		public void deserialize(IImmutableVariable source)
-		{
-			this.texture = source.getChild("texture").getValue(String.class);
-			this.scale = source.getChild("scale").getValue(Double.class).floatValue();
-			this.animations = source.getChild("animations").getValues(AnimationDeclaration[].class);
-		}
-		
-		public static class AnimationDeclaration implements ISerializable
-		{
-			public String name;
-			public FrameDeclaration[] frames;
-			
-			public AnimationDeclaration() { }
-
-			@Override
-			public void serialize(IVariable target)
-			{
-				target.addChild("name").setValue(this.name);
-				target.addChild("frames").setValue(this.frames);
-			}
-
-			@Override
-			public void deserialize(IImmutableVariable source)
-			{
-				this.name = source.getChild("name").getValue(String.class);
-				this.frames = source.getChild("frames").getValues(FrameDeclaration[].class);
-			}
-		}
-		
-		public static class FrameDeclaration implements ISerializable
-		{
-			public Rect2D region;
-			public Vector2D anchor;
-			public int delay;
-			
-			public FrameDeclaration() { }
-
-			@Override
-			public void serialize(IVariable target)
-			{
-				target.addChild("region").setValue(this.region);
-				target.addChild("anchor").setValue(this.anchor);
-				target.addChild("delay").setValue(this.delay);
-			}
-
-			@Override
-			public void deserialize(IImmutableVariable source)
-			{
-				this.region = source.getChild("region").getValue(Rect2D.class);
-				this.anchor = source.getChild("anchor").getValue(Vector2D.class);
-				this.delay = source.getChild("delay").getValue(Integer.class);
-			}
+			super("Cannot find sprite animation: " + name);
 		}
 	}
 }

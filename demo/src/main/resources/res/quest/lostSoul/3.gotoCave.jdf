@@ -1,0 +1,25 @@
+{
+	"queries" :
+	[
+		{
+			"entryCondition" :"listener.testFlag('quest/lostSoul', 3)",
+			"query" :"You kill the insect and recover from it's vicious bites... but it provides no food for you to eat...",
+			"answers":
+			[
+	      		{
+	      			"next" :1,
+	      			"answer" :"Continue"
+	      		}
+	      	]
+	    },
+	    {
+	    	"query" :"Maybe you'll have better luck in the dungeon up ahead.",
+	    	"answers" : 
+	    	[
+	    	 	{
+	    	 		"answer" :"Continue"
+	    		}
+	    	]
+	    }
+	]
+}

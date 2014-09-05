@@ -12,62 +12,52 @@
  ******************************************************************************/
 package io.github.jevaengine.rpgbase.demo;
 
-import io.github.jevaengine.Core;
-import io.github.jevaengine.ResourceLibrary;
-import io.github.jevaengine.graphics.AnimationState;
-import io.github.jevaengine.graphics.Sprite;
-import io.github.jevaengine.graphics.Sprite.SpriteDeclaration;
-import io.github.jevaengine.rpgbase.RpgCharacter;
-import io.github.jevaengine.rpgbase.RpgGame;
-import io.github.jevaengine.ui.UIStyle;
-import io.github.jevaengine.ui.UIStyle.UIStyleDeclaration;
-import io.github.jevaengine.util.Nullable;
+import io.github.jevaengine.AssetConstructionException;
+import io.github.jevaengine.audio.IAudioClipFactory;
+import io.github.jevaengine.game.DefaultGame;
+import io.github.jevaengine.graphics.IRenderable;
+import io.github.jevaengine.graphics.ISpriteFactory;
+import io.github.jevaengine.graphics.NullGraphic;
+import io.github.jevaengine.joystick.IInputSource;
+import io.github.jevaengine.math.Vector2D;
+import io.github.jevaengine.ui.IWindowFactory;
+import io.github.jevaengine.world.IWorldFactory;
 
-public class DemoGame extends RpgGame implements IStateContext
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public final class DemoGame extends DefaultGame implements IStateContext
 {
-	@Nullable private RpgCharacter m_player;
-
-	private Sprite m_cursor;
-	
+	private IRenderable m_cursor;
 	private IState m_state;
 	
-	@Override
-	protected void startup()
+	private Logger m_logger = LoggerFactory.getLogger(DemoGame.class);
+
+	public DemoGame(IInputSource inputSource, IWindowFactory windowFactory, IWorldFactory worldFactory, ISpriteFactory spriteFactory, IAudioClipFactory audioClipFactory, Vector2D resolution)
 	{
-		super.startup();
+		super(inputSource, resolution);
+	
+		try
+		{
+			m_cursor = spriteFactory.create("ui/style/parpg/cursor/cursor.jsf");
+		} catch (AssetConstructionException e)
+		{
+			m_logger.error("Unable to construct cursor sprite. Reverting to null graphic for cursor.", e);
+			m_cursor = new NullGraphic();
+		}
 		
-		ResourceLibrary library = Core.getService(ResourceLibrary.class);
-		
-		UIStyle style = UIStyle.create(library.openConfiguration("ui/game.juis").getValue(UIStyleDeclaration.class));
-		
-		m_cursor = Sprite.create(library.openConfiguration("ui/tech/cursor/cursor.jsf").getValue(SpriteDeclaration.class));
-		m_cursor.setAnimation("idle", AnimationState.Play);
-		
-		m_state = new MainMenu(style);
+		m_state = new EntryState(windowFactory, worldFactory, audioClipFactory);
 		m_state.enter(this);
 	}
 
 	@Override
-	public void update(int deltaTime)
+	public void doLogic(int deltaTime)
 	{
-		super.update(deltaTime);
 		m_state.update(deltaTime);
 	}
-
+	
 	@Override
-	public void setPlayer(@Nullable RpgCharacter player)
-	{
-		m_player = player;
-	}
-
-	@Override
-	public RpgCharacter getPlayer()
-	{
-		return m_player;
-	}
-
-	@Override
-	protected Sprite getCursor()
+	protected IRenderable getCursor()
 	{
 		return m_cursor;
 	}
@@ -77,5 +67,36 @@ public class DemoGame extends RpgGame implements IStateContext
 		m_state.leave();
 		m_state = state;
 		state.enter(this);
+	}
+	
+	private static class EntryState implements IState
+	{
+		private final IWindowFactory m_windowFactory;
+		private final IWorldFactory m_worldFactory;
+		private final IAudioClipFactory m_audioClipFactory;
+		
+		private IStateContext m_context;
+
+		public EntryState(IWindowFactory windowFactory, IWorldFactory worldFactory, IAudioClipFactory audioClipFactory)
+		{
+			m_windowFactory = windowFactory;
+			m_worldFactory = worldFactory;
+			m_audioClipFactory = audioClipFactory;
+		}
+		
+		@Override
+		public void enter(IStateContext context)
+		{
+			m_context = context;
+		}
+
+		@Override
+		public void leave() { }
+
+		@Override
+		public void update(int deltaTime)
+		{
+			m_context.setState(new DemoMenu(m_windowFactory, m_worldFactory, m_audioClipFactory));
+		}
 	}
 }

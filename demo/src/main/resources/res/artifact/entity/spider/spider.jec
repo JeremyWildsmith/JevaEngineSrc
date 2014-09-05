@@ -1,0 +1,17 @@
+{
+  "name" : "Spider",
+  "inventorySize" : 0,
+  "visualAcuity" : 1.0,
+  "visibility" : 1.0,
+  "speed" : 0.9,
+  "fieldOfView" : 2.0999999046325684,
+  "model" : "artifact/entity/spider/spider.jsf",
+  "allegiance" : 1,
+  "health" : 50,
+  "viewDistance" : 4.0,
+  "attackRange": 1.6,
+  "attackDamage" : 1,
+  "attackPeriod" : 1000,
+  "attackSound" : "audio/spider/attack.wav",
+  "dieSound" : "audio/spider/die.wav"
+}

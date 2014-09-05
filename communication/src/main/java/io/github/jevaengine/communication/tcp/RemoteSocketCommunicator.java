@@ -79,7 +79,7 @@ public class RemoteSocketCommunicator extends RemoteCommunicator implements IDis
 	}
 
 	@Override
-	public synchronized void remoteDestroyPair(long id) throws IOException
+	public synchronized void remoteDestroyPair(long id)
 	{
 		if (!m_isConnected)
 			return;
@@ -97,7 +97,7 @@ public class RemoteSocketCommunicator extends RemoteCommunicator implements IDis
 	}
 
 	@Override
-	public synchronized void remoteQueryPair(long id, String className) throws IOException
+	public synchronized void remoteQueryPair(long parentId, long id, String className)
 	{
 		if (!m_isConnected)
 			return;
@@ -105,7 +105,7 @@ public class RemoteSocketCommunicator extends RemoteCommunicator implements IDis
 		try
 		{
 			m_out.write(DataTransmitType.QueryPair.getId());
-			m_kryo.writeObject(m_out, new QueryPair(id, className));
+			m_kryo.writeObject(m_out, new QueryPair(parentId, id, className));
 			m_out.flush();
 		} catch (KryoException e)
 		{
@@ -115,7 +115,7 @@ public class RemoteSocketCommunicator extends RemoteCommunicator implements IDis
 	}
 
 	@Override
-	public synchronized void remoteSnapshot(Snapshot snapshot) throws IOException
+	public synchronized void remoteSnapshot(Snapshot snapshot)
 	{
 		if (!m_isConnected)
 			return;
@@ -172,7 +172,7 @@ public class RemoteSocketCommunicator extends RemoteCommunicator implements IDis
 							break;
 						case QueryPair:
 							QueryPair request = m_kryo.readObject(m_in, QueryPair.class);
-							RemoteSocketCommunicator.this.getListener().remoteQueryPair(request.id, request.className);
+							RemoteSocketCommunicator.this.getListener().remoteQueryPair(request.parentId, request.id, request.className);
 							break;
 						case Snapshot:
 							RemoteSocketCommunicator.this.getListener().remoteSnapshot(m_kryo.readObject(m_in, Snapshot.class));
@@ -183,11 +183,11 @@ public class RemoteSocketCommunicator extends RemoteCommunicator implements IDis
 
 				} catch (KryoException | IOException | UnboundCommunicatorException e)
 				{
-					System.out.println(e);
+					e.printStackTrace();
 					end();
 				} catch (ClassNotFoundException | SnapshotSynchronizationException e)
 				{
-					System.out.println(e);
+					e.printStackTrace();
 					end();
 				}
 
@@ -209,6 +209,7 @@ public class RemoteSocketCommunicator extends RemoteCommunicator implements IDis
 
 	private static class QueryPair
 	{
+		public long parentId;
 		public long id;
 		public String className;
 
@@ -218,8 +219,9 @@ public class RemoteSocketCommunicator extends RemoteCommunicator implements IDis
 		{
 		}
 
-		public QueryPair(long _id, String _className)
+		public QueryPair(long _parentId, long _id, String _className)
 		{
+			parentId = _parentId;
 			id = _id;
 			className = _className;
 		}

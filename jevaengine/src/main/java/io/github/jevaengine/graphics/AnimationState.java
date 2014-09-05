@@ -14,7 +14,6 @@ package io.github.jevaengine.graphics;
 
 public enum AnimationState
 {
-
 	Play,
 	PlayWrap,
 	Stop,

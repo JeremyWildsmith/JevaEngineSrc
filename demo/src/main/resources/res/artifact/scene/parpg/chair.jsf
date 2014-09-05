@@ -1,0 +1,124 @@
+{
+  "scale" : 1.0,
+  "animations" : [ {
+    "frames" : [ {
+      "region" : {
+        "height" : 80,
+        "width" : 60
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 62,
+        "x" : 18
+      }
+    } ],
+    "name" : "n"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 80,
+        "width" : 60,
+        "y" : 80,
+        "x" : 0
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 62,
+        "x" : 18
+      }
+    } ],
+    "name" : "ne"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 80,
+        "width" : 60,
+        "y" : 160,
+        "x" : 0
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 62,
+        "x" : 18
+      }
+    } ],
+    "name" : "e"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 80,
+        "width" : 60,
+        "y" : 240,
+        "x" : 0
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 62,
+        "x" : 18
+      }
+    } ],
+    "name" : "se"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 80,
+        "width" : 60,
+        "y" : 320,
+        "x" : 0
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 62,
+        "x" : 18
+      }
+    } ],
+    "name" : "s"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 80,
+        "width" : 60,
+        "y" : 400,
+        "x" : 0
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 62,
+        "x" : 18
+      }
+    } ],
+    "name" : "sw"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 80,
+        "width" : 60,
+        "y" : 480,
+        "x" : 0
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 62,
+        "x" : 18
+      }
+    } ],
+    "name" : "w"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 80,
+        "width" : 60,
+        "y" : 560,
+        "x" : 0
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 62,
+        "x" : 18
+      }
+    } ],
+    "name" : "nw"
+  } ],
+  "texture" : "artifact/scene/parpg/chair.png",
+  "defaultAnimation" : "n"
+}

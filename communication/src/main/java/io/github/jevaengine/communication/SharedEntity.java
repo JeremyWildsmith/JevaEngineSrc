@@ -13,39 +13,37 @@
 package io.github.jevaengine.communication;
 
 import io.github.jevaengine.util.StaticSet;
+import io.github.jevaengine.util.SynchronousExecutor;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.ListIterator;
 import java.util.NoSuchElementException;
+import java.util.Queue;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import io.github.jevaengine.util.SynchronousExecutor.ISynchronousTask;
 
 public abstract class SharedEntity
 {
+	private int m_snapshotInterval;
+	private int m_snapshotTickCount = 0;
+
 	private ArrayList<SharedField<?>> m_sharedFields;
-
-	private ArrayList<FieldSynchronizationQuery> m_fieldSyncQueue;
-
-	private ArrayList<MessageSynchronizationQuery> m_messageQueue;
-
-	private StaticSet<Communicator> m_boundCommunicators;
+	private Queue<FieldSynchronizationQuery> m_fieldSyncQueue = new ConcurrentLinkedQueue<>();
+	private Queue<MessageSynchronizationQuery> m_messageQueue = new ConcurrentLinkedQueue<>();
+	private StaticSet<Communicator> m_boundCommunicators = new StaticSet<>();
 
 	private SharedEntity m_parent;
-
 	private ArrayList<SharedEntity> m_children = new ArrayList<SharedEntity>();
-
-	public SharedEntity()
+	private SynchronousExecutor m_syncLogicExecutor = new SynchronousExecutor();
+	
+	public SharedEntity(int snapshotInterval)
 	{
-		m_fieldSyncQueue = new ArrayList<FieldSynchronizationQuery>();
-
-		m_messageQueue = new ArrayList<MessageSynchronizationQuery>();
-
-		m_boundCommunicators = new StaticSet<Communicator>();
+		m_snapshotInterval = snapshotInterval;
 	}
 
-	void bindCommunicator(Communicator listener) throws IOException, ShareEntityException, PolicyViolationException
+	void bindCommunicator(final Communicator listener) throws ShareEntityException
 	{
 		synchronized (m_children)
 		{
@@ -54,9 +52,19 @@ public abstract class SharedEntity
 			for (SharedEntity e : m_children)
 				listener.shareEntity(e);
 		}
+		
+		m_syncLogicExecutor.enqueue(new ISynchronousTask()
+		{
+			@Override
+			public boolean run()
+			{
+				onCommunicatorBound(listener);
+				return true;
+			}
+		});
 	}
 
-	void unbindCommunicator(Communicator listener) throws IOException
+	void unbindCommunicator(final Communicator listener)
 	{
 		synchronized (m_children)
 		{
@@ -65,8 +73,60 @@ public abstract class SharedEntity
 			for (SharedEntity e : m_children)
 				listener.unshareEntity(e);
 		}
+		
+		m_syncLogicExecutor.enqueue(new ISynchronousTask()
+		{
+			@Override
+			public boolean run()
+			{
+				onCommunicatorUnbound(listener);
+				return true;
+			}
+		});
+	}
+	
+	void childEntityShared(final SharedEntity e)
+	{
+		m_syncLogicExecutor.enqueue(new ISynchronousTask()
+		{
+			@Override
+			public boolean run()
+			{
+				//As to remain consistent with onEntityShared, child should be added synchronously.
+				synchronized(m_children)
+				{
+					e.m_parent = SharedEntity.this;
+					m_children.add(e);
+					onEntityShared(e);
+				}
+				
+				return true;
+			}
+		});
 	}
 
+	void childEntityUnshared(final SharedEntity e)
+	{
+		m_syncLogicExecutor.enqueue(new ISynchronousTask()
+		{
+			@Override
+			public boolean run()
+			{
+				//As to remain consistent with onEntityUnshared, child should be removed.
+				synchronized(m_children)
+				{
+					e.m_parent = null;
+					m_children.remove(e);
+					onEntityUnshared(e);
+				}
+				
+				return true;
+			}
+		});
+	}
+	
+	//Synchronized to prevent multiple calls to this method being executed concurrently,
+	//as subsequent calls behave differently.
 	private synchronized void prepareSharedFields()
 	{
 		if (m_sharedFields != null)
@@ -137,31 +197,30 @@ public abstract class SharedEntity
 
 	protected final void enqueueFieldSync(Communicator sender, int fieldId, Object value) throws InvalidFieldIdException, PolicyViolationException
 	{
-		synchronized (m_fieldSyncQueue)
-		{
-			SharedField<?> field = getField(fieldId);
+		SharedField<?> field = getField(fieldId);
 
-			if (field == null)
-				throw new InvalidFieldIdException(this.getClass(), fieldId);
+		if (field == null)
+			throw new InvalidFieldIdException(this.getClass(), fieldId);
 
-			SharePolicy policy = field.getPolicy();
+		SharePolicy policy = field.getPolicy();
 
-			if (!policy.canRead(sender.isOwned(this)))
-				throw new PolicyViolationException(field);
+		if (!policy.canRead(sender.isOwned(this)))
+			throw new PolicyViolationException(field);
 
-			m_fieldSyncQueue.add(new FieldSynchronizationQuery(sender, fieldId, value));
-		}
+		m_fieldSyncQueue.add(new FieldSynchronizationQuery(sender, fieldId, value));
 	}
 
 	protected final void enqueueMessage(Communicator sender, Object message)
 	{
-		synchronized (m_messageQueue)
-		{
-			m_messageQueue.add(new MessageSynchronizationQuery(sender, message));
-		}
+		m_messageQueue.add(new MessageSynchronizationQuery(sender, message));
 	}
 
-	protected final void snapshot()
+	protected final void enqueueLogicTask(ISynchronousTask task)
+	{
+		m_syncLogicExecutor.enqueue(task);
+	}
+	
+	private final void snapshot()
 	{
 		prepareSharedFields();
 
@@ -180,51 +239,51 @@ public abstract class SharedEntity
 		}
 	}
 
+	public final void update(int deltaTime)
+	{
+		doLogic(deltaTime);
+		
+		m_snapshotTickCount += deltaTime;
+		
+		if(m_snapshotTickCount >= m_snapshotInterval)
+		{
+			m_snapshotTickCount = 0;
+			snapshot();
+		}
+	
+		m_syncLogicExecutor.execute();
+	}
+	
+	//When InvalidMessageException is thrown, the message which caused the exception is removed from the queue.
 	public final void synchronize() throws InvalidMessageException
 	{
-		synchronized (m_messageQueue)
+		ArrayList<MessageSynchronizationQuery> requeue = new ArrayList<>();
+		
+		for(MessageSynchronizationQuery message; (message = m_messageQueue.poll()) != null; )
 		{
-			ListIterator<MessageSynchronizationQuery> it = m_messageQueue.listIterator();
-
-			while (it.hasNext())
-			{
-				MessageSynchronizationQuery message = it.next();
-
-				try
-				{
-					if (onMessageRecieved(message.getSender(), message.getMessage()))
-						it.remove();
-
-				} catch (InvalidMessageException e)
-				{
-					// If the message is invalid, remove it from the queue and
-					// rethrow
-					it.remove();
-					throw e;
-				}
-			}
+			if (!onMessageRecieved(message.getSender(), message.getMessage()))
+				requeue.add(message);
 		}
-
-		synchronized (m_fieldSyncQueue)
+		m_messageQueue.addAll(requeue);
+		
+		for(FieldSynchronizationQuery query; (query = m_fieldSyncQueue.poll()) != null;)
 		{
-			ListIterator<FieldSynchronizationQuery> it = m_fieldSyncQueue.listIterator();
-
-			while (it.hasNext())
-			{
-				FieldSynchronizationQuery query = it.next();
-
-				SharedField<?> sharedField = getField(query.getId());
-
-				if (synchronizeShared(query.getSender(), sharedField, query.getValue()))
-					it.remove();
-			}
+			SharedField<?> sharedField = getField(query.getId());
+			synchronizeShared(query.getSender(), sharedField, query.getValue());
 		}
-
-		for (SharedEntity e : m_children)
-			e.synchronize();
+	
+		doSynchronization();
+	}
+	
+	public final boolean isSharing(SharedEntity networkEntity)
+	{
+		synchronized(m_children)
+		{
+			return m_children.contains(networkEntity);
+		}
 	}
 
-	protected final void share(SharedEntity networkEntity) throws IOException, ShareEntityException, PolicyViolationException
+	protected final void share(SharedEntity networkEntity)
 	{
 		synchronized (m_children)
 		{
@@ -237,14 +296,12 @@ public abstract class SharedEntity
 		}
 	}
 
-	protected final void unshare(SharedEntity networkEntity) throws IOException
+	protected final void unshare(SharedEntity networkEntity)
 	{
 		synchronized (m_children)
 		{
 			if (!m_children.remove(networkEntity))
 				throw new NoSuchElementException();
-
-			networkEntity.m_parent = null;
 
 			for (Communicator listener : m_boundCommunicators)
 				listener.unshareEntity(networkEntity);
@@ -263,14 +320,22 @@ public abstract class SharedEntity
 			listener.enqueueMessage(this, message);
 	}
 
-	protected boolean synchronizeShared(Communicator sender, SharedField<?> sharedField, Object value)
+	protected void synchronizeShared(Communicator sender, SharedField<?> sharedField, Object value)
 	{
 		sharedField.m_shared = value;
-		return true;
 	}
+	
+	protected void onCommunicatorBound(Communicator communicator) { }
+	protected void onCommunicatorUnbound(Communicator communicator) { }
+	
+	protected void onEntityShared(SharedEntity e) { }
+	protected void onEntityUnshared(SharedEntity e) { }
 
+	protected abstract void doLogic(int deltaTime);
+	protected abstract void doSynchronization()  throws InvalidMessageException;
+	
 	protected abstract boolean onMessageRecieved(Communicator sender, Object recv) throws InvalidMessageException;
-
+	
 	protected final class SharedField<T>
 	{
 		private static final int INVALID_ID = -1;

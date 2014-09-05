@@ -1,0 +1,2405 @@
+{
+  "scale" : 0.8,
+  "animations" : [ {
+    "frames" : [ {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 0,
+        "x" : 0
+      },
+      "delay" : 200,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 0,
+        "x" : 128
+      },
+      "delay" : 200,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 0,
+        "x" : 256
+      },
+      "delay" : 200,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 0,
+        "x" : 384
+      },
+      "delay" : 200,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    } ],
+    "name" : "swidle"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 0,
+        "x" : 512
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 0,
+        "x" : 640
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 0,
+        "x" : 768
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 0,
+        "x" : 896
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 0,
+        "x" : 1024
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 0,
+        "x" : 1152
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 0,
+        "x" : 1280
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 0,
+        "x" : 1408
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    } ],
+    "name" : "swwalk"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 0,
+        "x" : 1536
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 0,
+        "x" : 1664
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 0,
+        "x" : 1792
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 0,
+        "x" : 1920
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    } ],
+    "name" : "swattack"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 0,
+        "x" : 2048
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 0,
+        "x" : 2176
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 0,
+        "x" : 2304
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 0,
+        "x" : 2432
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 0,
+        "x" : 2560
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 0,
+        "x" : 2688
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 0,
+        "x" : 2816
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 0,
+        "x" : 2944
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    } ],
+    "name" : "swdie"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 128,
+        "x" : 0
+      },
+      "delay" : 200,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 128,
+        "x" : 128
+      },
+      "delay" : 200,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 128,
+        "x" : 256
+      },
+      "delay" : 200,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 128,
+        "x" : 384
+      },
+      "delay" : 200,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    } ],
+    "name" : "widle"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 128,
+        "x" : 512
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 128,
+        "x" : 640
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 128,
+        "x" : 768
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 128,
+        "x" : 896
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 128,
+        "x" : 1024
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 128,
+        "x" : 1152
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 128,
+        "x" : 1280
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 128,
+        "x" : 1408
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    } ],
+    "name" : "wwalk"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 128,
+        "x" : 1536
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 128,
+        "x" : 1664
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 128,
+        "x" : 1792
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 128,
+        "x" : 1920
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    } ],
+    "name" : "wattack"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 128,
+        "x" : 2048
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 128,
+        "x" : 2176
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 128,
+        "x" : 2304
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 128,
+        "x" : 2432
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 128,
+        "x" : 2560
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 128,
+        "x" : 2688
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 128,
+        "x" : 2816
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 128,
+        "x" : 2944
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    } ],
+    "name" : "wdie"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 256,
+        "x" : 0
+      },
+      "delay" : 200,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 256,
+        "x" : 128
+      },
+      "delay" : 200,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 256,
+        "x" : 256
+      },
+      "delay" : 200,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 256,
+        "x" : 384
+      },
+      "delay" : 200,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    } ],
+    "name" : "nwidle"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 256,
+        "x" : 512
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 256,
+        "x" : 640
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 256,
+        "x" : 768
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 256,
+        "x" : 896
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 256,
+        "x" : 1024
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 256,
+        "x" : 1152
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 256,
+        "x" : 1280
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 256,
+        "x" : 1408
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    } ],
+    "name" : "nwwalk"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 256,
+        "x" : 1536
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 256,
+        "x" : 1664
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 256,
+        "x" : 1792
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 256,
+        "x" : 1920
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    } ],
+    "name" : "nwattack"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 256,
+        "x" : 2048
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 256,
+        "x" : 2176
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 256,
+        "x" : 2304
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 256,
+        "x" : 2432
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 256,
+        "x" : 2560
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 256,
+        "x" : 2688
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 256,
+        "x" : 2816
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 256,
+        "x" : 2944
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    } ],
+    "name" : "nwdie"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 384,
+        "x" : 0
+      },
+      "delay" : 200,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 384,
+        "x" : 128
+      },
+      "delay" : 200,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 384,
+        "x" : 256
+      },
+      "delay" : 200,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 384,
+        "x" : 384
+      },
+      "delay" : 200,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    } ],
+    "name" : "nidle"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 384,
+        "x" : 512
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 384,
+        "x" : 640
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 384,
+        "x" : 768
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 384,
+        "x" : 896
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 384,
+        "x" : 1024
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 384,
+        "x" : 1152
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 384,
+        "x" : 1280
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 384,
+        "x" : 1408
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    } ],
+    "name" : "nwalk"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 384,
+        "x" : 1536
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 384,
+        "x" : 1664
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 384,
+        "x" : 1792
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 384,
+        "x" : 1920
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    } ],
+    "name" : "nattack"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 384,
+        "x" : 2048
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 384,
+        "x" : 2176
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 384,
+        "x" : 2304
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 384,
+        "x" : 2432
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 384,
+        "x" : 2560
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 384,
+        "x" : 2688
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 384,
+        "x" : 2816
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 384,
+        "x" : 2944
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    } ],
+    "name" : "ndie"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 512,
+        "x" : 0
+      },
+      "delay" : 200,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 512,
+        "x" : 128
+      },
+      "delay" : 200,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 512,
+        "x" : 256
+      },
+      "delay" : 200,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 512,
+        "x" : 384
+      },
+      "delay" : 200,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    } ],
+    "name" : "neidle"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 512,
+        "x" : 512
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 512,
+        "x" : 640
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 512,
+        "x" : 768
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 512,
+        "x" : 896
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 512,
+        "x" : 1024
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 512,
+        "x" : 1152
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 512,
+        "x" : 1280
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 512,
+        "x" : 1408
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    } ],
+    "name" : "newalk"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 512,
+        "x" : 1536
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 512,
+        "x" : 1664
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 512,
+        "x" : 1792
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 512,
+        "x" : 1920
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    } ],
+    "name" : "neattack"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 512,
+        "x" : 2048
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 512,
+        "x" : 2176
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 512,
+        "x" : 2304
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 512,
+        "x" : 2432
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 512,
+        "x" : 2560
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 512,
+        "x" : 2688
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 512,
+        "x" : 2816
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 512,
+        "x" : 2944
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    } ],
+    "name" : "nedie"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 640,
+        "x" : 0
+      },
+      "delay" : 200,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 640,
+        "x" : 128
+      },
+      "delay" : 200,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 640,
+        "x" : 256
+      },
+      "delay" : 200,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 640,
+        "x" : 384
+      },
+      "delay" : 200,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    } ],
+    "name" : "eidle"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 640,
+        "x" : 512
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 640,
+        "x" : 640
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 640,
+        "x" : 768
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 640,
+        "x" : 896
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 640,
+        "x" : 1024
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 640,
+        "x" : 1152
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 640,
+        "x" : 1280
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 640,
+        "x" : 1408
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    } ],
+    "name" : "ewalk"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 640,
+        "x" : 1536
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 640,
+        "x" : 1664
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 640,
+        "x" : 1792
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 640,
+        "x" : 1920
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    } ],
+    "name" : "eattack"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 640,
+        "x" : 2048
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 640,
+        "x" : 2176
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 640,
+        "x" : 2304
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 640,
+        "x" : 2432
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 640,
+        "x" : 2560
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 640,
+        "x" : 2688
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 640,
+        "x" : 2816
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 640,
+        "x" : 2944
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    } ],
+    "name" : "edie"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 768,
+        "x" : 0
+      },
+      "delay" : 200,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 768,
+        "x" : 128
+      },
+      "delay" : 200,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 768,
+        "x" : 256
+      },
+      "delay" : 200,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 768,
+        "x" : 384
+      },
+      "delay" : 200,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    } ],
+    "name" : "seidle"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 768,
+        "x" : 512
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 768,
+        "x" : 640
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 768,
+        "x" : 768
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 768,
+        "x" : 896
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 768,
+        "x" : 1024
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 768,
+        "x" : 1152
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 768,
+        "x" : 1280
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 768,
+        "x" : 1408
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    } ],
+    "name" : "sewalk"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 768,
+        "x" : 1536
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 768,
+        "x" : 1664
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 768,
+        "x" : 1792
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 768,
+        "x" : 1920
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    } ],
+    "name" : "seattack"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 768,
+        "x" : 2048
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 768,
+        "x" : 2176
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 768,
+        "x" : 2304
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 768,
+        "x" : 2432
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 768,
+        "x" : 2560
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 768,
+        "x" : 2688
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 768,
+        "x" : 2816
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 768,
+        "x" : 2944
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    } ],
+    "name" : "sedie"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 896,
+        "x" : 0
+      },
+      "delay" : 200,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 896,
+        "x" : 128
+      },
+      "delay" : 200,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 896,
+        "x" : 256
+      },
+      "delay" : 200,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 896,
+        "x" : 384
+      },
+      "delay" : 200,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    } ],
+    "name" : "sidle"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 896,
+        "x" : 512
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 896,
+        "x" : 640
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 896,
+        "x" : 768
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 896,
+        "x" : 896
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 896,
+        "x" : 1024
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 896,
+        "x" : 1152
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 896,
+        "x" : 1280
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 896,
+        "x" : 1408
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    } ],
+    "name" : "swalk"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 896,
+        "x" : 1536
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 896,
+        "x" : 1664
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 896,
+        "x" : 1792
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 896,
+        "x" : 1920
+      },
+      "delay" : 70,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    } ],
+    "name" : "sattack"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 896,
+        "x" : 2048
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 896,
+        "x" : 2176
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 896,
+        "x" : 2304
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 896,
+        "x" : 2432
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 896,
+        "x" : 2560
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 896,
+        "x" : 2688
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 896,
+        "x" : 2816
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    }, {
+      "region" : {
+        "height" : 128,
+        "width" : 128,
+        "y" : 896,
+        "x" : 2944
+      },
+      "delay" : 100,
+      "anchor" : {
+        "y" : 85,
+        "x" : 62
+      }
+    } ],
+    "name" : "sdie"
+  } ],
+  "texture" : "artifact/entity/spider/texture.png"
+}

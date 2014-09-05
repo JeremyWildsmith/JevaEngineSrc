@@ -16,17 +16,16 @@
  */
 package io.github.jevaengine.math;
 
-import io.github.jevaengine.ResourceFormatException;
 import io.github.jevaengine.config.IImmutableVariable;
 import io.github.jevaengine.config.ISerializable;
 import io.github.jevaengine.config.IVariable;
+import io.github.jevaengine.config.NoSuchChildVariableException;
+import io.github.jevaengine.config.ValueSerializationException;
 
-public class Vector2F implements Comparable<Vector2F>, ISerializable
+public final class Vector2F implements ISerializable
 {
 	public static final float TOLERANCE = 0.00000001F;
 
-	private SortingModel m_sortingModel;
-	
 	public float x;
 	public float y;
 	
@@ -34,28 +33,18 @@ public class Vector2F implements Comparable<Vector2F>, ISerializable
 	{
 		x = v.x;
 		y = v.y;
-		m_sortingModel = v.m_sortingModel;
 	}
 
 	public Vector2F(Vector2D v)
 	{
 		x = v.x;
 		y = v.y;
-		m_sortingModel = v.getSortingModel();
 	}
 
 	public Vector2F(float fX, float fY)
 	{
 		x = fX;
 		y = fY;
-		m_sortingModel = SortingModel.Distance;
-	}
-	
-	public Vector2F(float fX, float fY, SortingModel model)
-	{
-		x = fX;
-		y = fY;
-		m_sortingModel = model;
 	}
 
 	public Vector2F()
@@ -63,11 +52,6 @@ public class Vector2F implements Comparable<Vector2F>, ISerializable
 		this(0,0);
 	}
 
-	public SortingModel getSortingModel()
-	{
-		return m_sortingModel;
-	}
-	
 	public boolean isZero()
 	{
 		return Math.abs(x) < TOLERANCE && Math.abs(y) < TOLERANCE;
@@ -89,11 +73,14 @@ public class Vector2F implements Comparable<Vector2F>, ISerializable
 	{
 		return new Vector2D((int) Math.floor(x), (int) Math.floor(y));
 	}
+	public Vector2D ceil()
+	{
+		return new Vector2D((int) Math.ceil(x), (int) Math.ceil(y));
+	}
 
 	public Vector2D round()
 	{
-		return new Vector2D((int) (Math.round(Math.abs(x)) * Math.signum(x)), (int) (Math.round(Math.abs(y)) * Math.signum(y)),
-							m_sortingModel);
+		return new Vector2D((int) (Math.round(Math.abs(x)) * Math.signum(x)), (int) (Math.round(Math.abs(y)) * Math.signum(y)));
 	}
 
 	public Vector2F negative()
@@ -133,7 +120,7 @@ public class Vector2F implements Comparable<Vector2F>, ISerializable
 
 	public Vector2F add(Vector2F a)
 	{
-		return new Vector2F(x + a.x, y + a.y, m_sortingModel);
+		return new Vector2F(x + a.x, y + a.y);
 	}
 	
 	public Vector2F add(Vector2D a)
@@ -166,7 +153,13 @@ public class Vector2F implements Comparable<Vector2F>, ISerializable
 		else if (o instanceof Vector2F)
 		{
 			Vector2F vec = (Vector2F) o;
-			return compareTo(vec) == 0;
+
+			if(Math.abs(vec.x - x) > TOLERANCE)
+				return false;
+			else if(Math.abs(vec.y - y) > TOLERANCE)
+				return false;
+			else
+				return true;
 		} else
 			return false;
 	}
@@ -181,70 +174,22 @@ public class Vector2F implements Comparable<Vector2F>, ISerializable
 	}
 
 	@Override
-	public int compareTo(Vector2F v)
-	{
-		if(m_sortingModel == SortingModel.Distance)
-		{
-			float distanceDifference = x * x + y * y - (v.x * v.x + v.y * v.y);
-			
-			if(Math.abs(distanceDifference) > TOLERANCE)
-			{
-				//If there is a difference in x, and their signs are not equal (i.e, in different quadrants)
-				if(Math.abs(v.x - x) > TOLERANCE && (x < 0) != (v.x < 0))
-					return x < v.x ? -1 : 1;
-				else if(Math.abs(v.y - y) > TOLERANCE && (y < 0) != (v.y < 0))
-					return y < v.y ? -1 : 1;
-				else
-					return distanceDifference > 0 ? 1 : -1;
-			}else if (Math.abs(v.x - x) > TOLERANCE)
-				return (x < v.x ? -1 : 1);
-			else if (Math.abs(v.y - y) > TOLERANCE)
-				return (y < v.y ? -1 : 1);
-			else
-				return 0;
-			
-		}else if(m_sortingModel == SortingModel.XOnly)
-		{
-			if (Math.abs(v.x - x) > TOLERANCE)
-				return (x < v.x ? -1 : 1);
-			else
-				return 0;
-		}else if(m_sortingModel == SortingModel.YOnly)
-		{
-			if (Math.abs(v.y - y) > TOLERANCE)
-				return (y < v.y ? -1 : 1);
-			else
-				return 0;
-		}else
-			throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void serialize(IVariable target)
+	public void serialize(IVariable target) throws ValueSerializationException
 	{
 		target.addChild("x").setValue(x);
 		target.addChild("y").setValue(y);
-		
-		//If not default
-		if(m_sortingModel != SortingModel.Distance)
-			target.addChild("sorting").setValue(m_sortingModel.ordinal());
 	}
 
 	@Override
-	public void deserialize(IImmutableVariable source)
+	public void deserialize(IImmutableVariable source) throws ValueSerializationException
 	{
-		x = source.getChild("x").getValue(Double.class).floatValue();
-		y = source.getChild("y").getValue(Double.class).floatValue();
-		
-		if(source.childExists("sorting"))
+		try
 		{
-			int sortingBuffer = source.getChild("sorting").getValue(Integer.class);
-			
-			if(sortingBuffer < 0 || sortingBuffer >= SortingModel.values().length)
-				throw new ResourceFormatException("Sorting model index is invalid.");
-			
-			m_sortingModel = SortingModel.values()[sortingBuffer];
-		}else
-			m_sortingModel = SortingModel.Distance;
+			x = source.getChild("x").getValue(Double.class).floatValue();
+			y = source.getChild("y").getValue(Double.class).floatValue();
+		} catch(NoSuchChildVariableException e)
+		{
+			throw new ValueSerializationException(e);
+		}
 	}
 }

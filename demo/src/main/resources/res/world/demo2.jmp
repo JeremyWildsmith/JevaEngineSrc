@@ -1,174 +1,409 @@
 {
-  "entityLayer" : 1,
-  "worldHeight" : 10,
+  "worldHeight" : 80,
   "tiles" : [ {
     "isStatic" : true,
-    "allowRenderSplitting" : false,
-    "visiblity" : 0.0,
-    "animation" : "17",
-    "sprite" : "artifact/scene/outside/floor.jsf",
+    "visiblity" : 1.0,
+    "animation" : "13",
+    "sprite" : "artifact/scene/outside/ground_plain.jsf",
     "isTraversable" : true
   }, {
     "isStatic" : true,
-    "allowRenderSplitting" : false,
-    "visiblity" : 0.0,
-    "animation" : "18",
-    "sprite" : "artifact/scene/outside/floor.jsf",
-    "isTraversable" : true
+    "visiblity" : 1.0,
+    "animation" : "7",
+    "sprite" : "artifact/scene/outside/trees.jsf",
+    "isTraversable" : false
   }, {
     "isStatic" : true,
-    "allowRenderSplitting" : false,
-    "visiblity" : 0.0,
-    "animation" : "15",
-    "sprite" : "artifact/scene/outside/floor.jsf",
-    "isTraversable" : true
+    "visiblity" : 1.0,
+    "animation" : "5",
+    "sprite" : "artifact/scene/outside/wall_plain.jsf",
+    "isTraversable" : false
   }, {
     "isStatic" : true,
-    "allowRenderSplitting" : false,
-    "visiblity" : 0.0,
-    "animation" : "11",
-    "sprite" : "artifact/scene/outside/floor.jsf",
-    "isTraversable" : true
-  }, {
-    "isStatic" : true,
-    "allowRenderSplitting" : false,
-    "visiblity" : 0.0,
-    "animation" : "12",
-    "sprite" : "artifact/scene/outside/floor.jsf",
-    "isTraversable" : true
-  }, {
-    "isStatic" : true,
-    "allowRenderSplitting" : false,
-    "visiblity" : 0.0,
-    "animation" : "3",
-    "sprite" : "artifact/scene/outside/floor.jsf",
-    "isTraversable" : true
-  }, {
-    "isStatic" : true,
-    "allowRenderSplitting" : false,
-    "visiblity" : 0.0,
-    "animation" : "14",
-    "sprite" : "artifact/scene/outside/floor.jsf",
-    "isTraversable" : true
-  }, {
-    "isStatic" : true,
-    "allowRenderSplitting" : false,
-    "visiblity" : 0.0,
-    "animation" : "1",
-    "sprite" : "artifact/scene/outside/floor.jsf",
-    "isTraversable" : true
-  }, {
-    "isStatic" : true,
-    "allowRenderSplitting" : false,
-    "visiblity" : 0.0,
+    "visiblity" : 1.0,
     "animation" : "2",
-    "sprite" : "artifact/scene/outside/floor.jsf",
+    "sprite" : "artifact/scene/outside/wall_plain.jsf",
+    "isTraversable" : false
+  }, {
+    "isStatic" : true,
+    "visiblity" : 1.0,
+    "animation" : "0",
+    "sprite" : "artifact/scene/outside/wall_plain.jsf",
+    "isTraversable" : false
+  }, {
+    "isStatic" : true,
+    "visiblity" : 1.0,
+    "animation" : "1",
+    "sprite" : "artifact/scene/outside/wall_corner_tent.jsf",
+    "isTraversable" : false
+  }, {
+    "isStatic" : true,
+    "visiblity" : 1.0,
+    "animation" : "1",
+    "sprite" : "artifact/scene/outside/wall_plain.jsf",
+    "isTraversable" : false
+  }, {
+    "isStatic" : true,
+    "visiblity" : 1.0,
+    "animation" : "13",
+    "sprite" : "artifact/scene/outside/wall_plain.jsf",
+    "isTraversable" : false
+  }, {
+    "isStatic" : true,
+    "visiblity" : 1.0,
+    "animation" : "12",
+    "sprite" : "artifact/scene/outside/wall_plain.jsf",
+    "isTraversable" : false
+  }, {
+    "isStatic" : true,
+    "visiblity" : 1.0,
+    "animation" : "0",
+    "sprite" : "artifact/scene/outside/wall_corner_tent.jsf",
+    "isTraversable" : false
+  }, {
+    "isStatic" : true,
+    "visiblity" : 1.0,
+    "animation" : "3",
+    "sprite" : "artifact/scene/outside/cave_enterance.jsf",
+    "isTraversable" : false
+  }, {
+    "isStatic" : true,
+    "visiblity" : 1.0,
+    "animation" : "4",
+    "sprite" : "artifact/scene/outside/trees.jsf",
+    "isTraversable" : false
+  }, {
+    "isStatic" : true,
+    "visiblity" : 1.0,
+    "animation" : "5",
+    "sprite" : "artifact/scene/outside/flowers.jsf",
     "isTraversable" : true
   }, {
     "isStatic" : true,
-    "allowRenderSplitting" : false,
-    "visiblity" : 0.0,
+    "visiblity" : 1.0,
+    "animation" : "9",
+    "sprite" : "artifact/scene/outside/wall_corner_tent.jsf",
+    "isTraversable" : false
+  }, {
+    "isStatic" : true,
+    "visiblity" : 1.0,
+    "animation" : "4",
+    "sprite" : "artifact/scene/outside/debris_small.jsf",
+    "isTraversable" : false
+  }, {
+    "isStatic" : true,
+    "visiblity" : 1.0,
+    "animation" : "8",
+    "sprite" : "artifact/scene/outside/wall_corner_tent.jsf",
+    "isTraversable" : false
+  }, {
+    "isStatic" : true,
+    "visiblity" : 1.0,
+    "animation" : "3",
+    "sprite" : "artifact/scene/outside/debris_small.jsf",
+    "isTraversable" : false
+  }, {
+    "isStatic" : true,
+    "visiblity" : 1.0,
     "animation" : "10",
-    "sprite" : "artifact/scene/outside/floor.jsf",
+    "sprite" : "artifact/scene/outside/wall_corner_tent.jsf",
+    "isTraversable" : false
+  }, {
+    "isStatic" : true,
+    "visiblity" : 1.0,
+    "animation" : "11",
+    "sprite" : "artifact/scene/outside/wall_corner_tent.jsf",
+    "isTraversable" : false
+  }, {
+    "isStatic" : true,
+    "visiblity" : 1.0,
+    "animation" : "6",
+    "sprite" : "artifact/scene/outside/debris_small.jsf",
+    "isTraversable" : false
+  }, {
+    "isStatic" : true,
+    "visiblity" : 1.0,
+    "animation" : "0",
+    "sprite" : "artifact/scene/outside/debris_small.jsf",
+    "isTraversable" : false
+  }, {
+    "isStatic" : true,
+    "visiblity" : 1.0,
+    "animation" : "10",
+    "sprite" : "artifact/scene/outside/debris_small.jsf",
+    "isTraversable" : false
+  }, {
+    "isStatic" : true,
+    "visiblity" : 1.0,
+    "animation" : "11",
+    "sprite" : "artifact/scene/outside/debris_small.jsf",
+    "isTraversable" : false
+  }, {
+    "isStatic" : true,
+    "visiblity" : 1.0,
+    "animation" : "13",
+    "sprite" : "artifact/scene/outside/debris_large.jsf",
+    "isTraversable" : false
+  }, {
+    "isStatic" : true,
+    "visiblity" : 1.0,
+    "animation" : "15",
+    "sprite" : "artifact/scene/outside/debris_large.jsf",
+    "isTraversable" : false
+  }, {
+    "isStatic" : true,
+    "visiblity" : 1.0,
+    "animation" : "5",
+    "sprite" : "artifact/scene/outside/debris_large.jsf",
+    "isTraversable" : false
+  }, {
+    "isStatic" : true,
+    "visiblity" : 1.0,
+    "animation" : "7",
+    "sprite" : "artifact/scene/outside/debris_large.jsf",
+    "isTraversable" : false
+  }, {
+    "isStatic" : true,
+    "visiblity" : 1.0,
+    "animation" : "3",
+    "sprite" : "artifact/scene/outside/ground_brick.jsf",
     "isTraversable" : true
   }, {
     "isStatic" : true,
-    "allowRenderSplitting" : false,
-    "visiblity" : 0.0,
-    "animation" : "17",
-    "sprite" : "artifact/scene/outside/floor.jsf",
+    "visiblity" : 1.0,
+    "animation" : "13",
+    "sprite" : "artifact/scene/outside/water_wall_corners.jsf",
     "isTraversable" : false
   }, {
-    "isStatic" : false,
-    "allowRenderSplitting" : false,
-    "visiblity" : 0.0,
-    "animation" : "0_0",
-    "sprite" : "artifact/scene/castle/castle.jsf",
+    "isStatic" : true,
+    "visiblity" : 1.0,
+    "animation" : "12",
+    "sprite" : "artifact/scene/outside/water_wall_corners.jsf",
+    "isTraversable" : false
+  }, {
+    "isStatic" : true,
+    "visiblity" : 1.0,
+    "animation" : "11",
+    "sprite" : "artifact/scene/outside/water_wall_corners.jsf",
+    "isTraversable" : false
+  }, {
+    "isStatic" : true,
+    "visiblity" : 1.0,
+    "animation" : "14",
+    "sprite" : "artifact/scene/outside/water.jsf",
     "isTraversable" : true
   }, {
     "isStatic" : true,
-    "allowRenderSplitting" : false,
-    "visiblity" : 0.0,
-    "animation" : "0_0",
-    "sprite" : "artifact/scene/castle/castle.jsf",
-    "isTraversable" : false
-  }, {
-    "isStatic" : true,
-    "allowRenderSplitting" : false,
-    "visiblity" : 0.0,
-    "animation" : "3_2",
-    "sprite" : "artifact/scene/castle/castle.jsf",
-    "isTraversable" : false
-  }, {
-    "isStatic" : true,
-    "allowRenderSplitting" : false,
-    "visiblity" : 0.0,
-    "animation" : "6_7",
-    "sprite" : "artifact/scene/castle/castle.jsf",
-    "isTraversable" : false
-  }, {
-    "isStatic" : true,
-    "allowRenderSplitting" : false,
-    "visiblity" : 0.0,
-    "animation" : "1_2",
-    "sprite" : "artifact/scene/castle/castle.jsf",
-    "isTraversable" : false
-  }, {
-    "isStatic" : true,
-    "allowRenderSplitting" : false,
-    "visiblity" : 0.0,
-    "animation" : "8_3",
-    "sprite" : "artifact/scene/castle/castle.jsf",
-    "isTraversable" : false
-  }, {
-    "isStatic" : true,
-    "allowRenderSplitting" : false,
-    "visiblity" : 0.0,
-    "animation" : "0_0_raised",
-    "sprite" : "artifact/scene/castle/castle.jsf",
+    "visiblity" : 1.0,
+    "animation" : "2",
+    "sprite" : "artifact/scene/outside/water_wall.jsf",
     "isTraversable" : true
   }, {
     "isStatic" : true,
-    "allowRenderSplitting" : false,
-    "visiblity" : 0.0,
-    "animation" : "1_1_raised",
-    "sprite" : "artifact/scene/castle/castle.jsf",
+    "visiblity" : 1.0,
+    "animation" : "0",
+    "sprite" : "artifact/scene/outside/water_wall.jsf",
+    "isTraversable" : false
+  }, {
+    "isStatic" : true,
+    "visiblity" : 1.0,
+    "animation" : "2",
+    "sprite" : "artifact/scene/outside/water_wall.jsf",
+    "isTraversable" : false
+  }, {
+    "isStatic" : true,
+    "visiblity" : 1.0,
+    "animation" : "12",
+    "sprite" : "artifact/scene/outside/water_wall.jsf",
+    "isTraversable" : false
+  }, {
+    "isStatic" : true,
+    "visiblity" : 1.0,
+    "animation" : "0",
+    "sprite" : "artifact/scene/outside/water_wall_corners.jsf",
+    "isTraversable" : false
+  }, {
+    "isStatic" : true,
+    "visiblity" : 1.0,
+    "animation" : "2",
+    "sprite" : "artifact/scene/outside/water_wall_corners.jsf",
     "isTraversable" : true
   }, {
     "isStatic" : true,
-    "allowRenderSplitting" : false,
-    "visiblity" : 0.0,
-    "animation" : "2_1_raised",
-    "sprite" : "artifact/scene/castle/castle.jsf",
+    "visiblity" : 1.0,
+    "animation" : "3",
+    "sprite" : "artifact/scene/outside/water_wall.jsf",
+    "isTraversable" : false
+  }, {
+    "isStatic" : true,
+    "visiblity" : 1.0,
+    "animation" : "14",
+    "sprite" : "artifact/scene/outside/water_wall.jsf",
+    "isTraversable" : false
+  }, {
+    "isStatic" : true,
+    "visiblity" : 1.0,
+    "animation" : "1",
+    "sprite" : "artifact/scene/outside/water_wall_corners.jsf",
+    "isTraversable" : false
+  }, {
+    "isStatic" : true,
+    "visiblity" : 1.0,
+    "animation" : "1",
+    "sprite" : "artifact/scene/outside/water_wall.jsf",
+    "isTraversable" : false
+  }, {
+    "isStatic" : true,
+    "visiblity" : 1.0,
+    "animation" : "13",
+    "sprite" : "artifact/scene/outside/water_wall.jsf",
+    "isTraversable" : false
+  }, {
+    "isStatic" : true,
+    "visiblity" : 1.0,
+    "animation" : "2",
+    "sprite" : "artifact/scene/outside/water_wall_corners.jsf",
+    "isTraversable" : false
+  }, {
+    "isStatic" : true,
+    "visiblity" : 1.0,
+    "animation" : "15",
+    "sprite" : "artifact/scene/outside/water_wall.jsf",
+    "isTraversable" : true
+  }, {
+    "isStatic" : true,
+    "visiblity" : 1.0,
+    "animation" : "3",
+    "sprite" : "artifact/scene/outside/water_wall_corners.jsf",
+    "isTraversable" : false
+  }, {
+    "isStatic" : true,
+    "visiblity" : 1.0,
+    "animation" : "7",
+    "sprite" : "artifact/scene/outside/water_wall_corners.jsf",
+    "isTraversable" : false
+  }, {
+    "isStatic" : true,
+    "visiblity" : 1.0,
+    "animation" : "13",
+    "sprite" : "artifact/scene/outside/water_wall.jsf",
+    "isTraversable" : true
+  }, {
+    "isStatic" : true,
+    "visiblity" : 1.0,
+    "animation" : "1",
+    "sprite" : "artifact/scene/outside/water_bridge.jsf",
+    "isTraversable" : true
+  }, {
+    "isStatic" : true,
+    "visiblity" : 1.0,
+    "animation" : "14",
+    "sprite" : "artifact/scene/outside/water.jsf",
+    "isTraversable" : false
+  }, {
+    "isStatic" : true,
+    "visiblity" : 1.0,
+    "animation" : "15",
+    "sprite" : "artifact/scene/outside/water_bridge.jsf",
+    "isTraversable" : true
+  }, {
+    "isStatic" : true,
+    "visiblity" : 1.0,
+    "animation" : "7",
+    "sprite" : "artifact/scene/outside/water_bridge.jsf",
+    "isTraversable" : true
+  }, {
+    "isStatic" : true,
+    "visiblity" : 1.0,
+    "animation" : "11",
+    "sprite" : "artifact/scene/outside/water_bridge.jsf",
     "isTraversable" : true
   } ],
-  "layers" : [ {
-    "indice" : [ 0, 1, 2, 3, 2, 4, 0, 5, 6, 7, 0, 0, 2, 0, 4, 8, 3, 6, 8, 9, 3, 5, 0, 2, 5, 2, 0, 7, 3, 1, 1, 4, 0, 8, 0, 4, 5, 1, 6, 5, 0, 6, 3, 2, 9, 2, 1, 6, 6, 6, 10, 1, 8, 5, 6, 5, 7, 0, 5, 6, 5, 4, 3, 0, 1, 8, 0, 4, 1, 3, 0, 2, 6, 1, 3, 2, 3, 2, 2, 4, 1, 4, 5, 0, 2, 4, 5, 1, 5, 0, 6, 8, 2, 1, 8, 3, 1, 0, 3, 2 ]
-  }, {
-    "indice" : [ 11, 11, 11, 11, 12, 11, 11, 11, 11, 12, 12, 13, 14, 14, -1, 13, 15, 15, 15, -1, 12, -9, 12, -9, 16, -9, 12, -9, 11, -9, 11, 15, -8, 11, 15, -8, 11, 15 ]
-  }, {
-    "indice" : [ 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 18, 18, 18, -1, 18, 18, 18, 18, -1, 17, -9, 17, -9, 17, -9, 17, -9, 17, -9, 17, 19, -8, 17, 19, -8, 17, 19 ]
-  } ],
-  "tileWidth" : 64,
-  "tileHeight" : 32,
-  "worldWidth" : 10,
+  "friction" : 0.5,
+  "worldWidth" : 80,
   "entities" : [ {
     "location" : {
-      "y" : 4.0,
-      "x" : 4.0
+      "z" : 1.0099999904632568,
+      "y" : 39.0,
+      "x" : 19.0
     },
-    "direction" : 0,
-    "name" : "crazyOldMan0",
-    "config" : "artifact/entity/tutorial/coinFlipper.jec",
+    "direction" : 8,
+    "name" : "lostSoul_0.toTombStone",
+    "auxConfig" : {
+      "behavior" : "artifact/behavior/trigger/dialogue.js",
+      "dialogue" : "quest/lostSoul/0.toTombStone.jdf"
+    },
+    "type" : "areaTrigger"
+  }, {
+    "location" : {
+      "z" : 1.0099999904632568,
+      "y" : 30.0,
+      "x" : 17.0
+    },
+    "direction" : 8,
+    "name" : "lostSoul_1.ponder",
+    "auxConfig" : {
+      "behavior" : "artifact/behavior/trigger/dialogue.js",
+      "dialogue" : "quest/lostSoul/1.ponder.jdf"
+    },
+    "type" : "areaTrigger"
+  }, {
+    "location" : {
+      "z" : 1.0099999904632568,
+      "y" : 24.0,
+      "x" : 14.0
+    },
+    "direction" : 8,
+    "name" : "lostSoul_2.monologoue",
+    "auxConfig" : {
+      "behavior" : "artifact/behavior/trigger/dialogue.js",
+      "dialogue" : "quest/lostSoul/2.monologue.jdf"
+    },
+    "type" : "areaTrigger"
+  }, {
+    "location" : {
+      "z" : 1.0099999904632568,
+      "y" : 44.0,
+      "x" : 19.0
+    },
+    "direction" : 8,
+    "name" : "player",
+    "config" : "artifact/entity/zombie/zombie.jec",
+    "auxConfig" : {
+      "behavior" : "artifact/behavior/character/puppet.js"
+    },
     "type" : "character"
   }, {
     "location" : {
-      "y" : 3.0,
-      "x" : 1.0
+      "z" : 1.0099999904632568,
+      "y" : 22.0,
+      "x" : 13.0
     },
-    "direction" : 0,
-    "name" : "pickupCoin",
-    "config" : "artifact/entity/tutorial/coinPickup.jec",
-    "type" : "areaTrigger"
+    "direction" : 8,
+    "name" : "lostSoul_spider0",
+    "config" : "artifact/entity/spider/spider.jec",
+    "auxConfig" : {
+      "behavior" : "artifact/behavior/character/puppet.js"
+    },
+    "type" : "character"
+  } ],
+  "tiledPlanes" : [ {
+    "planeZ" : 3.009999990463257,
+    "tileIndices" : [ -6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -60, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -67, 0, 0, 0, 0, -76, 0, 0, 0, 0, -1132, 1 ]
+  }, {
+    "planeZ" : 1.0,
+    "tileIndices" : [ -97, 0, 0, 0, 0, 0, 0, 0, 0, 0, -60, 0, 0, 0, 0, 0, 0, 0, -2, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, -60, 0, 0, 0, 0, 0, 0, 0, -4, 0, 0, 0, 0, 0, 0, 0, 0, 0, -60, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -61, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -59, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -59, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -67, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -67, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -67, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -67, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -67, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -65, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -65, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -62, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -62, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -65, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -65, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -68, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -68, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -68, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -67, 0, 0, 0, 27, 0, 0, 0, 0, 0, 0, 0, 0, 0, -67, 0, 0, 27, 27, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -66, 0, 0, 27, 27, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -66, 0, 0, 27, 27, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -66, 0, 0, 0, 27, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -66, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -66, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -69, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -69, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -70, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -70, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -73, 0, 0, 0, 0, 0, 0, -74, 0, 0, 0, 0, 0, 0, -74, 0, 0, 0, 0, 0, 0 ]
+  }, {
+    "planeZ" : 1.0099999904632568,
+    "tileIndices" : [ -5, 3, -20, 4, -58, 3, -20, 4, -58, 5, 2, 6, 2, 6, 2, 6, 7, -4, 8, 6, 6, 2, 6, 2, 6, 6, 2, 9, -65, 3, -4, 4, -69, 1, -3, 1, 5, 2, 2, 10, -1, 9, -7, 11, -64, 1, -3, 12, -6, 1, -64, 1, -17, 1, -62, 1, -2, 1, -9, 1, -153, 11, -3, 13, 11, -4, 1, -71, 14, -1, 15, -77, 12, -3, 16, -2, 1, -71, 17, 18, -1, 19, -2, 12, -74, 20, -88, 1, -67, 1, -2, 11, -74, 1, -4, 12, -87, 1, -1, 1, -68, 1, -87, 1, -69, 21, 22, 22, 22, -2, 21, 22, 22, 22, 22, 22, -68, 1, -78, 1, -1, 23, -7, 1, -149, 1, 24, -7, 1, -3, 1, -145, 1, -2, 23, -75, 1, -2, 1, -9, 1, -1, 11, -75, 1, -70, 1, -1, 1, -8, 1, -67, 1, -90, 1, -70, 1, -1, 1, -157, 1, -8, 1, -154, 25, -3, 26 ]
+  }, {
+    "planeZ" : 1.0010000467300415,
+    "tileIndices" : [ -336, 2 ]
+  }, {
+    "planeZ" : 0.0,
+    "tileIndices" : [ 31, 31, 31, 31, 31, 32, -20, 33, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 32, -20, 33, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 34, -20, 33, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 34, -20, 33, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 34, -19, 35, 36, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 37, 38, 39, -19, 33, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 34, -1, 39, -19, 33, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 34, -21, 33, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 40, 41, 41, 41, 41, 41, 41, 41, 42, -13, 33, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 34, -13, 33, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 34, -13, 33, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 34, -13, 33, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 43, 38, 39, -13, 33, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 34, -15, 44, 38, 38, 45, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 34, -18, 33, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 34, -18, 33, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 34, -18, 33, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 40, 41, 41, 42, -15, 33, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 34, -12, 35, 41, 41, 36, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 34, -12, 33, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 34, -12, 33, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 43, 39, -11, 31, 33, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 34, -13, 44, 46, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 34, -14, 33, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 34, -14, 33, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 34, -14, 33, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 37, 38, 39, -14, 33, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 34, -16, 33, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 34, -14, 35, 41, 36, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 34, -14, 33, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 34, 31, -13, 33, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 40, 41, 41, 42, -11, 33, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 34, -10, 35, 36, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 34, -10, 33, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 34, -10, 33, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 40, 41, 41, 47, -6, 35, 36, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 34, -6, 33, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 34, -6, 33, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 40, 41, 41, 41, 48, 41, 41, 36, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 49, 50, 49, 49, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 49, 51, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 49, 52, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 49, 51, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 49, 52, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 49, 51, 49, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 49, 49, 49, 49, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, -40, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31 ]
+  }, {
+    "planeZ" : 0.009999999776482582,
+    "tileIndices" : [ -3300, 28, -79, 29, -79, 30 ]
   } ]
 }

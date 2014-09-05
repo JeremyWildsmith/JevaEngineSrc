@@ -1,10 +1,10 @@
 package io.github.jevaengine.math;
 
-public class Matrix4X4
+public final class Matrix4X4
 {
 	public static final float TOLERANCE = 0.00000001F;
 	
-	public float[][] matrix;
+	public final float[][] matrix;
 
 	public static final Matrix4X4 IDENTITY = new Matrix4X4(1, 0, 0, 0, 
 														   0, 1, 0, 0,

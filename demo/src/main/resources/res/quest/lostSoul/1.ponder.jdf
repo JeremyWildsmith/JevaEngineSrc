@@ -1,0 +1,37 @@
+{
+	"script":"quest/lostSoul/1.ponder.js",
+	"queries":[
+		{
+			"entryCondition":"listener.testFlag('quest/lostSoul', 1)",
+			"query":"As your eyes stutter in desperation to remain open, an unreachable thread of thought inconspicuously ponders...",
+			"answers":[
+				{
+					"next":1,
+					"answer":"Continue"
+				}
+				
+			]
+			
+		},
+		{
+			"query":"It ponders on your existence. 'Who am I?",
+			"answers":[
+				{
+					"answer":"Continue",
+					"next":2
+				}
+			]
+			
+		},
+		{
+			"query":"Your inherit nature blocks the thought from carrying on any further. You continue seeking flesh to eat.",
+			"answers":[
+				{
+					"answer":"Continue",
+					"event":0
+				}
+			]
+			
+		}
+	]
+}

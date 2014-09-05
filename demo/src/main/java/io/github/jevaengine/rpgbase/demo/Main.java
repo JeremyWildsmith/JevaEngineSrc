@@ -16,18 +16,22 @@
  */
 package io.github.jevaengine.rpgbase.demo;
 
-import io.github.jevaengine.Core;
-import io.github.jevaengine.game.Game;
-import io.github.jevaengine.rpgbase.RpgLibrary;
+import io.github.jevaengine.IAssetStreamFactory;
+import io.github.jevaengine.game.FrameRenderer;
+import io.github.jevaengine.game.FrameRenderer.RenderFitMode;
+import io.github.jevaengine.game.GameDriver;
+import io.github.jevaengine.game.IGameFactory;
+import io.github.jevaengine.game.IRenderer;
+import io.github.jevaengine.joystick.FrameInputSource;
+import io.github.jevaengine.joystick.IInputSource;
+import io.github.jevaengine.rpgbase.RpgEntityFactory;
+import io.github.jevaengine.rpgbase.dialogue.IDialogueRouteFactory;
+import io.github.jevaengine.rpgbase.dialogue.ScriptedDialogueRouteFactory;
+import io.github.jevaengine.world.entity.IEntityFactory;
 
 import java.awt.Color;
-import java.awt.DisplayMode;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
 import java.awt.Point;
 import java.awt.Toolkit;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
@@ -35,18 +39,21 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
-public class Main implements WindowListener, KeyListener
-{
-	private static final int WINX = 1024;
-	private static final int WINY = 768;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 
-	private boolean m_isFullscreen = false;
+public class Main implements WindowListener
+{
+	private static final int WINX = 1280;
+	private static final int WINY = 720;
 
 	private int m_displayX = 0;
 	private int m_displayY = 0;
 
 	private JFrame m_frame;
-
+	private GameDriver m_gameDriver;
+	
 	public static void main(String[] args)
 	{
 		Main m = new Main();
@@ -79,9 +86,8 @@ public class Main implements WindowListener, KeyListener
 			{
 				m_displayX = WINX;
 				m_displayY = WINY;
-			} else
-				m_isFullscreen = true;
-
+			}
+			
 			SwingUtilities.invokeAndWait(new Runnable()
 			{
 
@@ -89,7 +95,6 @@ public class Main implements WindowListener, KeyListener
 				{
 					m_frame.setCursor(Toolkit.getDefaultToolkit().createCustomCursor(Toolkit.getDefaultToolkit().getImage(""), new Point(), "trans"));
 					m_frame.setVisible(true);
-					m_frame.addKeyListener(Main.this);
 
 					m_frame.setIgnoreRepaint(true);
 					m_frame.setBackground(Color.black);
@@ -98,14 +103,6 @@ public class Main implements WindowListener, KeyListener
 					m_frame.setSize(m_displayX, m_displayY);
 					m_frame.setVisible(true);
 					m_frame.addWindowListener(Main.this);
-
-					GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-
-					if (m_isFullscreen)
-					{
-						device.setFullScreenWindow(m_frame);
-						device.setDisplayMode(new DisplayMode(m_displayX, m_displayY, 32, 60));
-					}
 				}
 			});
 		} catch (Exception ex)
@@ -114,66 +111,47 @@ public class Main implements WindowListener, KeyListener
 			return;
 		}
 
-		Core.initialize(new DemoGame(), new RpgLibrary());
-
-		Game game = Core.getService(Game.class);
-
-		game.init(m_frame);
-	}
-
-	@Override
-	public void windowActivated(WindowEvent arg0)
-	{
-	}
-
-	@Override
-	public void windowClosed(WindowEvent arg0)
-	{
+		Injector injector = Guice.createInjector(new EngineModule());
+		m_gameDriver = injector.getInstance(GameDriver.class);
+		m_gameDriver.begin();
+		//m_frame.dispose();
 	}
 
 	@Override
 	public void windowClosing(WindowEvent arg0)
 	{
-		Core.getService(Game.class).dispose();
-		m_frame.dispose();
+		m_gameDriver.stop();
 	}
+	
+	private final class EngineModule extends AbstractModule
+	{
+		@Override
+		protected void configure()
+		{
+			bind(IInputSource.class).toInstance(FrameInputSource.create(m_frame));
+			bind(IRenderer.class).toInstance(new FrameRenderer(m_frame, true, RenderFitMode.Stretch));
+			bind(IGameFactory.class).to(DemoGameFactory.class);
+			bind(IEntityFactory.class).to(RpgEntityFactory.class).asEagerSingleton();
+			bind(IAssetStreamFactory.class).to(DemoAssetStreamFactory.class).asEagerSingleton();
+			bind(IDialogueRouteFactory.class).to(ScriptedDialogueRouteFactory.class);
+		}
+	}
+	
+	@Override
+	public void windowActivated(WindowEvent arg0) { }
+	
+	@Override
+	public void windowClosed(WindowEvent arg0) { }
 
 	@Override
-	public void windowDeactivated(WindowEvent arg0)
-	{
-	}
+	public void windowDeactivated(WindowEvent arg0) { }
 
 	@Override
-	public void windowDeiconified(WindowEvent arg0)
-	{
-	}
+	public void windowDeiconified(WindowEvent arg0) { }
 
 	@Override
-	public void windowIconified(WindowEvent arg0)
-	{
-	}
+	public void windowIconified(WindowEvent arg0) { }
 
 	@Override
-	public void windowOpened(WindowEvent arg0)
-	{
-	}
-
-	@Override
-	public void keyPressed(KeyEvent e)
-	{
-	}
-
-	@Override
-	public void keyReleased(KeyEvent e)
-	{
-		if (e.getKeyCode() == KeyEvent.VK_ESCAPE)
-			m_frame.dispatchEvent(new WindowEvent(m_frame, WindowEvent.WINDOW_CLOSING));
-	}
-
-	@Override
-	public void keyTyped(KeyEvent e)
-	{
-		// TODO Auto-generated method stub
-
-	}
+	public void windowOpened(WindowEvent arg0) { }
 }

@@ -1,0 +1,193 @@
+{
+  "style": "@ui/style/tech/tech.juis",
+  "bounds": {
+    "width": 255,
+    "height": 215
+  },
+  "controls": [
+    {
+      "type": "label",
+      "location": {
+        "x": 15,
+        "y": 10
+      },
+      "config": {
+        "text": "Sprite"
+      }
+    },
+    {
+      "type": "textArea",
+      "name": "txtSprite",
+      "location": {
+        "x": 60,
+        "y": 10
+      },
+      "config": {
+        "bounds": {
+          "width": 150,
+          "height": 20
+        }
+      }
+    },
+    {
+      "type": "label",
+      "location": {
+        "x": 15,
+        "y": 40
+      },
+      "config": {
+        "text": "Animation"
+      }
+    },
+    {
+      "type": "textArea",
+      "name": "txtAnimation",
+      "location": {
+        "x": 60,
+        "y": 40
+      },
+      "config": {
+        "bounds": {
+          "width": 150,
+          "height": 20
+        }
+      }
+    },
+    {
+      "type": "label",
+      "location": {
+        "x": 15,
+        "y": 70
+      },
+      "config": {
+        "text": "Visibility"
+      }
+    },
+    {
+      "type": "textArea",
+      "name": "txtVisibility",
+      "location": {
+        "x": 60,
+        "y": 70
+      },
+      "config": {
+        "bounds": {
+          "width": 50,
+          "height": 20
+        },
+        "text": "1"
+      }
+    },
+    {
+      "type": "label",
+      "location": {
+        "x": 15,
+        "y": 100
+      },
+      "config": {
+        "text": "Size"
+      }
+    },
+    {
+      "type": "textArea",
+      "name": "txtSize",
+      "location": {
+        "x": 60,
+        "y": 100
+      },
+      "config": {
+        "bounds": {
+          "width": 50,
+          "height": 20
+        },
+        "text": "1"
+      }
+    },
+    {
+      "type": "label",
+      "location": {
+        "x": 50,
+        "y": 130
+      },
+      "config": {
+        "text": "Static"
+      }
+    },
+    {
+      "type": "checkbox",
+      "name": "chkIsStatic",
+      "location": {
+        "x": 85,
+        "y": 134
+      },
+      "config": {
+        "value": true
+      }
+    },
+    {
+      "type": "label",
+      "location": {
+        "x": 25,
+        "y": 160
+      },
+      "config": {
+        "text": "Traversable"
+      }
+    },
+    {
+      "type": "checkbox",
+      "name": "chkIsTraversable",
+      "location": {
+        "x": 85,
+        "y": 164
+      },
+      "config": {
+        "value": true
+      }
+    },
+    {
+      "type": "button",
+      "name": "btnBrowseSprite",
+      "location": {
+        "x": 215,
+        "y": 15
+      },
+      "config": {
+        "text": "Browse"
+      }
+    },
+    {
+      "type": "button",
+      "name": "btnBrowseAnimation",
+      "location": {
+        "x": 215,
+        "y": 40
+      },
+      "config": {
+        "text": "Browse"
+      }
+    },
+    {
+      "type": "button",
+      "name": "btnApply",
+      "location": {
+        "x": 115,
+        "y": 185
+      },
+      "config": {
+        "text": "Apply"
+      }
+    },
+    {
+      "type": "button",
+      "name": "btnClose",
+      "location": {
+        "x": 80,
+        "y": 185
+      },
+      "config": {
+        "text": "Close"
+      }
+    }
+  ]
+}

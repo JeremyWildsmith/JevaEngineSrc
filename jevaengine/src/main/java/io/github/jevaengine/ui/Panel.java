@@ -13,65 +13,61 @@
  */
 package io.github.jevaengine.ui;
 
-import io.github.jevaengine.graphics.AnimationState;
-import io.github.jevaengine.graphics.Sprite;
-import io.github.jevaengine.joystick.InputManager.InputKeyEvent;
-import io.github.jevaengine.joystick.InputManager.InputMouseEvent;
-import io.github.jevaengine.joystick.InputManager.InputMouseEvent.EventType;
+import io.github.jevaengine.IDisposable;
+import io.github.jevaengine.graphics.IImmutableGraphic;
+import io.github.jevaengine.graphics.NullGraphic;
+import io.github.jevaengine.joystick.InputKeyEvent;
+import io.github.jevaengine.joystick.InputMouseEvent;
+import io.github.jevaengine.joystick.InputMouseEvent.MouseEventType;
 import io.github.jevaengine.math.Rect2D;
 import io.github.jevaengine.math.Vector2D;
+import io.github.jevaengine.ui.style.IUIStyle;
 import io.github.jevaengine.util.Nullable;
 import io.github.jevaengine.util.StaticSet;
 
 import java.awt.Graphics2D;
 
-public abstract class Panel extends Control
+public final class Panel extends Control implements IDisposable
 {
+	public static final String COMPONENT_NAME = "panel";
+	
+	private IImmutableGraphic m_frame;
 
-	private boolean m_renderBackground;
-
-	private Sprite m_frameFill;
-
-	private Sprite m_frameLeft;
-
-	private Sprite m_frameRight;
-
-	private Sprite m_frameTop;
-
-	private Sprite m_frameBottom;
-
-	private Sprite m_frameTopLeft;
-
-	private Sprite m_frameTopRight;
-
-	private Sprite m_frameBottomLeft;
-
-	private Sprite m_frameBottomRight;
-
-	private int m_width;
-
-	private int m_height;
+	private int m_desiredWidth;
+	private int m_desiredHeight;
 
 	private Control m_activeControl;
-
 	private Control m_lastOver;
 
 	private StaticSet<Control> m_controls;
 
-	public Panel(int width, int height, boolean renderBackground)
-	{
-		m_width = width;
-		m_height = height;
-		m_renderBackground = renderBackground;
-
-		m_controls = new StaticSet<Control>();
-	}
-
 	public Panel(int width, int height)
 	{
-		this(width, height, true);
+		super(COMPONENT_NAME);
+		m_desiredWidth = width;
+		m_desiredHeight = height;
+		m_controls = new StaticSet<Control>();
+		m_frame = new NullGraphic(width, height);
 	}
-
+	
+	public Panel(String instanceName, int width, int height)
+	{
+		super(COMPONENT_NAME, instanceName);
+		m_desiredWidth = width;
+		m_desiredHeight = height;
+		m_controls = new StaticSet<Control>();
+		m_frame = new NullGraphic(width, height);		
+	}
+	
+	@Override
+	public void dispose()
+	{
+		for(Control ctrl : m_controls)
+			ctrl.dispose();
+		
+		super.dispose();
+	}
+	
 	public void addControl(Control control)
 	{
 		addControl(control, null);
@@ -83,18 +79,15 @@ public abstract class Panel extends Control
 		{
 			m_controls.add(control);
 			control.setParent(this);
-
-			if (location != null)
-				control.setLocation(location);
 		} else
 		{
 			// Move to top.
 			m_controls.remove(control);
 			m_controls.add(control);
-
-			if (location != null)
-				control.setLocation(location);
 		}
+		
+		if (location != null)
+			control.setLocation(location);
 	}
 
 	public void removeControl(Control control)
@@ -102,7 +95,10 @@ public abstract class Panel extends Control
 		if (m_controls.contains(control))
 		{
 			if(m_activeControl == control)
+			{
+				m_activeControl.clearFocus();
 				m_activeControl = null;
+			}
 			
 			if(m_lastOver == control)
 				m_lastOver = null;
@@ -114,84 +110,51 @@ public abstract class Panel extends Control
 
 	public void clearControls()
 	{
-		m_activeControl = null;
-
+		if(m_activeControl != null)
+		{
+			m_activeControl.clearFocus();
+			m_activeControl = null;
+		}
+		
 		for (Control ctrl : m_controls)
 		{
 			removeControl(ctrl);
 		}
 	}
 
-	protected void renderBackground(Graphics2D g, int x, int y, float fScale)
+	@SuppressWarnings("unchecked")
+	@Nullable
+	public <T extends Control> T getControl(Class<T> controlClass, String name) throws NoSuchControlException
 	{
-		if (!m_renderBackground)
-			return;
+		for(Control c : m_controls)
+		{
+			if(c.getInstanceName().equals(name) && controlClass.isAssignableFrom(c.getClass()))
+				return (T)c;
+		}
 		
-		// Render upper border
-		m_frameTopLeft.render(g, x, y, fScale);
-
-		int offsetX;
-
-		for (offsetX = m_frameTopLeft.getBounds().width; offsetX < m_width - m_frameTopRight.getBounds().width; offsetX += m_frameTop.getBounds().width)
-		{
-			m_frameTop.render(g, x + offsetX, y, fScale);
-		}
-		m_frameTopRight.render(g, x + offsetX, y, fScale);
-
-		offsetX += m_frameTopRight.getBounds().width;
-
-		int offsetY = m_frameTop.getBounds().height;
-		// Render fill and left\right border
-		for (; offsetY < m_height - m_frameBottom.getBounds().height; offsetY += m_frameFill.getBounds().width)
-		{
-			m_frameLeft.render(g, x, offsetY + y, fScale);
-
-			for (offsetX = m_frameLeft.getBounds().width; offsetX < m_width - m_frameRight.getBounds().width; offsetX += m_frameFill.getBounds().width)
-			{
-				m_frameFill.render(g, x + offsetX, y + offsetY, fScale);
-			}
-
-			m_frameRight.render(g, x + offsetX, offsetY + y, fScale);
-		}
-
-		// Render lower border
-		offsetX = 0;
-		m_frameBottomLeft.render(g, x + offsetX, y + offsetY, fScale);
-		for (offsetX = m_frameBottomLeft.getBounds().width; offsetX < m_width - m_frameBottomRight.getBounds().width; offsetX += m_frameTop.getBounds().width)
-		{
-			m_frameBottom.render(g, x + offsetX, y + offsetY, fScale);
-		}
-		m_frameBottomRight.render(g, x + offsetX, y + offsetY, fScale);
+		throw new NoSuchControlException(controlClass, name);
 	}
 	
-	protected final void renderControls(Graphics2D g, int x, int y, float fScale)
+	@Override
+	public final void render(Graphics2D g, int x, int y, float scale)
 	{
+		m_frame.render(g, x, y, scale);
+
 		for (Control control : m_controls)
 		{
 			if (control.isVisible())
-				control.render(g, control.getLocation().x + x, control.getLocation().y + y, fScale);
+				control.render(g, control.getLocation().x + x, control.getLocation().y + y, scale);
 		}
 	}
 
 	@Override
-	public void render(Graphics2D g, int x, int y, float fScale)
+	public final boolean onMouseEvent(InputMouseEvent mouseEvent)
 	{
-		renderBackground(g, x, y, fScale);
-		renderControls(g, x, y, fScale);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see io.github.jeremywildsmith.jevaengine.graphics.ui.Control#onMouseEvent(jeva.joystick.InputManager.
-	 * InputMouseEvent)
-	 */
-	@Override
-	public void onMouseEvent(InputMouseEvent mouseEvent)
-	{
-		if (mouseEvent.type == EventType.MouseWheelMoved && m_activeControl != null)
+		if (mouseEvent.type == MouseEventType.MouseWheelMoved && m_activeControl != null)
+		{
 			m_activeControl.onMouseEvent(mouseEvent);
-		else
+			return true;
+		} else
 		{
 			for (int i = m_controls.size() - 1; i >= 0; i--)
 			{
@@ -213,115 +176,69 @@ public abstract class Panel extends Control
 							control.onEnter();
 						}
 
-						mouseEvent.isConsumed = true;
-
-						if (mouseEvent.type == EventType.MouseClicked)
+						if (mouseEvent.type == MouseEventType.MouseClicked)
 						{
-							m_activeControl = control;
-							m_activeControl.onMouseEvent(mouseEvent);
-						} else
-							control.onMouseEvent(mouseEvent);
+							if(m_activeControl != null)
+								m_activeControl.clearFocus();
 
-						break;
+							m_activeControl = control;
+							m_activeControl.setFocus();
+						}
+						
+						if(control.onMouseEvent(mouseEvent))
+							return true;
 					}
 				}
 			}
 		}
+		
+		return false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * io.github.jeremywildsmith.jevaengine.graphics.ui.Control#onKeyEvent(jeva.joystick.InputManager.InputKeyEvent
-	 * )
-	 */
 	@Override
-	public void onKeyEvent(InputKeyEvent event)
+	public final boolean onKeyEvent(InputKeyEvent event)
 	{
 		if (m_activeControl != null)
-			m_activeControl.onKeyEvent(event);
+			return m_activeControl.onKeyEvent(event);
+	
+		return false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see io.github.jeremywildsmith.jevaengine.graphics.ui.Control#update(int)
-	 */
 	@Override
-	public void update(int deltaTime)
+	public final void update(int deltaTime)
 	{
 		for (Control control : m_controls)
-		{
 			control.update(deltaTime);
-		}
 	}
 
-	public void setRenderBackground(boolean renderBackground)
-	{
-		m_renderBackground = renderBackground;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see io.github.jeremywildsmith.jevaengine.graphics.ui.Control#getBounds()
-	 */
 	@Override
-	public Rect2D getBounds()
+	public final Rect2D getBounds()
 	{
-		return new Rect2D(0, 0, m_width, m_height);
+		return m_frame.getBounds();
 	}
 
-	public void setWidth(int width)
+	protected final void setWidth(int width)
 	{
-		m_width = width;
+		m_desiredWidth = width;
+		m_frame = getComponentStyle().getStateStyle(ComponentState.Default).createFrame(m_desiredWidth, m_desiredHeight);
 	}
 
-	public void setHeight(int height)
+	protected final void setHeight(int height)
 	{
-		m_height = height;
+		m_desiredHeight = height;
+		m_frame = getComponentStyle().getStateStyle(ComponentState.Default).createFrame(m_desiredWidth, m_desiredHeight);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see io.github.jeremywildsmith.jevaengine.graphics.ui.Control#onStyleChanged()
-	 */
 	@Override
-	protected void onStyleChanged()
+	protected final void onStyleChanged()
 	{
 		super.onStyleChanged();
-
-		if (getStyle() != null)
-		{
-			m_frameFill = getStyle().createFrameFillSprite();
-			m_frameLeft = getStyle().createFrameLeftSprite();
-			m_frameRight = getStyle().createFrameRightSprite();
-			m_frameTop = getStyle().createFrameTopSprite();
-			m_frameBottom = getStyle().createFrameBottomSprite();
-
-			m_frameTopLeft = getStyle().createFrameTopLeftSprite();
-			m_frameTopRight = getStyle().createFrameTopRightSprite();
-			m_frameBottomLeft = getStyle().createFrameBottomLeftSprite();
-			m_frameBottomRight = getStyle().createFrameBottomRightSprite();
-
-			m_frameFill.setAnimation("idle", AnimationState.Play);
-			m_frameLeft.setAnimation("idle", AnimationState.Play);
-			m_frameRight.setAnimation("idle", AnimationState.Play);
-			m_frameTop.setAnimation("idle", AnimationState.Play);
-			m_frameBottom.setAnimation("idle", AnimationState.Play);
-
-			m_frameTopLeft.setAnimation("idle", AnimationState.Play);
-			m_frameTopRight.setAnimation("idle", AnimationState.Play);
-			m_frameBottomLeft.setAnimation("idle", AnimationState.Play);
-			m_frameBottomRight.setAnimation("idle", AnimationState.Play);
-
-			for (Control ctrl : m_controls)
-			{
-				ctrl.setStyle(getStyle());
-			}
-		}
+		
+		IUIStyle style = getStyle();
+		
+		for (Control ctrl : m_controls)
+			ctrl.setStyle(style);
+		
+		m_frame = getComponentStyle().getStateStyle(ComponentState.Default).createFrame(m_desiredWidth, m_desiredHeight);
 	}
-
 }

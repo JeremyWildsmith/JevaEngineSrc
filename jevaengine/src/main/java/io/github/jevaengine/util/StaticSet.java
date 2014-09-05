@@ -13,22 +13,33 @@
 package io.github.jevaengine.util;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 public class StaticSet<T> implements Iterable<T>
 {
-
 	private ArrayList<T> m_set = new ArrayList<T>();
+	private ArrayList<T> m_uncommitedNegative = new ArrayList<T>();
+	private ArrayList<T> m_uncommitedPositive = new ArrayList<T>();
+	
+	private ArrayList<Runnable> m_mutations = new ArrayList<>();
 
-	private ArrayList<Runnable> m_mutations = new ArrayList<Runnable>();
-
+	private int m_mutationCount = 0;
+	
 	private void cleanup()
 	{
+		if(m_mutations.isEmpty())
+			return;
+		
+		m_mutationCount++;
+		
 		for (Runnable r : m_mutations)
 			r.run();
 
 		m_mutations.clear();
+		m_uncommitedNegative.clear();
+		m_uncommitedPositive.clear();
 	}
 
 	public final void add(final T item)
@@ -42,19 +53,22 @@ public class StaticSet<T> implements Iterable<T>
 				m_set.add(item);
 			}
 		});
+		
+		m_uncommitedPositive.add(item);
 	}
 
 	public final void add(final int index, final T item)
 	{
 		m_mutations.add(new Runnable()
 		{
-
 			@Override
 			public void run()
 			{
 				m_set.add(index, item);
 			}
 		});
+		
+		m_uncommitedPositive.add(item);
 	}
 
 	public final void remove(final T item)
@@ -68,13 +82,19 @@ public class StaticSet<T> implements Iterable<T>
 				m_set.remove(item);
 			}
 		});
+		
+
+		m_uncommitedNegative.remove(item);
 	}
 
 	public final boolean contains(T element)
 	{
-		cleanup();
-
-		return m_set.contains(element);
+		int current = Collections.frequency(m_set, element);
+		int positive = Collections.frequency(m_uncommitedPositive, element);
+		int negative = Collections.frequency(m_uncommitedNegative, element);
+	
+		return current + positive + negative > 0;
+	
 	}
 
 	public final void clear()
@@ -118,11 +138,6 @@ public class StaticSet<T> implements Iterable<T>
 		return m_set.isEmpty();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Iterable#iterator()
-	 */
 	@Override
 	public final Iterator<T> iterator()
 	{
@@ -131,37 +146,32 @@ public class StaticSet<T> implements Iterable<T>
 
 	public final class StaticSetIterator implements Iterator<T>
 	{
-
+		private int m_mutationId;
 		private int m_index = -1;
 
 		private StaticSetIterator()
 		{
 			cleanup();
+			m_mutationId = m_mutationCount;
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see java.util.Iterator#hasNext()
-		 */
 		@Override
 		public boolean hasNext()
 		{
+			if(m_mutationCount != m_mutationId)
+				throw new SetMutatationsCommitedException();
+			
 			return m_index < m_set.size() - 1;
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see java.util.Iterator#next()
-		 */
 		@Override
 		public T next()
 		{
+			if(m_mutationCount != m_mutationId)
+				throw new SetMutatationsCommitedException();
+
 			if (!hasNext())
-			{
 				throw new NoSuchElementException();
-			}
 
 			return m_set.get(++m_index);
 		}
@@ -176,5 +186,12 @@ public class StaticSet<T> implements Iterable<T>
 		{
 			throw new UnsupportedOperationException();
 		}
+	}
+	
+	public static final class SetMutatationsCommitedException extends RuntimeException
+	{
+		private static final long serialVersionUID = 1L;
+
+		private SetMutatationsCommitedException() { }
 	}
 }

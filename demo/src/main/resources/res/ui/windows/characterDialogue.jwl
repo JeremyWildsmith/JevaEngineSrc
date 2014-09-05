@@ -1,0 +1,103 @@
+{
+  "style": "ui/style/parpg/notebook.juis",
+  "bounds": {
+    "width": 450,
+    "height": 270
+  },
+  "controls": [
+    {
+      "type": "textArea",
+      "name": "txtQuery",
+      "location": {
+        "x": 55,
+        "y": 175
+      },
+      "config": {
+        "bounds": {
+          "width": 300,
+          "height": 325
+        }
+      }
+    },
+    {
+      "type": "viewport",
+      "name": "speakerView",
+      "location": {
+        "x": 130,
+        "y": 155
+      },
+      "config": {
+        "bounds": {
+          "width": 70,
+          "height": 70
+        }
+      }
+    },
+    {
+      "type": "button",
+      "name": "btnAnswer0",
+      "location": {
+        "x": 450,
+        "y": 190
+      },
+      "config": {
+        "text": "Answer 0"
+      }
+    },
+    {
+      "type": "button",
+      "name": "btnAnswer1",
+      "location": {
+        "x": 450,
+        "y": 220
+      },
+      "config": {
+        "text": "Answer 1"
+      }
+    },
+    {
+      "type": "button",
+      "name": "btnAnswer2",
+      "location": {
+        "x": 450,
+        "y": 250
+      },
+      "config": {
+        "text": "Answer 2"
+      }
+    },
+    {
+      "type": "button",
+      "name": "btnAnswer3",
+      "location": {
+        "x": 450,
+        "y": 280
+      },
+      "config": {
+        "text": "Answer 3"
+      }
+    },
+    {
+      "type": "button",
+      "name": "btnAnswer4",
+      "location": {
+        "x": 450,
+        "y": 310
+      },
+      "config": {
+        "text": "Answer 4"
+      }
+    },
+    {
+      "type": "button",
+      "name": "btnMoreAnswer",
+      "location": {
+        "x": 450,
+        "y": 430
+      },
+      "config": {
+        "text": "More Answers"
+      }
+    }
+  ]
+}

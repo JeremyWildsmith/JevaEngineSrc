@@ -1,0 +1,35 @@
+{
+  "style": "@ui/style/tech/tech.juis",
+  "bounds": {
+    "width": 440,
+    "height": 130
+  },
+  "controls": [
+    {
+      "type": "button",
+      "name": "btnOkay",
+      "location": {
+        "x": 390,
+        "y": 110
+      },
+      "config": {
+        "text": "Okay"
+      }
+    },
+    {
+      "type": "textArea",
+      "name": "txtMessage",
+      "location": {
+        "x": 20,
+        "y": 20
+      },
+      "config": {
+        "bounds": {
+          "width": 400,
+          "height": 80
+        },
+        "allowEdit": false
+      }
+    }
+  ]
+}

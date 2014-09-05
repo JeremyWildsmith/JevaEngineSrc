@@ -12,115 +12,62 @@
  ******************************************************************************/
 package io.github.jevaengine.game;
 
-import io.github.jevaengine.math.Vector2D;
-import io.github.jevaengine.world.Entity;
-import io.github.jevaengine.world.World;
-import io.github.jevaengine.world.Entity.IEntityObserver;
+import io.github.jevaengine.math.Vector3F;
+import io.github.jevaengine.util.Nullable;
+import io.github.jevaengine.world.entity.IEntity;
+import io.github.jevaengine.world.entity.IEntity.IEntityObserver;
+import io.github.jevaengine.world.scene.ISceneBufferFactory;
 
-public final class FollowCamera implements ICamera
+import java.lang.ref.WeakReference;
+
+public final class FollowCamera extends SceneBufferCamera
 {
-
-	private World m_world;
-
-	private String m_targetEntity;
-
-	private Entity m_target;
-
-	private float m_scale = 1.0F;
+	private WeakReference<IEntity> m_target;	
+	private EntityObserver m_observer = new EntityObserver();
 	
-	public FollowCamera()
+	public FollowCamera(ISceneBufferFactory sceneBufferFactory)
 	{
-		m_targetEntity = null;
+		super(sceneBufferFactory);
+		m_target = new WeakReference<IEntity>(null);
 	}
 
-	public void setTarget(String target)
+	public void setTarget(@Nullable IEntity target)
 	{
-		m_targetEntity = target;
+		if(m_target.get() != null)
+			m_target.get().removeObserver(m_observer);
+		
+		m_target = new WeakReference<>(target);
+		
+		if(target != null)
+			target.addObserver(m_observer);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see io.github.jeremywildsmith.jevaengine.game.IWorldCamera#getLookAt()
-	 */
 	@Override
-	public Vector2D getLookAt()
+	public Vector3F getLookAt()
 	{
-		if (m_world.getEntity(m_targetEntity) == null)
-			return new Vector2D();
-
-		if (m_target == null)
-		{
-			m_target = m_world.getEntity(m_targetEntity);
-			
-			if(m_target != null)
-				m_target.addObserver(new EntityObserver());
-		}
-
-		if (m_target == null)
-			return new Vector2D();
+		if (m_target.get() == null)
+			return new Vector3F();
 		else
-			return m_world.translateWorldToScreen(m_target.getLocation(), getScale());
+			return m_target.get().getBody().getLocation();
 	}
 
 	@Override
-	public World getWorld()
-	{
-		return m_world;
-	}
-
-	public void setZoom(float zoom)
-	{
-		m_scale = zoom;
-	}
+	protected void onAttach() { }
 	
 	@Override
-	public float getScale()
+	public void onDettach()
 	{
-		return m_scale;
+		setTarget(null);
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see io.github.jeremywildsmith.jevaengine.game.IWorldCamera#attach(jeva.world.World)
-	 */
-	@Override
-	public void attach(World world)
-	{
-		m_world = world;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see io.github.jeremywildsmith.jevaengine.game.IWorldCamera#dettach()
-	 */
-	@Override
-	public void dettach()
-	{
-		m_world = null;
-	}
-
+	
 	private class EntityObserver implements IEntityObserver
 	{
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see io.github.jeremywildsmith.jevaengine.world.Entity.IEntityObserver#leaveWorld()
-		 */
 		@Override
 		public void leaveWorld()
 		{
-			m_target.removeObserver(this);
-			m_target = null;
+			setTarget(null);
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see io.github.jeremywildsmith.jevaengine.world.Entity.IEntityObserver#enterWorld()
-		 */
 		@Override
 		public void enterWorld() { }
 
@@ -129,9 +76,5 @@ public final class FollowCamera implements ICamera
 
 		@Override
 		public void flagCleared(String name) { }
-
-		@Override
-		public void moved() { }
 	}
-
 }

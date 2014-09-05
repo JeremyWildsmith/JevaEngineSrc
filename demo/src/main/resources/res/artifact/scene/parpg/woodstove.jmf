@@ -1,0 +1,146 @@
+{
+  "defaultAnimation": "idle",
+  "animations": [
+    {
+      "name": "idle",
+      "sets": [
+        {
+          "directions": [0],
+          "components": [
+            {
+              "sprite": "artifact/scene/parpg/woodstove.jsf",
+              "animation": "e",
+              "bounds": {
+                "x": -0.4,
+                "y": -0.4,
+                "z": 0.0,
+                "width": 0.8,
+                "height": 0.8,
+                "depth": 1.7
+              }
+            }
+          ]
+        },
+        {
+          "directions": [1],
+          "components": [
+            {
+              "sprite": "artifact/scene/parpg/woodstove.jsf",
+              "animation": "s",
+              "bounds": {
+                "x": -0.4,
+                "y": -0.4,
+                "z": 0.0,
+                "width": 0.8,
+                "height": 0.8,
+                "depth": 1.7
+              }
+            }
+          ]
+        },
+        {
+          "directions": [2],
+          "components": [
+            {
+              "sprite": "artifact/scene/parpg/woodstove.jsf",
+              "animation": "w",
+              "bounds": {
+                "x": -0.4,
+                "y": -0.4,
+                "z": 0.0,
+                "width": 0.8,
+                "height": 0.8,
+                "depth": 1.7
+              }
+            }
+          ]
+        },
+        {
+          "directions": [3],
+          "components": [
+            {
+              "sprite": "artifact/scene/parpg/woodstove.jsf",
+              "animation": "n",
+              "bounds": {
+                "x": -0.4,
+                "y": -0.4,
+                "z": 0.0,
+                "width": 0.8,
+                "height": 0.8,
+                "depth": 1.7
+              }
+            }
+          ]
+        },
+        {
+          "directions": [4],
+          "components": [
+            {
+              "sprite": "artifact/scene/parpg/woodstove.jsf",
+              "animation": "se",
+              "bounds": {
+                "x": -0.4,
+                "y": -0.4,
+                "z": 0.0,
+                "width": 0.8,
+                "height": 0.8,
+                "depth": 1.7
+              }
+            }
+          ]
+        },
+        {
+          "directions": [5],
+          "components": [
+            {
+              "sprite": "artifact/scene/parpg/woodstove.jsf",
+              "animation": "nw",
+              "bounds": {
+                "x": -0.4,
+                "y": -0.4,
+                "z": 0.0,
+                "width": 0.8,
+                "height": 0.8,
+                "depth": 1.7
+              }
+            }
+          ]
+        },
+        {
+          "directions": [6],
+          "components": [
+            {
+              "sprite": "artifact/scene/parpg/woodstove.jsf",
+              "animation": "ne",
+              "bounds": {
+                "x": -0.4,
+                "y": -0.4,
+                "z": 0.0,
+                "width": 0.8,
+                "height": 0.8,
+                "depth": 1.7
+              }
+            }
+          ]
+        },
+        {
+          "directions": [7],
+          "components": [
+            {
+              "sprite": "artifact/scene/parpg/woodstove.jsf",
+              "animation": "sw",
+              "bounds": {
+                "x": -0.4,
+                "y": -0.4,
+                "z": 0.0,
+                "width": 0.8,
+                "height": 0.8,
+                "depth": 1.7
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

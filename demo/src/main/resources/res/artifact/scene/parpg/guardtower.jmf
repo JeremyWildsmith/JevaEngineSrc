@@ -1,0 +1,75 @@
+{
+  "defaultAnimation": "idle",
+  "animations": [
+    {
+      "name": "idle",
+      "sets": [
+        {
+          "directions": [3,6],
+          "components": [
+            {
+              "sprite": "artifact/scene/parpg/guardtower.jsf",
+              "animation": "nidle",
+              "bounds": {
+                "x": -1.4,
+                "y": -3.0,
+                "z": 0.0,
+                "width": 5.9,
+                "height": 7.6,
+                "depth": 11.9
+              }
+            }
+          ]
+        },{
+          "directions": [0,4],
+          "components": [
+            {
+              "sprite": "artifact/scene/parpg/guardtower.jsf",
+              "animation": "eidle",
+              "bounds": {
+                "x": -3.6,
+                "y": -3.5,
+                "z": 0.0,
+                "width": 7.6,
+                "height": 5.9,
+                "depth": 11.9
+              }
+            }
+          ]
+        },{
+          "directions": [1,7],
+          "components": [
+            {
+              "sprite": "artifact/scene/parpg/guardtower.jsf",
+              "animation": "sidle",
+              "bounds": {
+                "x": -1.4,
+                "y": -3.0,
+                "z": 0.0,
+                "width": 5.9,
+                "height": 7.6,
+                "depth": 11.9
+              }
+            }
+          ]
+        },{
+          "directions": [2,5],
+          "components": [
+            {
+              "sprite": "artifact/scene/parpg/guardtower.jsf",
+              "animation": "widle",
+              "bounds": {
+                "x": -3.6,
+                "y": -3.5,
+                "z": 0.0,
+                "width": 7.6,
+                "height": 5.9,
+                "depth": 11.9
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

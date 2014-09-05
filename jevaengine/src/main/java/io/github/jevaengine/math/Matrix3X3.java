@@ -12,10 +12,10 @@
  ******************************************************************************/
 package io.github.jevaengine.math;
 
-public class Matrix3X3
+public final class Matrix3X3
 {
 
-	public float[][] matrix;
+	public final float[][] matrix;
 
 	public static final Matrix3X3 IDENTITY = new Matrix3X3(1, 0, 0, 
 														   0, 1, 0,
@@ -23,11 +23,11 @@ public class Matrix3X3
 
 	public Matrix3X3(float x0y0, float x1y0, float x2y0, float x0y1, float x1y1, float x2y1, float x0y2, float x1y2, float x2y2)
 	{
-		matrix = new float[][]
-		{
+		matrix = new float[][] {
 				{ x0y0, x0y1, x0y2 },
 				{ x1y0, x1y1, x1y2 },
-				{ x2y0, x2y1, x2y2 } };
+				{ x2y0, x2y1, x2y2 }
+			};
 	}
 
 	public Matrix3X3(Matrix3X3 mat)
@@ -37,8 +37,7 @@ public class Matrix3X3
 
 	public Vector3F dot(Vector3F v)
 	{
-		return new Vector3F(v.x * matrix[0][0] + v.y * matrix[1][0] + v.z * matrix[2][0], v.x * matrix[0][1] + v.y * matrix[1][1] + v.z * matrix[2][1], v.x * matrix[0][2] + v.y * matrix[1][2] + v.z * matrix[2][2],
-							v.getSortingModel());
+		return new Vector3F(v.x * matrix[0][0] + v.y * matrix[1][0] + v.z * matrix[2][0], v.x * matrix[0][1] + v.y * matrix[1][1] + v.z * matrix[2][1], v.x * matrix[0][2] + v.y * matrix[1][2] + v.z * matrix[2][2]);
 	}
 
 	public Matrix3X3 scale(float fScale)

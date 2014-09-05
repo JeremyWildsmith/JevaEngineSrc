@@ -1,6 +1,0 @@
-name:Subject 09;
-description:You've just woken up from a deep state of lost consciousness. You notice a Tomb Stone to the north sparks some memory - maybe it can help you figure out who you are.;
-
-task/0/id:initial;
-task/0/name:Subject 09;
-task/0/description:Examine the Tomb Stone;

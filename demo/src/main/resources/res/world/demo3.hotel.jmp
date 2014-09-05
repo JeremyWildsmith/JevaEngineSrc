@@ -1,0 +1,38 @@
+{
+  "worldHeight" : 100,
+  "artifactPlanes" : [ {
+    "planeZ" : 0.0010000000474974513,
+    "artifactIndices" : [ -102, 1, -4, 2, -195, 3, -99, 4, -101, 5 ]
+  }, {
+    "planeZ" : 0.0,
+    "artifactIndices" : [ 0 ]
+  } ],
+  "friction" : 1.0,
+  "worldWidth" : 100,
+  "entities" : [ ],
+  "artifacts" : [ {
+    "model" : "artifact/scene/parpg/stonefloor.jmf",
+    "direction" : 4,
+    "isTraversable" : true
+  }, {
+    "model" : "artifact/scene/parpg/chair.jmf",
+    "direction" : 1,
+    "isTraversable" : true
+  }, {
+    "model" : "artifact/scene/parpg/woodstove.jmf",
+    "direction" : 7,
+    "isTraversable" : true
+  }, {
+    "model" : "artifact/scene/parpg/table.jmf",
+    "direction" : 4,
+    "isTraversable" : true
+  }, {
+    "model" : "artifact/scene/parpg/chair.jmf",
+    "direction" : 3,
+    "isTraversable" : true
+  }, {
+    "model" : "artifact/scene/parpg/bed.jmf",
+    "direction" : 4,
+    "isTraversable" : true
+  } ]
+}

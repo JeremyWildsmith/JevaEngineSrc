@@ -28,6 +28,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class Communicator
 {
+	private static final int PARENT_ID_ROOT = -1;
+	
 	private HashMap<String, Class<?>> m_registeredClasses;
 
 	private ConcurrentHashMap<EntityId, SharedEntity> m_pairs;
@@ -103,7 +105,7 @@ public abstract class Communicator
 		m_pairs.put(new EntityId(false, id), entity);
 	}
 
-	protected final void createPair(long id, String className) throws ShareEntityException, PolicyViolationException, IOException
+	protected final void createPair(long parentId, long id, String className)
 	{
 		if (!m_registeredClasses.containsKey(className))
 			throw new ShareEntityException("No registered class under name: " + className);
@@ -122,7 +124,17 @@ public abstract class Communicator
 		pairEntity(id, entity);
 
 		entity.bindCommunicator(this);
-
+		
+		if(parentId != PARENT_ID_ROOT)
+		{
+			SharedEntity parent = m_pairs.get(new EntityId(false, parentId));
+			
+			if(parent == null)
+				throw new ShareEntityException("Parent entity id was invalid.");
+			
+			parent.childEntityShared(entity);
+		}
+		
 		m_observers.entityShared(entity);
 	}
 
@@ -154,9 +166,15 @@ public abstract class Communicator
 
 		SharedEntity entity = m_pairs.remove(id);
 		entity.unbindCommunicator(this);
+		
+		SharedEntity parent = entity.getParent();
+		
+		if(parent != null)
+			parent.childEntityUnshared(entity);
+		
 		m_observers.entityUnshared(entity);
 	}
-
+	
 	final void snapshotField(SharedEntity networkEntity, SharedField<?> field, Object value)
 	{
 		synchronized (m_workingSnapshot)
@@ -201,7 +219,7 @@ public abstract class Communicator
 		m_registeredClasses.put(annotation.name(), networkClass);
 	}
 
-	public final void shareEntity(SharedEntity networkEntity) throws ShareEntityException, IOException
+	public final void shareEntity(SharedEntity networkEntity) throws ShareEntityException
 	{
 		if (m_pairs.containsValue(networkEntity))
 			return;
@@ -222,14 +240,23 @@ public abstract class Communicator
 		EntityId id = new EntityId(true, m_nextId++);
 		m_pairs.put(id, networkEntity);
 
-		m_remote.remoteQueryPair(id.getId(), shared.name());
+		SharedEntity parent = networkEntity.getParent();
+		if(parent != null)
+		{
+			EntityId parentId = getEntityId(parent);
+			m_remote.remoteQueryPair(parentId.getId(), id.getId(), shared.name());
+		}else
+			m_remote.remoteQueryPair(PARENT_ID_ROOT, id.getId(), shared.name());
 
 		networkEntity.bindCommunicator(this);
 		m_observers.entityShared(networkEntity);
 	}
 
-	public final boolean unshareEntity(SharedEntity networkEntity) throws IOException
+	public final boolean unshareEntity(SharedEntity networkEntity)
 	{
+		if (m_remote == null)
+			throw new UnboundCommunicatorException();
+		
 		ArrayList<EntityId> garbage = new ArrayList<EntityId>();
 
 		for (Map.Entry<EntityId, SharedEntity> entry : m_pairs.entrySet())
@@ -245,14 +272,11 @@ public abstract class Communicator
 			SharedEntity garbageEntity = m_pairs.get(id);
 
 			m_observers.entityUnshared(m_pairs.get(id));
-
+			
 			garbageEntity.unbindCommunicator(this);
-			m_pairs.remove(id);
-
-			if (m_remote == null)
-				throw new UnboundCommunicatorException();
-
 			m_remote.remoteDestroyPair(id.getId());
+			
+			m_pairs.remove(id);
 		}
 
 		return garbage.size() > 0;
@@ -291,22 +315,15 @@ public abstract class Communicator
 		while (!m_pairs.isEmpty())
 		{
 			Entry<EntityId, SharedEntity> next = m_pairs.entrySet().iterator().next();
-
-			try
-			{
-				// Removing a listener will cause the corresponding pair to
-				// remove pairs shared through it, thus
-				// we must iterate through pairs assuming that the collection
-				// may change
-				// every time we remove a listener.
-				m_observers.entityUnshared(next.getValue());
-				next.getValue().unbindCommunicator(this);
-				m_pairs.remove(next.getKey());
-			} catch (IOException e)
-			{
-				// Okay to ignore sync errors with remote client since we are
-				// unbinding from it anyway.
-			}
+			
+			// Removing a listener will cause the corresponding pair to
+			// remove pairs shared through it, thus
+			// we must iterate through pairs assuming that the collection
+			// may change
+			// every time we remove a listener.
+			m_observers.entityUnshared(next.getValue());
+			next.getValue().unbindCommunicator(this);
+			m_pairs.remove(next.getKey());
 		}
 
 		m_workingSnapshot.clear();
@@ -328,18 +345,11 @@ public abstract class Communicator
 		}
 	}
 
-	public void remoteQueryPair(long id, String className) throws IOException
+	public void remoteQueryPair(long parent, long id, String className)
 	{
 		// The remote has requested I create a pair with the specified class
 		// name.
-		// I must in return provide an ID to reference the pair
-		try
-		{
-			createPair(id, className);
-		} catch (PolicyViolationException | ShareEntityException e)
-		{
-			throw new IOException(e);
-		}
+		createPair(parent, id, className);
 	}
 
 	public void remoteSnapshot(Snapshot snapshot) throws IOException, SnapshotSynchronizationException
@@ -442,10 +452,9 @@ public abstract class Communicator
 
 		protected abstract void onUnbind();
 
-		public abstract void remoteDestroyPair(long id) throws IOException;
+		public abstract void remoteDestroyPair(long id);
+		public abstract void remoteQueryPair(long parent, long id, String className);
 
-		public abstract void remoteQueryPair(long id, String className) throws IOException;
-
-		public abstract void remoteSnapshot(Snapshot snapshot) throws IOException;
+		public abstract void remoteSnapshot(Snapshot snapshot);
 	}
 }

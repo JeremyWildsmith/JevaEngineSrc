@@ -1,5 +1,0 @@
-name:Rifle;
-script:item/rifle.js;
-sprite:item/rifle.jsf;
-itemType:2;
-description:A finely crafted rifle%0A%0AName: Standard Rifle%0ARange: 5 tiles%0AAttack Multiplier: 1.0;

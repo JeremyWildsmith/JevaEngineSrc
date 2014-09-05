@@ -14,9 +14,10 @@ package io.github.jevaengine.config;
 
 public interface IImmutableVariable extends ISerializable
 {
-	<T> T getValue(Class<T> cls);
-	<T> T[] getValues(Class<T[]> cls);
+	<T> T getValue(Class<T> cls) throws ValueSerializationException;
+	<T> T[] getValues(Class<T[]> cls) throws ValueSerializationException;
 	
 	boolean childExists(String name);
-	IImmutableVariable getChild(String name);
+	IImmutableVariable getChild(String name) throws NoSuchChildVariableException;
+	String[] getChildren();
 }

@@ -1,0 +1,65 @@
+{
+  "scale" : 1.0,
+  "animations" : [ {
+    "frames" : [ {
+      "region" : {
+        "height" : 614,
+        "width" : 637,
+        "y" : 0,
+        "x" : 0
+      },
+      "delay" : 2000,
+      "anchor" : {
+        "y" : 455,
+        "x" : 210
+      }
+    } ],
+    "name" : "nidle"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 575,
+        "width" : 648,
+        "y" : 573,
+        "x" : 638
+      },
+      "delay" : 2000,
+      "anchor" : {
+        "y" : 455,
+        "x" : 210
+      }
+    } ],
+    "name" : "eidle"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 568,
+        "width" : 637,
+        "y" : 615,
+        "x" : 0
+      },
+      "delay" : 2000,
+      "anchor" : {
+        "y" : 410,
+        "x" : 210
+      }
+    } ],
+    "name" : "sidle"
+  }, {
+    "frames" : [ {
+      "region" : {
+        "height" : 566,
+        "width" : 649,
+        "y" : 0,
+        "x" : 638
+      },
+      "delay" : 2000,
+      "anchor" : {
+        "y" : 455,
+        "x" : 210
+      }
+    } ],
+    "name" : "widle"
+  } ],
+  "texture" : "artifact/scene/parpg/guardtower.png"
+}

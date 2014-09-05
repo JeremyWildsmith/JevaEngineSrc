@@ -3,11 +3,10 @@ __commonEnemy = {
 	attackRange: 1.7
 };
 
-function onEnter()
-{
+me.onEnter.add(function() {
 	me.beginLook();
 	constructTasks();
-}
+});
 
 function getDefaultCommand()
 {
@@ -51,11 +50,8 @@ function constructTasks()
 			me.beginLook();
 			me.idle(500);
 			me.wonder(3);
-			core.log("Looking...");
 		}else
 		{
-
-			core.log("Found!");
 			if(__commonEnemy.attackTarget.distance(me) <= __commonEnemy.attackRange)
 			{
 				me.attack(__commonEnemy.attackTarget);

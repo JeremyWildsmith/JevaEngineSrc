@@ -12,15 +12,20 @@
  ******************************************************************************/
 package io.github.jevaengine.rpgbase;
 
-import io.github.jevaengine.rpgbase.Item.ItemIdentifer;
 import io.github.jevaengine.util.Nullable;
 
-public interface IItemStore
+public interface IItemStore extends IImmutableItemStore
 {
-	ItemSlot[] getSlots();
-	boolean hasItem(ItemIdentifer item);
-	boolean addItem(ItemIdentifer item);
-	boolean removeItem(ItemIdentifer item);
-	boolean isFull();
-	@Nullable ItemSlot getEmptySlot();
+	@Override
+	IItemSlot[] getSlots();
+	
+	@Override
+	@Nullable
+	IItemSlot getEmptySlot();
+	
+	boolean hasItem(ItemIdentifier item);
+	boolean addItem(Item item);
+	boolean removeItem(ItemIdentifier item);
+
+
 }

@@ -16,87 +16,205 @@
  */
 package io.github.jevaengine.ui;
 
+import io.github.jevaengine.graphics.IFont;
+import io.github.jevaengine.graphics.IImmutableGraphic;
+import io.github.jevaengine.graphics.NullFont;
+import io.github.jevaengine.graphics.NullGraphic;
+import io.github.jevaengine.joystick.InputKeyEvent;
+import io.github.jevaengine.joystick.InputMouseEvent;
+import io.github.jevaengine.joystick.InputMouseEvent.MouseEventType;
+import io.github.jevaengine.joystick.InputMouseEvent.MouseButton;
+import io.github.jevaengine.math.Rect2D;
+import io.github.jevaengine.math.Vector2D;
+
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.Shape;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 
-import io.github.jevaengine.graphics.Font;
-import io.github.jevaengine.joystick.InputManager.InputKeyEvent;
-import io.github.jevaengine.joystick.InputManager.InputMouseEvent;
-import io.github.jevaengine.joystick.InputManager.InputMouseEvent.EventType;
-import io.github.jevaengine.math.Rect2D;
-
-public class TextArea extends Panel
+public class TextArea extends Control
 {
-
-	private static final int TYPE_LENGTH = 25;
-
-	public enum DisplayEffect
-	{
-
-		Typewriter,
-
-		None
-	}
-
-	private String m_text;
-
-	private String m_renderText;
-
-	private Font m_font;
-
-	private float m_fScroll;
-
-	private Color m_color;
-
-	private int m_elapsedTime;
-
-	private DisplayEffect m_displayEffect;
+	public static final String COMPONENT_NAME = "textArea";
+	
+	private static final int PADDING = 3;
+	
+	private String m_workingText;
+	
+	private IImmutableGraphic m_frame;
+	private IFont m_font = new NullFont();
 
 	private boolean m_allowEdit;
 
-	public TextArea(String text, Color color, int width, int height)
+	private int m_cursorLocation = 0;
+	private int m_blinkTimeout = 0;
+
+	private TextLayout m_textLayout;
+	
+	private boolean m_isWordWrapped = true;
+	
+	private final int m_width;
+	private final int m_height;
+	
+	public TextArea(String text, int width, int height)
 	{
-		super(width, height);
-		m_allowEdit = false;
-		m_color = color;
-		m_text = text;
-		m_renderText = m_text;
-		m_displayEffect = DisplayEffect.None;
+		super(COMPONENT_NAME);
+		
+		m_width = width;
+		m_height = height;
+		
+		m_allowEdit = true;
+		m_workingText = text;
+		m_frame = new NullGraphic(width, height);
+		m_textLayout = new TextLayout(text, m_font, m_frame.getBounds(), 0);
+	}
+	
+	public TextArea(String instanceName, String text, int width, int height)
+	{
+		super(COMPONENT_NAME, instanceName);
+		
+		m_width = width;
+		m_height = height;
+		
+		m_allowEdit = true;
+		m_workingText = text;
+		m_frame = new NullGraphic(width, height);
+		m_textLayout = new TextLayout(text, m_font, m_frame.getBounds(), 0);
 	}
 
-	public TextArea(Color color, int width, int height)
+	public TextArea(int width, int height)
 	{
-		this("", color, width, height);
+		this("", width, height);
+	}	
+
+	private static String wordWrap(IFont font, String text, int maxLength)
+	{
+		LinkedList<String> words = new LinkedList<>();
+		words.addAll(Arrays.asList(text.split("(?=[\\s])")));
+		
+		StringBuilder lineBuffer = new StringBuilder();
+		
+		while(!words.isEmpty())
+		{
+			int lineLength = 0;
+			int nextLineLength = 0;
+			
+			do
+			{
+				String word = words.poll();
+
+				int newLineIndex = word.lastIndexOf("\n");
+				
+				if(newLineIndex >= 0)
+				{
+					if(word.length() > 1)
+						words.addFirst(word.substring(newLineIndex + 1));
+					
+					word = word.substring(0, newLineIndex + 1);
+				}
+
+				lineLength += font.getTextBounds(word).width;
+				
+				lineBuffer.append(word);
+				
+				String nextWord = words.peek();
+				
+				if(word.equals("\n"))
+					lineLength = 0;
+				
+				if(nextWord != null)
+				{
+					int nextWordNewline = nextWord.indexOf('\n');
+					int nextLength = font.getTextBounds(nextWordNewline >= 0 ? nextWord.substring(0, nextWordNewline) : nextWord).width;	
+					nextLineLength = nextLength + lineLength;
+				}
+				
+			}while(!words.isEmpty() && nextLineLength < maxLength);
+			
+			if(!words.isEmpty() && lineBuffer.charAt(lineBuffer.length() - 1) != '\n' && !words.peek().equals("\n"))
+				lineBuffer.append("\n");
+		}
+		
+		return lineBuffer.toString().replaceAll(" *\n *", "\n");
 	}
 
+	@Override
+	public Rect2D getBounds()
+	{
+		return m_frame.getBounds();
+	}
+	
+	private Rect2D getEffectiveBounds()
+	{
+		Rect2D bounds = getBounds();
+		
+		bounds.width -= PADDING;
+		bounds.height -= PADDING;
+		bounds.x += PADDING;
+		bounds.y += PADDING;
+		
+		return bounds;
+	}
+	
+	private String stripUnsupportedChars(String input)
+	{
+		return input.replace("\r", "");
+	}
+	
+	public void setWordWrapped(boolean isWordWrapped)
+	{
+		m_isWordWrapped = isWordWrapped;
+	}
+	
 	public String getText()
 	{
-		return m_text;
-	}
-
-	public void setEffect(DisplayEffect effect)
-	{
-		m_displayEffect = effect;
-
-		if (effect == DisplayEffect.None)
-			m_renderText = m_text;
-		else if (effect == DisplayEffect.Typewriter)
-			m_renderText = "";
+		return m_workingText;
 	}
 
 	public void setText(String text)
 	{
-		m_text = text;
-		m_fScroll = 0;
-		setEffect(m_displayEffect);
+		String safeString = stripUnsupportedChars(text);
+		
+		if(m_isWordWrapped && m_font != null)
+			m_workingText = wordWrap(m_font, safeString, getEffectiveBounds().width);
+		else
+			m_workingText = safeString;
+		
+		m_textLayout = new TextLayout(m_workingText, m_font, getEffectiveBounds(), 0);
+		
+		m_cursorLocation = m_workingText.length() == 0 ? 0 : m_workingText.length() - 1;
 	}
 
-	public void appendText(String text)
+	public void writeText(String text)
 	{
-		m_text = getText() + text;
-		setEffect(m_displayEffect);
+		String safeString = stripUnsupportedChars(text);
+		//backspace
+		if(safeString == "\b")
+		{
+			m_workingText = m_workingText.isEmpty() ? "" : new StringBuilder(m_workingText).deleteCharAt(m_cursorLocation).toString();
+		}else
+		{
+			String begin = m_workingText.isEmpty() ? "" : m_workingText.substring(0, m_cursorLocation);
+			String end = m_workingText.isEmpty() ? "" : m_workingText.substring(m_cursorLocation);
+			
+			m_workingText = begin + safeString + end;
+		}
+		
+		if(m_isWordWrapped)
+		{
+			int cursorDifference = -m_workingText.length();
+			m_workingText = wordWrap(m_font, m_workingText, getEffectiveBounds().width);
+			m_cursorLocation += cursorDifference + m_workingText.length();
+		}
+		
+		m_cursorLocation = Math.min(m_cursorLocation, m_workingText.length());
+		
+		m_textLayout = new TextLayout(m_workingText, m_font, getEffectiveBounds(), m_textLayout.getScroll());
+		
+		m_textLayout.makeLineVisible(m_textLayout.getCursorLineIndex(m_cursorLocation));
 	}
 
 	public void setEditable(boolean isEditable)
@@ -104,149 +222,250 @@ public class TextArea extends Panel
 		m_allowEdit = isEditable;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see io.github.jeremywildsmith.jevaengine.graphics.ui.Panel#render(java.awt.Graphics2D, int, int, float)
-	 */
 	@Override
-	public void render(Graphics2D g, int x, int y, float fScale)
+	public void render(Graphics2D g, int x, int y, float scale)
 	{
-		super.render(g, x, y, fScale);
-
-		String[] text = m_renderText.split("(?<=[ \n])");
-
-		ArrayList<ArrayList<Rect2D>> lines = new ArrayList<ArrayList<Rect2D>>();
-		lines.add(new ArrayList<Rect2D>());
-
-		int offsetX = 0;
-
-		for (String s : text)
-		{
-			Rect2D[] strMap = m_font.getString(s);
-
-			int wordWidth = 0;
-
-			for (Rect2D r : strMap)
-				wordWidth += r.width;
-
-			if (offsetX + wordWidth >= this.getBounds().width && offsetX != 0)
-			{
-				lines.add(new ArrayList<Rect2D>());
-				offsetX = 0;
-			}
-
-			lines.get(lines.size() - 1).addAll(Arrays.asList(strMap));
-			offsetX += wordWidth;
-
-			if (s.endsWith("\n"))
-			{
-				lines.add(new ArrayList<Rect2D>());
-				offsetX = 0;
-			}
-		}
-
-		int offsetY = 0;
-
-		int minScroll = Math.max(0, lines.size() - 1 - getBounds().height / (m_font.getHeight() + 5));
-
-		m_fScroll = Math.min(minScroll, Math.max(m_fScroll, 0));
-
-		for (ArrayList<Rect2D> line : lines.subList((int) m_fScroll, lines.size()))
-		{
-			offsetX = 0;
-			
-			for (Rect2D lineChar : line)
-			{
-				if (offsetY < this.getBounds().height - m_font.getHeight())
-					m_font.getSource().render(g, x + offsetX, y + offsetY, lineChar.width, lineChar.height, lineChar.x, lineChar.y, lineChar.width, lineChar.height);
-
-				offsetX += lineChar.width;
-			}
-
-			offsetY += m_font.getHeight() + 5;
-		}
+		m_frame.render(g, x, y, scale);
+		
+		Shape oldClip = g.getClip();
+		
+		Rect2D myBounds = getEffectiveBounds();
+		Vector2D myLocation = getAbsoluteLocation();
+		
+		g.setClip(new Rectangle(myLocation.x, myLocation.y, myBounds.width, myBounds.height));
+		m_textLayout.render(g, x + PADDING, y + PADDING, scale, m_allowEdit && hasFocus() && m_blinkTimeout / 500 % 2 == 0 ? m_cursorLocation : - 1);
+		g.setClip(oldClip);
 	}
 
 	public void scrollToEnd()
 	{
-		m_fScroll = Float.MAX_VALUE;
+		m_cursorLocation = m_workingText.length() == 0 ? 0 : m_workingText.length() - 1;
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see io.github.jeremywildsmith.jevaengine.graphics.ui.Panel#onStyleChanged()
-	 */
+	
 	@Override
 	public void onStyleChanged()
 	{
 		super.onStyleChanged();
 
-		if (getStyle() != null)
-			m_font = getStyle().getFont(m_color);
+		m_frame = getComponentStyle().getStateStyle(ComponentState.Default).createFrame(m_width, m_height);
+		m_font = getComponentStyle().getStateStyle(ComponentState.Default).getFont();
+		
+		setText(m_workingText);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see io.github.jeremywildsmith.jevaengine.graphics.ui.Panel#onMouseEvent(jeva.joystick.InputManager.
-	 * InputMouseEvent)
-	 */
 	@Override
-	public void onMouseEvent(InputMouseEvent mouseEvent)
+	public boolean onMouseEvent(InputMouseEvent mouseEvent)
 	{
-		if (mouseEvent.type == EventType.MouseWheelMoved)
+		if (mouseEvent.type == MouseEventType.MouseClicked && mouseEvent.mouseButton == MouseButton.Left)
 		{
-			m_fScroll = Math.max(0.0F, m_fScroll + Math.signum(mouseEvent.deltaMouseWheel));
+			Vector2D relativeLocation = mouseEvent.location.difference(getAbsoluteLocation());
+			m_cursorLocation = m_textLayout.pickLineLayout(relativeLocation.y).pickCursorLocation(relativeLocation.x);
 		}
+		
+		return true;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * io.github.jeremywildsmith.jevaengine.graphics.ui.Panel#onKeyEvent(jeva.joystick.InputManager.InputKeyEvent
-	 * )
-	 */
 	@Override
-	public void onKeyEvent(InputKeyEvent keyEvent)
+	public boolean onKeyEvent(InputKeyEvent keyEvent)
 	{
-		if (!m_allowEdit || keyEvent.isConsumed)
-			return;
-
-		if (keyEvent.type == InputKeyEvent.EventType.KeyTyped)
+		if (keyEvent.type == InputKeyEvent.KeyEventType.KeyTyped && m_allowEdit)
 		{
 			if (keyEvent.keyChar == '\b')
 			{
-				keyEvent.isConsumed = true;
-				setText(m_text.substring(0, Math.max(0, m_text.length() - 1)));
+				m_cursorLocation = Math.min(m_workingText.length(), Math.max(0, m_cursorLocation - 1));
+				writeText("\b");				
 			} else if (keyEvent.keyChar == '\n')
 			{
-				keyEvent.isConsumed = true;
-				setText(m_text + keyEvent.keyChar);
-			} else if (m_font.mappingExists(keyEvent.keyChar))
+				writeText(String.valueOf(keyEvent.keyChar));
+				m_cursorLocation = Math.min(m_workingText.length(), Math.max(0, m_cursorLocation + 1));
+			} else if (m_font.doesMappingExists(keyEvent.keyChar))
 			{
-				keyEvent.isConsumed = true;
-				setText(m_text + keyEvent.keyChar);
+				writeText(String.valueOf(keyEvent.keyChar));
+				m_cursorLocation = Math.min(m_workingText.length(), Math.max(0, m_cursorLocation + 1));
+			}
+		}else if(keyEvent.type == InputKeyEvent.KeyEventType.KeyUp)
+		{
+			if (keyEvent.keyCode == KeyEvent.VK_LEFT)
+			{
+				m_cursorLocation = Math.min(m_workingText.length(), Math.max(0, m_cursorLocation - 1));
+				m_textLayout.makeLineVisible(m_textLayout.getCursorLineIndex(m_cursorLocation));
+			} else if (keyEvent.keyCode == KeyEvent.VK_RIGHT)
+			{
+				m_cursorLocation = Math.min(m_workingText.length(), Math.max(0, m_cursorLocation + 1));	
+				m_textLayout.makeLineVisible(m_textLayout.getCursorLineIndex(m_cursorLocation));
+			} else if (keyEvent.keyCode == KeyEvent.VK_UP)
+			{
+				LineLayout currentLine = m_textLayout.getLineAt(m_textLayout.getCursorLineIndex(m_cursorLocation));
+				LineLayout nextLine = m_textLayout.getLineAt(Math.max(0, m_textLayout.getCursorLineIndex(m_cursorLocation) - 1));
+				
+				int currentCursorRelativeToLine = m_cursorLocation - currentLine.getStartIndex();
+				m_cursorLocation = nextLine.getStartIndex() + Math.min(nextLine.getText().length(), currentCursorRelativeToLine);
+				
+				m_textLayout.makeLineVisible(m_textLayout.getCursorLineIndex(m_cursorLocation));
+			} else if (keyEvent.keyCode == KeyEvent.VK_DOWN)
+			{				
+				LineLayout currentLine = m_textLayout.getLineAt(m_textLayout.getCursorLineIndex(m_cursorLocation));
+				LineLayout nextLine = m_textLayout.getLineAt(Math.min(m_textLayout.getLineCount() - 1, m_textLayout.getCursorLineIndex(m_cursorLocation) + 1));
+				
+				int currentCursorRelativeToLine = m_cursorLocation - currentLine.getStartIndex();
+				m_cursorLocation = nextLine.getStartIndex() + Math.min(nextLine.getText().length(), currentCursorRelativeToLine);
+				
+				m_textLayout.makeLineVisible(m_textLayout.getCursorLineIndex(m_cursorLocation));
 			}
 		}
+		
+		return true;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see io.github.jeremywildsmith.jevaengine.graphics.ui.Panel#update(int)
-	 */
 	@Override
 	public void update(int deltaTime)
 	{
-		if (m_displayEffect == DisplayEffect.Typewriter)
+		m_blinkTimeout += deltaTime;
+	}
+	
+	private static class LineLayout
+	{
+		private String m_text;
+		private int m_startIndex;
+		private IFont m_font;
+		
+		public LineLayout(String text, int startIndex, IFont font)
 		{
-			m_elapsedTime += deltaTime;
-			for (; m_elapsedTime > TYPE_LENGTH && m_renderText.length() < m_text.length(); m_elapsedTime -= TYPE_LENGTH)
+			m_text = text;
+			m_startIndex = startIndex;
+			m_font = font;
+		}
+
+		public String getText()
+		{
+			return m_text;
+		}
+
+		public int getStartIndex()
+		{
+			return m_startIndex;
+		}
+
+		public int pickCursorLocation(int x)
+		{
+			int i = 0;
+			int cursorX = x;
+			
+			for(i = 0; cursorX > 0 && i < m_text.length(); i++)
+				cursorX -= m_font.getTextBounds(String.valueOf(m_text.charAt(i))).width;
+			
+			return Math.min(m_text.length(), i) + m_startIndex;
+		}
+		
+		public void render(Graphics2D g, int x, int y, float scale, int cursorLocationX)
+		{
+			int cursorLocation = cursorLocationX - m_startIndex;
+			
+			m_font.drawText(g, x, y, scale, m_text);
+			
+			if(cursorLocation > 0 && cursorLocation <= m_text.length())
 			{
-				m_renderText += m_text.charAt(m_renderText.length());
+				int cursorOffsetX = 0;
+				for(int i = 0; cursorLocation > 0; i++, cursorLocation--)
+					cursorOffsetX += m_font.getTextBounds(String.valueOf(m_text.charAt(i))).width;
+				
+				g.setColor(Color.gray);
+				g.fillRect(x + cursorOffsetX, y, 1, m_font.getMaxCharacterBounds().height);
+			}
+		}
+	}
+	
+	private static class TextLayout
+	{
+		private ArrayList<LineLayout> m_lines = new ArrayList<LineLayout>();
+		private IFont m_font;
+		private int m_scroll = 0;
+		private int m_height;
+		
+		public TextLayout(String text, IFont font, Rect2D bounds, int scroll)
+		{
+			m_font = font;
+			m_height = bounds.height / font.getMaxCharacterBounds().height;
+	
+			int lineWidth = 0;
+			int lastStartIndex = 0;
+			
+			StringBuilder buffer = new StringBuilder();
+			
+			for(int i = 0; i < text.length(); i++)
+			{
+				String character = String.valueOf(text.charAt(i));
+				Rect2D charBounds = font.getTextBounds(character);
+				
+				if((lineWidth != 0 && lineWidth + charBounds.width >= bounds.width) || character.equals("\n"))
+				{
+					lineWidth = 0;
+					m_lines.add(new LineLayout(buffer.toString(), lastStartIndex, font));
+					buffer = new StringBuilder();
+					lastStartIndex = i;
+				}
+				
+				lineWidth += charBounds.width;
+				buffer.append(character);
+			}
+			
+			if(buffer.length() != 0)
+				m_lines.add(new LineLayout(buffer.toString(), lastStartIndex, font));
+			
+			setScroll(scroll);
+		}
+		
+		public int getLineCount()
+		{
+			return m_lines.size();
+		}
+
+		public LineLayout getLineAt(int lineIndex)
+		{
+			return m_lines.get(lineIndex);
+		}
+
+		public void setScroll(int scroll)
+		{
+			m_scroll = Math.min(m_lines.size() - 1, Math.max(0, scroll));
+		}
+		
+		public int getScroll()
+		{
+			return m_scroll;
+		}
+		public int getCursorLineIndex(int index)
+		{
+			int currentLine = index;
+			int i;
+			for(i = 0; currentLine > 0 && i < m_lines.size(); currentLine -= m_lines.get(i).m_text.length(), i++);
+			
+			return i - 1;
+		}
+		
+		public void makeLineVisible(int line)
+		{
+			if(line - m_scroll > m_height || line - m_scroll < 0)
+			{
+				setScroll(line - m_height);
+			}
+		}
+		
+		public LineLayout pickLineLayout(int y)
+		{
+			if(m_lines.isEmpty())
+				return new LineLayout("", 0, m_font);
+			
+			int index = Math.max(0, Math.min(m_lines.size() - 1, y / m_font.getMaxCharacterBounds().height + m_scroll));
+			
+			return m_lines.get(index);
+		}
+		
+		public void render(Graphics2D g, int x, int y, float scale, int cursorLocationX)
+		{
+			for(int i = 0; i < m_lines.size(); i++)
+			{
+				m_lines.get(i).render(g, x, y + (i - m_scroll) * m_font.getMaxCharacterBounds().height, scale, cursorLocationX);
 			}
 		}
 	}

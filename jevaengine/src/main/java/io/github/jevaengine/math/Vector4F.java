@@ -1,6 +1,6 @@
 package io.github.jevaengine.math;
 
-public class Vector4F
+public final class Vector4F
 {
 	public static final float TOLERANCE = 0.0000001F;
 

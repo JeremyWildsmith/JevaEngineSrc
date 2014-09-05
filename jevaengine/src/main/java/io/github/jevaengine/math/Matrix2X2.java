@@ -16,19 +16,19 @@
  */
 package io.github.jevaengine.math;
 
-public class Matrix2X2
+public final class Matrix2X2
 {
 
-	public float[][] matrix;
+	public final float[][] matrix;
 
 	public static final Matrix2X2 IDENTITY = new Matrix2X2(1, 0, 0, 1);
 
 	public Matrix2X2()
 	{
-		matrix = new float[][]
-		{
+		matrix = new float[][] {
 				{ 1, 0 },
-				{ 0, 1 } };
+				{ 0, 1 }		
+		};
 	}
 
 	public Matrix2X2(float x0y0, float x1y0, float x0y1, float x1y1)
@@ -52,8 +52,7 @@ public class Matrix2X2
 	public Vector2F dot(Vector2F vec)
 	{
 		return new Vector2F(vec.x * matrix[0][0] + vec.y * matrix[1][0],
-								vec.x * matrix[0][1] + vec.y * matrix[1][1],
-								vec.getSortingModel());
+								vec.x * matrix[0][1] + vec.y * matrix[1][1]);
 	}
 
 	public Vector2F dot(Vector2D vec)

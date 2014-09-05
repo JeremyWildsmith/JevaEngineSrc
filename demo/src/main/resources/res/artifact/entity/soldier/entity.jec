@@ -1,0 +1,32 @@
+{
+  "name" : "Soldier",
+  "inventorySize" : 0,
+  "visualAcuity" : 1.0,
+  "visibility" : 1.0,
+  "speed" : 1.8,
+  "fieldOfView" : 2.0999999046325684,
+  "model" : "artifact/entity/soldier/model.jmf",
+  "allegiance" : 1,
+  "health" : 50,
+  "viewDistance" : 4.0,
+  "attackRange" : 1.6,
+  "attackDamage" : 10,
+  "attackPeriod" : 1300,
+  "attackSound" : "audio/zombie/attack.wav",
+  "dieSound" : "audio/zombie/die.wav",
+  "physicsBody": {
+	  "type": 2,
+	  "shape": 0,
+	  "aabb": {
+		  "x": -0.45,
+		  "y": -0.45,
+		  "z": 0.0,
+		  "width": 0.9,
+		  "height": 0.9,
+		  "depth": 3.9
+	  },
+	  "density": 1.0,
+	  "isFixedRotation": true,
+	  "friction": 0.0
+  }
+}

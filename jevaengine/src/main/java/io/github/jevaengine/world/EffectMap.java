@@ -17,38 +17,25 @@
 package io.github.jevaengine.world;
 
 import io.github.jevaengine.math.Rect2D;
-import java.awt.Point;
-import java.awt.Rectangle;
+import io.github.jevaengine.math.Vector2D;
+import io.github.jevaengine.math.Vector2F;
+import io.github.jevaengine.world.search.ISearchFilter;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.github.jevaengine.math.Vector2D;
-import io.github.jevaengine.math.Vector2F;
-
-public class EffectMap
+public final class EffectMap
 {
-
 	private HashMap<Vector2D, TileEffects> m_tileEffects;
-
-	private Rectangle m_bounds;
 
 	public EffectMap()
 	{
-		m_bounds = null;
-		m_tileEffects = new HashMap<Vector2D, TileEffects>();
-	}
-
-	public EffectMap(Rectangle bounds)
-	{
-		m_bounds = bounds;
 		m_tileEffects = new HashMap<Vector2D, TileEffects>();
 	}
 
 	public EffectMap(EffectMap map)
 	{
-		m_bounds = map.m_bounds;
 		m_tileEffects = new HashMap<Vector2D, TileEffects>();
 
 		for (Map.Entry<Vector2D, TileEffects> effects : map.m_tileEffects.entrySet())
@@ -60,16 +47,8 @@ public class EffectMap
 		m_tileEffects.clear();
 	}
 
-	public final TileEffects getTileEffects(Vector2D location)
+	public TileEffects getTileEffects(Vector2D location)
 	{
-		if (m_bounds != null && !m_bounds.contains(new Point(location.x, location.y)))
-		{
-			TileEffects effects = new TileEffects();
-			effects.isTraversable = false;
-
-			return effects;
-		}
-
 		if (!m_tileEffects.containsKey(location))
 			return new TileEffects();
 
@@ -124,15 +103,10 @@ public class EffectMap
 
 	public final void applyOverlayEffects(Vector2D location, TileEffects value)
 	{
-		if (m_bounds != null && !m_bounds.contains(new Point(location.x, location.y)))
-			return;
-
-		TileEffects effect = new TileEffects(value);
-
 		if (!m_tileEffects.containsKey(location))
-			m_tileEffects.put(location, effect);
+			m_tileEffects.put(location, value);
 		else
-			m_tileEffects.get(location).overlay(effect);
+			m_tileEffects.put(location, m_tileEffects.get(location).overlay(value));
 	}
 
 	public final void overlay(EffectMap overlay, Vector2D offset)
@@ -148,70 +122,60 @@ public class EffectMap
 
 	public static class TileEffects
 	{
-
-		public ArrayList<IInteractable> interactables;
-
-		public boolean isTraversable;
-
-		public float sightEffect;
+		private boolean isTraversable;
+		private float sightEffect;
 		
 		public TileEffects()
 		{
 			isTraversable = true;
 			sightEffect = 1.0F;
-			interactables = new ArrayList<IInteractable>();
 		}
 
 		public TileEffects(TileEffects effects)
 		{
 			isTraversable = effects.isTraversable;
 			sightEffect = effects.sightEffect;
-
-			interactables = new ArrayList<IInteractable>(effects.interactables);
 		}
 
 		public TileEffects(boolean _isTraversable)
 		{
 			isTraversable = _isTraversable;
 			sightEffect = 1.0F;
-			interactables = new ArrayList<IInteractable>();
 		}
 
 		public TileEffects(float _sightEffect)
 		{
 			isTraversable = true;
 			sightEffect = _sightEffect;
-			interactables = new ArrayList<IInteractable>();
 		}
 
-		public TileEffects(IInteractable... _interactables)
+		public boolean isTraversable()
 		{
-			isTraversable = true;
-			interactables = new ArrayList<IInteractable>(Arrays.asList(_interactables));
+			return isTraversable;
 		}
-
+		
+		public float getSightEffect()
+		{
+			return sightEffect;
+		}
+		
 		public static TileEffects merge(TileEffects[] tiles)
 		{
 			TileEffects effect = new TileEffects();
 
 			for (TileEffects tile : tiles)
-				effect.overlay(tile);
+				effect = effect.overlay(tile);
 
 			return effect;
 		}
 
 		public TileEffects overlay(TileEffects overlay)
 		{
-			isTraversable &= overlay.isTraversable;
-			sightEffect = Math.min(sightEffect, overlay.sightEffect);
+			TileEffects newEffects = new TileEffects();
+			newEffects.isTraversable = isTraversable && overlay.isTraversable;
+			newEffects.sightEffect = Math.min(sightEffect, overlay.sightEffect);
 
-			for (IInteractable i : overlay.interactables)
-			{
-				if (!interactables.contains(i))
-					interactables.add(i);
-			}
-
-			return this;
+			return newEffects;
 		}
 	}
 }

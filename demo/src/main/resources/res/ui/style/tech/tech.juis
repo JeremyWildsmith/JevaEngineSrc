@@ -1,0 +1,82 @@
+{
+  "defaultStyle": "frame",
+  "componentStyles": [
+    {
+      "components": [
+        "frame"
+      ],
+      "defaultStateStyle": {
+        "font": {
+          "font": "ui/font/pro/large.juif",
+          "color": {
+            "x": 100,
+            "y": 100,
+            "z": 100
+          }
+        },
+        "frame": {
+          "bottomRight": "ui/style/tech/frame/br.jsf",
+          "topLeft": "ui/style/tech/frame/tl.jsf",
+          "right": "ui/style/tech/frame/r.jsf",
+          "bottom": "ui/style/tech/frame/b.jsf",
+          "left": "ui/style/tech/frame/l.jsf",
+          "topRight": "ui/style/tech/frame/tr.jsf",
+          "fill": "ui/style/tech/frame/f.jsf",
+          "bottomLeft": "ui/style/tech/frame/bl.jsf",
+          "top": "ui/style/tech/frame/t.jsf"
+        }
+      }
+    },
+    {
+      "components": [
+        "button"
+      ],
+      "defaultStateStyle": {
+        "font": {
+          "font": "ui/font/pro/large.juif",
+          "color": {
+            "x": 100,
+            "y": 100,
+            "z": 100
+          }
+        }
+      },
+      "enterStateStyle": {
+        "font": {
+          "font": "ui/font/pro/large.juif",
+          "color": {
+            "x": 200,
+            "y": 200,
+            "z": 200
+          }
+        }
+      },
+      "activatedStateStyle": {
+        "font": {
+          "font": "ui/font/pro/large.juif",
+          "color": {
+            "x": 200,
+            "y": 20,
+            "z": 20
+          }
+        },
+        "audioEnter": "ui/style/tech/audio/down.wav"
+      }
+    },
+    {
+      "components": [
+        "viewport"
+      ],
+      "defaultStateStyle": {
+        "font": {
+          "font": "ui/font/pro/large.juif",
+          "color": {
+            "x": 100,
+            "y": 100,
+            "z": 100
+          }
+        }
+      }
+    }
+  ]
+}

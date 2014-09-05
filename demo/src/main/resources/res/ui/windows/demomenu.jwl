@@ -1,0 +1,53 @@
+{
+  "style": "ui/style/tech/tech.juis",
+  "bounds": {
+    "width": 200,
+    "height": 180
+  },
+  "controls": [
+    {
+      "type": "button",
+      "name": "btnDemo0",
+      "location": {
+        "x": 10,
+        "y": 10
+      },
+      "config": {
+        "text": "Demo 0"
+      }
+    },
+    {
+      "type": "button",
+      "name": "btnDemo1",
+      "location": {
+        "x": 10,
+        "y": 40
+      },
+      "config": {
+        "text": "Demo 1"
+      }
+    },
+    {
+      "type": "button",
+      "name": "btnDemo2",
+      "location": {
+        "x": 10,
+        "y": 70
+      },
+      "config": {
+        "text": "Demo 2"
+      }
+    },
+    {
+      "type": "button",
+      "name": "btnDemo3",
+      "location": {
+        "x": 10,
+        "y": 100
+      },
+      "config": {
+        "text": "Demo 3"
+      }
+    }
+  ]
+}

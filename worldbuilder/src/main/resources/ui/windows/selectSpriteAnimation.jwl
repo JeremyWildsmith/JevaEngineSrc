@@ -1,0 +1,77 @@
+{
+  "style": "@ui/style/tech/tech.juis",
+  "bounds": {
+    "width": 250,
+    "height": 260
+  },
+  "controls": [
+    {
+      "type": "label",
+      "location": {
+        "x": 15,
+        "y": 10
+      },
+      "config": {
+        "text": "Animation:"
+      }
+    },
+    {
+      "type": "viewport",
+      "name": "spriteViewport",
+      "location": {
+        "x": 10,
+        "y": 30
+      },
+      "config": {
+        "bounds": {
+          "width": 230,
+          "height": 200
+        }
+      }
+    },
+    {
+      "type": "button",
+      "name": "btnLast",
+      "location": {
+        "x": 180,
+        "y": 230
+      },
+      "config": {
+        "text": "Last"
+      }
+    },
+    {
+      "type": "button",
+      "name": "btnNext",
+      "location": {
+        "x": 210,
+        "y": 230
+      },
+      "config": {
+        "text": "Next"
+      }
+    },
+    {
+      "type": "button",
+      "name": "btnCancel",
+      "location": {
+        "x": 20,
+        "y": 230
+      },
+      "config": {
+        "text": "Cancel"
+      }
+    },
+    {
+      "type": "button",
+      "name": "btnOkay",
+      "location": {
+        "x": 60,
+        "y": 230
+      },
+      "config": {
+        "text": "Okay"
+      }
+    }
+  ]
+}

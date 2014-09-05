@@ -6,38 +6,61 @@
 
 package io.github.jevaengine.rpgbase.demo.demos;
 
-import io.github.jevaengine.Core;
-import io.github.jevaengine.CoreScriptException;
-import io.github.jevaengine.ResourceLibrary;
+import io.github.jevaengine.AssetConstructionException;
+import io.github.jevaengine.IDisposable;
+import io.github.jevaengine.NullIInitializationProgressMonitor;
+import io.github.jevaengine.audio.IAudioClip;
+import io.github.jevaengine.audio.IAudioClipFactory;
+import io.github.jevaengine.audio.NullAudioClip;
 import io.github.jevaengine.game.FollowCamera;
-import io.github.jevaengine.joystick.InputManager.InputMouseEvent.MouseButton;
+import io.github.jevaengine.game.ICamera;
+import io.github.jevaengine.joystick.InputKeyEvent;
+import io.github.jevaengine.joystick.InputMouseEvent;
+import io.github.jevaengine.joystick.InputMouseEvent.MouseButton;
+import io.github.jevaengine.joystick.InputMouseEvent.MouseEventType;
 import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.math.Vector2F;
-import io.github.jevaengine.rpgbase.DialogueController;
-import io.github.jevaengine.rpgbase.DialogueController.IDialogueControlObserver;
-import io.github.jevaengine.rpgbase.RpgCharacter;
+import io.github.jevaengine.rpgbase.character.RpgCharacter;
+import io.github.jevaengine.rpgbase.character.RpgCharacter.IActionObserver;
+import io.github.jevaengine.rpgbase.demo.DemoMenu;
 import io.github.jevaengine.rpgbase.demo.IState;
 import io.github.jevaengine.rpgbase.demo.IStateContext;
-import io.github.jevaengine.rpgbase.demo.MainMenu;
-import io.github.jevaengine.rpgbase.ui.CharacterMenu;
-import io.github.jevaengine.rpgbase.ui.InventoryMenu;
+import io.github.jevaengine.rpgbase.dialogue.IDialogueListenerSession;
+import io.github.jevaengine.rpgbase.dialogue.IDialogueSpeakerSession;
+import io.github.jevaengine.rpgbase.ui.CharacterDialogueQueryFactory;
+import io.github.jevaengine.rpgbase.ui.CharacterDialogueQueryFactory.CharacterDialogueQuery;
+import io.github.jevaengine.rpgbase.ui.CharacterDialogueQueryFactory.ICharacterDialogueQueryObserver;
 import io.github.jevaengine.ui.Button;
+import io.github.jevaengine.ui.Button.IButtonObserver;
+import io.github.jevaengine.ui.IWindowFactory;
+import io.github.jevaengine.ui.IWindowFactory.WindowConstructionException;
 import io.github.jevaengine.ui.Label;
 import io.github.jevaengine.ui.MenuStrip;
-import io.github.jevaengine.ui.TextArea;
-import io.github.jevaengine.ui.UIStyle;
+import io.github.jevaengine.ui.MenuStrip.IMenuStripListener;
+import io.github.jevaengine.ui.NoSuchControlException;
+import io.github.jevaengine.ui.Timer;
+import io.github.jevaengine.ui.Timer.ITimerObserver;
 import io.github.jevaengine.ui.Window;
+import io.github.jevaengine.ui.Window.IWindowObserver;
+import io.github.jevaengine.ui.WindowBehaviourInjector;
+import io.github.jevaengine.ui.WindowManager;
 import io.github.jevaengine.ui.WorldView;
-import io.github.jevaengine.ui.WorldView.IWorldViewListener;
-import io.github.jevaengine.world.Entity;
-import io.github.jevaengine.world.IInteractable;
+import io.github.jevaengine.ui.WorldView.IWorldViewObserver;
+import io.github.jevaengine.world.Direction;
+import io.github.jevaengine.world.IWorldFactory;
 import io.github.jevaengine.world.World;
-import io.github.jevaengine.world.World.WorldConfiguration;
+import io.github.jevaengine.world.entity.Actor;
+import io.github.jevaengine.world.scene.isometric.PaintersIsometricSceneBufferFactory;
+import io.github.jevaengine.world.steering.AvoidanceBehavior;
+import io.github.jevaengine.world.steering.ISteeringDriver;
+import io.github.jevaengine.world.steering.PointSubject;
+import io.github.jevaengine.world.steering.SeekBehavior;
+import io.github.jevaengine.world.steering.VelocityLimitSteeringDriver;
 
-import java.awt.Color;
 import java.util.ArrayList;
 
-import javax.script.ScriptException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -46,280 +69,288 @@ import javax.script.ScriptException;
 public class Demo2 implements IState
 {
 	private static final String DEMO_MAP = "world/demo2.jmp";
-	private static final String PLAYER = "artifact/entity/skeletonWarrior/player.jec";
+	private static final String DEMO_VIEW_WINDOW = "ui/windows/demoview.jwl";
+	
+	private static final String BACKGROUND_MUSIC = "audio/themeMusic/windAndTree.ogg";
+	
+	private static final int TILE_WIDTH = 64;
+	private static final int TILE_HEIGHT = 32;
 	
 	private IStateContext m_context;
-	
-	private DialogueController m_dialogueController;
-	private DialogueObserver m_dialogueObserver = new DialogueObserver();
-	
 	private World m_world;
 	private Window m_window;
-	private WorldView m_worldView;
-	private TextArea m_dialogue;
-	private final MenuStrip m_contextStrip = new MenuStrip();
-	private final Label m_cursorActionLabel = new Label("None", Color.yellow);
-	private final InventoryMenu m_inventoryMenu;
-	private final CharacterMenu m_characterMenu;
 	
+	private final IWindowFactory m_windowFactory;
+	private final IWorldFactory m_worldFactory;
+	private final IAudioClipFactory m_audioClipFactory;
+	
+	private final Logger m_logger = LoggerFactory.getLogger(Demo2.class);
+
+	private final PointSubject m_steerSubject = new PointSubject(new Vector2F());
+	private final ISteeringDriver m_steerDriver = new VelocityLimitSteeringDriver(2.0F);
+
+	private DialogueController m_dialogueController;
+	
+	private Vector2F m_movementDelta = new Vector2F();
 	private RpgCharacter m_player;
 	
-	public Demo2(final UIStyle style)
+	private IAudioClip m_backgroundMusic = new NullAudioClip();
+	
+	public Demo2(IWindowFactory windowFactory, IWorldFactory worldFactory, IAudioClipFactory audioClipFactory)
 	{
-		m_inventoryMenu = new InventoryMenu(style);
-		m_characterMenu = new CharacterMenu(style);
-		
-		ResourceLibrary resourceLibrary = Core.getService(ResourceLibrary.class);
-		
-		m_world = World.create(resourceLibrary.openConfiguration(DEMO_MAP).getValue(WorldConfiguration.class));
-
-		m_player = new RpgCharacter(resourceLibrary.openConfiguration(PLAYER));
-		m_player.setLocation(new Vector2F(2,3));
-		m_world.addEntity(m_player);
-		
-		m_inventoryMenu.accessInventory(m_player.getInventory(), m_player);
-		m_characterMenu.showCharacter(m_player);
-		
-		m_window = new Window(style, 710, 700);
-		m_window.setLocation(new Vector2D(157, 120));
-		
-		/*
-		* Create the Camera we will be using to look at our world. The follow
-		* camera allows you to provide a specific entity for the camera to focus on.
-		*
-		* After the camera is created, we attach it to the world we want it
-		* to look at.
-		*/
-		FollowCamera camera = new FollowCamera();
-		camera.setTarget(m_player.getInstanceName());
-		camera.attach(m_world);
-		
-		/*
-		* Create the world view port. The world view port is a control that can
-		* be added to a Panel\Window that renders the world through a provided
-		* camera.
-		*/
-		m_worldView = new WorldView(680, 400);
-		m_worldView.setRenderBackground(false);
-		m_worldView.setCamera(camera);
-		m_worldView.addListener(new WorldViewListener());
-		m_window.addControl(m_worldView, new Vector2D(10,70));
-		
-		/*
-		* Now we need to add our label and our context menu to our worldViewport,
-		* so we can display them over the world viewport. These controls are used by the
-		* world view listener below to display HUD menus to the user.
-		*/
-		m_worldView.addControl(m_contextStrip);
-		m_worldView.addControl(m_cursorActionLabel);
-		m_contextStrip.setVisible(false);
-		m_cursorActionLabel.setVisible(false);
-		
-		/*
-		* Now we're going to add the dialogue text area. In this text area we'll
-		* place all the game dialogue that occurs. 
-		*/
-		m_dialogue = new TextArea(Color.yellow, 680, 200);
-		m_window.addControl(m_dialogue, new Vector2D(10, 400));
-		
-		/*
-		 * Finally, a button to return to the main menu of the game.
-		*/
-		
-		m_window.addControl(new Button("Go Back")
-		{
-			@Override
-			public void onButtonPress()
-			{
-				m_context.setState(new MainMenu(style));
-			}
-		}, new Vector2D(10,10));
+		m_windowFactory = windowFactory;
+		m_worldFactory = worldFactory;
+		m_audioClipFactory = audioClipFactory;
 	}
 	
 	public void enter(IStateContext context)
 	{
 		m_context = context;
-		m_dialogueController = context.getDialogueController();
-		m_dialogueController.clear();
+		try
+		{
+			FollowCamera camera = new FollowCamera(new PaintersIsometricSceneBufferFactory(TILE_WIDTH, TILE_HEIGHT));
+			
+			m_world = m_worldFactory.create(DEMO_MAP, 1.0F, 1.0F, new NullIInitializationProgressMonitor());
+			m_window = m_windowFactory.create(DEMO_VIEW_WINDOW, new DemoWindowBehaviourInjector(camera));
+			context.getWindowManager().addWindow(m_window);	
+			m_window.center();
+			
+			m_player = (RpgCharacter)m_world.getEntities().getByName("player");
+			
+			camera.attach(m_world);
+			camera.setTarget(m_player);
+			m_steerDriver.attach(m_player.getBody());
+			m_steerDriver.add(new SeekBehavior(1.0F, m_steerSubject));
+			m_steerDriver.add(new AvoidanceBehavior(0.4F));
+			
+			m_dialogueController = new DialogueController(context.getWindowManager(), m_windowFactory, m_player);
+			
+			m_backgroundMusic = m_audioClipFactory.create(BACKGROUND_MUSIC);
+			m_backgroundMusic.repeat();
 		
-		context.setPlayer(m_player);
-		context.getDialogueController().addObserver(m_dialogueObserver);
-		context.getWindowManager().addWindow(m_window);
-		context.getWindowManager().addWindow(m_characterMenu);
-		context.getWindowManager().addWindow(m_inventoryMenu);
-	}
+		} catch (AssetConstructionException e)
+		{
+			m_logger.error("Error occured constructing demo world or world view. Reverting to MainMenu.", e);
+			m_context.setState(new DemoMenu(m_windowFactory, m_worldFactory, m_audioClipFactory));
+		}
+	}	
 
 	public void leave()
 	{
-		m_context.getWindowManager().removeWindow(m_window);
-		m_context.getWindowManager().removeWindow(m_characterMenu);
-		m_context.getWindowManager().removeWindow(m_inventoryMenu);
+		if(m_window != null)
+		{
+			m_context.getWindowManager().removeWindow(m_window);
+			m_window.dispose();
+		}
 		
-		m_dialogueController.removeObserver(m_dialogueObserver);
-		m_context.setPlayer(null);
+		m_backgroundMusic.dispose();
+		
+		if(m_dialogueController != null)
+			m_dialogueController.dispose();
 	}
 
-	public void update(int iDelta)
+	public void update(int deltaTime)
 	{
-		m_world.update(iDelta);
-	}
-	
-	private class WorldViewListener implements IWorldViewListener
-	{
-		private IInteractable m_lastTarget = null;
+		Vector2F delta = m_movementDelta.isZero() ? new Vector2F() : m_movementDelta.multiply(10);
 		
-		@Override
-		public void worldSelection(Vector2D location, Vector2F worldLocation, MouseButton button)
+		if(!delta.isZero())
 		{
-			//If we're in the middle of dialogue, block world interaction...
-			if(m_dialogueController.isBusy())
-				return;
-			
-			final IInteractable[] interactables = m_world.getTileEffects(worldLocation.round()).interactables.toArray(new IInteractable[0]);
-
-			if (button == MouseButton.Right)
-			{
-				if (interactables.length > 0 && interactables[0].getCommands().length > 0)
-				{
-					m_contextStrip.setContext(interactables[0].getCommands(), new MenuStrip.IMenuStripListener()
-					{
-						@Override
-						public void onCommand(String command)
-						{
-							interactables[0].doCommand(command);
-						}
-					});
-
-					m_contextStrip.setLocation(location);
-				}
-			}else if(button == MouseButton.Left)
-			{
-				if(m_lastTarget != null)
-				{
-					m_lastTarget.doCommand(m_lastTarget.getDefaultCommand());
-					m_lastTarget = null;
-					m_cursorActionLabel.setVisible(false);
-				}else
-					m_player.moveTo(worldLocation);
-			}
+			Vector2F moveTarget = m_player.getBody().getLocation().getXy().add(delta);
+			m_steerSubject.setLocation(moveTarget);
+			m_steerDriver.update(deltaTime);
 		}
-
-		@Override
-		public void worldMove(Vector2D location, Vector2F worldLocation)
-		{
-			final IInteractable interactable = m_worldView.pick(RpgCharacter.class, location);
-			
-			if(interactable != null)
-			{
-				String defaultCommand = interactable.getDefaultCommand();
-				
-				if(defaultCommand != null)
-				{
-					m_cursorActionLabel.setText(defaultCommand);
-					m_cursorActionLabel.setVisible(true);
-					
-					Vector2D offset = new Vector2D(10, 15);
-					
-					m_cursorActionLabel.setLocation(location.add(offset));
-				
-					m_lastTarget = interactable;
-				}
-			}else
-			{
-				m_lastTarget = null;
-				m_cursorActionLabel.setVisible(false);
-			}
-		}
+		
+		m_world.update(deltaTime);
 	}
 	
-	private class DialogueObserver implements IDialogueControlObserver
+	private class DemoWindowBehaviourInjector extends WindowBehaviourInjector
 	{
-		private ArrayList<Button> m_answers = new ArrayList<Button>();
+		private final ICamera m_camera;
 		
-		private void removeAnswers()
+		private Vector2D m_lastCursorLocation = new Vector2D();
+		private Actor m_lastPickedEntity = null;
+		
+		public DemoWindowBehaviourInjector(ICamera camera)
 		{
-			for(Button b : m_answers)
-				m_window.removeControl(b);
-			
-			m_answers.clear();
+			m_camera = camera;
 		}
 		
-		private void presentAnswers(String[] answers)
+		@Override
+		public void doInject() throws NoSuchControlException
 		{
-			removeAnswers();
+			final WorldView demoWorldView = getControl(WorldView.class, "demoWorldView");
+			final MenuStrip menuStrip = new MenuStrip();
+			final Label lblDefaultCommand = new Label();
+			final Timer defaultCommandTimer = new Timer();
 			
-			int offset = 0;
+			addControl(menuStrip);
+			addControl(lblDefaultCommand);
 			
-			for (final String answer : answers)
-			{
-				Button b = new Button(answer)
-				{
-					@Override
-					public void onButtonPress()
+			lblDefaultCommand.setVisible(false);
+			
+			addControl(defaultCommandTimer);
+			
+			defaultCommandTimer.addObserver(new ITimerObserver() {
+				@Override
+				public void update(int deltaTime) {
+					Actor pickedEntity = demoWorldView.pick(Actor.class, m_lastCursorLocation);
+					String defaultCommand = pickedEntity == null ? null : pickedEntity.getDefaultCommand(m_player);
+					
+					if(pickedEntity != null && defaultCommand != null)
 					{
-						m_dialogueController.say(answer);
+						m_lastPickedEntity = pickedEntity;
+						lblDefaultCommand.setText(defaultCommand);
+						lblDefaultCommand.setVisible(true);
+					}else
+					{
+						m_lastPickedEntity = null;
+						lblDefaultCommand.setVisible(false);
 					}
-				};
+				}
+			});
+			
+			getControl(Button.class, "btnBack").addObserver(new IButtonObserver() {
+				@Override
+				public void onPress() {
+					m_context.setState(new DemoMenu(m_windowFactory, m_worldFactory, m_audioClipFactory));
+				}
+			});
+			
+			demoWorldView.setCamera(m_camera);
+			
+			demoWorldView.addObserver(new IWorldViewObserver() {
+				@Override
+				public void mouseEvent(InputMouseEvent event)
+				{
+					m_lastCursorLocation = event.location;
+					
+					if(event.mouseButton == MouseButton.Right)
+					{
+						if(event.type == MouseEventType.MouseClicked)
+						{
+							final Actor pickedActor = demoWorldView.pick(Actor.class, event.location);
+							
+							String[] commands = pickedActor == null ? new String[0] : pickedActor.getCommands(m_player);
+							
+							if(commands.length > 0)
+							{
+								menuStrip.setContext(commands, new IMenuStripListener() {
+								
+									@Override
+									public void onCommand(String command) {
+										pickedActor.doCommand(m_player, command);
+									}
+								});
+								
+								menuStrip.setLocation(event.location);
+							}
+						}
+					}else if(event.mouseButton == MouseButton.Left)
+					{
+						menuStrip.setVisible(false);
+	
+						if(event.type == MouseEventType.MousePressed)
+						{
+							if(m_lastPickedEntity != null)
+								m_lastPickedEntity.doCommand(m_player, lblDefaultCommand.getText());
+							else
+							{
+								Vector2F delta = demoWorldView.translateScreenToWorld(new Vector2F(event.location)).difference(m_player.getBody().getLocation().getXy());
+								m_movementDelta = delta.isZero() ? new Vector2F(0, -1) : new Vector2F(Direction.fromVector(delta).getDirectionVector()).normalize();
+							}
+						}else if(event.type == MouseEventType.MouseReleased) {
+							m_movementDelta = new Vector2F(0, 0);
+						}
+					} else if(event.type == MouseEventType.MouseMoved)
+					{
+						if(!m_movementDelta.isZero())
+						{
+							Vector2F delta = demoWorldView.translateScreenToWorld(new Vector2F(event.location)).difference(m_player.getBody().getLocation().getXy());
+							m_movementDelta = delta.isZero() ? new Vector2F(0, -1) : new Vector2F(Direction.fromVector(delta).getDirectionVector()).normalize();
+						}
+						
+						lblDefaultCommand.setLocation(event.location);
+					}
+				}
+			});
+			
+			addObserver(new IWindowObserver() {
 				
-				m_window.addControl(b, new Vector2D(offset + 10, 600));
-				m_answers.add(b);
+				@Override
+				public void onMouseEvent(InputMouseEvent event) { }
 				
-				offset += b.getBounds().width + 10;
-			}
+				@Override
+				public void onKeyEvent(InputKeyEvent e) { }
+				
+				@Override
+				public void onFocusChanged(boolean hasFocus)
+				{
+					if(!hasFocus)
+						m_movementDelta = new Vector2F();
+				}
+			});
+		}
+	}
+	
+	private static class DialogueController implements IDisposable
+	{
+		private final Logger m_logger = LoggerFactory.getLogger(DialogueController.class);
+		
+		private final ArrayList<CharacterDialogueQuery> m_queries = new ArrayList<>();
+		
+		private final WindowManager m_windowManager;
+		private final IWindowFactory m_windowFactory;
+		private final RpgCharacter m_host;
+		
+		private final DialogueObserver m_observer = new DialogueObserver();
+		
+		public DialogueController(WindowManager windowManager, IWindowFactory windowFactory, RpgCharacter host)
+		{
+			m_windowManager = windowManager;
+			m_windowFactory = windowFactory;
+			m_host = host;
+			m_host.addActionObserver(m_observer);
 		}
 		
-		public void beginDialogue()
+		@Override
+		public void dispose()
 		{
-			m_world.pause();
+			for(CharacterDialogueQuery q : m_queries)
+				q.dispose();
+			
+			m_queries.clear();
+			m_host.removeActionObserver(m_observer);
 		}
-
-		public void endDialogue()
+		
+		private class DialogueObserver implements IActionObserver
 		{
-			m_world.resume();
-			removeAnswers();
-		}
-
-		public void dialogueEvent(int event)
-		{
-			//We could route this event back to the speakers script
-			//or do some other task with it by looking it up in a table etc...
-			//it all depends on how your game dialogue works.
-			
-			//In this example (and most implementations will be to do this) we'll
-			//route it back to the speakers script to notify the speaker the dialogue it has
-			//invoked has raised an event.
-			
-			Entity speaker = m_dialogueController.getSpeaker();
-			Entity listener = m_dialogueController.getListener();
-			
-			if(speaker != null)
+			@Override
+			public void listening(IDialogueListenerSession session)
 			{
+				/*
 				try
 				{
-					speaker.getScript().invokeScriptFunction("dialogueEvent", listener == null ? null : listener.getScriptBridge(), event);
-				} catch (NoSuchMethodException ex) { }
-				catch (ScriptException ex)
-				{
-					throw new CoreScriptException(ex);
-				}
+					final CharacterDialogueQuery query = new CharacterDialogueQueryFactory(m_windowManager, m_windowFactory, "ui/windows/characterDialogue.jwl").create(session);
+				
+					query.addObserver(new ICharacterDialogueQueryObserver() {
+						@Override
+						public void sessionEnded() {
+							query.dispose();
+						}
+					});
+					
+				} catch (WindowConstructionException e) {
+					m_logger.error("Unable to construct character dialoge query", e);
+				}*/
+				assert false;
 			}
-		}
 
-		public void speakerSaid(String message)
-		{
-			Entity speaker = m_dialogueController.getSpeaker();
-			String name = speaker instanceof RpgCharacter ? ((RpgCharacter)speaker).getCharacterName() : "World";
-			
-			m_dialogue.appendText(String.format("%s: %s\n", name, message));
-			m_dialogue.scrollToEnd();
-			presentAnswers(m_dialogueController.getAnswers());
-		}
+			@Override
+			public void speaking(IDialogueSpeakerSession session) { }	
 
-		public void listenerSaid(String message)
-		{
-			m_dialogue.appendText("Hero: " + message + "\n");
-			m_dialogue.scrollToEnd();
+			@Override
+			public void attackedTarget(RpgCharacter attackee) { }
+
 		}
-		
 	}
 }

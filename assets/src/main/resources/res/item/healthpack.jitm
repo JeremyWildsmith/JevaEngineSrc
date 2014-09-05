@@ -1,7 +1,0 @@
-{
-  "description" : "A basic health pack.",
-  "name" : "Health Pack",
-  "sprite" : "item/healthpack.jsf",
-  "type" : 0,
-  "script" : "item/healthpack.js"
-}

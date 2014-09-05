@@ -12,93 +12,45 @@
  ******************************************************************************/
 package io.github.jevaengine.game;
 
-import io.github.jevaengine.math.Vector2D;
-import io.github.jevaengine.math.Vector2F;
-import io.github.jevaengine.util.Nullable;
-import io.github.jevaengine.world.World;
+import io.github.jevaengine.math.Vector3F;
+import io.github.jevaengine.world.scene.ISceneBufferFactory;
 
-public final class ControlledCamera implements ICamera
+public final class ControlledCamera extends SceneBufferCamera
 {
-	@Nullable
-	private World m_world;
-	
-	private Vector2F m_lookAtTile;
-
-	private Vector2D m_lookAtScreen;
+	private Vector3F m_lookAtTile;
 	
 	private float m_zoom = 1.0F;
 	
-	public ControlledCamera()
+	public ControlledCamera(ISceneBufferFactory sceneBufferFactory)
 	{
-		m_lookAtTile = new Vector2F();
-		m_lookAtScreen = new Vector2D();
+		super(sceneBufferFactory);
+		m_lookAtTile = new Vector3F();
 	}
 
-	public ControlledCamera(Vector2F tileLocation)
-	{
-		lookAt(tileLocation);
-	}
-
-	public void setZoom(float zoom)
-	{
-		m_zoom = zoom;
-		lookAt(m_lookAtTile);
-	}
-	
 	public float getZoom()
 	{
 		return m_zoom;
 	}
 	
-	public void lookAt(Vector2F tileLocation)
+	public void lookAt(Vector3F tileLocation)
 	{
-		if (m_world != null)
-		{
-			float fX = Math.min(Math.max(0, tileLocation.x), m_world.getWidth() - 1);
-			float fY = Math.min(Math.max(0, tileLocation.y), m_world.getHeight() - 1);
-			m_lookAtTile = new Vector2F(fX, fY);
-
-			m_lookAtScreen = m_world.translateWorldToScreen(m_lookAtTile, getScale());
-		} else
-			m_lookAtTile = tileLocation;
+		m_lookAtTile = new Vector3F(tileLocation);
 	}
 
-	public void move(Vector2F delta)
+	public void move(Vector3F delta)
 	{
-		lookAt(m_lookAtTile.add(delta));
+		m_lookAtTile = m_lookAtTile.add(delta);
 	}
 
 	@Override
-	public Vector2D getLookAt()
+	public Vector3F getLookAt()
 	{
-		return m_lookAtScreen;
+		return m_lookAtTile;
 	}
 
 	@Override
-	public World getWorld()
-	{
-		return m_world;
-	}
+	protected void onAttach() { }
 
 	@Override
-	public void attach(World world)
-	{
-		dettach();
-		
-		m_world = world;
-		// Refresh target tile with current world
-		lookAt(m_lookAtTile);
-	}
-
-	@Override
-	public void dettach()
-	{
-		m_world = null;
-	}
-
-	@Override
-	public float getScale()
-	{
-		return m_zoom;
-	}
+	protected void onDettach() { }
 }

@@ -14,147 +14,146 @@
 package io.github.jevaengine.ui;
 
 import io.github.jevaengine.game.ICamera;
-import io.github.jevaengine.joystick.InputManager.InputMouseEvent;
-import io.github.jevaengine.joystick.InputManager.InputMouseEvent.EventType;
-import io.github.jevaengine.joystick.InputManager.InputMouseEvent.MouseButton;
+import io.github.jevaengine.game.NullCamera;
+import io.github.jevaengine.graphics.IImmutableGraphic;
+import io.github.jevaengine.graphics.NullGraphic;
+import io.github.jevaengine.joystick.InputKeyEvent;
+import io.github.jevaengine.joystick.InputMouseEvent;
 import io.github.jevaengine.math.Rect2D;
 import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.math.Vector2F;
+import io.github.jevaengine.math.Vector3F;
 import io.github.jevaengine.util.Nullable;
 import io.github.jevaengine.util.StaticSet;
-import io.github.jevaengine.world.Actor;
-import io.github.jevaengine.world.World;
+import io.github.jevaengine.world.IImmutableSceneBuffer;
+import io.github.jevaengine.world.entity.IEntity;
+import io.github.jevaengine.world.scene.NullSceneBuffer;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Shape;
 
-public final class WorldView extends Panel
+public final class WorldView extends Control
 {
-	private ICamera m_camera;
-
-	private Listeners m_listeners = new Listeners();
-
-	public WorldView(int width, int height)
+	public static final String COMPONENT_NAME = "worldView";
+	
+	private final int m_desiredWidth;
+	private final int m_desiredHeight;
+	
+	private IImmutableGraphic m_frame;
+	
+	private Observers m_observers = new Observers();
+	
+	private ICamera m_camera = new NullCamera();
+	
+	private IImmutableSceneBuffer m_lastScene = new NullSceneBuffer();
+	
+	public WorldView(int desiredWidth, int desiredHeight)
 	{
-		super(width, height);
+		super(COMPONENT_NAME);
+		m_desiredWidth = desiredWidth;
+		m_desiredHeight = desiredHeight;
+		m_frame = new NullGraphic(desiredWidth, desiredHeight);
+	}
+	
+	public WorldView(String instanceName, int desiredWidth, int desiredHeight)
+	{
+		super(COMPONENT_NAME, instanceName);
+		m_desiredWidth = desiredWidth;
+		m_desiredHeight = desiredHeight;
+		m_frame = new NullGraphic(desiredWidth, desiredHeight);
 	}
 
-	public void addListener(IWorldViewListener l)
+	public void addObserver(IWorldViewObserver o)
 	{
-		m_listeners.add(l);
+		m_observers.add(o);
 	}
 
-	public void removeListener(IWorldViewListener l)
+	public void removeObserver(IWorldViewObserver o)
 	{
-		m_listeners.remove(l);
+		m_observers.remove(o);
+	}
+	
+	@Override
+	public Rect2D getBounds()
+	{
+		return m_frame.getBounds();
 	}
 
-	private Vector2D getCameraOffset()
-	{
-		if (m_camera == null)
-			return new Vector2D();
-
-		return new Vector2D(getBounds().width / 2, getBounds().height / 2).difference(m_camera.getLookAt());
-	}
-
-	public void setCamera(@Nullable ICamera camera)
+	public void setCamera(ICamera camera)
 	{
 		m_camera = camera;
 	}
 
-	public void clear()
+	public Vector2F translateScreenToWorld(Vector2F relativeLocation)
 	{
-		setCamera(null);
+		if(m_camera == null)
+			return new Vector2F();
+		
+		return m_lastScene.translateScreenToWorld(new Vector3F(relativeLocation, m_camera.getLookAt().z), 1.0F);
 	}
 
 	@Nullable
-	public <T extends Actor> T pick(Class<T> clazz, Vector2D location)
+	public <T extends IEntity> T pick(Class<T> clazz, Vector2D location)
 	{
-		World world = m_camera == null ? null : m_camera.getWorld();
-		
-		if (world != null)
+		if (m_lastScene != null)
 		{
-			Vector2D offset = getCameraOffset();
-			return world.pick(clazz, location.x, location.y, offset.x, offset.y, m_camera.getScale());
+			return m_lastScene.pick(clazz, location.x, location.y, 1.0F);
 		}else
 			return null;
 	}
 	
 	@Override
-	public void onMouseEvent(InputMouseEvent mouseEvent)
+	public boolean onMouseEvent(InputMouseEvent mouseEvent)
 	{
-		super.onMouseEvent(mouseEvent);
-		
-		if (mouseEvent.type == EventType.MouseClicked ||
-			mouseEvent.type == EventType.MouseMoved)
-		{
-			Vector2D relativePos = mouseEvent.location.difference(getAbsoluteLocation());
-
-			World world = m_camera == null ? null : m_camera.getWorld();
- 
-			if (world != null)
-			{
-				Vector2F tilePos = world.translateScreenToWorld(relativePos.difference(getCameraOffset()), m_camera.getScale());
-
-				if (world.getBounds().contains(tilePos.round()))
-				{
-					if(mouseEvent.type == EventType.MouseClicked)
-						m_listeners.worldSelection(relativePos, tilePos, mouseEvent.mouseButton);
-					else
-						m_listeners.worldMove(relativePos, tilePos);
-				}
-			}
-		}
+		InputMouseEvent relativeMouseEvent = new InputMouseEvent(mouseEvent);
+		relativeMouseEvent.location = mouseEvent.location.difference(getAbsoluteLocation());
+			
+		m_observers.mouseEvent(relativeMouseEvent);
+			
+		return true;
 	}
 
 	@Override
+	public boolean onKeyEvent(InputKeyEvent keyEvent){ return false; }
+
+	@Override
+	public void update(int deltaTime) { }
+	
+	@Override
 	public void render(Graphics2D g, int x, int y, float scale)
 	{
-		super.renderBackground(g, x, y, scale);
+		m_frame.render(g, x, y, scale);
 		
-		World world = m_camera == null ? null : m_camera.getWorld();
+		g.setColor(Color.black);
+		g.fillRect(x, y, getBounds().width, getBounds().height);
+			
+		Shape oldClip = g.getClip();
+		g.clipRect(x, y, getBounds().width, getBounds().height);
 		
-		if (world != null)
-		{
-			Vector2D offset = getCameraOffset();
-			Rect2D bounds = getBounds();
-
+		m_lastScene = m_camera.getScene(getBounds(), scale);
+		m_lastScene.render(g, x, y, scale);
 			
-			g.setColor(Color.black);
-			g.fillRect(x, y, getBounds().width, getBounds().height);
-			
-			Shape oldClip = g.getClip();
-			g.clipRect(x, y, getBounds().width, getBounds().height);
-			
-			world.render(g, scale * m_camera.getScale(), 
-							new Rect2D(offset.x, offset.y, bounds.width, bounds.height), 
-							getAbsoluteLocation().x, getAbsoluteLocation().y);
-			
-			g.setClip(oldClip);
-		}
-		
-		super.renderControls(g, x, y, scale);
+		g.setClip(oldClip);
 	}
 
-	private static class Listeners extends StaticSet<IWorldViewListener>
+	@Override
+	public void onStyleChanged()
 	{
-		public void worldSelection(Vector2D interactable, Vector2F worldLocation, MouseButton button)
+		m_frame = getComponentStyle().getStateStyle(ComponentState.Default).createFrame(m_desiredWidth, m_desiredHeight);
+	}
+	
+	private static class Observers extends StaticSet<IWorldViewObserver>
+	{
+		public void mouseEvent(InputMouseEvent event)
 		{
-			for (IWorldViewListener l : this)
-				l.worldSelection(interactable, worldLocation, button);
-		}
-		
-		public void worldMove(Vector2D interactable, Vector2F worldLocation)
-		{
-			for (IWorldViewListener l : this)
-				l.worldMove(interactable, worldLocation);
+			for (IWorldViewObserver l : this)
+				l.mouseEvent(event);
 		}
 	}
 
-	public interface IWorldViewListener
+	public interface IWorldViewObserver
 	{
-		void worldSelection(Vector2D interactable, Vector2F worldLocation, MouseButton button);
-		void worldMove(Vector2D interactable, Vector2F worldLocation);
+		void mouseEvent(InputMouseEvent event);
 	}
 }

@@ -18,28 +18,31 @@ package io.github.jevaengine.graphics;
 
 import io.github.jevaengine.math.Rect2D;
 import io.github.jevaengine.math.Vector2D;
+import io.github.jevaengine.util.Nullable;
 
 public final class Frame
 {
-
-	private Rect2D m_srcRect;
-
-	private int m_delay;
-
-	private Vector2D m_origin;
+	private final Rect2D m_srcRect;
+	private final int m_delay;
+	private final Vector2D m_origin;
+	private final String m_event;
+	
+	public Frame(Rect2D srcRect, int delay, Vector2D origin, @Nullable String event)
+	{
+		m_delay = delay;
+		m_srcRect = new Rect2D(srcRect);
+		m_origin = new Vector2D(origin);
+		m_event = event;
+	}
 
 	public Frame(Rect2D srcRect, int delay, Vector2D origin)
 	{
-		m_delay = delay;
-
-		m_srcRect = srcRect;
-
-		m_origin = origin;
+		this(srcRect, delay, origin, null);
 	}
-
+	
 	public Rect2D getSourceRect()
 	{
-		return m_srcRect;
+		return new Rect2D(m_srcRect);
 	}
 
 	public long getDelay()
@@ -49,6 +52,12 @@ public final class Frame
 
 	public Vector2D getOrigin()
 	{
-		return m_origin;
+		return new Vector2D(m_origin);
+	}
+	
+	@Nullable
+	public String getEvent()
+	{
+		return m_event;
 	}
 }

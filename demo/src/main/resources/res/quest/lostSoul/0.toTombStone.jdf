@@ -1,0 +1,16 @@
+{
+	"script":"quest/lostSoul/0.toTombStone.js",
+	"queries":[
+		{
+			"entryCondition":"!listener.isFlagSet('quest/lostSoul')",
+			"query":"Must... eat... brains...",
+			"answers":[
+				{
+					"answer":"Continue",
+					"event":0
+				}	
+			]
+		}
+		
+	]
+}

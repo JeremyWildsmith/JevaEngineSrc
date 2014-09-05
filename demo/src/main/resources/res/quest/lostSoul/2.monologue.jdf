@@ -1,0 +1,51 @@
+{
+	"script" :"quest/lostSoul/2.monologue.js",
+	"queries" :
+	[
+		{
+			"entryCondition" :"listener.testFlag('quest/lostSoul', 2)",
+			"query" :"You fumble your way to an unmarked tomb stone - part of you wonders who's story is buried beneath your feat...",
+			"answers":
+			[
+	      		{
+	      			"next" :1,
+	      			"answer" :"Continue"
+	      		}
+	      	]
+	    },
+	    {
+	    	"query" :"The rest of you question whether the corpse would still present some eatable flesh...",
+	    	"answers" : 
+	    	[
+	    	 	{
+	    	 		"next" :2,
+	    			"answer" :"Dig up corpse and eat it."
+	    		},
+	    		{
+	    	 		"next" :3,
+	    			"answer" :"Let corpse rest in peace."
+	    		}
+	    	]
+	    },
+	    {
+	    	"query" :"Your attempts to dig into the ground with your decaying hands is futile, you do however anger a spider's home!",
+	    	"answers" : 
+	    	[
+	    	 	{
+	    			
+	    			"event":0,	
+	    			"answer" :"Argh!"
+	    		}
+	    	]
+	    },
+	    {
+	    	"query" :"You walk away, towards your home, the dungeon.",
+	    	"answers" : 
+	    	[
+	    	 	{
+	    			"answer" :"Continue"
+	    		}
+	    	]
+	    }
+	]
+}

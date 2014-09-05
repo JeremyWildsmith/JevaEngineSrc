@@ -1,0 +1,476 @@
+{
+  "defaultAnimation": "idle",
+  "animations": [
+    {
+      "name": "idle",
+      "sets": [
+        {
+          "directions": [
+            0
+          ],
+          "components": [
+            {
+              "sprite": "artifact/entity/maletraveler/stand.jsf",
+              "animation": "e",
+              "bounds": {
+                "x": -0.4,
+                "y": -0.4,
+                "z": 0.0,
+                "width": 0.9,
+                "height": 0.9,
+                "depth": 3.9
+              }
+            }
+          ]
+        },
+        {
+          "directions": [
+            1
+          ],
+          "components": [
+            {
+              "sprite": "artifact/entity/maletraveler/stand.jsf",
+              "animation": "s",
+              "bounds": {
+                "x": -0.4,
+                "y": -0.4,
+                "z": 0.0,
+                "width": 0.9,
+                "height": 0.9,
+                "depth": 3.9
+              }
+            }
+          ]
+        },
+        {
+          "directions": [
+            2
+          ],
+          "components": [
+            {
+              "sprite": "artifact/entity/maletraveler/stand.jsf",
+              "animation": "w",
+              "bounds": {
+                "x": -0.4,
+                "y": -0.4,
+                "z": 0.0,
+                "width": 0.9,
+                "height": 0.9,
+                "depth": 3.9
+              }
+            }
+          ]
+        },
+        {
+          "directions": [
+            3
+          ],
+          "components": [
+            {
+              "sprite": "artifact/entity/maletraveler/stand.jsf",
+              "animation": "n",
+              "bounds": {
+                "x": -0.4,
+                "y": -0.4,
+                "z": 0.0,
+                "width": 0.9,
+                "height": 0.9,
+                "depth": 3.9
+              }
+            }
+          ]
+        },
+        {
+          "directions": [
+            4
+          ],
+          "components": [
+            {
+              "sprite": "artifact/entity/maletraveler/stand.jsf",
+              "animation": "se",
+              "bounds": {
+                "x": -0.4,
+                "y": -0.4,
+                "z": 0.0,
+                "width": 0.9,
+                "height": 0.9,
+                "depth": 3.9
+              }
+            }
+          ]
+        },
+        {
+          "directions": [
+            5
+          ],
+          "components": [
+            {
+              "sprite": "artifact/entity/maletraveler/stand.jsf",
+              "animation": "nw",
+              "bounds": {
+                "x": -0.4,
+                "y": -0.4,
+                "z": 0.0,
+                "width": 0.9,
+                "height": 0.9,
+                "depth": 3.9
+              }
+            }
+          ]
+        },
+        {
+          "directions": [
+            6
+          ],
+          "components": [
+            {
+              "sprite": "artifact/entity/maletraveler/stand.jsf",
+              "animation": "ne",
+              "bounds": {
+                "x": -0.4,
+                "y": -0.4,
+                "z": 0.0,
+                "width": 0.9,
+                "height": 0.9,
+                "depth": 3.9
+              }
+            }
+          ]
+        },
+        {
+          "directions": [
+            7
+          ],
+          "components": [
+            {
+              "sprite": "artifact/entity/maletraveler/stand.jsf",
+              "animation": "sw",
+              "bounds": {
+                "x": -0.4,
+                "y": -0.4,
+                "z": 0.0,
+                "width": 0.9,
+                "height": 0.9,
+                "depth": 3.9
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "walk",
+      "sets": [
+        {
+          "directions": [
+            0
+          ],
+          "components": [
+            {
+              "sprite": "artifact/entity/maletraveler/walk.jsf",
+              "animation": "e",
+              "bounds": {
+                "x": -0.4,
+                "y": -0.4,
+                "z": 0.0,
+                "width": 0.9,
+                "height": 0.9,
+                "depth": 3.9
+              }
+            }
+          ]
+        },
+        {
+          "directions": [
+            1
+          ],
+          "components": [
+            {
+              "sprite": "artifact/entity/maletraveler/walk.jsf",
+              "animation": "s",
+              "bounds": {
+                "x": -0.4,
+                "y": -0.4,
+                "z": 0.0,
+                "width": 0.9,
+                "height": 0.9,
+                "depth": 3.9
+              }
+            }
+          ]
+        },
+        {
+          "directions": [
+            2
+          ],
+          "components": [
+            {
+              "sprite": "artifact/entity/maletraveler/walk.jsf",
+              "animation": "w",
+              "bounds": {
+                "x": -0.4,
+                "y": -0.4,
+                "z": 0.0,
+                "width": 0.9,
+                "height": 0.9,
+                "depth": 3.9
+              }
+            }
+          ]
+        },
+        {
+          "directions": [
+            3
+          ],
+          "components": [
+            {
+              "sprite": "artifact/entity/maletraveler/walk.jsf",
+              "animation": "n",
+              "bounds": {
+                "x": -0.4,
+                "y": -0.4,
+                "z": 0.0,
+                "width": 0.9,
+                "height": 0.9,
+                "depth": 3.9
+              }
+            }
+          ]
+        },
+        {
+          "directions": [
+            4
+          ],
+          "components": [
+            {
+              "sprite": "artifact/entity/maletraveler/walk.jsf",
+              "animation": "se",
+              "bounds": {
+                "x": -0.4,
+                "y": -0.4,
+                "z": 0.0,
+                "width": 0.9,
+                "height": 0.9,
+                "depth": 3.9
+              }
+            }
+          ]
+        },
+        {
+          "directions": [
+            5
+          ],
+          "components": [
+            {
+              "sprite": "artifact/entity/maletraveler/walk.jsf",
+              "animation": "nw",
+              "bounds": {
+                "x": -0.4,
+                "y": -0.4,
+                "z": 0.0,
+                "width": 0.9,
+                "height": 0.9,
+                "depth": 3.9
+              }
+            }
+          ]
+        },
+        {
+          "directions": [
+            6
+          ],
+          "components": [
+            {
+              "sprite": "artifact/entity/maletraveler/walk.jsf",
+              "animation": "ne",
+              "bounds": {
+                "x": -0.4,
+                "y": -0.4,
+                "z": 0.0,
+                "width": 0.9,
+                "height": 0.9,
+                "depth": 3.9
+              }
+            }
+          ]
+        },
+        {
+          "directions": [
+            7
+          ],
+          "components": [
+            {
+              "sprite": "artifact/entity/maletraveler/walk.jsf",
+              "animation": "sw",
+              "bounds": {
+                "x": -0.4,
+                "y": -0.4,
+                "z": 0.0,
+                "width": 0.9,
+                "height": 0.9,
+                "depth": 3.9
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "run",
+      "sets": [
+        {
+          "directions": [
+            0
+          ],
+          "components": [
+            {
+              "sprite": "artifact/entity/maletraveler/run.jsf",
+              "animation": "e",
+              "bounds": {
+                "x": -0.4,
+                "y": -0.4,
+                "z": 0.0,
+                "width": 0.9,
+                "height": 0.9,
+                "depth": 3.9
+              }
+            }
+          ]
+        },
+        {
+          "directions": [
+            1
+          ],
+          "components": [
+            {
+              "sprite": "artifact/entity/maletraveler/run.jsf",
+              "animation": "s",
+              "bounds": {
+                "x": -0.4,
+                "y": -0.4,
+                "z": 0.0,
+                "width": 0.9,
+                "height": 0.9,
+                "depth": 3.9
+              }
+            }
+          ]
+        },
+        {
+          "directions": [
+            2
+          ],
+          "components": [
+            {
+              "sprite": "artifact/entity/maletraveler/run.jsf",
+              "animation": "w",
+              "bounds": {
+                "x": -0.4,
+                "y": -0.4,
+                "z": 0.0,
+                "width": 0.9,
+                "height": 0.9,
+                "depth": 3.9
+              }
+            }
+          ]
+        },
+        {
+          "directions": [
+            3
+          ],
+          "components": [
+            {
+              "sprite": "artifact/entity/maletraveler/run.jsf",
+              "animation": "n",
+              "bounds": {
+                "x": -0.4,
+                "y": -0.4,
+                "z": 0.0,
+                "width": 0.9,
+                "height": 0.9,
+                "depth": 3.9
+              }
+            }
+          ]
+        },
+        {
+          "directions": [
+            4
+          ],
+          "components": [
+            {
+              "sprite": "artifact/entity/maletraveler/run.jsf",
+              "animation": "se",
+              "bounds": {
+                "x": -0.4,
+                "y": -0.4,
+                "z": 0.0,
+                "width": 0.9,
+                "height": 0.9,
+                "depth": 3.9
+              }
+            }
+          ]
+        },
+        {
+          "directions": [
+            5
+          ],
+          "components": [
+            {
+              "sprite": "artifact/entity/maletraveler/run.jsf",
+              "animation": "nw",
+              "bounds": {
+                "x": -0.4,
+                "y": -0.4,
+                "z": 0.0,
+                "width": 0.9,
+                "height": 0.9,
+                "depth": 3.9
+              }
+            }
+          ]
+        },
+        {
+          "directions": [
+            6
+          ],
+          "components": [
+            {
+              "sprite": "artifact/entity/maletraveler/run.jsf",
+              "animation": "ne",
+              "bounds": {
+                "x": -0.4,
+                "y": -0.4,
+                "z": 0.0,
+                "width": 0.9,
+                "height": 0.9,
+                "depth": 3.9
+              }
+            }
+          ]
+        },
+        {
+          "directions": [
+            7
+          ],
+          "components": [
+            {
+              "sprite": "artifact/entity/maletraveler/run.jsf",
+              "animation": "sw",
+              "bounds": {
+                "x": -0.4,
+                "y": -0.4,
+                "z": 0.0,
+                "width": 0.9,
+                "height": 0.9,
+                "depth": 3.9
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

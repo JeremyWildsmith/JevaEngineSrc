@@ -16,155 +16,88 @@
  */
 package io.github.jevaengine.world;
 
-import io.github.jevaengine.Core;
-import io.github.jevaengine.CoreScriptException;
+import io.github.jevaengine.AssetConstructionException;
+import io.github.jevaengine.FutureResult;
 import io.github.jevaengine.IDisposable;
-import io.github.jevaengine.ResourceLibrary;
-import io.github.jevaengine.Script;
-import io.github.jevaengine.config.IImmutableVariable;
-import io.github.jevaengine.config.ISerializable;
-import io.github.jevaengine.config.IVariable;
-import io.github.jevaengine.graphics.IRenderable;
-import io.github.jevaengine.math.Matrix2X2;
+import io.github.jevaengine.IInitializationMonitor;
 import io.github.jevaengine.math.Rect2D;
+import io.github.jevaengine.math.Rect2F;
 import io.github.jevaengine.math.Vector2D;
 import io.github.jevaengine.math.Vector2F;
-import io.github.jevaengine.math.Vector3F;
+import io.github.jevaengine.script.IFunction;
+import io.github.jevaengine.script.IFunctionFactory;
+import io.github.jevaengine.script.IScriptFactory;
+import io.github.jevaengine.script.NullFunctionFactory;
+import io.github.jevaengine.script.ScriptEvent;
+import io.github.jevaengine.script.ScriptExecuteException;
+import io.github.jevaengine.script.ScriptHiddenMember;
+import io.github.jevaengine.script.UnrecognizedFunctionException;
 import io.github.jevaengine.util.Nullable;
 import io.github.jevaengine.util.StaticSet;
+import io.github.jevaengine.util.SynchronousExecutor;
+import io.github.jevaengine.util.SynchronousExecutor.ISynchronousTask;
 import io.github.jevaengine.world.EffectMap.TileEffects;
-import io.github.jevaengine.world.Entity.EntityBridge;
-import io.github.jevaengine.world.World.WorldConfiguration.EntityDeclaration;
-import io.github.jevaengine.world.WorldLayer.LayerDeclaration;
+import io.github.jevaengine.world.SceneGraph.EntityContainerObserver;
+import io.github.jevaengine.world.SceneGraph.EntitySet;
+import io.github.jevaengine.world.entity.IEntity;
+import io.github.jevaengine.world.entity.IEntity.IEntityBridge;
+import io.github.jevaengine.world.entity.IEntityFactory.EntityConstructionException;
+import io.github.jevaengine.world.entity.IParallelEntityFactory;
+import io.github.jevaengine.world.physics.IPhysicsWorld;
+import io.github.jevaengine.world.scene.ISceneBuffer;
+import io.github.jevaengine.world.search.ISearchFilter;
 
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
 
-import javax.script.ScriptException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class World implements IDisposable
 {
-	private static final int WORLD_TICK_INTERVAL = 500;
-
+	private final Logger m_logger = LoggerFactory.getLogger(World.class);
 	private final Observers m_observers = new Observers();
 
-	// Read comments in update route for notes on m_additionEntities member.
-	private ArrayList<Entity> m_additionEntities = new ArrayList<Entity>();
-	private StaticSet<Entity> m_entities;
-
-	private TreeMap<Vector3F, ArrayList<WorldRenderEntry>> m_renderQueue;
-	private ArrayList<IActorRenderFilter> m_renderFilters;
-	private float m_renderQueueDepth;
-
-	private HashMap<Vector2D, RouteNode> m_routeNodes;
+	private SceneGraph m_entityContainer;
+	private Rect2D m_worldBounds;
 	
-	private ArrayList<WorldLayer> m_layers;
-	private int m_entityLayer;
+	private WorldBridgeNotifier m_script;
+
+	private SynchronousExecutor m_syncExecuter = new SynchronousExecutor();
+
+	private final IPhysicsWorld m_physicsWorld;
+	private final IParallelEntityFactory m_entityFactory;
 	
-	private EffectMap m_entityEffectMap;
-	private WorldScriptManager m_worldScript;
-
-	private int m_worldWidth;
-	private int m_worldHeight;
-	private int m_tileWidth;
-	private int m_tileHeight;
-
-	private final Matrix2X2 m_worldToScreenMatrix;
-
-	private boolean m_isPaused = false;
-
-	private Calendar m_worldTime;
-
-	private float m_fTimeMultiplier;
-
-	private int m_timeSinceTick;
-
-	public World(int width, int height, int tileWidth, int tileHeight, int entityLayer, @Nullable String worldScript)
+	public World(int worldWidth, int worldHeight, IPhysicsWorld physicsWorld, IParallelEntityFactory entityFactory, @Nullable IScriptFactory scriptFactory, @Nullable String worldScript)
 	{
-		m_layers = new ArrayList<WorldLayer>();
-		m_entities = new StaticSet<Entity>();
-		m_renderFilters = new ArrayList<IActorRenderFilter>();
-		m_renderQueue = new TreeMap<Vector3F, ArrayList<WorldRenderEntry>>();
-		m_renderQueueDepth = 0.0F;
-
-		m_routeNodes = new HashMap<Vector2D, RouteNode>();
-
-		m_entityEffectMap = new EffectMap(new Rectangle(0, 0, width, height));
-
-		m_worldWidth = width;
-		m_worldHeight = height;
-		m_tileWidth = tileWidth;
-		m_tileHeight = tileHeight;
-
-		m_entityLayer = entityLayer;
-
-		m_worldToScreenMatrix = new Matrix2X2(tileWidth / 2.0F, -tileWidth / 2.0F, tileHeight / 2.0F, tileHeight / 2.0F);
-
-		m_worldTime = Calendar.getInstance();
-		m_fTimeMultiplier = 1.0F;
-		m_timeSinceTick = 0;
-
-		if (worldScript != null)
-			m_worldScript = new WorldScriptManager(Core.getService(ResourceLibrary.class).openScript(worldScript, new WorldScriptContext()));
+		m_entityFactory = entityFactory;
+		m_physicsWorld = physicsWorld;
+		m_worldBounds = new Rect2D(worldWidth, worldHeight);
+		
+		m_entityContainer = new SceneGraph(physicsWorld);
+		m_entityContainer.addObserver(new WorldEntityObserver());
+		
+		if (worldScript != null && scriptFactory != null)
+			m_script = new WorldBridgeNotifier(scriptFactory, worldScript);
 		else
-			m_worldScript = new WorldScriptManager();
-
-		m_worldScript.onEnter();
+			m_script = new WorldBridgeNotifier();
 	}
-
-	public World(int width, int height, int tileWidth, int tileHeight, int entityLayerDepth)
+	
+	public World(int worldWidth, int worldHeight, IPhysicsWorld physicsWorld, IParallelEntityFactory entityFactory)
 	{
-		this(width, height, tileWidth, tileHeight, entityLayerDepth, null);
+		this(worldWidth, worldHeight, physicsWorld, entityFactory, null, null);
 	}
-
-	public static World create(WorldConfiguration worldConfig)
-	{
-
-		World world = new World(worldConfig.worldWidth, worldConfig.worldHeight, 
-									worldConfig.tileWidth, worldConfig.tileHeight, 
-									worldConfig.entityLayer, worldConfig.script);
-		
-		for (LayerDeclaration layerDeclaration : worldConfig.layers)
-			world.m_layers.add(WorldLayer.create(world, worldConfig.tiles, layerDeclaration));
-		
-		for (EntityDeclaration entityConfig : worldConfig.entities)
-		{
-			ResourceLibrary resourceLib = Core.getService(ResourceLibrary.class);
-			
-			Entity entity = resourceLib.createEntity(resourceLib.lookupEntity(entityConfig.type), entityConfig.name, entityConfig.config);
-			
-			world.addEntity(entity);
-			
-			if(entityConfig.location != null)
-				entity.setLocation(entityConfig.location);
-			
-			if(entityConfig.direction != null)
-				entity.setDirection(entityConfig.direction);
-		}
-
-		return world;
-	}
-
+	
 	@Override
 	public void dispose()
 	{
-		m_worldScript.onLeave();
-
-		for (Entity e : m_entities)
-			e.disassociate();
-
-		for (WorldLayer layer : m_layers)
-			layer.dispose();
-
-		m_entities.clear();
-		m_layers.clear();
+		m_entityContainer.dispose();
 	}
 
+	public IPhysicsWorld getPhysicsWorld()
+	{
+		return m_physicsWorld;
+	}
+	
 	public void addObserver(IWorldObserver o)
 	{
 		m_observers.add(o);
@@ -175,95 +108,17 @@ public final class World implements IDisposable
 		m_observers.remove(o);
 	}
 	
-	public void addActorRenderFilter(IActorRenderFilter filter)
+	public Rect2D getBounds()
 	{
-		m_renderFilters.add(filter);
-	}
-	
-	public void removeActorRenderFilter(IActorRenderFilter filter)
-	{
-		m_renderFilters.remove(filter);
-	}
-
-	public Vector2F translateScreenToWorld(Vector2D location, float fScale)
-	{
-		return m_worldToScreenMatrix.scale(fScale).inverse().dot(location);
-	}
-
-	public Vector2D translateWorldToScreen(Vector2F location, float fScale)
-	{
-		return m_worldToScreenMatrix.scale(fScale).dot(location).round();
-	}
-
-	public Matrix2X2 getPerspectiveMatrix(float fScale)
-	{
-		return m_worldToScreenMatrix.scale(fScale);
-	}
-
-	public int getEntityLayer()
-	{
-		return m_entityLayer;
-	}
-
-	public void setEntityLayer(int layer)
-	{
-		m_entityLayer = layer;
-	}
-
-	public int getWidth()
-	{
-		return m_worldWidth;
-	}
-
-	public int getHeight()
-	{
-		return m_worldHeight;
-	}
-
-	public int getTileWidth()
-	{
-		return m_tileWidth;
-	}
-
-	public int getTileHeight()
-	{
-		return m_tileHeight;
-	}
-
-	public void pause()
-	{
-		m_isPaused = true;
-
-		for (Entity e : m_entities)
-			e.pause();
-	}
-
-	public void resume()
-	{
-		m_isPaused = false;
-
-		for (Entity e : m_entities)
-			e.resume();
-	}
-
-	public RouteNode getRouteNode(Vector2D location)
-	{
-		if (!m_routeNodes.containsKey(location))
-			m_routeNodes.put(location, new RouteNode(this, location));
-
-		return m_routeNodes.get(location);
+		return new Rect2D(m_worldBounds);
 	}
 
 	public TileEffects getTileEffects(Vector2D location)
 	{
-		TileEffects effects = new TileEffects();
-
-		for (WorldLayer layer : m_layers)
-			effects.overlay(layer.getTileEffects(location));
-
-		effects.overlay(m_entityEffectMap.getTileEffects(location));
-
-		return effects;
+		if(location.x >= m_worldBounds.width || location.y >= m_worldBounds.height || location.x < 0 || location.y < 0)
+			return new TileEffects(false);
+		else
+			return m_entityContainer.getTileEffects(location);
 	}
 
 	public TileEffects[] getTileEffects(ISearchFilter<TileEffects> filter)
@@ -288,322 +143,97 @@ public final class World implements IDisposable
 		return tileEffects.toArray(new TileEffects[tileEffects.size()]);
 	}
 
-	public Entity[] getEntities()
+	public void addEntity(IEntity entity)
 	{
-		return m_entities.toArray(new Entity[m_entities.size()]);
+		entity.associate(this);
+		m_entityContainer.add(entity);
 	}
 
-	@Nullable
-	public Entity getEntity(String name)
+	public void removeEntity(IEntity entity)
 	{
-		for(Entity e : m_entities)
-		{
-			if(e.getInstanceName().equals(name))
-				return e;
-		}
+		if(entity.getWorld() == this)
+			entity.disassociate();
 		
-		return null;
+		m_entityContainer.remove(entity);
 	}
 	
-	public Actor[] getActors(ISearchFilter<Actor> filter)
+	public EntitySet getEntities()
 	{
-		ArrayList<Actor> found = new ArrayList<Actor>();
-
-		for (Entity entity : m_entities)
-		{
-			if (entity instanceof Actor)
-			{
-				Actor actor = (Actor) entity;
-
-				if (filter.shouldInclude(actor.getLocation()))
-					found.add(actor);
-			}
-		}
-
-		return found.toArray(new Actor[found.size()]);
+		return m_entityContainer.getEntities();
 	}
-
-	public WorldLayer[] getLayers()
+	
+	public WorldBridge getScriptBridge()
 	{
-		return m_layers.toArray(new WorldLayer[m_layers.size()]);
-	}
-
-	public void addLayer(WorldLayer layer)
-	{
-		m_layers.add(layer);
-	}
-
-	public void removeLayer(WorldLayer worldLayer)
-	{
-		m_layers.remove(worldLayer);
-	}
-
-	public void addEntity(Entity entity)
-	{
-		m_additionEntities.add(entity);
-	}
-
-	public void removeEntity(Entity entity)
-	{
-		if (m_additionEntities.contains(entity))
-			m_additionEntities.remove(entity);
-		else
-		{
-			m_entities.remove(entity);
-			entity.disassociate();
-			m_observers.removedEntity(entity);
-		}
-	}
-
-	public WorldScriptContext getScriptBridge()
-	{
-		return new WorldScriptContext();
-	}
-
-	public Rect2D getBounds()
-	{
-		return new Rect2D(0, 0, m_worldWidth, m_worldHeight);
+		return m_script.getScriptBridge();
 	}
 
 	public void update(int delta)
 	{
-		m_worldTime.add(Calendar.MILLISECOND, (int) (delta * m_fTimeMultiplier));
-
-		m_timeSinceTick += delta;
-
-		if(m_timeSinceTick > WORLD_TICK_INTERVAL)
-		{
-			m_worldScript.onTick(m_timeSinceTick);
-			m_timeSinceTick = 0;
-		}
+		m_syncExecuter.execute();
+		m_entityContainer.update(delta);
 		
-		// Entities must be added on update cycles to assure they
-		// are not being added to the world in an inapproriate state
-		// (i.e. notifying observers of entering world while world is still
-		// initializing.)
-		for (Entity e : m_additionEntities)
+		//It is important that the physics world be updated after the entities have been updated.
+		//The forces to be applied this cycle may be relative to the delta time elapsed since last cycle.
+		m_physicsWorld.update(delta);
+	}
+	
+	public void fillScene(ISceneBuffer sceneBuffer, Rect2F region)
+	{
+		m_entityContainer.enqueueRender(sceneBuffer, region);
+	}
+	
+	private class WorldEntityObserver implements EntityContainerObserver
+	{
+		@Override
+		public void addedEntity(IEntity e)
 		{
-			m_entities.add(e);
-			e.associate(this);
-
-			if (m_isPaused)
-				e.pause();
-			else
-				e.resume();
-
 			m_observers.addedEntity(e);
 		}
 
-		m_additionEntities.clear();
-
-		m_entityEffectMap.clear();
-
-		for (WorldLayer layer : m_layers)
-			layer.update(delta);
-
-		// These have to be separate iterations
-		// Otherwise half initialized effect map is used.
-
-		for (Entity entity : m_entities)
-			entity.blendEffectMap(m_entityEffectMap);
-
-		for (Entity entity : m_entities)
+		@Override
+		public void removedEntity(IEntity e)
 		{
-			// Logic in some entities can result in disassociation and moving of
-			// other entities.
-			// Thus we must check entity world association before updating it
-			if (entity.isAssociated() && entity.getWorld() == this)
-				entity.update(delta);
+			m_observers.removedEntity(e);
 		}
 	}
-
-	private void renderQueue(Graphics2D g, int offsetX, int offsetY, float scale)
-	{
-		for(IActorRenderFilter f : m_renderFilters)
-			f.beginBatch(g, scale);
+	
+	private class WorldBridgeNotifier
+	{		
+		private WorldBridge m_bridge;
 		
-		for (Map.Entry<Vector3F, ArrayList<WorldRenderEntry>> entry : m_renderQueue.entrySet())
-		{	
-			Vector2D renderLocation = translateWorldToScreen(new Vector2F(entry.getKey().x, entry.getKey().y, entry.getKey().getSortingModel()), scale).add(new Vector2D(offsetX, offsetY));
-
-			for (WorldRenderEntry renderable : entry.getValue())
-			{
-				for(IActorRenderFilter f : m_renderFilters)
-					f.begin(renderable);
-				
-				renderable.graphic.render(g, renderLocation.x, renderLocation.y, scale);
-
-				for(IActorRenderFilter f : m_renderFilters)
-					f.end();
-			}
+		public WorldBridgeNotifier()
+		{
+			m_bridge = new WorldBridge(new NullFunctionFactory());
 		}
 		
-		for(IActorRenderFilter f : m_renderFilters)
-			f.endBatch();
-	}
-	
-	private void clearQueue()
-	{
-		m_renderQueue.clear();
-	}
-
-	protected void enqueueRender(IRenderable renderable, @Nullable Actor dispatcher, Vector2F location)
-	{
-		Vector3F location3 = new Vector3F(location, m_renderQueueDepth);
-
-		if (!m_renderQueue.containsKey(location3))
+		public WorldBridge getScriptBridge()
 		{
-			m_renderQueue.put(location3, new ArrayList<WorldRenderEntry>());
+			return m_bridge;
 		}
 
-		m_renderQueue.get(location3).add(new WorldRenderEntry(dispatcher, renderable, m_renderQueueDepth));
-	}
-	
-	protected void enqueueRender(IRenderable renderable, Vector2F location)
-	{
-		enqueueRender(renderable, null, location);
-	}
-	
-	private void setRenderQueueLayerDepth(float fDepth)
-	{
-		m_renderQueueDepth = fDepth;
-	}
-	
-	@SuppressWarnings("unchecked")
-	@Nullable
-	public <T extends Actor> T pick(Class<T> clazz, int x, int y, int offsetX, int offsetY, float scale)
-	{
-		for (Map.Entry<Vector3F, ArrayList<WorldRenderEntry>> entry : m_renderQueue.descendingMap().entrySet())
+		public WorldBridgeNotifier(IScriptFactory scriptFactory, String script)
 		{
-			Vector2D renderLocation = translateWorldToScreen(new Vector2F(entry.getKey().x, entry.getKey().y), scale).add(new Vector2D(offsetX, offsetY));
+			m_bridge = new WorldBridge(scriptFactory.getFunctionFactory());
 			
-			Vector2D relativePick = new Vector2D(x - renderLocation.x, y - renderLocation.y);
-			
-			for (WorldRenderEntry renderable : entry.getValue())
-			{
-				Actor dispatcher = renderable.dispatcher;
-					
-				if(dispatcher != null &&
-					clazz.isAssignableFrom(dispatcher.getClass()) &&
-					dispatcher.testPick(relativePick.x, relativePick.y, scale))
-					return (T)dispatcher;
-			}
-		}
-		
-		return null;
-	}
-	
-	public void render(Graphics2D g, float fScale, Rect2D viewBounds, int x, int y)
-	{
-		clearQueue();
-		
-		Vector2D tlWorldBounds = translateScreenToWorld(new Vector2D(-viewBounds.x, -viewBounds.y), fScale).round();
-		Vector2D trWorldBounds = translateScreenToWorld(new Vector2D(-viewBounds.x + viewBounds.width, -viewBounds.y), fScale).round();
-		Vector2D blWorldBounds = translateScreenToWorld(new Vector2D(-viewBounds.x, -viewBounds.y + viewBounds.height), fScale).round();
-		Vector2D brWorldBounds = translateScreenToWorld(new Vector2D(-viewBounds.x + viewBounds.width, -viewBounds.y + viewBounds.height), fScale).round();
-
-		Rect2D worldViewBounds = new Rect2D(tlWorldBounds.x, trWorldBounds.y, brWorldBounds.x - tlWorldBounds.x, blWorldBounds.y - trWorldBounds.y);
-
-		for (int i = 0; i < m_layers.size(); i++)
-		{
-			setRenderQueueLayerDepth(i);
-			m_layers.get(i).enqueueRender(worldViewBounds);
-		}
-
-		setRenderQueueLayerDepth(m_entityLayer);
-
-		for (Entity entity : m_entities)
-		{
-			if (entity instanceof Actor)
-				((Actor) entity).enqueueRender();
-		}
-
-		setRenderQueueLayerDepth(Float.MAX_VALUE);
-
-		renderQueue(g, viewBounds.x + x, viewBounds.y + y, fScale);
-	}
-	
-	public interface IActorRenderFilter
-	{
-		void beginBatch(Graphics2D g, float scale);
-		void begin(WorldRenderEntry e);
-		void end();
-		void endBatch();
-	}
-	
-	private class WorldScriptManager
-	{
-		@Nullable private Script m_worldScript;
-
-		public WorldScriptManager(Script script)
-		{
-			m_worldScript = script;
-		}
-
-		public WorldScriptManager()
-		{
-			m_worldScript = null;
-		}
-
-		public void onEnter()
-		{
-			if (m_worldScript == null)
-				return;
-
 			try
 			{
-				m_worldScript.invokeScriptFunction("onEnter");
-			} catch (ScriptException e)
+				scriptFactory.create(m_bridge, script);
+			} catch(AssetConstructionException e)
 			{
-				throw new CoreScriptException("Error executing world's onEnter script routine." + e.toString());
-			} catch (NoSuchMethodException e)
-			{
-			}
-		}
-
-		public void onLeave()
-		{
-			if (m_worldScript == null)
-				return;
-
-			try
-			{
-				m_worldScript.invokeScriptFunction("onLeave");
-			} catch (ScriptException e)
-			{
-				throw new CoreScriptException("Error executing world's onLoaded script routine.");
-			} catch (NoSuchMethodException e)
-			{
-			}
-		}
-
-		public void onTick(int delta)
-		{
-			if (m_worldScript == null)
-				return;
-
-			try
-			{
-				m_worldScript.invokeScriptFunction("onTick", delta);
-			} catch (ScriptException e)
-			{
-				throw new CoreScriptException("Error executing world's onTimeTick script routine." + e.toString());
-			} catch (NoSuchMethodException e)
-			{
+				m_logger.error("Error instantiating world script", e);
 			}
 		}
 	}
 
 	private static class Observers extends StaticSet<IWorldObserver>
 	{
-
-		public void addedEntity(Entity e)
+		public void addedEntity(IEntity e)
 		{
 			for (IWorldObserver o : this)
 				o.addedEntity(e);
 		}
 
-		public void removedEntity(Entity e)
+		public void removedEntity(IEntity e)
 		{
 			for (IWorldObserver o : this)
 				o.removedEntity(e);
@@ -612,298 +242,115 @@ public final class World implements IDisposable
 
 	public interface IWorldObserver
 	{
-
-		void addedEntity(Entity e);
-
-		void removedEntity(Entity e);
+		void addedEntity(IEntity e);
+		void removedEntity(IEntity e);
 	}
 	
-	public static class WorldRenderEntry
+	public final class WorldBridge
 	{
-		private IRenderable graphic;
+		private final IFunctionFactory m_functionFactory;
+		
+		public final ScriptEvent onTick;
+		
+		private Logger m_logger = LoggerFactory.getLogger(WorldBridge.class);
+		
+		private WorldBridge(IFunctionFactory functionFactory)
+		{
+			onTick = new ScriptEvent(functionFactory);
+			m_functionFactory = functionFactory;
+		}
+		
+		@ScriptHiddenMember
+		public World getWorld()
+		{
+			return World.this;
+		}
 		
 		@Nullable
-		private Actor dispatcher;
-		
-		private float layer;
-		
-		public WorldRenderEntry(Actor _dispatcher, IRenderable _graphic, float _layer)
+		private IFunction wrapFunction(Object function)
 		{
-			graphic = _graphic;
-			dispatcher = _dispatcher;
-			layer = _layer;
+			if(function == null)
+				return null;
+			
+			try
+			{
+				return m_functionFactory.wrap(function);
+			} catch (UnrecognizedFunctionException e) {
+				m_logger.error("Could not wrap function, replacing with null behavior.");
+				return null;
+			}
 		}
 		
-		@Nullable
-		public Actor getDispatcher()
-		{
-			return dispatcher;
-		}
-		
-		public float getLayer()
-		{
-			return layer;
-		}
-	}
-	
-	public class WorldScriptContext
-	{
-		public EntityBridge<?> createNamedEntity(@Nullable String name, String entityTypeName, String config)
+		public void createNamedEntity(@Nullable String name, String entityTypeName, String config, @Nullable final Object rawSuccessCallback)
 		{
 			String instanceName = name == null || name.length() == 0 ? null : name;
 
-			ResourceLibrary resourceLib = Core.getService(ResourceLibrary.class);
-			
-			Entity entity = resourceLib.createEntity(resourceLib.lookupEntity(entityTypeName), instanceName, config);
+			final IFunction successCallback = wrapFunction(rawSuccessCallback);
 
-			World.this.addEntity(entity);
+			m_entityFactory.create(entityTypeName, instanceName, config, new IInitializationMonitor<IEntity, EntityConstructionException>() {
 
-			return entity.getScriptBridge();
+				@Override
+				public void statusChanged(float progress, String status) { }
+
+				@Override
+				public void completed(final FutureResult<IEntity, EntityConstructionException> item)
+				{
+					m_syncExecuter.enqueue(new ISynchronousTask() {
+						@Override
+						public boolean run()
+						{
+							try
+							{
+								final IEntity entity = item.get();
+								World.this.addEntity(entity);
+								
+								if(successCallback != null)
+									successCallback.call(entity.getBridge());
+							}catch(EntityConstructionException e)
+							{
+								m_logger.error("Unable to construct entity requested by script:", e);
+							} catch (ScriptExecuteException e)
+							{
+								m_logger.error("Error invoking entity construction success callback", e);
+							}
+							
+							return true;
+						}
+					});
+				}
+			});
 		}
-
-		public EntityBridge<?> createEntity(String className, String config)
+		
+		public void createNamedEntity(@Nullable String name, String entityTypeName, String config)
 		{
-			return createNamedEntity(null, className, config);
+			createNamedEntity(name, entityTypeName, config, null);
 		}
-
-		public EntityBridge<?> getEntity(String name)
+		
+		public void createEntity(String className, String config, @Nullable Object successCallback)
 		{
-			for(Entity e : m_entities)
-			{
-				if(e.getInstanceName().equals(name))
-					return e.getScriptBridge();
-			}
-			
-			return null;
+			createNamedEntity(null, className, config, successCallback);
+		}
+		
+		public void createEntity(String className, String config)
+		{
+			createEntity(className, config, null);
 		}
 
-		public void addEntity(EntityBridge<Entity> entity)
+		public IEntityBridge getEntity(String name)
+		{
+			IEntity e = World.this.getEntities().getByName(name);
+			
+			return e.getBridge();
+		}
+
+		public void addEntity(IEntityBridge entity)
 		{
 			World.this.addEntity(entity.getEntity());
 		}
-
-		public int getMonth()
-		{
-			return m_worldTime.get(Calendar.DAY_OF_MONTH);
-		}
-
-		public int getDay()
-		{
-			return m_worldTime.get(Calendar.DAY_OF_MONTH);
-		}
-
-		public int getHour()
-		{
-			return m_worldTime.get(Calendar.HOUR_OF_DAY);
-		}
-
-		public int getMinute()
-		{
-			return m_worldTime.get(Calendar.MINUTE);
-		}
-
-		public int getSecond()
-		{
-			return m_worldTime.get(Calendar.SECOND);
-		}
-
-		public void setYear(int year)
-		{
-			m_worldTime.set(Calendar.YEAR, year);
-		}
-
-		public void setMonth(int month)
-		{
-			m_worldTime.set(Calendar.DAY_OF_MONTH, month);
-		}
-
-		public void setHour(int hour)
-		{
-			m_worldTime.set(Calendar.HOUR_OF_DAY, hour);
-		}
-
-		public void setDay(int day)
-		{
-			m_worldTime.set(Calendar.DAY_OF_MONTH, day);
-		}
-
-		public void setMinute(int minute)
-		{
-			m_worldTime.set(Calendar.MINUTE, minute);
-		}
-
-		public void setSecond(int second)
-		{
-			m_worldTime.set(Calendar.SECOND, second);
-		}
-
-		public void setTimeMultiplier(float fMultiplier)
-		{
-			m_fTimeMultiplier = fMultiplier;
-		}
-
-		public void pause()
-		{
-			World.this.pause();
-		}
-
-		public void resume()
-		{
-			World.this.resume();
-		}
-	}
-	
-	public static class WorldConfiguration implements ISerializable
-	{	
-		@Nullable
-		public String script;
 		
-		public int tileWidth;
-		public int tileHeight;
-		public int worldWidth;
-		public int worldHeight;
-		public int entityLayer;
-		
-		public TileDeclaration[] tiles;
-		public LayerDeclaration[] layers;
-		public EntityDeclaration[] entities;
-
-		public WorldConfiguration() {}
-		
-		@Override
-		public void serialize(IVariable target)
+		public void removeEntity(IEntityBridge entity)
 		{
-			if(this.script != null)
-				target.addChild("script").setValue(this.script);
-			
-			target.addChild("tileWidth").setValue(this.tileWidth);
-			target.addChild("tileHeight").setValue(this.tileHeight);
-			target.addChild("worldWidth").setValue(this.worldWidth);
-			target.addChild("worldHeight").setValue(this.worldHeight);
-			target.addChild("entityLayer").setValue(this.entityLayer);
-			target.addChild("tiles").setValue(this.tiles);
-			target.addChild("layers").setValue(this.layers);
-			target.addChild("entities").setValue(this.entities);
-		}
-
-		@Override
-		public void deserialize(IImmutableVariable source)
-		{
-			if(source.childExists("script"))
-				this.script = source.getChild("script").getValue(String.class);
-			
-			this.tileWidth = source.getChild("tileWidth").getValue(Integer.class);
-			this.tileHeight = source.getChild("tileHeight").getValue(Integer.class);
-			this.worldWidth = source.getChild("worldWidth").getValue(Integer.class);
-			this.worldHeight = source.getChild("worldHeight").getValue(Integer.class);
-			this.entityLayer = source.getChild("entityLayer").getValue(Integer.class);
-			this.tiles = source.getChild("tiles").getValues(TileDeclaration[].class);
-			this.layers = source.getChild("layers").getValues(LayerDeclaration[].class);
-			this.entities = source.getChild("entities").getValues(EntityDeclaration[].class);
-		}
-		
-		public static class TileDeclaration implements ISerializable
-		{
-			@Nullable
-			public String sprite;
-			
-			@Nullable
-			public String animation;
-			
-			public float visibility;
-			public boolean allowRenderSplitting;
-			public boolean isTraversable;
-			public boolean isStatic;
-
-			public TileDeclaration() { }
-			
-			@Override
-			public void serialize(IVariable target)
-			{
-				if(this.animation != null && this.sprite != null &&
-					!this.animation.isEmpty() && !this.sprite.isEmpty())
-				{
-					target.addChild("sprite").setValue(this.sprite);
-					target.addChild("animation").setValue(this.animation);
-				}
-				
-				target.addChild("visiblity").setValue(this.visibility);
-				target.addChild("isTraversable").setValue(this.isTraversable);
-				target.addChild("isStatic").setValue(this.isStatic);
-			}
-
-			@Override
-			public void deserialize(IImmutableVariable source)
-			{
-				if(source.childExists("sprite") && source.childExists("animation"))
-				{
-					this.sprite = source.getChild("sprite").getValue(String.class);
-					this.animation = source.getChild("animation").getValue(String.class);	
-				
-					if(this.sprite.isEmpty() || this.animation.isEmpty())
-						this.sprite = this.animation = null;
-				
-				}
-				
-				this.visibility = source.getChild("visiblity").getValue(Double.class).floatValue();
-				this.isTraversable = source.getChild("isTraversable").getValue(Boolean.class);
-				this.isStatic = source.getChild("isStatic").getValue(Boolean.class);
-			}
-		}
-		
-		public static class EntityDeclaration implements ISerializable
-		{
-			@Nullable
-			public String name;
-			
-			public String type;
-			
-			@Nullable
-			public Vector2F location;
-			
-			@Nullable
-			public WorldDirection direction;
-			
-			@Nullable
-			public String config;
-			
-			public EntityDeclaration() {}
-
-			@Override
-			public void serialize(IVariable target)
-			{
-				if(this.name != null && type.length() > 0)
-					target.addChild("name").setValue(this.name);
-				
-				target.addChild("type").setValue("type");
-				
-				if(this.location != null)
-					target.addChild("location").setValue(this.location);
-				
-				if(this.direction != null)
-					target.addChild("direction").setValue(this.direction.ordinal());
-				
-				if(this.config != null && config.length() > 0)
-					target.addChild("config").setValue(this.config);
-			}
-
-			@Override
-			public void deserialize(IImmutableVariable source)
-			{
-				if(source.childExists("name"))
-					this.name = source.getChild("name").getValue(String.class);
-				
-				type = source.getChild("type").getValue(String.class);
-				
-				if(source.childExists("location"))
-					this.location = source.getChild("location").getValue(Vector2F.class);
-				
-				if(source.childExists("direction"))
-					this.direction = WorldDirection.values()[source.getChild("direction").getValue(Integer.class)];
-				
-				if(source.childExists("config"))
-					this.config = source.getChild("config").getValue(String.class);
-			}
+			World.this.removeEntity(entity.getEntity());
 		}
 	}
 }

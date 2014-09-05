@@ -48,12 +48,7 @@
 		</dependency>
 		<dependency>
 			<groupId>io.github.jevaengine.rpgbase</groupId>
-			<artifactId>rpgbase</artifactId>
-			<version>0.0.1</version>
-		</dependency>
-		<dependency>
-			<groupId>io.github.jevaengine.rpgbase</groupId>
-			<artifactId>assets</artifactId>
+			<artifactId>base</artifactId>
 			<version>0.0.1</version>
 		</dependency>
 	</dependencies>

@@ -1,6 +1,0 @@
-name:Meet Eric;
-description:You heard a gun shot to the west, after going to inspect it you discover a solider. Who is he?;
-
-task/0/id:initial;
-task/0/name:Meet Eric;
-task/0/description:Interact with Eric;

@@ -1,20 +1,16 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package io.github.jevaengine.math;
 
 import io.github.jevaengine.config.IImmutableVariable;
 import io.github.jevaengine.config.ISerializable;
 import io.github.jevaengine.config.IVariable;
+import io.github.jevaengine.config.NoSuchChildVariableException;
+import io.github.jevaengine.config.ValueSerializationException;
 
 /**
  *
  * @author Jeremy
  */
-public class Rect2F implements ISerializable
+public final class Rect2F implements ISerializable
 {
 	public float x;
 	public float y;
@@ -37,6 +33,11 @@ public class Rect2F implements ISerializable
 		this.y = y;
 		this.width = width;
 		this.height = height;
+	}
+	
+	public Rect2F(float width, float height)
+	{
+		this(0, 0, width, height);
 	}
 	
 	public Rect2F difference(Vector2F src)
@@ -82,7 +83,7 @@ public class Rect2F implements ISerializable
 	}
 	
 	@Override
-	public void serialize(IVariable target)
+	public void serialize(IVariable target) throws ValueSerializationException
 	{
 		target.addChild("x").setValue(x);
 		target.addChild("y").setValue(y);
@@ -91,11 +92,21 @@ public class Rect2F implements ISerializable
 	}
 
 	@Override
-	public void deserialize(IImmutableVariable source)
+	public void deserialize(IImmutableVariable source) throws ValueSerializationException
 	{
-		this.x = source.getChild("x").getValue(Double.class).floatValue();
-		this.y = source.getChild("y").getValue(Double.class).floatValue();
-		this.width = source.getChild("width").getValue(Double.class).floatValue();
-		this.height = source.getChild("height").getValue(Double.class).floatValue();
+		try
+		{
+			if(source.childExists("x"))
+				this.x = source.getChild("x").getValue(Double.class).floatValue();
+			
+			if(source.childExists("y"))
+				this.y = source.getChild("y").getValue(Double.class).floatValue();
+		
+			this.width = source.getChild("width").getValue(Double.class).floatValue();
+			this.height = source.getChild("height").getValue(Double.class).floatValue();
+		} catch(NoSuchChildVariableException e)
+		{
+			throw new ValueSerializationException(e);
+		}
 	}
 }
