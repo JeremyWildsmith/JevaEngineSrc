@@ -1,3 +1,16 @@
+#This Repository is Deprecated. The engine has been refactored & reorganized. Below is the following repositories now containing JevaEngine.
+- https://github.com/JeremyWildsmith/singleplayer A single player game/demo based off of the engine.
+- https://github.com/JeremyWildsmith/jevaengine JevaEngine core engine implementation.
+- https://github.com/JeremyWildsmith/rpg Rpg game framework that is build over JevaEngine.
+- https://github.com/JeremyWildsmith/usr USR Game System that integrates into the RPG Game Framework.
+- https://github.com/JeremyWildsmith/worldbuilder World builder, for designing game worlds for JevaEngine
+
+The project is being actively developed. Please be patient with bugs. This is a new way of organizing the engine, and it will hopefully allow it to be more easily worked with.
+
+Thanks. Jeremy Wildsmith.
+
+
+
 ![Logo](http://i.imgur.com/RM2ndqI.jpg)
 
 JevaEngine - Java Isometric Game Engine
